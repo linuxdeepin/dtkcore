@@ -5,6 +5,11 @@ includes.files += \
     $$PWD/base/DObject \
     $$PWD/base/DSingleton
 
+includes.files += $$PWD/log/*.h
+includes.files += $$PWD/log/*.cpp
+includes.files += \
+    $$PWD/log/DLog
+
 INSTALLS += includes target
 
 
