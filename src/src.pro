@@ -1,7 +1,7 @@
 include($$PWD/lib.pri)
-include($$PWD/install.pri)
 
 QT -= gui
+QT += dbus
 
 TARGET = dtkcore
 
@@ -13,5 +13,9 @@ INCLUDEPATH += $$PWD
 HEADERS += \
     $$PWD/dtkcore_global.h \
 
-include($$PWD/base/dbase.pri)
+include($$PWD/base/base.pri)
 include($$PWD/log/log.pri)
+include($$PWD/filesystem/filesystem.pri)
+
+include($$PWD/install.pri)
+
