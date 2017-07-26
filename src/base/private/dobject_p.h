@@ -11,10 +11,10 @@
 #define DOBJECT_P_H
 
 #include "dtkcore_global.h"
-#include "../dobject.h"
 
 DCORE_BEGIN_NAMESPACE
 
+class DObject;
 class DObjectPrivate
 {
 public:

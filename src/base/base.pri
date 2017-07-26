@@ -8,6 +8,8 @@ SOURCES += \
     $$PWD/dobject.cpp
 
 includes.files += $$PWD/*.h
+includes.files += $$PWD/private/*.h
 includes.files += \
     $$PWD/DObject \
+    $$PWD/DObjectPrivate \
     $$PWD/DSingleton

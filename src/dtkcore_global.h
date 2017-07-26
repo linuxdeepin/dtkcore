@@ -24,7 +24,7 @@
 #else
 #   define DCORE_BEGIN_NAMESPACE namespace DTK_NAMESPACE { namespace DCORE_NAMESPACE {
 #   define DCORE_END_NAMESPACE }}
-#   define DCORE_USE_NAMESPACE using namespace DCORE_NAMESPACE;
+#   define DCORE_USE_NAMESPACE using namespace DTK_CORE_NAMESPACE;
 #endif
 
 

@@ -13,6 +13,7 @@ HEADERS += \
     $$PWD/dtkcore_global.h \
 
 include($$PWD/base/base.pri)
+include($$PWD/util/util.pri)
 include($$PWD/log/log.pri)
 include($$PWD/filesystem/filesystem.pri)
 include($$PWD/settings/settings.pri)
