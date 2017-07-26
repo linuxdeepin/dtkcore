@@ -28,7 +28,6 @@ linux {
 }
 
 includes.files += $$PWD/*.h
-includes.files += $$PWD/*.cpp
 includes.files += \
     $$PWD/DFileWatcher \
     $$PWD/DBaseFileWatcher \
