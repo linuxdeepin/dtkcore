@@ -37,13 +37,3 @@
 #  define LIBDTKCORESHARED_EXPORT Q_DECL_IMPORT
 #endif
 #endif
-
-//! Dtk contains deepin tool kit
-namespace Dtk
-{
-namespace Core
-{
-
-}
-}
-

@@ -1,3 +1,9 @@
+dtkcore (0.3.3-1) unstable; urgency=low
+
+  * Release 0.3.3
+
+ -- Iceyer <iceyer@iceyer-PC>  Wed, 26 Jul 2017 21:34:13 +0800
+
 dtkcore (0.1.1-0) unstable; urgency=low
 
   * Initial release.

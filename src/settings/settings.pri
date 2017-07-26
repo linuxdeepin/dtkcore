@@ -17,4 +17,5 @@ includes.files += $${PWD}/*.h
 includes.files += $${PWD}/backend/*.h
 includes.files += \
     $${PWD}/DSettings \
-    $${PWD}/DOption
+    $${PWD}/DSettingsGroup \
+    $${PWD}/DSettingsOption
