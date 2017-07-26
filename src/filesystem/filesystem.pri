@@ -14,9 +14,6 @@ SOURCES += \
 
 
 linux {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += gsettings-qt
-
     SOURCES += \
         $$PWD/dfilesystemwatcher_linux.cpp
 } else:win* {
