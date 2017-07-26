@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
+export QT_SELECT = qt5
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+%:
+	dh $@ --parallel
+
+override_dh_auto_configure:
+	dh_auto_configure -- LIB_INSTALL_DIR=/usr/lib/$(DEB_HOST_MULTIARCH)
+
+override_dh_makeshlibs:
+	dh_makeshlibs -V
