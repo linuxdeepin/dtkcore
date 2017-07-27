@@ -1,3 +1,4 @@
 usr/lib/*/lib*.so
 usr/include
 usr/lib/*/pkgconfig/*.pc
+usr/bin/dtk-settings-tool
