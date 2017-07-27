@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: deepin-tool-kit
-Source: https://github.com/linuxdeepin/deepin-tool-kit
+Upstream-Name: dtkcore
+Source: https://github.com/linuxdeepin/dtkcore
 
 Files: *
 Copyright: Deepin Technology Co., Ltd.

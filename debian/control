@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 9), qt5-default, pkg-config,
  qttools5-dev-tools, qtbase5-private-dev
 Standards-Version: 3.9.6
 
-Package: libdtkcore
+Package: libdtkcore1
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: libdtkbase, libdtkutil, libdtksettings
@@ -18,7 +18,7 @@ Description: Deepin Tool Kit Core library
 
 Package: libdtkcore-dev
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libdtkcore( =${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, libdtkcore1( =${binary:Version})
 Conflicts: libdtkbase-dev, libdtkutil-dev, libdtksettings-dev
 Description: Deepin Tool Kit Core Devel library
  DtkCore is base devel library of Deepin Qt/C++ applications.
