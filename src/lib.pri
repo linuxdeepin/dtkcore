@@ -1,5 +1,5 @@
 TEMPLATE = lib
-VERSION = 1.2
+VERSION = 2.0
 
 CONFIG += c++11 create_pc create_prl no_install_prl
 CONFIG += no_keywords
