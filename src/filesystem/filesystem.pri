@@ -5,12 +5,14 @@ HEADERS += \
     $$PWD/dfilesystemwatcher.h \
     $$PWD/dfilewatcher.h \
     $$PWD/dfilewatchermanager.h \
-    $$PWD/dpathbuf.h
+    $$PWD/dpathbuf.h \
+    $$PWD/dstandardpaths.h
 
 SOURCES += \
     $$PWD/dbasefilewatcher.cpp \
     $$PWD/dfilewatcher.cpp \
-    $$PWD/dfilewatchermanager.cpp
+    $$PWD/dfilewatchermanager.cpp \
+    $$PWD/dstandardpaths.cpp
 
 
 linux {
@@ -30,4 +32,5 @@ includes.files += \
     $$PWD/DBaseFileWatcher \
     $$PWD/DFileSystemWatcher \
     $$PWD/DFileWatcherManager \
-    $$PWD/DPathBuf
+    $$PWD/DPathBuf \
+    $$PWD/DStandardPaths
