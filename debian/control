@@ -18,7 +18,6 @@ Description: Deepin Tool Kit Core library
 Package: libdtkcore-dev
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libdtkcore2( =${binary:Version})
-Conflicts: libdtkbase-dev, libdtkutil-dev, libdtksettings-dev
 Description: Deepin Tool Kit Core Devel library
  DtkCore is base devel library of Deepin Qt/C++ applications.
  .
