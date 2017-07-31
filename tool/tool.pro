@@ -16,7 +16,7 @@ isEmpty(PREFIX){
 }
 
 binary.files += $${OUT_PWD}/dtk-settings-tool
-binary.path = $${PREFIX}/bin
+binary.path = $${PREFIX}/lib/dtk2
 
 INSTALLS += binary
 
