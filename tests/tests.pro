@@ -19,3 +19,4 @@ else:unix: LIBS += -L$$OUT_PWD/../src/ -ldtkcore
 
 INCLUDEPATH += $$PWD/../src
 DEPENDPATH += $$PWD/../src
+QMAKE_RPATHDIR += $$PWD/../src
