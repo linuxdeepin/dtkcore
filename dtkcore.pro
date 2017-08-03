@@ -4,4 +4,5 @@ CONFIG = ordered
 
 SUBDIRS +=   \
     src \
-    tool
+    tool \
+    tests
