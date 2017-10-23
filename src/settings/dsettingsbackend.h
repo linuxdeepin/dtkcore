@@ -24,6 +24,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
+class DSettings;
 class DSettingsBackend : public QObject
 {
     Q_OBJECT
@@ -44,9 +45,12 @@ protected:
     virtual void doSetOption(const QString &key, const QVariant &value) = 0;
 
 Q_SIGNALS:
+    void optionChanged(const QString &key, const QVariant &value);
+
+    // private signals;
+Q_SIGNALS:
     void sync();
     void setOption(const QString &key, const QVariant &value);
-    void optionChanged(const QString &key, const QVariant &value);
 };
 
 DCORE_END_NAMESPACE

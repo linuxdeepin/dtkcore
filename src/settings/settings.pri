@@ -4,14 +4,16 @@ SOURCES += \
     $$PWD/backend/qsettingbackend.cpp \
     $$PWD/dsettings.cpp \
     $$PWD/dsettingsoption.cpp \
-    $$PWD/dsettingsgroup.cpp
+    $$PWD/dsettingsgroup.cpp \
+    $$PWD/backend/gsettingsbackend.cpp
 
 HEADERS +=\
     $$PWD/backend/qsettingbackend.h \
     $$PWD/dsettings.h \
     $$PWD/dsettingsoption.h \
     $$PWD/dsettingsgroup.h \
-    $$PWD/dsettingsbackend.h
+    $$PWD/dsettingsbackend.h \
+    $$PWD/backend/gsettingsbackend.h
 
 includes.files += $${PWD}/*.h
 includes.files += $${PWD}/backend/*.h

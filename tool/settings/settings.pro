@@ -1,4 +1,4 @@
-QT += core
+QT += core xml
 QT -= gui
 
 CONFIG += c++11
@@ -6,6 +6,7 @@ CONFIG += c++11
 TARGET = dtk-settings-tool
 CONFIG += console link_pkgconfig
 CONFIG -= app_bundle
+PKGCONFIG += gsettings-qt
 
 TEMPLATE = app
 

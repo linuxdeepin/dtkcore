@@ -29,8 +29,6 @@
 #include "dsettingsgroup.h"
 #include "dsettingsbackend.h"
 
-#include "backend/qsettingbackend.h"
-
 DCORE_BEGIN_NAMESPACE
 
 class DSettingsPrivate
@@ -38,7 +36,8 @@ class DSettingsPrivate
 public:
     DSettingsPrivate(DSettings *parent) : q_ptr(parent) {}
 
-    DSettingsBackend                     *backend = nullptr;
+    DSettingsBackend            *backend = nullptr;
+    QJsonObject                 meta;
     QMap <QString, OptionPtr>   options;
 
     QMap<QString, GroupPtr>     childGroups;
@@ -71,8 +70,14 @@ void DSettings::setBackend(DSettingsBackend *backend)
     }
 
     d->backend = backend;
+
+
     auto backendWriteThread = new QThread;
     d->backend->moveToThread(backendWriteThread);
+
+    connect(d->backend, &DSettingsBackend::optionChanged,
+            this, &DSettings::valueChanged);
+
     backendWriteThread->start();
 
     // load form backend
@@ -94,6 +99,12 @@ QPointer<DSettings> DSettings::fromJsonFile(const QString &filepath)
     jsonFile.close();
 
     return DSettings::fromJson(jsonData);
+}
+
+QJsonObject DSettings::meta() const
+{
+    Q_D(const DSettings);
+    return d->meta;
 }
 
 QStringList DSettings::keys() const
@@ -150,8 +161,6 @@ QVariant DSettings::getOption(const QString &key) const
 
 void DSettings::setOption(const QString &key, const QVariant &value)
 {
-//    Q_D(Settings);
-//    qDebug() << "set" << key << value;
     option(key)->setValue(value);
 }
 
@@ -178,11 +187,11 @@ void DSettings::parseJson(const QByteArray &json)
     Q_D(DSettings);
 
     auto jsonDoc = QJsonDocument::fromJson(json);
-    auto mainGroups = jsonDoc.object().value("groups");
+    d->meta = jsonDoc.object();
+    auto mainGroups = d->meta.value("groups");
     for (auto groupJson : mainGroups.toArray()) {
         auto group = DSettingsGroup::fromJson("", groupJson.toObject());
         for (auto option : group->options()) {
-//            qDebug() << "add option" << option->key();
             d->options.insert(option->key(), option);
         }
         d->childGroupKeys << group->key();
@@ -191,12 +200,9 @@ void DSettings::parseJson(const QByteArray &json)
 
     for (auto option :  d->options.values()) {
         d->options.insert(option->key(), option);
-
         connect(option.data(), &DSettingsOption::valueChanged,
         this, [ = ](QVariant value) {
             Q_EMIT d->backend->setOption(option->key(), value);
-//            Q_EMIT d->backend->sync();
-            Q_EMIT valueChanged(option->key(), value);
         });
     }
 }
@@ -205,9 +211,7 @@ void DSettings::loadValue()
 {
     Q_D(DSettings);
 
-//    qDebug() << d->backend;
     for (auto key : d->backend->keys()) {
-        //qDebug() << "load value for key" << key;
         auto value = d->backend->getOption(key);
         auto opt = option(key);
         if (!value.isValid() || opt.isNull()) {

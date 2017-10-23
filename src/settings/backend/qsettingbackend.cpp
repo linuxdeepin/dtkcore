@@ -69,7 +69,11 @@ void QSettingBackend::doSetOption(const QString &key, const QVariant &value)
     Q_D(QSettingBackend);
     d->writeLock.lock();
     d->settings->beginGroup(key);
-    d->settings->setValue("value", value);
+    auto oldValue = d->settings->value("value");
+    if (oldValue != value) {
+        d->settings->setValue("value", value);
+        Q_EMIT optionChanged(key, value);
+    }
     d->settings->endGroup();
     d->settings->sync();
     d->writeLock.unlock();
@@ -80,5 +84,6 @@ void QSettingBackend::doSync()
     Q_D(QSettingBackend);
     d->settings->sync();
 }
+
 
 DCORE_END_NAMESPACE

@@ -40,6 +40,7 @@ public:
 
     static QPointer<DSettings> fromJson(const QByteArray &json);
     static QPointer<DSettings> fromJsonFile(const QString &filepath);
+    QJsonObject meta() const;
 
     QStringList keys() const;
     QList<QPointer<DSettingsOption>> options() const;

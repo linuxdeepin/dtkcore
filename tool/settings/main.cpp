@@ -27,6 +27,11 @@
 #include "settings/dsettingsgroup.h"
 #include "settings/dsettingsoption.h"
 
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+
+#include <QDomDocument>
 
 static QString CppTemplate =
     "#include <DSettings>\n"
@@ -35,6 +40,140 @@ static QString CppTemplate =
     "{\n"
     "%1"
     "}\n";
+
+/*
+ *  GVariant Type Name/Code      C++ Type Name          QVariant Type Name
+ *  --------------------------------------------------------------------------
+ *  boolean            b         bool                   QVariant::Bool
+ *  byte               y         char                   QVariant::Char
+ *  int16              n         int                    QVariant::Int
+ *  uint16             q         unsigned int           QVariant::UInt
+ *  int32              i         int                    QVariant::Int
+ *  uint32             u         unsigned int           QVariant::UInt
+ *  int64              x         long long              QVariant::LongLong
+ *  uint64             t         unsigned long long     QVariant::ULongLong
+ *  double             d         double                 QVariant::Double
+ *  string             s         QString                QVariant::String
+ *  string array*      as        QStringList            QVariant::StringList
+ *  byte array         ay        QByteArray             QVariant::ByteArray
+ *  dictionary         a{ss}     QVariantMap            QVariant::Map
+*/
+
+QString gsettings_type_from_QVarint(const QVariant::Type qtype)
+{
+    switch (qtype) {
+    case QVariant::Bool:
+        return "b";
+    case QVariant::Int:
+        return "i";
+    case QVariant::UInt:
+        return "u";
+    case QVariant::LongLong:
+        return "x";
+    case QVariant::ULongLong:
+        return "t";
+    case QVariant::Double:
+        return "d";
+    case QVariant::String:
+        return "s";
+    case QVariant::StringList:
+        return "as";
+    case QVariant::ByteArray:
+        return "ay";
+    case QVariant::Map:
+        return "a{ss}";
+    default:
+        return "";
+    }
+}
+
+QString gsettings_value_from_QVarint(const QVariant value)
+{
+    switch (value.type()) {
+    case QVariant::Bool:
+        return value.toString();
+    case QVariant::Int:
+        return value.toString();
+    case QVariant::UInt:
+        return value.toString();
+    case QVariant::LongLong:
+        return value.toString();
+    case QVariant::ULongLong:
+        return value.toString();
+    case QVariant::Double:
+        return value.toString();
+    case QVariant::String:
+        return QString("\"%1\"").arg(value.toString());
+    case QVariant::StringList:
+        return value.toString();
+    case QVariant::ByteArray:
+        return value.toString();
+    case QVariant::Map:
+        return value.toString();
+    default:
+        return "";
+    }
+}
+
+
+QJsonObject parseGSettingsMeta(const QString &jsonPath)
+{
+    QFile jsonFile(jsonPath);
+    jsonFile.open(QIODevice::ReadOnly);
+    auto jsonData = jsonFile.readAll();
+    jsonFile.close();
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+    return jsonDoc.object().value("gsettings").toObject();
+}
+
+static bool writeGSettingXML(Dtk::Core::DSettings *settings,
+                             QJsonObject gsettingsMeta,
+                             const QString &xmlPath)
+{
+    QDomDocument document;
+
+    QDomProcessingInstruction header = document.createProcessingInstruction("xml",
+                                       "version=\"1.0\" encoding=\"utf-8\"");
+    document.appendChild(header);
+
+    QDomElement schemalist = document.createElement("schemalist");
+
+    auto id = gsettingsMeta.value("id").toString();
+    auto path = gsettingsMeta.value("path").toString();
+    QDomElement schema = document.createElement("schema");
+    schema.setAttribute("id", id);
+    schema.setAttribute("path", path);
+
+    for (QString key : settings->keys()) {
+        auto codeKey = QString(key).replace(".", "-").replace("_", "-");
+        auto value = settings->option(key)->value();
+        QDomElement keyXml = document.createElement("key");
+        keyXml.setAttribute("dsetting-key", key);
+        keyXml.setAttribute("name", codeKey);
+        keyXml.setAttribute("type", gsettings_type_from_QVarint(value.type()));
+
+        QString defaultData = gsettings_value_from_QVarint(value);
+        QDomElement defaultEle = document.createElement("default");
+        QDomCharacterData data = document.createTextNode(defaultData);
+        defaultEle.appendChild(data);
+        keyXml.appendChild(defaultEle);
+
+        schema.appendChild(keyXml);
+    }
+
+    schemalist.appendChild(schema);
+    document.appendChild(schemalist);
+
+    QFile file(xmlPath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+    QTextStream stream(&file);
+    stream << document.toString();
+    file.close();
+    return true;
+}
 
 int main(int argc, char *argv[])
 {
@@ -48,9 +187,14 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
 
+    QCommandLineOption gsettingsArg(QStringList() << "g" << "gsettings",
+                                    QCoreApplication::tr("generate gsetting schema"),
+                                    "xml-file");
+
     QCommandLineOption outputFileArg(QStringList() << "o" << "output",
                                      QCoreApplication::tr("Output cpp file"),
                                      "cpp-file");
+    parser.addOption(gsettingsArg);
     parser.addOption(outputFileArg);
     parser.addPositionalArgument("json-file", QCoreApplication::tr("Json file description config"));
     parser.process(app);
@@ -116,9 +260,9 @@ int main(int argc, char *argv[])
         cppCode.append(stringCode);
     }
 
-    QString outputCpp = CppTemplate.arg(cppCode);
 
     if (parser.isSet(outputFileArg)) {
+        QString outputCpp = CppTemplate.arg(cppCode);
         QFile outputFile(parser.value(outputFileArg));
         if (!outputFile.open(QIODevice::WriteOnly)) {
             qCritical() << "can not open output file!";
@@ -126,9 +270,13 @@ int main(int argc, char *argv[])
         }
         outputFile.write(outputCpp.toUtf8());
         outputFile.close();
-    } else {
-        std::cout << outputCpp.toStdString();
     }
+
+    if (parser.isSet(gsettingsArg)) {
+        QString outputXml = parser.value(gsettingsArg);
+        writeGSettingXML(settings, parseGSettingsMeta(jsonFile), outputXml);
+    }
+
     return 0;
 }
 
