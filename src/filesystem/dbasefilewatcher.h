@@ -19,7 +19,7 @@
 #define DBASEFILEWATCHER_H
 
 #include "dtkcore_global.h"
-#include "base/dobject.h"
+#include "dobject.h"
 
 #include <QObject>
 

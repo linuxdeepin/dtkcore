@@ -9,7 +9,7 @@ TARGET = dtkcore
 
 DEFINES += LIBDTKCORE_LIBRARY
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD $$PWD/base
 
 HEADERS += \
     $$PWD/dtkcore_global.h \
