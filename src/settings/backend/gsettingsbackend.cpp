@@ -1,6 +1,6 @@
 #include "gsettingsbackend.h"
 
-#include <QDebug>
+//#include <QDebug>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -38,7 +38,7 @@ class GSettingsBackendPrivate
 public:
     GSettingsBackendPrivate(GSettingsBackend *parent) : q_ptr(parent) {}
 
-    QGSettings *settings;
+    QGSettings *gsettings;
     QMap<QString, QString> keyMap;
 
     GSettingsBackend *q_ptr;
@@ -60,11 +60,12 @@ GSettingsBackend::GSettingsBackend(DSettings *settings, QObject *parent) :
         d->keyMap.insert(gsettingsKey, key);
     }
 
-    d->settings = new QGSettings(id.toUtf8(), path.toUtf8(), this);
+    d->gsettings = new QGSettings(id.toUtf8(), path.toUtf8(), this);
 
-    connect(d->settings, &QGSettings::changed, this, [ = ](const QString & key) {
+    connect(d->gsettings, &QGSettings::changed, this, [ = ](const QString & key) {
         auto dk = d->keyMap.value(unqtifyName(key));
-        Q_EMIT optionChanged(dk, d->settings->get(key));
+//        qDebug() << "gsetting change" << key << d->gsettings->get(key);
+        Q_EMIT optionChanged(dk, d->gsettings->get(key));
     });
 
 }
@@ -77,20 +78,22 @@ GSettingsBackend::~GSettingsBackend()
 QStringList GSettingsBackend::keys() const
 {
     Q_D(const GSettingsBackend);
-    return d->settings->keys();
+    return d->gsettings->keys();
 }
 
 QVariant GSettingsBackend::getOption(const QString &key) const
 {
     Q_D(const GSettingsBackend);
-    return d->settings->get(qtifyName(key));
+    return d->gsettings->get(qtifyName(key));
 }
 
 void GSettingsBackend::doSetOption(const QString &key, const QVariant &value)
 {
     Q_D(GSettingsBackend);
-    d->settings->set(qtifyName(key), value);
-    Q_EMIT setOption(key, value);
+    if (value != d->gsettings->get(qtifyName(key))) {
+//        qDebug() << "doSetOption" << key << d->gsettings->get(qtifyName(key));
+        d->gsettings->set(qtifyName(key), value);
+    }
 }
 
 void GSettingsBackend::doSync()

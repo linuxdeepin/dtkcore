@@ -76,7 +76,9 @@ void DSettings::setBackend(DSettingsBackend *backend)
     d->backend->moveToThread(backendWriteThread);
 
     connect(d->backend, &DSettingsBackend::optionChanged,
-            this, &DSettings::valueChanged);
+    this, [ = ](const QString & key, const QVariant & value) {
+        option(key)->setValue(value);
+    });
 
     backendWriteThread->start();
 
@@ -203,6 +205,7 @@ void DSettings::parseJson(const QByteArray &json)
         connect(option.data(), &DSettingsOption::valueChanged,
         this, [ = ](QVariant value) {
             Q_EMIT d->backend->setOption(option->key(), value);
+            Q_EMIT valueChanged(option->key(), value);
         });
     }
 }

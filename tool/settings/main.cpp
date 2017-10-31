@@ -148,10 +148,15 @@ static bool writeGSettingXML(Dtk::Core::DSettings *settings,
     for (QString key : settings->keys()) {
         auto codeKey = QString(key).replace(".", "-").replace("_", "-");
         auto value = settings->option(key)->value();
+        auto gtype = gsettings_type_from_QVarint(value.type());
+        if (gtype.isEmpty()) {
+            qDebug() << "skip unsupport type:" << value.type() << key;
+            continue;
+        }
+
         QDomElement keyXml = document.createElement("key");
-        keyXml.setAttribute("dsetting-key", key);
         keyXml.setAttribute("name", codeKey);
-        keyXml.setAttribute("type", gsettings_type_from_QVarint(value.type()));
+        keyXml.setAttribute("type", gtype);
 
         QString defaultData = gsettings_value_from_QVarint(value);
         QDomElement defaultEle = document.createElement("default");
