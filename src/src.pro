@@ -3,7 +3,6 @@ include($$PWD/lib.pri)
 QT -= gui
 QT += dbus
 CONFIG += link_pkgconfig
-PKGCONFIG += gsettings-qt
 
 TARGET = dtkcore
 

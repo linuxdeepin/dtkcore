@@ -1,5 +1,7 @@
 include($$PWD/private/private.pri)
 
+INCLUDEPATH += $$PWD/../base
+
 HEADERS += \
     $$PWD/dbasefilewatcher.h \
     $$PWD/dfilesystemwatcher.h \

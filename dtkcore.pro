@@ -4,5 +4,8 @@ CONFIG += ordered
 
 SUBDIRS +=   \
     src \
-    tool \
     tests
+
+linux {
+SUBDIRS += tool
+}

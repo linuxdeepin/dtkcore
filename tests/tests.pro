@@ -3,7 +3,6 @@ QT += testlib
 QT -= gui
 CONFIG += testcase c++11 link_pkgconfig
 TARGET = tests
-PKGCONFIG += gsettings-qt
 
 SOURCES += \
     main.cpp \
