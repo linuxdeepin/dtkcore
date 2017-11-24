@@ -1,8 +1,8 @@
-TEMPLATE = app
 QT += testlib
 QT -= gui
-CONFIG += testcase c++11 link_pkgconfig
-TARGET = tests
+
+TEMPLATE = app
+CONFIG += c++11
 
 SOURCES += \
     main.cpp \
