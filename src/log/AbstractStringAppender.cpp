@@ -70,7 +70,7 @@ QString AbstractStringAppender::format() const
 
 //! Sets the logging format for writing strings to the log target with this appender.
 /**
- * The string format seems to be very common to those developers who have used a standart sprintf function.
+ * The string format seems to be very common to those developers who have used a standard sprintf function.
  *
  * Log output format is a simple QString with the special markers (starting with % sign) which will be replaced with
  * it's internal meaning when writing a log record.

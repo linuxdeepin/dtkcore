@@ -63,7 +63,7 @@ DCORE_BEGIN_NAMESPACE
  * \brief Writes the trace log record
  *
  * This macro is the convinient way to call Logger::write(). It uses the common preprocessor macros \c __FILE__,
- * \c __LINE__ and the standart Qt \c Q_FUNC_INFO macros to automatically determine the needed parameters to call
+ * \c __LINE__ and the standard Qt \c Q_FUNC_INFO macros to automatically determine the needed parameters to call
  * Logger::write().
  *
  * \note This and other (dInfo() etc...) macros uses the variadic macro arguments to give convinient usage form for
