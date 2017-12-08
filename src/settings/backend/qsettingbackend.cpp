@@ -72,7 +72,6 @@ void QSettingBackend::doSetOption(const QString &key, const QVariant &value)
     auto oldValue = d->settings->value("value");
     if (oldValue != value) {
         d->settings->setValue("value", value);
-        Q_EMIT optionChanged(key, value);
     }
     d->settings->endGroup();
     d->settings->sync();
