@@ -23,9 +23,9 @@ linux {
 } else:win* {
     SOURCES += \
         $$PWD/dfilesystemwatcher_win.cpp
-} else:mac* {
+} else {
     SOURCES += \
-        $$PWD/dfilesystemwatcher_win.cpp
+        $$PWD/dfilesystemwatcher_dummy.cpp
 }
 
 includes.files += $$PWD/*.h
