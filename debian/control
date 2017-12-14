@@ -1,10 +1,10 @@
 Source: dtkcore
-Section: devel
+Section: libdevel
 Priority: optional
-Maintainer: Deepin Sysdev <sysdev@deepin.com>
-Build-Depends: debhelper (>= 9), qt5-default, pkg-config,
+Maintainer: Deepin Packages Builder <packages@deepin.com>
+Build-Depends: debhelper (>= 9), pkg-config,
  qttools5-dev-tools, qtbase5-private-dev, libgsettings-qt-dev
-Standards-Version: 3.9.6
+Standards-Version: 3.9.8
 
 Package: libdtkcore2
 Architecture: any

@@ -1,11 +1,5 @@
-dtkcore (0.3.3-1) unstable; urgency=low
+dtkcore (0.3.3-1) unstable; urgency=medium
 
-  * Release 0.3.3
+  * Initial release 
 
- -- Iceyer <iceyer@iceyer-PC>  Wed, 26 Jul 2017 21:34:13 +0800
-
-dtkcore (0.1.1-0) unstable; urgency=low
-
-  * Initial release.
-
- -- Iceyer <me@iceyer.net>  Wed, 26 Jul 2017 16:57:39 +0800
+ -- Deepin Packages Builder <packages@deepin.com>  Mon, 10 Oct 2016 16:58:07 +0800
