@@ -1,3 +1,18 @@
+<a name="2.0.5.3"></a>
+## 2.0.5.3 (2017-12-27)
+
+
+#### Bug Fixes
+
+*   Adapt lintian ([27df15df](https://github.com/linuxdeepin/dtkcore/commit/27df15df32788002491a24f06f098a5f849a4988))
+*   break forever loop for syncing backend data ([f70e500e](https://github.com/linuxdeepin/dtkcore/commit/f70e500ec2fd5c751e40833bdc4df586614bcff2))
+
+#### Features
+
+* **util:**  add dpinyin ([128d7d67](https://github.com/linuxdeepin/dtkcore/commit/128d7d678e921bc580dd732b14a454973397899c))
+
+
+
 <a name="2.0.5.2"></a>
 ## 2.0.5.2 (2017-11-28)
 
