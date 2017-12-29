@@ -25,7 +25,15 @@ include($$PWD/settings/settings.pri)
 includes.files += $$PWD/*.h
 includes.path = $${DTK_INCLUDEPATH}/DCore
 
-INSTALLS += includes target
+# CMake configure
+INC_DIR = $$replace(includes.path, "/", "\/")
+CMD = sed -i -E \'s/INCLUDE_INSTALLED_DIR \".*\"\\)$/INCLUDE_INSTALLED_DIR \"$${INC_DIR}\"\\)/\' ../cmake/DtkCore/DtkCoreConfig.cmake
+system($$CMD)
+
+cmake_config.path = $$LIB_INSTALL_DIR
+cmake_config.files = $$PWD/../cmake
+
+INSTALLS += includes target cmake_config
 
 QMAKE_PKGCONFIG_LIBDIR = $$target.path
 QMAKE_PKGCONFIG_VERSION = $$VERSION
