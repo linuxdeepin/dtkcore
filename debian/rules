@@ -3,8 +3,14 @@ DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/default.mk
 export QT_SELECT = qt5
 
-VERSION ?= $(shell if [ ! -f .git/config ];then dpkg-parsechangelog -ldebian/changelog -SVersion | awk -F'-' '{print $$1}'; fi)
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+export _VER=$(shell if [ ! -f .git/config ];then dpkg-parsechangelog -ldebian/changelog -SVersion | awk -F'-' '{print $$1}'; fi)
+export _MAJ_VER=$(shell echo $$_VER|awk '{split($$0,vs,"."); if (length(vs[1]) == 0) print 0; else  print int(vs[1]);}')
+export _MIN_VER=$(shell echo $$_VER|awk '{split($$0,vs,"."); if (length(vs[2]) == 0) print 0; else  print int(vs[2]);}')
+export _PAT_VER=$(shell echo $$_VER|awk '{split($$0,vs,"."); if (length(vs[3]) == 0) print 0; else  print int(vs[3]);}')
+export _BUILD_VER=$(shell echo $$_VER|awk '{split($$0,vs,"."); if (length(vs[4]) != 0) print vs[4]; else { split(vs[3], pvs,"+r"); if (length(pvs[2]) != 0) print int(pvs[2]); else print 0;}}')
+VERSION ?= $(shell echo $$_VER|awk '{ if (length($$0)!=0) printf "%s.%s.%s.%s",${_MAJ_VER},${_MIN_VER},${_PAT_VER},${_BUILD_VER}; else printf ""; }')
 
 %:
 	dh $@ --parallel
