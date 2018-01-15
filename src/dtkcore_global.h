@@ -19,6 +19,8 @@
 
 #include <QtCore/qglobal.h>
 
+#include <dtkcore_config.h>
+
 #define DTK_NAMESPACE Dtk
 
 #if !defined(DTK_NAMESPACE)
@@ -62,3 +64,6 @@
 #define D_DECL_DEPRECATED Q_DECL_DEPRECATED
 #define D_DECL_DEPRECATED_X Q_DECL_DEPRECATED_X
 #endif
+
+#define DTK_VERSION_CHECK(major, minor, patch, build) ((major<<24)|(minor<<16)|(patch<<8)|build)
+#define DTK_VERSION DTK_VERSION_CHECK(DTK_VERSION_MAJOR, DTK_VERSION_MINOR, DTK_VERSION_PATCH, DTK_VERSION_BUILD)
