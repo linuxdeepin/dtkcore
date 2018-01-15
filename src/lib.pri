@@ -2,9 +2,9 @@ TEMPLATE = lib
 
 isEmpty(VERSION) {
     VERSION = $$system(git describe --tags --abbrev=0)
+    isEmpty(VERSION):VERSION = $$DTK_VERSION
     isEmpty(VERSION):error(VERSION is empty)
     VERSION = $$replace(VERSION, [^0-9.],)
-    message(Version \"$$VERSION\" from git)
 }
 
 isEmpty(VER_MAJ) {
