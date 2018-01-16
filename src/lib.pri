@@ -31,9 +31,9 @@ win32* {
 pri_dev.files += $$PWD/version.pri
 
 isEmpty(LIB_INSTALL_DIR) {
-    pri_dev.path = $$PREFIX/lib/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}/modules
+    pri_dev.path = $$PREFIX/lib/libdtk/modules
 } else {
-    pri_dev.path = $$LIB_INSTALL_DIR/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}/modules
+    pri_dev.path = $$LIB_INSTALL_DIR/libdtk/modules
 }
 
 INSTALLS += pri_dev
