@@ -15,26 +15,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DUTILTESTER_H
-#define DUTILTESTER_H
+#ifndef DISKSIZEFORMATTER_H
+#define DISKSIZEFORMATTER_H
 
-#include <QObject>
+#include "dabstractunitformatter.h"
 
-class TestDUtil: public QObject
+DCORE_BEGIN_NAMESPACE
+
+class DDiskSizeFormatter : public DAbstractUnitFormatter
 {
-    Q_OBJECT
 public:
-    TestDUtil();
+    DDiskSizeFormatter();
 
-private Q_SLOTS:
-    void testLogPath();
-    void testPathChange();
-    void testDSingleton();
-    void testTimeFormatter();
-    void testTimeFormatterList();
-    void testDiskFormatter();
-    void testDiskFormatterList();
-    void testDiskFormatter1024();
+    enum DiskUnits
+    {
+        B,
+        K,
+        M,
+        G,
+        T,
+    };
+
+    QString unitStr(int unitId) const override;
+
+    DDiskSizeFormatter rate(int rate);
+
+protected:
+    int unitMin() const override { return B; }
+    int unitMax() const override { return T; }
+    uint unitConvertRate(int unitId) const override { Q_UNUSED(unitId); return m_rate; }
+
+private:
+    int m_rate = 1000;
 };
 
-#endif // DUTILTESTER_H
+DCORE_END_NAMESPACE
+
+#endif // DISKSIZEFORMATTER_H

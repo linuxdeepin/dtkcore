@@ -15,26 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DUTILTESTER_H
-#define DUTILTESTER_H
+#ifndef DTIMEUNITFORMATTER_H
+#define DTIMEUNITFORMATTER_H
 
-#include <QObject>
+#include "dabstractunitformatter.h"
 
-class TestDUtil: public QObject
+DCORE_BEGIN_NAMESPACE
+
+class DTimeUnitFormatter : public DAbstractUnitFormatter
 {
-    Q_OBJECT
 public:
-    TestDUtil();
+    DTimeUnitFormatter();
 
-private Q_SLOTS:
-    void testLogPath();
-    void testPathChange();
-    void testDSingleton();
-    void testTimeFormatter();
-    void testTimeFormatterList();
-    void testDiskFormatter();
-    void testDiskFormatterList();
-    void testDiskFormatter1024();
+    enum TimeUnits
+    {
+        Seconds,
+        Minute,
+        Hour,
+        Day,
+    };
+
+    QString unitStr(int unitId) const override;
+
+protected:
+    int unitMax() const override { return Day; }
+    int unitMin() const override { return Seconds; }
+    uint unitConvertRate(int unitId) const override;
 };
 
-#endif // DUTILTESTER_H
+DCORE_END_NAMESPACE
+
+#endif // DTIMEUNITFORMATTER_H

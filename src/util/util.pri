@@ -1,6 +1,9 @@
 HEADERS += \
     $$PWD/dutil.h \
-    $$PWD/dpinyin.h
+    $$PWD/dpinyin.h \
+    $$PWD/dtimeunitformatter.h \
+    $$PWD/dabstractunitformatter.h \
+    $$PWD/ddisksizeformatter.h
 
 includes.files += $$PWD/*.h
 includes.files += \
@@ -9,3 +12,8 @@ includes.files += \
 
 RESOURCES += \
     $$PWD/util.qrc
+
+SOURCES += \
+    $$PWD/dtimeunitformatter.cpp \
+    $$PWD/dabstractunitformatter.cpp \
+    $$PWD/ddisksizeformatter.cpp
