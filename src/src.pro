@@ -1,5 +1,3 @@
-include($$PWD/lib.pri)
-
 QT -= gui
 QT += dbus
 CONFIG += link_pkgconfig
@@ -13,6 +11,7 @@ INCLUDEPATH += $$PWD $$PWD/base
 HEADERS += \
     $$PWD/dtkcore_global.h
 
+include($$PWD/lib.pri)
 include($$PWD/base/base.pri)
 include($$PWD/util/util.pri)
 include($$PWD/log/log.pri)

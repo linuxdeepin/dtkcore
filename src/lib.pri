@@ -1,32 +1,6 @@
 TEMPLATE = lib
 
-isEmpty(VERSION) {
-    VERSION = $$system(git describe --tags --abbrev=0)
-    isEmpty(VERSION):VERSION = $$DTK_VERSION
-    isEmpty(VERSION):error(VERSION is empty)
-    VERSION = $$replace(VERSION, [^0-9.],)
-}
-
-ver_list = $$split(VERSION, .)
-
-isEmpty(VER_MAJ) {
-    VER_MAJ = $$first(ver_list)
-}
-
-isEmpty(VER_MIN) {
-    VER_MIN = $$member(ver_list, 1, 1)
-    isEmpty(VER_MIN):VER_MIN = 0
-}
-
-isEmpty(VER_PAT) {
-    VER_PAT = $$member(ver_list, 2, 2)
-    isEmpty(VER_PAT):VER_PAT = 0
-}
-
-isEmpty(VER_BUI) {
-    VER_BUI = $$member(ver_list, 3, 3)
-    isEmpty(VER_BUI):VER_BUI = 0
-}
+include($$PWD/version.pri)
 
 CONFIG += c++11 create_pc create_prl no_install_prl
 CONFIG += no_keywords
@@ -53,3 +27,13 @@ win32* {
     DEFINES += STATIC_LIB
     CONFIG += staticlib
 }
+
+pri_dev.files += $$PWD/version.pri
+
+isEmpty(LIB_INSTALL_DIR) {
+    pri_dev.path = $$PREFIX/lib/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}/modules
+} else {
+    pri_dev.path = $$LIB_INSTALL_DIR/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}/modules
+}
+
+INSTALLS += pri_dev
