@@ -6,6 +6,4 @@ SUBDIRS +=   \
     src \
     tests
 
-linux {
-SUBDIRS += tool
-}
+!mac:!win*: SUBDIRS += tool
