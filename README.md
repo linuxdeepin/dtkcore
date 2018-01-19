@@ -8,7 +8,7 @@ You shoud read the [Deepin Application Specification](\ref doc/Specification) fi
 
 ### Build dependencies
 
-* qmake >= 5.3
+* Qt >= 5.6
 
 ## Installation
 
