@@ -17,7 +17,7 @@ isEmpty(PREFIX){
 }
 
 binary.files += $${OUT_PWD}/dtk-settings
-binary.path = $${PREFIX}/lib/dtk2/libexec
+binary.path = $${PREFIX}/lib/dtk2
 
 script.files += $${PWD}/../script/*.py
 script.path = $${PREFIX}/lib/dtk2
