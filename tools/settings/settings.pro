@@ -3,7 +3,7 @@ QT -= gui
 
 CONFIG += c++11
 
-TARGET = dtk-settings-tool
+TARGET = dtk-settings
 CONFIG += console link_pkgconfig
 CONFIG -= app_bundle
 PKGCONFIG += gsettings-qt
@@ -16,10 +16,13 @@ isEmpty(PREFIX){
     PREFIX = /usr
 }
 
-binary.files += $${OUT_PWD}/dtk-settings-tool
-binary.path = $${PREFIX}/lib/dtk2
+binary.files += $${OUT_PWD}/dtk-settings
+binary.path = $${PREFIX}/lib/dtk2/libexec
 
-INSTALLS += binary
+script.files += $${PWD}/../script/*.py
+script.path = $${PREFIX}/lib/dtk2
+
+INSTALLS += binary script
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../src/release/ -ldtkcore
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../src/debug/ -ldtkcore
