@@ -48,7 +48,6 @@ public:
 DSettingsOption::DSettingsOption(QObject *parent) :
     QObject(parent), d_ptr(new DSettingsOptionPrivate(this))
 {
-
 }
 
 DSettingsOption::~DSettingsOption()
@@ -95,7 +94,7 @@ QVariant DSettingsOption::defaultValue() const
 QVariant DSettingsOption::value() const
 {
     Q_D(const DSettingsOption);
-    return d->value;
+    return (d->value.isValid() || d->value.isNull()) ? d->defalutValue : d->value;
 }
 
 QVariant DSettingsOption::data(const QString &dataType) const
@@ -135,6 +134,16 @@ void DSettingsOption::setValue(QVariant value)
     Q_EMIT valueChanged(value);
 }
 
+//!
+//! \brief DSettingsOption::setDefault will override default value of json
+//! \param value
+//!
+void DSettingsOption::setDefault(QVariant value)
+{
+    Q_D(DSettingsOption);
+    d->defalutValue = value;
+}
+
 void DSettingsOption::setData(const QString &dataType, QVariant value)
 {
     Q_D(DSettingsOption);
@@ -167,7 +176,6 @@ void DSettingsOptionPrivate::parseJson(const QString &prefixKey, const QJsonObje
     defalutValue = option.value("default").toVariant();
     hidden = !option.contains("hide") ? false : option.value("hide").toBool();
     viewType = option.value("type").toString();
-    value = defalutValue;
 
     QStringList revserdKeys;
     revserdKeys << "key" << "name" << "reset"
