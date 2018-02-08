@@ -56,7 +56,6 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void setValue(QVariant value);
-    void setDefault(QVariant value);
     void setData(const QString &dataType, QVariant value);
 
 private:

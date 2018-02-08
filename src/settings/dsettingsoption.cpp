@@ -138,11 +138,11 @@ void DSettingsOption::setValue(QVariant value)
 //! \brief DSettingsOption::setDefault will override default value of json
 //! \param value
 //!
-void DSettingsOption::setDefault(QVariant value)
-{
-    Q_D(DSettingsOption);
-    d->defalutValue = value;
-}
+// void DSettingsOption::setDefault(QVariant value)
+// {
+//     Q_D(DSettingsOption);
+//     d->defalutValue = value;
+// }
 
 void DSettingsOption::setData(const QString &dataType, QVariant value)
 {
