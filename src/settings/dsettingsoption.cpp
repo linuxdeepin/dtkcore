@@ -94,7 +94,7 @@ QVariant DSettingsOption::defaultValue() const
 QVariant DSettingsOption::value() const
 {
     Q_D(const DSettingsOption);
-    return (d->value.isValid() || d->value.isNull()) ? d->defalutValue : d->value;
+    return (!d->value.isValid() || d->value.isNull()) ? d->defalutValue : d->value;
 }
 
 QVariant DSettingsOption::data(const QString &dataType) const
