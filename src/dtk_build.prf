@@ -63,3 +63,7 @@ isEmpty(INCLUDE_INSTALL_DIR) {
     DTK_INCLUDEPATH = $$INCLUDE_INSTALL_DIR/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 }
 
+!isEmpty(DTK_STATIC_LIB){
+    DEFINES += DTK_STATIC_LIB
+    CONFIG += staticlib
+}

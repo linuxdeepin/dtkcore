@@ -47,7 +47,7 @@
 #endif
 
 
-#if defined(STATIC_LIB)
+#if defined(DTK_STATIC_LIB)
 #  define LIBDTKCORESHARED_EXPORT
 #else
 #if defined(LIBDTKCORE_LIBRARY)

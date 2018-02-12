@@ -4,6 +4,10 @@ QT -= gui
 TEMPLATE = app
 CONFIG += c++11
 
+!isEmpty(DTK_STATIC_LIB){
+    DEFINES += DTK_STATIC_LIB
+}
+
 SOURCES += \
     main.cpp \
     dutiltester.cpp \

@@ -15,14 +15,19 @@ SOURCES += main.cpp
 isEmpty(PREFIX){
     PREFIX = /usr
 }
+isEmpty(BIN_INSTALL_DIR) {
+    BIN_INSTALL_DIR=$${PREFIX}/lib/dtk2
+}
+!isEmpty(DTK_STATIC_LIB){
+    DEFINES += DTK_STATIC_LIB
+}
 
-binary.files += $${OUT_PWD}/dtk-settings
-binary.path = $${PREFIX}/lib/dtk2
+target.path = $${BIN_INSTALL_DIR}
 
 script.files += $${PWD}/../script/*.py
-script.path = $${PREFIX}/lib/dtk2
+script.path = $${BIN_INSTALL_DIR}
 
-INSTALLS += binary script
+INSTALLS += target script
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../src/release/ -ldtkcore
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../src/debug/ -ldtkcore
