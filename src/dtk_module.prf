@@ -1,0 +1,93 @@
+isEmpty(QT_MODULE): error("QT_MODULE must not empty")
+
+MODULE_ID=$$QT_MODULE
+mod_inst_pfx=$$_PRO_FILE_PWD_
+MODULE_PRI = $$mod_inst_pfx/qt_lib_$${MODULE_ID}.pri
+module_libs = $$target.path
+MODULE_INCLUDES = $$includes.path
+
+message("config qt module: $$MODULE_ID")
+message("write $$MODULE_PRI to: $$mod_inst_pfx")
+
+internal_module: \
+    MODULE_DEPENDS = $$replace(QT, -private$, _private)
+else: \
+    MODULE_DEPENDS = $$replace(QT, -private$, )
+MODULE_DEPENDS = $$unique(MODULE_DEPENDS)
+contains(MODULE_DEPENDS, $$MODULE): \
+    error("$$TARGET depends on itself.")
+
+# Create a module .pri file
+module_libs=$$LIB_INSTALL_DIR
+isEmpty(module_libs) {
+host_build: \
+    module_libs = "\$\$QT_MODULE_HOST_LIB_BASE"
+else: \
+    module_libs = "\$\$QT_MODULE_LIB_BASE"
+}
+# In addition to the library's private deps, the private module's deps
+# are logically runtime deps of the public module.
+runtime_deps = $$QT_PRIVATE $$QT_FOR_PRIVATE
+!isEmpty(runtime_deps): \
+    module_rundep = "QT.$${MODULE_ID}.run_depends = $$replace(runtime_deps, -private$, _private)"
+else: \
+    module_rundep =
+module_build_type = v2
+static: \
+    module_build_type += staticlib
+lib_bundle {
+    module_build_type += lib_bundle
+    MODULE_FRAMEWORKS = " \$\$QT_MODULE_LIB_BASE"
+}
+internal_module: \
+    module_build_type += internal_module
+ltcg: \
+    module_build_type += ltcg
+module_module =
+!equals(TEMPLATE, aux) {
+    module_module = $$TARGET$$QT_LIBINFIX
+    !lib_bundle: module_module ~= s,^Qt,Qt$$QT_MAJOR_VERSION,
+}
+!isEmpty(MODULE_CONFIG): \
+    module_config = "QT.$${MODULE_ID}.CONFIG = $$MODULE_CONFIG"
+else: \
+    module_config =
+!isEmpty(MODULE_PLUGIN_TYPES): \
+    module_plugtypes = "QT.$${MODULE_ID}.plugin_types = $$replace(MODULE_PLUGIN_TYPES, /.*$, )"
+else: \
+    module_plugtypes =
+!isEmpty(MODULE_MASTER_HEADER): \
+    module_master = "QT.$${MODULE_ID}.master_header = $$MODULE_MASTER_HEADER"
+else: \
+    module_master =
+
+MODULE_PRI_CONT = \
+    "QT.$${MODULE_ID}.VERSION = $${VERSION}" \
+    "QT.$${MODULE_ID}.MAJOR_VERSION = $$section(VERSION, ., 0, 0)" \
+    "QT.$${MODULE_ID}.MINOR_VERSION = $$section(VERSION, ., 1, 1)" \
+    "QT.$${MODULE_ID}.PATCH_VERSION = $$section(VERSION, ., 2, 2)" \
+    "" \
+    "QT.$${MODULE_ID}.name = $${TARGET}" \
+    "QT.$${MODULE_ID}.module = $$module_module" \
+    "QT.$${MODULE_ID}.libs = $$module_libs" \
+    $$module_master \
+    "QT.$${MODULE_ID}.includes = $$MODULE_INCLUDES" \
+    "QT.$${MODULE_ID}.frameworks =$$MODULE_FRAMEWORKS"
+
+MODULE_PRI_CONT += \
+    "QT.$${MODULE_ID}.depends =$$join(MODULE_DEPENDS, " ", " ")" \
+    $$module_rundep \
+    "QT.$${MODULE_ID}.module_config =$$join(module_build_type, " ", " ")" \
+    $$module_config \
+    "QT.$${MODULE_ID}.DEFINES = $$val_escape(MODULE_DEFINES)" \
+    "" \
+    "QT_MODULES += $$MODULE"
+
+write_file($$MODULE_PRI, MODULE_PRI_CONT)|error("Aborting.")
+
+
+QT_HOST_DATA=$$system(qmake -query QT_HOST_DATA)
+qt_module.files = $$MODULE_PRI
+qt_module.path = $${QT_HOST_DATA}/mkspecs/modules
+
+INSTALLS += qt_module

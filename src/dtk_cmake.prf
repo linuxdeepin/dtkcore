@@ -1,0 +1,23 @@
+# CMake configure
+
+#TODO: check cmake exist
+
+!win*: {
+isEmpty(CMAKE_MODULE): error("CMAKE_MODULE must not empty")
+WORK_DIR=$$_PRO_FILE_PWD_
+
+message("config cmake module: $$CMAKE_MODULE")
+message("write cmake file to: $$WORK_DIR")
+
+CMAKE_MODULE_INCLUDE_DIR=$$upper($${CMAKE_MODULE})_INCLUDE_DIR
+
+INC_DIR = $$replace(includes.path, "/", "\/")
+CMD = sed -E \'s/$${CMAKE_MODULE_INCLUDE_DIR} \".*\"\\)$/$${CMAKE_MODULE_INCLUDE_DIR} \"$${INC_DIR}\"\\)/\' $$WORK_DIR/../cmake/$${CMAKE_MODULE}/$${CMAKE_MODULE}Config.cmake.in > $$WORK_DIR/../cmake/$${CMAKE_MODULE}/$${CMAKE_MODULE}Config.cmake
+
+system($$CMD) | error("config cmake failed")
+
+cmake_config.files = $$PWD/../cmake
+cmake_config.path = $$LIB_INSTALL_DIR
+
+INSTALLS += cmake_config
+}

@@ -21,3 +21,4 @@ build*/
 
 src/DtkCore
 src/dtkcore_config.h
+cmake/DtkCore/DtkCoreConfig.cmake

@@ -11,36 +11,14 @@ INCLUDEPATH += $$PWD $$PWD/base
 HEADERS += \
     $$PWD/dtkcore_global.h
 
-include($$PWD/lib.pri)
+
+include(dtk_build.prf)
+
 include($$PWD/base/base.pri)
 include($$PWD/util/util.pri)
 include($$PWD/log/log.pri)
 include($$PWD/filesystem/filesystem.pri)
 include($$PWD/settings/settings.pri)
-
-# ----------------------------------------------
-# install config
-
-includes.files += $$PWD/*.h $$PWD/dtkcore_config.h $$PWD/DtkCore
-includes.path = $${DTK_INCLUDEPATH}/DCore
-
-# CMake configure
-INC_DIR = $$replace(includes.path, "/", "\/")
-CMD = sed -i -E \'s/INCLUDE_INSTALLED_DIR \".*\"\\)$/INCLUDE_INSTALLED_DIR \"$${INC_DIR}\"\\)/\' ../cmake/DtkCore/DtkCoreConfig.cmake
-system($$CMD)
-
-cmake_config.path = $$LIB_INSTALL_DIR
-cmake_config.files = $$PWD/../cmake
-
-INSTALLS += includes target cmake_config
-
-QMAKE_PKGCONFIG_LIBDIR = $$target.path
-QMAKE_PKGCONFIG_VERSION = $$VERSION
-QMAKE_PKGCONFIG_DESTDIR = pkgconfig
-
-QMAKE_PKGCONFIG_NAME = DTK_CORE
-QMAKE_PKGCONFIG_DESCRIPTION = Deepin Tool Kit Core Header Files
-QMAKE_PKGCONFIG_INCDIR = $$includes.path
 
 # create DtkCore file
 defineTest(containIncludeFiles) {
@@ -101,3 +79,46 @@ defineTest(updateDtkCoreConfigFile) {
 }
 
 !updateDtkCoreConfigFile():warning(Cannot create "dtkcore_config.h" header file)
+
+
+# ----------------------------------------------
+# install config
+includes.files += $$PWD/*.h $$PWD/dtkcore_config.h $$PWD/DtkCore
+includes.path = $${DTK_INCLUDEPATH}/DCore
+
+INSTALLS += includes target
+
+#pkg-config
+QMAKE_PKGCONFIG_LIBDIR = $$target.path
+QMAKE_PKGCONFIG_VERSION = $$VERSION
+QMAKE_PKGCONFIG_DESTDIR = pkgconfig
+
+QMAKE_PKGCONFIG_NAME = DTK_CORE
+QMAKE_PKGCONFIG_DESCRIPTION = Deepin Tool Kit Core Header Files
+QMAKE_PKGCONFIG_INCDIR = $$includes.path
+
+#cmake
+CMAKE_MODULE=DtkCore
+include(dtk_cmake.prf)
+
+#qt module
+QT_MODULE=dcore
+include(dtk_module.prf)
+
+prf.files+= $$PWD/*.prf
+prf.path = $${QT_HOST_DATA}/mkspecs/features
+
+INSTALLS += prf
+
+# -----------------------------------------------
+# TODO: remove this, replace with dtk_build
+
+pri_dev.files += $$PWD/version.pri
+
+isEmpty(LIB_INSTALL_DIR) {
+    pri_dev.path = $$PREFIX/lib/libdtk/modules
+} else {
+    pri_dev.path = $$LIB_INSTALL_DIR/libdtk/modules
+}
+
+INSTALLS += pri_dev

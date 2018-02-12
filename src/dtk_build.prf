@@ -1,0 +1,64 @@
+defineTest(checkDtkVersion) {
+    isEmpty(VERSION) {
+        !isEqual(TARGET, dtkcore) {
+            PKG_CONFIG = $$pkgConfigExecutable()
+            !isEmpty(PKG_CONFIG): VERSION = $$system($$PKG_CONFIG --modversion dtkcore)
+        }
+
+        #TODO: faild in window
+        isEmpty(VERSION): VERSION = $$system(git describe --tags --abbrev=0)
+        isEmpty(VERSION): VERSION = $$DTK_VERSION
+        isEmpty(VERSION): return(false)
+        VERSION = $$replace(VERSION, [^0-9.],)
+    }
+
+    export(VERSION)
+    return(true)
+}
+
+!checkDtkVersion():error("check dtk version failed")
+
+message("build dtk with version $$VERSION")
+ver_list = $$split(VERSION, .)
+
+isEmpty(VER_MAJ) {
+    VER_MAJ = $$first(ver_list)
+}
+isEmpty(VER_MIN) {
+    VER_MIN = $$member(ver_list, 1, 1)
+    isEmpty(VER_MIN):VER_MIN = 0
+}
+isEmpty(VER_PAT) {
+    VER_PAT = $$member(ver_list, 2, 2)
+    isEmpty(VER_PAT):VER_PAT = 0
+}
+isEmpty(VER_BUI) {
+    VER_BUI = $$member(ver_list, 3, 3)
+    isEmpty(VER_BUI):VER_BUI = 0
+}
+
+TEMPLATE = lib
+
+CONFIG += c++11 create_pc create_prl no_install_prl
+CONFIG += no_keywords
+
+DEFINES += QT_MESSAGELOGCONTEXT
+
+isEmpty(PREFIX){
+    PREFIX = /usr
+}
+
+isEmpty(LIB_INSTALL_DIR) {
+    LIB_INSTALL_DIR=$$PREFIX/lib
+    target.path = $$PREFIX/lib
+} else {
+    target.path = $$LIB_INSTALL_DIR
+}
+
+isEmpty(INCLUDE_INSTALL_DIR) {
+    INCLUDE_INSTALL_DIR = $$PREFIX/include/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
+    DTK_INCLUDEPATH = $$PREFIX/include/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
+} else {
+    DTK_INCLUDEPATH = $$INCLUDE_INSTALL_DIR/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
+}
+
