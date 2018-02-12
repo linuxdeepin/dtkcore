@@ -1,18 +1,12 @@
 QT -= gui
 QT += dbus
 CONFIG += link_pkgconfig
-
 TARGET = dtkcore
 
-DEFINES += LIBDTKCORE_LIBRARY
-
-INCLUDEPATH += $$PWD $$PWD/base
-
-HEADERS += \
-    $$PWD/dtkcore_global.h
-
-
 include(dtk_build.prf)
+
+INCLUDEPATH += $$PWD
+HEADERS += $$PWD/dtkcore_global.h
 
 include($$PWD/base/base.pri)
 include($$PWD/util/util.pri)
@@ -80,7 +74,6 @@ defineTest(updateDtkCoreConfigFile) {
 
 !updateDtkCoreConfigFile():warning(Cannot create "dtkcore_config.h" header file)
 
-
 # ----------------------------------------------
 # install config
 includes.files += $$PWD/*.h $$PWD/dtkcore_config.h $$PWD/DtkCore
@@ -88,26 +81,13 @@ includes.path = $${DTK_INCLUDEPATH}/DCore
 
 INSTALLS += includes target
 
-#pkg-config
-QMAKE_PKGCONFIG_LIBDIR = $$target.path
-QMAKE_PKGCONFIG_VERSION = $$VERSION
-QMAKE_PKGCONFIG_DESTDIR = pkgconfig
-
-QMAKE_PKGCONFIG_NAME = DTK_CORE
-QMAKE_PKGCONFIG_DESCRIPTION = Deepin Tool Kit Core Header Files
-QMAKE_PKGCONFIG_INCDIR = $$includes.path
-
 #cmake
 CMAKE_MODULE=DtkCore
 include(dtk_cmake.prf)
-
-#qt module
-QT_MODULE=dcore
 include(dtk_module.prf)
 
 prf.files+= $$PWD/*.prf
 prf.path = $${QT_HOST_DATA}/mkspecs/features
-
 INSTALLS += prf
 
 # -----------------------------------------------

@@ -1,5 +1,7 @@
 include($$PWD/private/private.pri)
 
+INCLUDEPATH += $$PWD/base
+
 HEADERS += \
     $$PWD/dobject.h \
     $$PWD/dsingleton.h
