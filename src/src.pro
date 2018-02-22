@@ -82,8 +82,8 @@ includes.path = $${DTK_INCLUDEPATH}/DCore
 INSTALLS += includes target
 
 #cmake
-CMAKE_MODULE=DtkCore
 include(dtk_cmake.prf)
+#qt module
 include(dtk_module.prf)
 
 prf.files+= $$PWD/*.prf

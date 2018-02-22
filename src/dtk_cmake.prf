@@ -2,20 +2,45 @@
 
 #TODO: check cmake exist
 
+defineReplace(capitalizingString) {
+    RAW=$$1
+    FIRST = $$upper($$section(RAW, "", 1, 1))
+    OTHERS = $$section(RAW, "", 2, -1)
+    return($$FIRST$$OTHERS)
+}
+
 !win*: {
-isEmpty(CMAKE_MODULE): error("CMAKE_MODULE must not empty")
+
+MODULE_DEPENDS=$$find(QT, dtk*)
+CMAKE_MODULE_DEPENDS=$$replace(MODULE_DEPENDS,"dtk","")
+
+MODULE_NAME=$$replace(TARGET,"dtk","")
+MODULE_NAME=$$capitalizingString($$MODULE_NAME)
+CMAKE_MODULE=Dtk$$MODULE_NAME
 WORK_DIR=$$_PRO_FILE_PWD_
 
 message("config cmake module: $$CMAKE_MODULE")
 
+MODULE_PRI_CONT = ""
+
+for(MODULE_DEPEND, CMAKE_MODULE_DEPENDS) {
+    MODULE_DEPEND=$$capitalizingString($$MODULE_DEPEND)
+    CMAKE_CONTENT += "find_package(Dtk REQUIRED $$MODULE_DEPEND)"
+}
+
 CMAKE_MODULE_INCLUDE_DIR=$$upper($${CMAKE_MODULE})_INCLUDE_DIR
+INC_DIR = $$replace(includes.path, "/", "/")
 
-INC_DIR = $$replace(includes.path, "/", "\/")
-CMD = sed -E \'s/$${CMAKE_MODULE_INCLUDE_DIR} \".*\"\\)$/$${CMAKE_MODULE_INCLUDE_DIR} \"$${INC_DIR}\"\\)/\' $$WORK_DIR/../cmake/$${CMAKE_MODULE}/$${CMAKE_MODULE}Config.cmake.in > $$WORK_DIR/../cmake/$${CMAKE_MODULE}/$${CMAKE_MODULE}Config.cmake
-message("write cmake file to: $$WORK_DIR/../cmake/$${CMAKE_MODULE}/$${CMAKE_MODULE}Config.cmake")
-system($$CMD) | error("config cmake failed")
+CMAKE_CONTENT += "set($${CMAKE_MODULE_INCLUDE_DIR} \"$${INC_DIR}\")"
+CMAKE_CONTENT += "set($${CMAKE_MODULE}_LIBRARIES $$TARGET)"
+CMAKE_CONTENT += "include_directories(\"${"$${CMAKE_MODULE_INCLUDE_DIR}"}\")"
 
-cmake_config.files = $$PWD/../cmake
+CMAKE_PATH=$$WORK_DIR/../cmake/$${CMAKE_MODULE}/$${CMAKE_MODULE}Config.cmake
+mkpath($$WORK_DIR/../cmake/$${CMAKE_MODULE})
+message("write cmake file to: $$CMAKE_PATH")
+write_file($$CMAKE_PATH, CMAKE_CONTENT) | error("Aborting.")
+
+cmake_config.files = $$WORK_DIR/../cmake
 cmake_config.path = $$LIB_INSTALL_DIR
 
 INSTALLS += cmake_config
