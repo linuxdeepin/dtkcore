@@ -10,7 +10,6 @@ defineReplace(capitalizingString) {
 }
 
 !win*: {
-
 MODULE_DEPENDS=$$find(QT, dtk*)
 CMAKE_MODULE_DEPENDS=$$replace(MODULE_DEPENDS,"dtk","")
 
@@ -22,22 +21,25 @@ WORK_DIR=$$_PRO_FILE_PWD_
 message("config cmake module: $$CMAKE_MODULE")
 
 MODULE_PRI_CONT = ""
+LINK_LIBRARIES = ""
 
 for(MODULE_DEPEND, CMAKE_MODULE_DEPENDS) {
     MODULE_DEPEND=$$capitalizingString($$MODULE_DEPEND)
     CMAKE_CONTENT += "find_package(Dtk REQUIRED $$MODULE_DEPEND)"
+    LINK_LIBRARIES += " ${Dtk$${MODULE_DEPEND}_LIBRARIES}"
 }
 
 CMAKE_MODULE_INCLUDE_DIR=$$upper($${CMAKE_MODULE})_INCLUDE_DIR
 INC_DIR = $$replace(includes.path, "/", "/")
 
 CMAKE_CONTENT += "set($${CMAKE_MODULE_INCLUDE_DIR} \"$${INC_DIR}\")"
-CMAKE_CONTENT += "set($${CMAKE_MODULE}_LIBRARIES $$TARGET)"
+CMAKE_CONTENT += "set($${CMAKE_MODULE}_LIBRARIES $$TARGET$$LINK_LIBRARIES)"
 CMAKE_CONTENT += "include_directories(\"${"$${CMAKE_MODULE_INCLUDE_DIR}"}\")"
 
-CMAKE_PATH=$$WORK_DIR/../cmake/$${CMAKE_MODULE}/$${CMAKE_MODULE}Config.cmake
-mkpath($$WORK_DIR/../cmake/$${CMAKE_MODULE})
-message("write cmake file to: $$CMAKE_PATH")
+CMAKE_DIR=$$WORK_DIR/../cmake/$${CMAKE_MODULE}/
+CMAKE_PATH=$$CMAKE_DIR/$${CMAKE_MODULE}Config.cmake
+mkpath(CMAKE_DIR)
+message("write cmake file to $$CMAKE_PATH")
 write_file($$CMAKE_PATH, CMAKE_CONTENT) | error("Aborting.")
 
 cmake_config.files = $$WORK_DIR/../cmake
