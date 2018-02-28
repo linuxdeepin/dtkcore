@@ -27,13 +27,11 @@
 #include "singletontester.h"
 #include "util/dtimeunitformatter.h"
 #include "util/ddisksizeformatter.h"
+#include "settings/dsettings.h"
+#include "settings/dsettingsgroup.h"
+#include "settings/dsettingsoption.h"
 
 DCORE_USE_NAMESPACE
-
-TestDUtil::TestDUtil()
-{
-
-}
 
 void TestDUtil::testLogPath()
 {
@@ -153,4 +151,18 @@ void TestDUtil::testDiskFormatter1024()
     // 100000000000 B == 0.09094947017729282 T
     const auto d2 = diskFormatter.formatAs(100000000000, DDiskSizeFormatter::B, DDiskSizeFormatter::T);
     Q_ASSERT(qFuzzyCompare(0.09094947017729282, d2));
+}
+
+void TestDUtil::testGroups()
+{
+    auto path = ":/data/dt-settings.json";
+    auto settings = DSettings::fromJsonFile(path);
+
+    qDebug() << settings->groupKeys();
+    qDebug() << settings->group("shortcuts");
+    for (auto cg : settings->group("shortcuts")->childGroups()) {
+        qDebug() << cg->key();
+    }
+    qDebug() << settings->group("shortcuts.ternimal");
+    qDebug() << settings->group("shortcuts.ternimal")->options();
 }

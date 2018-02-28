@@ -31,7 +31,7 @@ class DSettingsGroup : public QObject
 {
     Q_OBJECT
 public:
-    explicit DSettingsGroup(QObject *parent = 0);
+    explicit DSettingsGroup(QObject *parent = Q_NULLPTR);
     ~DSettingsGroup();
 
     QPointer<DSettingsGroup> parentGroup() const;
@@ -40,6 +40,7 @@ public:
     QString key() const;
     QString name() const;
 
+    QPointer<DSettingsGroup> childGroup(const QString &key) const;
     QList<QPointer<DSettingsGroup> > childGroups() const;
     QList<QPointer<DSettingsOption> > childOptions() const;
     QList<QPointer<DSettingsOption> > options() const;
@@ -52,8 +53,8 @@ public Q_SLOTS:
 private:
     void parseJson(const QString &prefixKey, const QJsonObject &group);
 
-    QScopedPointer<DSettingsGroupPrivate> d_ptr;
-    Q_DECLARE_PRIVATE_D(qGetPtrHelper(d_ptr), DSettingsGroup)
+    QScopedPointer<DSettingsGroupPrivate> dd_ptr;
+    Q_DECLARE_PRIVATE_D(qGetPtrHelper(dd_ptr), DSettingsGroup)
 };
 
 typedef QPointer<DSettingsGroup> GroupPtr;

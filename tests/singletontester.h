@@ -26,7 +26,7 @@ class Singleton : public QObject, public Dtk::Core::DSingleton<Singleton>
     Q_OBJECT
     friend class Dtk::Core::DSingleton<Singleton>;
 public:
-    explicit Singleton(QObject *parent = 0);
+    explicit Singleton(QObject *parent = nullptr);
 
     void test();
 };
@@ -35,7 +35,7 @@ class MultiSingletonTester : public QObject
 {
     Q_OBJECT
 public:
-    explicit MultiSingletonTester(QObject *parent = 0);
+    explicit MultiSingletonTester(QObject *parent = nullptr);
 
     void run();
 };

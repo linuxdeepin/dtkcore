@@ -33,7 +33,7 @@ class DSettingsOption : public QObject
     Q_PROPERTY(QVariant value READ value WRITE setValue NOTIFY valueChanged)
 
 public:
-    explicit DSettingsOption(QObject *parent = 0);
+    explicit DSettingsOption(QObject *parent = Q_NULLPTR);
     ~DSettingsOption();
 
     QPointer<DSettingsGroup> parentGroup() const;
@@ -61,8 +61,8 @@ public Q_SLOTS:
 private:
     void parseJson(const QString &prefixKey, const QJsonObject &option);
 
-    QScopedPointer<DSettingsOptionPrivate> d_ptr;
-    Q_DECLARE_PRIVATE_D(qGetPtrHelper(d_ptr), DSettingsOption)
+    QScopedPointer<DSettingsOptionPrivate> dd_ptr;
+    Q_DECLARE_PRIVATE_D(qGetPtrHelper(dd_ptr), DSettingsOption)
 };
 
 typedef QPointer<DSettingsOption> OptionPtr;

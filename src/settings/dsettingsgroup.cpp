@@ -47,7 +47,7 @@ public:
 };
 
 DSettingsGroup::DSettingsGroup(QObject *parent) :
-    QObject(parent), d_ptr(new DSettingsGroupPrivate(this))
+    QObject(parent), dd_ptr(new DSettingsGroupPrivate(this))
 {
 
 }
@@ -79,6 +79,12 @@ QString DSettingsGroup::name() const
 {
     Q_D(const DSettingsGroup);
     return d->name;
+}
+
+QPointer<DSettingsGroup> DSettingsGroup::childGroup(const QString &key) const
+{
+    Q_D(const DSettingsGroup);
+    return d->childGroups.value(key);
 }
 
 QList<QPointer<DSettingsGroup> > DSettingsGroup::childGroups() const

@@ -49,7 +49,7 @@ public:
 
 
 DSettings::DSettings(QObject *parent) :
-    QObject(parent), d_ptr(new DSettingsPrivate(this))
+    QObject(parent), dd_ptr(new DSettingsPrivate(this))
 {
 }
 
@@ -143,11 +143,25 @@ QList<QPointer<DSettingsGroup> > DSettings::groups() const
     Q_D(const DSettings);
     return d->childGroups.values();
 }
-
+/*!
+ * \brief DSettings::group will recurrence find childGroup
+ * \param key
+ * \return
+ */
 QPointer<DSettingsGroup> DSettings::group(const QString &key) const
 {
     Q_D(const DSettings);
-    return d->childGroups.value(key);
+    auto childKeylist = key.split(".");
+    if (0 >= childKeylist.length()) {
+        return nullptr;
+    }
+
+    auto mainGroupKey = childKeylist.value(0);
+    if (1 >= childKeylist.length()) {
+        return d->childGroups.value(mainGroupKey);
+    }
+
+    return d->childGroups.value(mainGroupKey)->childGroup(key);
 }
 
 QList<QPointer<DSettingsOption> > DSettings::options() const

@@ -33,7 +33,7 @@ class DSettings : public QObject
 {
     Q_OBJECT
 public:
-    explicit DSettings(QObject *parent = 0);
+    explicit DSettings(QObject *parent = Q_NULLPTR);
     ~DSettings();
 
     void setBackend(DSettingsBackend *backend = nullptr);
@@ -69,8 +69,8 @@ private:
     void parseJson(const QByteArray &json);
     void loadValue();
 
-    QScopedPointer<DSettingsPrivate> d_ptr;
-    Q_DECLARE_PRIVATE_D(qGetPtrHelper(d_ptr), DSettings)
+    QScopedPointer<DSettingsPrivate> dd_ptr;
+    Q_DECLARE_PRIVATE_D(qGetPtrHelper(dd_ptr), DSettings)
 };
 
 DCORE_END_NAMESPACE

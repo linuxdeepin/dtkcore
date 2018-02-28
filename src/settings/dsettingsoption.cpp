@@ -46,7 +46,7 @@ public:
 };
 
 DSettingsOption::DSettingsOption(QObject *parent) :
-    QObject(parent), d_ptr(new DSettingsOptionPrivate(this))
+    QObject(parent), dd_ptr(new DSettingsOptionPrivate(this))
 {
 }
 

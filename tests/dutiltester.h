@@ -15,16 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DUTILTESTER_H
-#define DUTILTESTER_H
+#pragma once
 
 #include <QObject>
 
 class TestDUtil: public QObject
 {
     Q_OBJECT
-public:
-    TestDUtil();
 
 private Q_SLOTS:
     void testLogPath();
@@ -35,6 +32,8 @@ private Q_SLOTS:
     void testDiskFormatter();
     void testDiskFormatterList();
     void testDiskFormatter1024();
+
+    void testGroups();
 };
 
-#endif // DUTILTESTER_H
+
