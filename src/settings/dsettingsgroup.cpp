@@ -81,10 +81,16 @@ QString DSettingsGroup::name() const
     return d->name;
 }
 
-QPointer<DSettingsGroup> DSettingsGroup::childGroup(const QString &key) const
+QPointer<DSettingsGroup> DSettingsGroup::childGroup(const QString &groupKey) const
 {
     Q_D(const DSettingsGroup);
-    return d->childGroups.value(key);
+    return d->childGroups.value(groupKey);
+}
+
+QPointer<DSettingsOption> DSettingsGroup::option(const QString &key) const
+{
+    Q_D(const DSettingsGroup);
+    return d->childOptions.value(key);
 }
 
 QList<QPointer<DSettingsGroup> > DSettingsGroup::childGroups() const

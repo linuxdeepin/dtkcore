@@ -40,7 +40,9 @@ public:
     QString key() const;
     QString name() const;
 
-    QPointer<DSettingsGroup> childGroup(const QString &key) const;
+    QPointer<DSettingsGroup> childGroup(const QString &groupKey) const;
+    QPointer<DSettingsOption> option(const QString &key) const;
+
     QList<QPointer<DSettingsGroup> > childGroups() const;
     QList<QPointer<DSettingsOption> > childOptions() const;
     QList<QPointer<DSettingsOption> > options() const;
