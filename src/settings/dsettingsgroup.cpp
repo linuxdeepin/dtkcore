@@ -30,6 +30,7 @@ public:
 
     QString key;
     QString name;
+    bool    hide = false;
 
     QMap<QString, OptionPtr>    options;
 
@@ -79,6 +80,12 @@ QString DSettingsGroup::name() const
 {
     Q_D(const DSettingsGroup);
     return d->name;
+}
+
+bool DSettingsGroup::isHidden() const
+{
+    Q_D(const DSettingsGroup);
+    return d->hide;
 }
 
 QPointer<DSettingsGroup> DSettingsGroup::childGroup(const QString &groupKey) const
@@ -139,6 +146,7 @@ void DSettingsGroupPrivate::parseJson(const QString &prefixKey, const QJsonObjec
     Q_ASSERT(!key.isEmpty());
     key = prefixKey.isEmpty() ? key : prefixKey + "." + key;
     name = group.value("name").toString();
+    hide = group.value("hide").toBool();
 
     for (auto optionJson :  group.value("options").toArray()) {
         auto optionObject = optionJson.toObject();
