@@ -1,3 +1,37 @@
+<a name="2.0.7"></a>
+## 2.0.7 (2018-03-01)
+
+
+#### Bug Fixes
+
+*   cmake link depends ([cdfcff9e](https://github.com/linuxdeepin/dtkcore/commit/cdfcff9e2f3e92bc6dbb45644d2714d6c4dbdda0))
+*   better static lib support ([99886406](https://github.com/linuxdeepin/dtkcore/commit/99886406a0cae849fad23286fdf64bb399e37da0))
+*   read settings value failed ([cf1c7698](https://github.com/linuxdeepin/dtkcore/commit/cf1c769893773794dff5a67c235c5d1f3234541a))
+*   set default should not use ([146529f6](https://github.com/linuxdeepin/dtkcore/commit/146529f6887e798606f2bf763ab8a760969bff26))
+*   fix dtk-settings install path ([1893cff3](https://github.com/linuxdeepin/dtkcore/commit/1893cff301dacb546a246a4f824dab68eac51351))
+*   develop package no install the "version.pri" file ([5667b562](https://github.com/linuxdeepin/dtkcore/commit/5667b562630565fca5abed690f3d3478dd3c7603))
+*   awk script failed ([524a3fa6](https://github.com/linuxdeepin/dtkcore/commit/524a3fa6021ee54db416503520aea65ef0e2c3a0))
+*   set default build version for debian changelog ([ec6e2a83](https://github.com/linuxdeepin/dtkcore/commit/ec6e2a8376c7aca7162b4fbb782b998c9a6ab630))
+*   set its value only if VERSION is empty ([1836000c](https://github.com/linuxdeepin/dtkcore/commit/1836000c49eb149a6495322c4cbb1474d5d48204))
+
+#### Features
+
+*   add hide support for group ([e7e4fb66](https://github.com/linuxdeepin/dtkcore/commit/e7e4fb669276fbce61c6378e74ae82573e7c0313))
+*   add get option interface ([d8682485](https://github.com/linuxdeepin/dtkcore/commit/d8682485a6737da83fb28f22335f1da1afb8956c))
+*   add group interface for DSettingsGroup ([c876180f](https://github.com/linuxdeepin/dtkcore/commit/c876180f535e3027dce63628f31379ef874367ed))
+*   support generate cmake with qt function ([524b0559](https://github.com/linuxdeepin/dtkcore/commit/524b055929b7be84375a45f9d10cbc3a0ecac6de))
+*   config pkg config with dtk_module ([137b9138](https://github.com/linuxdeepin/dtkcore/commit/137b91388d9b9db24c8136dd4e2c6e690a5712c5))
+*   support qt module ([17ca0de9](https://github.com/linuxdeepin/dtkcore/commit/17ca0de9156a320cea32208dcff2f8cdf7d6a237))
+*   add the "version.pri" file ([07aab9fd](https://github.com/linuxdeepin/dtkcore/commit/07aab9fd6478c83c7bae1062f64b4bd20b21869c))
+*   remove build version from install path ([3bf0bfb5](https://github.com/linuxdeepin/dtkcore/commit/3bf0bfb5f49c3e83d4c36cc33f219150bf3731d8))
+*   make version parser easier ([6d3b4ead](https://github.com/linuxdeepin/dtkcore/commit/6d3b4ead7080158d1d8977bf7cf99ae842e574ec))
+*   set verion when build ([9083dbd3](https://github.com/linuxdeepin/dtkcore/commit/9083dbd3e29bf9d06b1032901ba13848fa964f4c))
+*   add .qmake.conf file ([2890f643](https://github.com/linuxdeepin/dtkcore/commit/2890f643a57c3532ab623410f7c6c6dbfdd6788d))
+*   add DtkCore and dtkcore_config.h headers ([308a0cc4](https://github.com/linuxdeepin/dtkcore/commit/308a0cc41101499c04308b4ef3bb2fff4ab8d783))
+* **DSettings:**  support set default value ([5fe9bfd0](https://github.com/linuxdeepin/dtkcore/commit/5fe9bfd0a5e20cef7393639712302825b803db29))
+
+
+
 <a name="2.0.6"></a>
 ## 2.0.6 (2018-01-15)
 
