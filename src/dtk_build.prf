@@ -1,8 +1,7 @@
 defineTest(checkDtkVersion) {
     isEmpty(VERSION) {
         !isEqual(TARGET, dtkcore) {
-            PKG_CONFIG = $$pkgConfigExecutable()
-            !isEmpty(PKG_CONFIG): VERSION = $$system($$PKG_CONFIG --modversion dtkcore)
+            VERSION = $${QT.dtkcore.VERSION}
         }
 
         #TODO: faild in window
