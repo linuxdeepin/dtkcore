@@ -1,3 +1,7 @@
+isEmpty(TARGET): error(set TARGET first)
+!contains(TARGET, ^dtk[a-z0-9]+$): error(The format of the value of TARGET is incorrect. eg: dtk[a-z0-9]+)
+!isEqual(TARGET, dtkcore):!contains(QT, dtkcore): error(QT += dtkcore first)
+
 defineTest(checkDtkVersion) {
     isEmpty(VERSION) {
         !isEqual(TARGET, dtkcore) {
@@ -49,20 +53,27 @@ isEmpty(PREFIX){
 }
 
 isEmpty(LIB_INSTALL_DIR) {
-    LIB_INSTALL_DIR=$$PREFIX/lib
-    target.path = $$PREFIX/lib
-} else {
-    target.path = $$LIB_INSTALL_DIR
+    isEqual(TARGET, dtkcore) {
+        LIB_INSTALL_DIR=$$PREFIX/lib
+    } else {
+        LIB_INSTALL_DIR=$${QT.dtkcore.libs}
+    }
 }
+
+isEmpty(target.path): target.path = $$LIB_INSTALL_DIR
 
 isEmpty(INCLUDE_INSTALL_DIR) {
-    INCLUDE_INSTALL_DIR = $$PREFIX/include/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
-    DTK_INCLUDEPATH = $$PREFIX/include/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
-} else {
-    DTK_INCLUDEPATH = $$INCLUDE_INSTALL_DIR/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
+    isEqual(TARGET, dtkcore) {
+        INCLUDE_INSTALL_DIR = $$PREFIX/include/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
+    } else {
+        INCLUDE_INSTALL_DIR = $${QT.dtkcore.includes}/..
+    }
 }
 
-!isEmpty(DTK_STATIC_LIB){
+DTK_INCLUDEPATH = $$INCLUDE_INSTALL_DIR
+isEmpty(includes.path): includes.path = $$DTK_INCLUDEPATH/D$$upper($$str_member($$TARGET, 3, 3))$$str_member($$TARGET, 4, -1)
+
+!isEmpty(DTK_STATIC_LIB) {
     DEFINES += DTK_STATIC_LIB
     CONFIG += staticlib
 }

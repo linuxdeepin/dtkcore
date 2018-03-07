@@ -77,7 +77,6 @@ defineTest(updateDtkCoreConfigFile) {
 # ----------------------------------------------
 # install config
 includes.files += $$PWD/*.h $$PWD/dtkcore_config.h $$PWD/DtkCore
-includes.path = $${DTK_INCLUDEPATH}/DCore
 
 INSTALLS += includes target
 
