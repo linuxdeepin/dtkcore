@@ -71,7 +71,7 @@ isEmpty(INCLUDE_INSTALL_DIR) {
 }
 
 DTK_INCLUDEPATH = $$INCLUDE_INSTALL_DIR
-isEmpty(includes.path): includes.path = $$DTK_INCLUDEPATH/D$$upper($$str_member($$TARGET, 3, 3))$$str_member($$TARGET, 4, -1)
+isEmpty(includes.path): includes.path = $$quote($$DTK_INCLUDEPATH/D$$upper($$member($$list($$split(TARGET,)), 3, 3))$$join($$list($$member($$list($$split(TARGET,)), 4, -1))),)
 
 !isEmpty(DTK_STATIC_LIB) {
     DEFINES += DTK_STATIC_LIB
