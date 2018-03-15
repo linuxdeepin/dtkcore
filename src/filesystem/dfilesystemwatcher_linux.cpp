@@ -420,10 +420,10 @@ DFileSystemWatcher::DFileSystemWatcher(QObject *parent)
 {
     int fd = -1;
 #ifdef IN_CLOEXEC
-    fd = inotify_init1(IN_CLOEXEC);
+    fd = inotify_init1(IN_CLOEXEC | O_NONBLOCK);
 #endif
     if (fd == -1) {
-        fd = inotify_init();
+        fd = inotify_init1(O_NONBLOCK);
     }
 
     if (fd != -1)
