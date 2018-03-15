@@ -1,3 +1,12 @@
+<a name="2.0.7.1"></a>
+## 2.0.7.1 (2018-03-15)
+
+
+#### Bug Fixes
+
+*   enable nonblocking mode in filesystem watcher
+
+
 <a name="2.0.7"></a>
 ## 2.0.7 (2018-03-01)
 
