@@ -3,7 +3,8 @@ HEADERS += \
     $$PWD/dpinyin.h \
     $$PWD/dtimeunitformatter.h \
     $$PWD/dabstractunitformatter.h \
-    $$PWD/ddisksizeformatter.h
+    $$PWD/ddisksizeformatter.h \
+    $$PWD/ddbussender.h
 
 includes.files += $$PWD/*.h
 includes.files += \
@@ -16,4 +17,5 @@ RESOURCES += \
 SOURCES += \
     $$PWD/dtimeunitformatter.cpp \
     $$PWD/dabstractunitformatter.cpp \
-    $$PWD/ddisksizeformatter.cpp
+    $$PWD/ddisksizeformatter.cpp \
+    $$PWD/ddbussender.cpp

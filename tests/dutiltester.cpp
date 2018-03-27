@@ -21,12 +21,15 @@
 #include <QtTest/QtTest>
 #include <QStandardPaths>
 #include <QThread>
+#include <QDBusPendingCall>
+#include <QDBusReply>
 
 #include "log/LogManager.h"
 #include "filesystem/dpathbuf.h"
 #include "singletontester.h"
 #include "util/dtimeunitformatter.h"
 #include "util/ddisksizeformatter.h"
+#include "util/ddbussender.h"
 #include "settings/dsettings.h"
 #include "settings/dsettingsgroup.h"
 #include "settings/dsettingsoption.h"
@@ -151,6 +154,56 @@ void TestDUtil::testDiskFormatter1024()
     // 100000000000 B == 0.09094947017729282 T
     const auto d2 = diskFormatter.formatAs(100000000000, DDiskSizeFormatter::B, DDiskSizeFormatter::T);
     Q_ASSERT(qFuzzyCompare(0.09094947017729282, d2));
+}
+
+void TestDUtil::testDBusSender()
+{
+    // basic method call
+    DDBusSender()
+        .service("com.deepin.dde.ControlCenter")
+        .interface("com.deepin.dde.ControlCenter")
+        .path("/com/deepin/dde/ControlCenter")
+        .method("ShowPage")
+        .arg(QString("update"))
+        .arg(QString("available-updates"))
+        .call();
+
+    // property set
+    QDBusPendingReply<> r1 = DDBusSender()
+        .service("com.deepin.dde.daemon.Dock")
+        .interface("com.deepin.dde.daemon.Dock")
+        .path("/com/deepin/dde/daemon/Dock")
+        .property("DisplayMode")
+        .set(1); // set to efficient mode
+
+    // property get
+    QDBusPendingReply<QVariant> r2 = DDBusSender()
+        .service("com.deepin.dde.daemon.Dock")
+        .interface("com.deepin.dde.daemon.Dock")
+        .path("/com/deepin/dde/daemon/Dock")
+        .property("DisplayMode")
+        .get(); // read mode
+
+    if (!r2.isError() && !r1.isError())
+        Q_ASSERT(r2.value().toInt() == 1);
+
+    // complex type property get
+    QDBusPendingReply<QVariant> r3 = DDBusSender()
+        .service("com.deepin.dde.ControlCenter")
+        .interface("com.deepin.dde.ControlCenter")
+        .path("/com/deepin/dde/ControlCenter")
+        .property("Rect")
+        .get();
+
+    QVariant variant = r3.value();
+    const QDBusArgument v = variant.value<QDBusArgument>();
+
+    int x, y, w, h;
+    v.beginStructure();
+    v >> x >> y >> w >> h;
+    v.endStructure();
+
+    qDebug() << x << y << w << h;
 }
 
 void TestDUtil::testGroups()

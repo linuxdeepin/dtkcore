@@ -1,4 +1,4 @@
-QT += testlib
+QT += testlib dbus
 QT -= gui
 
 TEMPLATE = app

@@ -32,6 +32,7 @@ private Q_SLOTS:
     void testDiskFormatter();
     void testDiskFormatterList();
     void testDiskFormatter1024();
+    void testDBusSender();
 
     void testGroups();
 };
