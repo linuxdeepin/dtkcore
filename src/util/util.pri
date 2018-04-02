@@ -6,10 +6,13 @@ HEADERS += \
     $$PWD/ddisksizeformatter.h \
     $$PWD/ddbussender.h
 
+INCLUDEPATH += $$PWD
+
 includes.files += $$PWD/*.h
 includes.files += \
     $$PWD/DUtil \
-    $$PWD/DPinyin
+    $$PWD/DPinyin \
+    $$PWD/DDBusSender
 
 RESOURCES += \
     $$PWD/util.qrc
