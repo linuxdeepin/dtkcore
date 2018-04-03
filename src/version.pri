@@ -4,7 +4,7 @@ isEmpty(VERSION) {
         !isEmpty(PKG_CONFIG): VERSION = $$system($$PKG_CONFIG --modversion dtkcore)
     }
 
-    isEmpty(VERSION): VERSION = $$system(git describe --tags --abbrev=0)
+    isEmpty(VERSION): VERSION = $$system(git -C $$_PRO_FILE_PWD_ describe --tags --abbrev=0)
     isEmpty(VERSION): VERSION = $$DTK_VERSION
     isEmpty(VERSION): error(VERSION is empty)
     VERSION = $$replace(VERSION, [^0-9.],)

@@ -36,9 +36,9 @@ CMAKE_CONTENT += "set($${CMAKE_MODULE_INCLUDE_DIR} \"$${INC_DIR}\")"
 CMAKE_CONTENT += "set($${CMAKE_MODULE}_LIBRARIES $$TARGET$$LINK_LIBRARIES)"
 CMAKE_CONTENT += "include_directories(\"${"$${CMAKE_MODULE_INCLUDE_DIR}"}\")"
 
-CMAKE_DIR=$$WORK_DIR/../cmake/$${CMAKE_MODULE}/
+CMAKE_DIR=$$WORK_DIR/../cmake/$${CMAKE_MODULE}
 CMAKE_PATH=$$CMAKE_DIR/$${CMAKE_MODULE}Config.cmake
-mkpath(CMAKE_DIR)
+mkpath($$CMAKE_DIR)
 message("write cmake file to $$CMAKE_PATH")
 write_file($$CMAKE_PATH, CMAKE_CONTENT) | error("Aborting.")
 
