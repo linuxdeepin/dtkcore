@@ -1,0 +1,16 @@
+{
+        "commit": {
+                "quilt": false,
+                "pkgver": "echo $(git describe --tags  $(git rev-list --tags --max-count=1)).is.$(git describe --tags --long %(ref)s | awk -F'-' '{printf \"%%s+r%%s+%%s\",$1,$2,$3}')",
+                "dist": "experimental"
+        },
+        "release": {
+                "quilt": true,
+                "pkgver": "git describe --abbrev=0 --tags %(ref)s",
+                "dist": "unstable"
+        },
+        "release-candidate": {
+                "quilt": true,
+                "dist": "unstable"
+        }
+}
