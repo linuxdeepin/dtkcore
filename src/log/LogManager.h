@@ -32,12 +32,16 @@ class DLogManager
 public:
     static void registerConsoleAppender();
     static void registerFileAppender();
+
     static QString getlogFilePath();
+
+    /*!
+     * \brief setlogFilePath will change log file path of registerFileAppender
+     * \param logFilePath is the full path of file appender log
+     */
+    static void setlogFilePath(const QString& logFilePath);
+
     static void setLogFormat(const QString& format);
-
-Q_SIGNALS:
-
-public Q_SLOTS:
 
 private:
     QString m_format;

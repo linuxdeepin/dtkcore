@@ -77,6 +77,11 @@ QString DLogManager::getlogFilePath(){
     return QDir::toNativeSeparators(DLogManager::instance()->m_logPath);
 }
 
+void DLogManager::setlogFilePath(const QString &logFilePath)
+{
+    DLogManager::instance()->m_logPath = logFilePath;
+}
+
 void DLogManager::setLogFormat(const QString &format)
 {
     //m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
