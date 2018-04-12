@@ -1,9 +1,2 @@
-TEMPLATE = subdirs
+include($$PWD/src/dtk_lib.prf)
 
-CONFIG += ordered
-
-SUBDIRS +=   \
-    src \
-    tests
-
-!mac:!win*: SUBDIRS += tools

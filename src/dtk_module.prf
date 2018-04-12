@@ -3,17 +3,6 @@ isEmpty(DTK_MODULE): error("DTK_MODULE must not empty")
 isEmpty(includes.path): error("includes.path must not empty, please load(dtk_build) first!")
 isEmpty(target.path): error("target.path must not empty, , please load(dtk_build) first!")
 
-
-# -----------------------
-# Config pkg-config
-QMAKE_PKGCONFIG_VERSION = $$VERSION
-QMAKE_PKGCONFIG_DESTDIR = pkgconfig
-QMAKE_PKGCONFIG_NAME = DTK_$$upper($$replace(TARGET, "dtk", ""))
-QMAKE_PKGCONFIG_DESCRIPTION = Deepin Tool Kit $$TARGET header files
-QMAKE_PKGCONFIG_INCDIR = $$includes.path
-QMAKE_PKGCONFIG_LIBDIR = $$target.path
-
-
 # -----------------------
 # Config Qt module
 MODULE_ID=$$DTK_MODULE
@@ -21,6 +10,7 @@ mod_inst_pfx=$$_PRO_FILE_PWD_
 MODULE_PRI = $$mod_inst_pfx/qt_lib_$${MODULE_ID}.pri
 module_libs = $$target.path
 MODULE_INCLUDES = $$includes.path
+DTK_MODULE_DEPENDS=$$find(QT, dtk*)
 
 message("config qt module: $$MODULE_ID")
 message("write $$MODULE_PRI to: $$mod_inst_pfx")
@@ -107,3 +97,29 @@ qt_module.files = $$MODULE_PRI
 qt_module.path = $${QT_HOST_DATA}/mkspecs/modules
 
 INSTALLS += qt_module
+
+
+# -----------------------
+# Config pkg-config
+QMAKE_PKGCONFIG_VERSION = $$VERSION
+QMAKE_PKGCONFIG_DESTDIR = pkgconfig
+QMAKE_PKGCONFIG_NAME = DTK_$$upper($$replace(TARGET, "dtk", ""))
+QMAKE_PKGCONFIG_DESCRIPTION = Deepin Tool Kit $$TARGET header files
+QMAKE_PKGCONFIG_REQUIRES += $$DTK_MODULE_DEPENDS
+QMAKE_PKGCONFIG_INCDIR = $$includes.path
+QMAKE_PKGCONFIG_LIBDIR = $$target.path
+
+
+# -----------------------
+# Config translations
+!isEmpty(DTK_STATIC_TRANSLATION) {
+    QRC_PATH = $$mod_inst_pfx/../translations/$${TARGET}_translations.qrc
+    RESOURCES += $$QRC_PATH
+}
+
+TRANSLATIONS += $$mod_inst_pfx/.../translations/*
+
+dtk_translations.path = $$PREFIX/share/$${TARGET}/translations
+dtk_translations.files = $$mod_inst_pfx/../translations/*.qm
+
+INSTALLS += dtk_translations

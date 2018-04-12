@@ -82,22 +82,10 @@ INSTALLS += includes target
 
 #cmake
 include(dtk_cmake.prf)
+
 #qt module
 include(dtk_module.prf)
 
 prf.files+= $$PWD/*.prf
 prf.path = $${QT_HOST_DATA}/mkspecs/features
 INSTALLS += prf
-
-# -----------------------------------------------
-# TODO: remove this, replace with dtk_build
-
-pri_dev.files += $$PWD/version.pri
-
-isEmpty(LIB_INSTALL_DIR) {
-    pri_dev.path = $$PREFIX/lib/libdtk/modules
-} else {
-    pri_dev.path = $$LIB_INSTALL_DIR/libdtk/modules
-}
-
-INSTALLS += pri_dev

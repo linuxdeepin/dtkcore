@@ -1,0 +1,13 @@
+exists($$_PRO_FILE_PWD_/src/dtk_translation.prf) {
+    include($$_PRO_FILE_PWD_/src/dtk_translation.prf)
+} else {
+    load(dtk_translation)
+}
+
+TEMPLATE  = subdirs
+CONFIG += ordered
+
+exists($$_PRO_FILE_PWD_/src) SUBDIRS += src
+exists($$_PRO_FILE_PWD_/tools) SUBDIRS += tools
+exists($$_PRO_FILE_PWD_/tests) SUBDIRS += tests
+exists($$_PRO_FILE_PWD_/examples) SUBDIRS += examples

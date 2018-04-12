@@ -77,3 +77,7 @@ isEmpty(includes.path): includes.path = $$quote($$DTK_INCLUDEPATH/D$$upper($$mem
     DEFINES += DTK_STATIC_LIB
     CONFIG += staticlib
 }
+
+!isEmpty(DTK_STATIC_TRANSLATION) {
+    DEFINES += DTK_STATIC_TRANSLATION
+}

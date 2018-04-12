@@ -1,6 +1,3 @@
 TEMPLATE = subdirs
 
-CONFIG += ordered
-
-SUBDIRS +=   \
-    settings \
+!mac:!win*: SUBDIRS += settings
