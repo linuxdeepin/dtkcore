@@ -8,7 +8,7 @@ defineTest(checkDtkVersion) {
             VERSION = $${QT.dtkcore.VERSION}
         }
 
-        #TODO: faild in window
+        # TODO: failed in windows
         isEmpty(VERSION): VERSION = $$system(git describe --tags --abbrev=0)
         isEmpty(VERSION): VERSION = $$DTK_VERSION
         isEmpty(VERSION): return(false)
