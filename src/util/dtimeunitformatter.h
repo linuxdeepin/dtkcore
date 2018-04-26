@@ -18,11 +18,12 @@
 #ifndef DTIMEUNITFORMATTER_H
 #define DTIMEUNITFORMATTER_H
 
+#include "dtkcore_global.h"
 #include "dabstractunitformatter.h"
 
 DCORE_BEGIN_NAMESPACE
 
-class DTimeUnitFormatter : public DAbstractUnitFormatter
+class LIBDTKCORESHARED_EXPORT DTimeUnitFormatter : public DAbstractUnitFormatter
 {
 public:
     DTimeUnitFormatter();

@@ -25,7 +25,7 @@
 DCORE_BEGIN_NAMESPACE
 
 class DStandardPathsPrivate;
-class DStandardPaths
+class LIBDTKCORESHARED_EXPORT DStandardPaths
 {
 public:
     enum Mode {

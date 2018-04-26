@@ -26,7 +26,7 @@
 DCORE_BEGIN_NAMESPACE
 
 class DFileSystemWatcherPrivate;
-class DFileSystemWatcher : public QObject, public DObject
+class LIBDTKCORESHARED_EXPORT DFileSystemWatcher : public QObject, public DObject
 {
     Q_OBJECT
     D_DECLARE_PRIVATE(DFileSystemWatcher)

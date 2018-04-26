@@ -22,7 +22,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
-class DDiskSizeFormatter : public DAbstractUnitFormatter
+class LIBDTKCORESHARED_EXPORT DDiskSizeFormatter : public DAbstractUnitFormatter
 {
 public:
     DDiskSizeFormatter();

@@ -25,7 +25,7 @@
 DCORE_BEGIN_NAMESPACE
 
 class DSettings;
-class DSettingsBackend : public QObject
+class LIBDTKCORESHARED_EXPORT DSettingsBackend : public QObject
 {
     Q_OBJECT
 public:

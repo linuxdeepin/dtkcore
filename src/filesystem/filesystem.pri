@@ -14,8 +14,8 @@ SOURCES += \
     $$PWD/dbasefilewatcher.cpp \
     $$PWD/dfilewatcher.cpp \
     $$PWD/dfilewatchermanager.cpp \
-    $$PWD/dstandardpaths.cpp
-
+    $$PWD/dstandardpaths.cpp \
+    $$PWD/dpathbuf.cpp
 
 linux {
     SOURCES += \

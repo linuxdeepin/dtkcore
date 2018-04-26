@@ -28,7 +28,7 @@ DCORE_BEGIN_NAMESPACE
 class DFileWatcher;
 
 class DFileWatcherManagerPrivate;
-class DFileWatcherManager : public QObject, public DObject
+class LIBDTKCORESHARED_EXPORT DFileWatcherManager : public QObject, public DObject
 {
     Q_OBJECT
 

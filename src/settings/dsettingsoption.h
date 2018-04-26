@@ -27,7 +27,7 @@ DCORE_BEGIN_NAMESPACE
 
 class DSettingsGroup;
 class DSettingsOptionPrivate;
-class DSettingsOption : public QObject
+class LIBDTKCORESHARED_EXPORT DSettingsOption : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant value READ value WRITE setValue NOTIFY valueChanged)

@@ -80,6 +80,12 @@ includes.files += $$PWD/*.h $$PWD/dtkcore_config.h $$PWD/DtkCore
 
 INSTALLS += includes target
 
+isEmpty(DTK_STATIC_LIB){
+    DEFINES += LIBDTKCORE_LIBRARY
+} else {
+    DEFINES += DTK_STATIC_LIB
+}
+
 #cmake
 include(dtk_cmake.prf)
 

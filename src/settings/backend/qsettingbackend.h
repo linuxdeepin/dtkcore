@@ -25,7 +25,7 @@
 DCORE_BEGIN_NAMESPACE
 
 class QSettingBackendPrivate;
-class QSettingBackend : public Dtk::Core::DSettingsBackend
+class LIBDTKCORESHARED_EXPORT QSettingBackend : public Dtk::Core::DSettingsBackend
 {
     Q_OBJECT
 public:

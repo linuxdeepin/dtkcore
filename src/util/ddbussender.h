@@ -1,6 +1,8 @@
 #ifndef DDBUSSENDER_H
 #define DDBUSSENDER_H
 
+#include "dtkcore_global.h"
+
 #include <QObject>
 #include <QDBusConnection>
 #include <QDBusPendingCall>
@@ -8,7 +10,7 @@
 
 #include <memory>
 
-class DDBusData
+class LIBDTKCORESHARED_EXPORT DDBusData
 {
 public:
     DDBusData();
@@ -20,7 +22,7 @@ public:
     QDBusConnection connection;
 };
 
-class DDBusCaller
+class LIBDTKCORESHARED_EXPORT DDBusCaller
 {
     friend class DDBusSender;
 
@@ -47,7 +49,7 @@ DDBusCaller DDBusCaller::arg(const T &argument)
     return *this;
 }
 
-class DDBusProperty
+class LIBDTKCORESHARED_EXPORT DDBusProperty
 {
     friend class DDBusSender;
 
@@ -74,7 +76,7 @@ QDBusPendingCall DDBusProperty::set(const T &value)
     return iface.asyncCallWithArgumentList(QStringLiteral("Set"), args);
 }
 
-class DDBusSender
+class LIBDTKCORESHARED_EXPORT DDBusSender
 {
 public:
     explicit DDBusSender();

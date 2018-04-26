@@ -23,13 +23,10 @@
 
 DCORE_BEGIN_NAMESPACE
 
-class DPathBuf
+class LIBDTKCORESHARED_EXPORT DPathBuf
 {
 public:
-    DPathBuf(const QString &path)
-    {
-        m_path = QDir(path).absolutePath();
-    }
+    DPathBuf(const QString &path);
 
     DPathBuf operator/(const QString &p) const
     {

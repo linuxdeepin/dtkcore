@@ -27,7 +27,7 @@ DCORE_BEGIN_NAMESPACE
 class ConsoleAppender;
 class RollingFileAppender;
 
-class DLogManager
+class LIBDTKCORESHARED_EXPORT DLogManager
 {
 public:
     static void registerConsoleAppender();

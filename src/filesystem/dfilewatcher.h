@@ -23,7 +23,7 @@
 DCORE_BEGIN_NAMESPACE
 
 class DFileWatcherPrivate;
-class DFileWatcher : public DBaseFileWatcher
+class LIBDTKCORESHARED_EXPORT DFileWatcher : public DBaseFileWatcher
 {
     Q_OBJECT
 

@@ -29,7 +29,7 @@ class DSettingsBackend;
 class DSettingsOption;
 class DSettingsGroup;
 class DSettingsPrivate;
-class DSettings : public QObject
+class LIBDTKCORESHARED_EXPORT DSettings : public QObject
 {
     Q_OBJECT
 public:

@@ -8,7 +8,7 @@
 DCORE_BEGIN_NAMESPACE
 
 class GSettingsBackendPrivate;
-class GSettingsBackend: public DSettingsBackend
+class LIBDTKCORESHARED_EXPORT GSettingsBackend: public DSettingsBackend
 {
     Q_OBJECT
 public:

@@ -25,7 +25,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
-class DAbstractUnitFormatter
+class LIBDTKCORESHARED_EXPORT DAbstractUnitFormatter
 {
 public:
     DAbstractUnitFormatter();
