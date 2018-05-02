@@ -1,7 +1,7 @@
 {
         "commit": {
                 "quilt": false,
-                "pkgver": "echo $(git describe --tags  $(git rev-list --tags --max-count=1)).is.$(git describe --tags --long %(ref)s | awk -F'-' '{printf \"%%s+r%%s+%%s\",$1,$2,$3}')",
+                "pkgver": "git describe --tags --long %(ref)s | awk '{split($0,v,\"-\"); print v[1]\"+r\"v[2]\"+\"v[3]}'",
                 "dist": "experimental"
         },
         "release": {

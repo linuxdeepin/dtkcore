@@ -1,3 +1,13 @@
+<a name="2.0.8"></a>
+## 2.0.8 (2018-05-02)
+
+
+#### Features
+
+*   add symbols ([048de455](https://github.com/linuxdeepin/dtkcore/commit/048de4551bdd770aca5e9c12798362f913061654))
+
+
+
 <a name="2.0.7"></a>
 ## 2.0.7 (2018-03-01)
 
