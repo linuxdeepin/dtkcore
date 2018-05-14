@@ -1,3 +1,15 @@
+<a name="2.0.8.1"></a>
+## 2.0.8.1 (2018-05-14)
+
+
+#### Bug Fixes
+
+*   update symbols ([f6c53cc4](https://github.com/linuxdeepin/dtkcore/commit/f6c53cc493c1bcf55dca54dbf500e2e484af73c9))
+*   add LIBDTKCORESHARED_EXPORT for windows ([6fb1096f](https://github.com/linuxdeepin/dtkcore/commit/6fb1096f6d0784937cf84f0e4ae1f5f7587085e5))
+* **changelog:**  update email format ([cb09a0ca](https://github.com/linuxdeepin/dtkcore/commit/cb09a0cadcf2fa0ba271b1d98d3b96a993eb892b))
+
+
+
 <a name="2.0.8"></a>
 ## 2.0.8 (2018-05-02)
 
