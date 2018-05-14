@@ -1,13 +1,16 @@
+# SymbolsHelper-Confirmed: 2.0.7.1 amd64
 libdtkcore.so.2 libdtkcore2 #MINVER#
  _Z19qInitResources_utilv@Base 2.0.7.1
  _Z22qCleanupResources_utilv@Base 2.0.7.1
  _ZGVZN3Dtk4Core11DLogManager8instanceEvE8instance@Base 2.0.7.1
  _ZN10QByteArrayD1Ev@Base 2.0.7.1
  _ZN10QByteArrayD2Ev@Base 2.0.7.1
- _ZN12QWeakPointerI7QObjectED1Ev@Base 2.0.7.1
- _ZN12QWeakPointerI7QObjectED2Ev@Base 2.0.7.1
- _ZN14QScopedPointerIN3Dtk4Core23GSettingsBackendPrivateE21QScopedPointerDeleterIS2_EED1Ev@Base 2.0.7.1
- _ZN14QScopedPointerIN3Dtk4Core23GSettingsBackendPrivateE21QScopedPointerDeleterIS2_EED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN12QWeakPointerI7QObjectED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN12QWeakPointerI7QObjectED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN14QScopedPointerIN3Dtk4Core23GSettingsBackendPrivateE21QScopedPointerDeleterIS2_EED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN14QScopedPointerIN3Dtk4Core23GSettingsBackendPrivateE21QScopedPointerDeleterIS2_EED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN15QVarLengthArrayIcLi4096EEC1Ei@Base 2.0.7.1
+ (optional=templinst)_ZN15QVarLengthArrayIcLi4096EEC2Ei@Base 2.0.7.1
  _ZN3Dtk4Core11DLogManager12setLogFormatERK7QString@Base 2.0.7.1
  _ZN3Dtk4Core11DLogManager14getlogFilePathEv@Base 2.0.7.1
  _ZN3Dtk4Core11DLogManager19initConsoleAppenderEv@Base 2.0.7.1
@@ -297,83 +300,85 @@ libdtkcore.so.2 libdtkcore2 #MINVER#
  _ZN3Dtk4Core9LogDeviceD1Ev@Base 2.0.7.1
  _ZN3Dtk4Core9LogDeviceD2Ev@Base 2.0.7.1
  _ZN3Dtk4Core9qtifyNameERK7QString@Base 2.0.7.1
- _ZN4QMapI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE13detach_helperEv@Base 2.0.7.1
- _ZN4QMapI7QStringPN3Dtk4Core12DFileWatcherEE13detach_helperEv@Base 2.0.7.1
- _ZN4QMapI7QStringiE13detach_helperEv@Base 2.0.7.1
- _ZN4QMapI7QStringiED1Ev@Base 2.0.7.1
- _ZN4QMapI7QStringiED2Ev@Base 2.0.7.1
- _ZN4QMapI9QDateTime7QStringED1Ev@Base 2.0.7.1
- _ZN4QMapI9QDateTime7QStringED2Ev@Base 2.0.7.1
- _ZN4QMapIi7QStringED1Ev@Base 2.0.7.1
- _ZN4QMapIi7QStringED2Ev@Base 2.0.7.1
- _ZN5QHashI7QStringiE11deleteNode2EPN9QHashData4NodeE@Base 2.0.7.1
- _ZN5QHashI7QStringiE13detach_helperEv@Base 2.0.7.1
- _ZN5QHashI7QStringiE13duplicateNodeEPN9QHashData4NodeEPv@Base 2.0.7.1
- _ZN5QHashIi15QHashDummyValueE11deleteNode2EPN9QHashData4NodeE@Base 2.0.7.1
- _ZN5QHashIi15QHashDummyValueE13duplicateNodeEPN9QHashData4NodeEPv@Base 2.0.7.1
- _ZN5QHashIi7QStringE11deleteNode2EPN9QHashData4NodeE@Base 2.0.7.1
- _ZN5QHashIi7QStringE13detach_helperEv@Base 2.0.7.1
- _ZN5QHashIi7QStringE13duplicateNodeEPN9QHashData4NodeEPv@Base 2.0.7.1
- _ZN5QHashIi7QStringED1Ev@Base 2.0.7.1
- _ZN5QHashIi7QStringED2Ev@Base 2.0.7.1
- _ZN5QListI5QPairIdiEE18detach_helper_growEii@Base 2.0.7.1
- _ZN5QListI5QPairIdiEE6appendERKS1_@Base 2.0.7.1
- _ZN5QListI5QPairIdiEED1Ev@Base 2.0.7.1
- _ZN5QListI5QPairIdiEED2Ev@Base 2.0.7.1
- _ZN5QListI7QStringE13detach_helperEi@Base 2.0.7.1
- _ZN5QListI7QStringE18detach_helper_growEii@Base 2.0.7.1
- _ZN5QListI7QStringE6appendERKS0_@Base 2.0.7.1
- _ZN5QListI7QStringE9removeAllERKS0_@Base 2.0.7.1
- _ZN5QListI7QStringEC1ERKS1_@Base 2.0.7.1
- _ZN5QListI7QStringEC2ERKS1_@Base 2.0.7.1
- _ZN5QListI7QStringED1Ev@Base 2.0.7.1
- _ZN5QListI7QStringED2Ev@Base 2.0.7.1
- _ZN5QListI8QPointerIN3Dtk4Core14DSettingsGroupEEE13detach_helperEi@Base 2.0.7.1
- _ZN5QListI8QPointerIN3Dtk4Core14DSettingsGroupEEE18detach_helper_growEii@Base 2.0.7.1
- _ZN5QListI8QPointerIN3Dtk4Core14DSettingsGroupEEE6appendERKS4_@Base 2.0.7.1
- _ZN5QListI8QPointerIN3Dtk4Core15DSettingsOptionEEE13detach_helperEi@Base 2.0.7.1
- _ZN5QListI8QPointerIN3Dtk4Core15DSettingsOptionEEE18detach_helper_growEii@Base 2.0.7.1
- _ZN5QListI8QPointerIN3Dtk4Core15DSettingsOptionEEE6appendERKS4_@Base 2.0.7.1
- _ZN5QListI8QPointerIN3Dtk4Core15DSettingsOptionEEED1Ev@Base 2.0.7.1
- _ZN5QListI8QPointerIN3Dtk4Core15DSettingsOptionEEED2Ev@Base 2.0.7.1
- _ZN5QListI9QFileInfoE13detach_helperEi@Base 2.0.7.1
- _ZN5QListI9QFileInfoED1Ev@Base 2.0.7.1
- _ZN5QListI9QFileInfoED2Ev@Base 2.0.7.1
- _ZN5QListIP13inotify_eventE18detach_helper_growEii@Base 2.0.7.1
- _ZN5QListIP13inotify_eventE6appendERKS1_@Base 2.0.7.1
- _ZN5QListIP13inotify_eventED1Ev@Base 2.0.7.1
- _ZN5QListIP13inotify_eventED2Ev@Base 2.0.7.1
- _ZN5QListIPN3Dtk4Core16AbstractAppenderEE18detach_helper_growEii@Base 2.0.7.1
- _ZN5QListIPN3Dtk4Core16AbstractAppenderEE6appendERKS3_@Base 2.0.7.1
- _ZN5QListIPN3Dtk4Core16AbstractAppenderEED1Ev@Base 2.0.7.1
- _ZN5QListIPN3Dtk4Core16AbstractAppenderEED2Ev@Base 2.0.7.1
- _ZN5QListIPN3Dtk4Core16DBaseFileWatcherEE13detach_helperEi@Base 2.0.7.1
- _ZN5QListIPN3Dtk4Core16DBaseFileWatcherEE18detach_helper_growEii@Base 2.0.7.1
- _ZN5QListIPN3Dtk4Core16DBaseFileWatcherEE6appendERKS3_@Base 2.0.7.1
- _ZN5QListIPN3Dtk4Core16DBaseFileWatcherEE9removeOneERKS3_@Base 2.0.7.1
- _ZN5QListIPN3Dtk4Core16DBaseFileWatcherEED1Ev@Base 2.0.7.1
- _ZN5QListIPN3Dtk4Core16DBaseFileWatcherEED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN4QMapI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE13detach_helperEv@Base 2.0.7.1
+ (optional=templinst)_ZN4QMapI7QStringPN3Dtk4Core12DFileWatcherEE13detach_helperEv@Base 2.0.7.1
+ (optional=templinst)_ZN4QMapI7QStringiE13detach_helperEv@Base 2.0.7.1
+ (optional=templinst)_ZN4QMapI7QStringiED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN4QMapI7QStringiED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN4QMapI9QDateTime7QStringED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN4QMapI9QDateTime7QStringED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN4QMapIi7QStringED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN4QMapIi7QStringED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QHashI7QStringiE11deleteNode2EPN9QHashData4NodeE@Base 2.0.7.1
+ (optional=templinst)_ZN5QHashI7QStringiE13detach_helperEv@Base 2.0.7.1
+ (optional=templinst)_ZN5QHashI7QStringiE13duplicateNodeEPN9QHashData4NodeEPv@Base 2.0.7.1
+ (optional=templinst)_ZN5QHashIi15QHashDummyValueE11deleteNode2EPN9QHashData4NodeE@Base 2.0.7.1
+ (optional=templinst)_ZN5QHashIi15QHashDummyValueE13duplicateNodeEPN9QHashData4NodeEPv@Base 2.0.7.1
+ (optional=templinst)_ZN5QHashIi7QStringE11deleteNode2EPN9QHashData4NodeE@Base 2.0.7.1
+ (optional=templinst)_ZN5QHashIi7QStringE13detach_helperEv@Base 2.0.7.1
+ (optional=templinst)_ZN5QHashIi7QStringE13duplicateNodeEPN9QHashData4NodeEPv@Base 2.0.7.1
+ (optional=templinst)_ZN5QHashIi7QStringED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QHashIi7QStringED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI5QPairIdiEE18detach_helper_growEii@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI5QPairIdiEE6appendERKS1_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI5QPairIdiEED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI5QPairIdiEED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI7QStringE13detach_helperEi@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI7QStringE18detach_helper_growEii@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI7QStringE6appendERKS0_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI7QStringE9removeAllERKS0_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI7QStringEC1ERKS1_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI7QStringEC2ERKS1_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI7QStringED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI7QStringED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI8QPointerIN3Dtk4Core14DSettingsGroupEEE13detach_helperEi@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI8QPointerIN3Dtk4Core14DSettingsGroupEEE18detach_helper_growEii@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI8QPointerIN3Dtk4Core14DSettingsGroupEEE6appendERKS4_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI8QPointerIN3Dtk4Core15DSettingsOptionEEE13detach_helperEi@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI8QPointerIN3Dtk4Core15DSettingsOptionEEE18detach_helper_growEii@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI8QPointerIN3Dtk4Core15DSettingsOptionEEE6appendERKS4_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI8QPointerIN3Dtk4Core15DSettingsOptionEEED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI8QPointerIN3Dtk4Core15DSettingsOptionEEED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI9QFileInfoE13detach_helperEi@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI9QFileInfoED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListI9QFileInfoED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIP13inotify_eventE18detach_helper_growEii@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIP13inotify_eventE6appendERKS1_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIP13inotify_eventED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIP13inotify_eventED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16AbstractAppenderEE18detach_helper_growEii@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16AbstractAppenderEE6appendERKS3_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16AbstractAppenderEEC1ERKS4_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16AbstractAppenderEEC2ERKS4_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16AbstractAppenderEED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16AbstractAppenderEED2Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16DBaseFileWatcherEE13detach_helperEi@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16DBaseFileWatcherEE18detach_helper_growEii@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16DBaseFileWatcherEE6appendERKS3_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16DBaseFileWatcherEE9removeOneERKS3_@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16DBaseFileWatcherEED1Ev@Base 2.0.7.1
+ (optional=templinst)_ZN5QListIPN3Dtk4Core16DBaseFileWatcherEED2Ev@Base 2.0.7.1
  _ZN7QStringD1Ev@Base 2.0.7.1
  _ZN7QStringD2Ev@Base 2.0.7.1
- _ZN8QMapDataI7QStringPN3Dtk4Core12DFileWatcherEE7destroyEv@Base 2.0.7.1
- _ZN8QMapDataI7QStringPN3Dtk4Core16AbstractAppenderEE7destroyEv@Base 2.0.7.1
- _ZN8QMapDataI7QStringbE7destroyEv@Base 2.0.7.1
- _ZN8QMapDataI7QStringiE7destroyEv@Base 2.0.7.1
- _ZN8QMapDataIi7QStringE7destroyEv@Base 2.0.7.1
- _ZN8QMapNodeI7QString8QPointerIN3Dtk4Core14DSettingsGroupEEE14destroySubTreeEv@Base 2.0.7.1
- _ZN8QMapNodeI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE14destroySubTreeEv@Base 2.0.7.1
- _ZN8QMapNodeI7QString8QVariantE14destroySubTreeEv@Base 2.0.7.1
- _ZN8QMapNodeI7QStringPN3Dtk4Core12DFileWatcherEE14destroySubTreeEv@Base 2.0.7.1
- _ZN8QMapNodeI7QStringPN3Dtk4Core16AbstractAppenderEE14destroySubTreeEv@Base 2.0.7.1
- _ZN8QMapNodeI7QStringS0_E14destroySubTreeEv@Base 2.0.7.1
- _ZN8QMapNodeI7QStringbE14destroySubTreeEv@Base 2.0.7.1
- _ZN8QMapNodeI7QStringiE14destroySubTreeEv@Base 2.0.7.1
- _ZN8QMapNodeI9QDateTime7QStringE14destroySubTreeEv@Base 2.0.7.1
- _ZN8QMapNodeIi7QStringE14destroySubTreeEv@Base 2.0.7.1
- _ZN9QtPrivate11QSlotObjectIMN3Dtk4Core12DFileWatcherEFvRK7QStringS6_ENS_4ListIJS6_S6_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
- _ZN9QtPrivate11QSlotObjectIMN3Dtk4Core12DFileWatcherEFvRK7QStringS6_S6_S6_ENS_4ListIJS6_S6_S6_S6_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
- _ZN9QtPrivate11QSlotObjectIMN3Dtk4Core16DSettingsBackendEFvRK7QStringRK8QVariantENS_4ListIJS6_S9_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
- _ZN9QtPrivate11QSlotObjectIMN3Dtk4Core16DSettingsBackendEFvvENS_4ListIJEEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapDataI7QStringPN3Dtk4Core12DFileWatcherEE7destroyEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapDataI7QStringPN3Dtk4Core16AbstractAppenderEE7destroyEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapDataI7QStringbE7destroyEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapDataI7QStringiE7destroyEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapDataIi7QStringE7destroyEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapNodeI7QString8QPointerIN3Dtk4Core14DSettingsGroupEEE14destroySubTreeEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapNodeI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE14destroySubTreeEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapNodeI7QString8QVariantE14destroySubTreeEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapNodeI7QStringPN3Dtk4Core12DFileWatcherEE14destroySubTreeEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapNodeI7QStringPN3Dtk4Core16AbstractAppenderEE14destroySubTreeEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapNodeI7QStringS0_E14destroySubTreeEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapNodeI7QStringbE14destroySubTreeEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapNodeI7QStringiE14destroySubTreeEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapNodeI9QDateTime7QStringE14destroySubTreeEv@Base 2.0.7.1
+ (optional=templinst)_ZN8QMapNodeIi7QStringE14destroySubTreeEv@Base 2.0.7.1
+ (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core12DFileWatcherEFvRK7QStringS6_ENS_4ListIJS6_S6_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
+ (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core12DFileWatcherEFvRK7QStringS6_S6_S6_ENS_4ListIJS6_S6_S6_S6_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
+ (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core16DSettingsBackendEFvRK7QStringRK8QVariantENS_4ListIJS6_S9_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
+ (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core16DSettingsBackendEFvvENS_4ListIJEEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
  _ZN9QtPrivate8RefCount3refEv@Base 2.0.7.1
  _ZNK3Dtk4Core12DFileWatcher10metaObjectEv@Base 2.0.7.1
  _ZNK3Dtk4Core12FileAppender4sizeEv@Base 2.0.7.1
@@ -446,27 +451,27 @@ libdtkcore.so.2 libdtkcore2 #MINVER#
  _ZNK3Dtk4Core9DSettings7optionsEv@Base 2.0.7.1
  _ZNK3Dtk4Core9DSettings9getOptionERK7QString@Base 2.0.7.1
  _ZNK3Dtk4Core9DSettings9groupKeysEv@Base 2.0.7.1
- _ZNK4QMapI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE6valuesEv@Base 2.0.7.1
- _ZNK4QMapI7QStringPN3Dtk4Core16AbstractAppenderEE6valuesERKS0_@Base 2.0.7.1
- _ZNK5QHashI7QStringiE8findNodeERKS0_Pj@Base 2.0.7.1
- _ZNK5QHashIi15QHashDummyValueE8findNodeERKij@Base 2.0.7.1
- _ZNK5QHashIi7QStringE8findNodeERKij@Base 2.0.7.1
- _ZNK8QMapDataI7QString8QPointerIN3Dtk4Core14DSettingsGroupEEE8findNodeERKS0_@Base 2.0.7.1
- _ZNK8QMapDataI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE8findNodeERKS0_@Base 2.0.7.1
- _ZNK8QMapDataI7QString8QVariantE8findNodeERKS0_@Base 2.0.7.1
- _ZNK8QMapDataI7QStringPN3Dtk4Core12DFileWatcherEE8findNodeERKS0_@Base 2.0.7.1
- _ZNK8QMapDataI7QStringiE8findNodeERKS0_@Base 2.0.7.1
- _ZNK8QMapNodeI7QString8QPointerIN3Dtk4Core14DSettingsGroupEEE4copyEP8QMapDataIS0_S5_E@Base 2.0.7.1
- _ZNK8QMapNodeI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE4copyEP8QMapDataIS0_S5_E@Base 2.0.7.1
- _ZNK8QMapNodeI7QString8QVariantE4copyEP8QMapDataIS0_S1_E@Base 2.0.7.1
- _ZNK8QMapNodeI7QStringPN3Dtk4Core12DFileWatcherEE4copyEP8QMapDataIS0_S4_E@Base 2.0.7.1
- _ZNK8QMapNodeI7QStringPN3Dtk4Core16AbstractAppenderEE4copyEP8QMapDataIS0_S4_E@Base 2.0.7.1
- _ZNK8QMapNodeI7QStringS0_E4copyEP8QMapDataIS0_S0_E@Base 2.0.7.1
- _ZNK8QMapNodeI7QStringbE4copyEP8QMapDataIS0_bE@Base 2.0.7.1
- _ZNK8QMapNodeI7QStringiE4copyEP8QMapDataIS0_iE@Base 2.0.7.1
- _ZNK8QMapNodeI9QDateTime7QStringE4copyEP8QMapDataIS0_S1_E@Base 2.0.7.1
- _ZNK8QMapNodeIi7QStringE4copyEP8QMapDataIiS0_E@Base 2.0.7.1
- _ZNKSt5ctypeIcE8do_widenEc@Base 2.0.7.1
+ (optional=templinst)_ZNK4QMapI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE6valuesEv@Base 2.0.7.1
+ (optional=templinst)_ZNK4QMapI7QStringPN3Dtk4Core16AbstractAppenderEE6valuesERKS0_@Base 2.0.7.1
+ (optional=templinst)_ZNK5QHashI7QStringiE8findNodeERKS0_Pj@Base 2.0.7.1
+ (optional=templinst)_ZNK5QHashIi15QHashDummyValueE8findNodeERKij@Base 2.0.7.1
+ (optional=templinst)_ZNK5QHashIi7QStringE8findNodeERKij@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapDataI7QString8QPointerIN3Dtk4Core14DSettingsGroupEEE8findNodeERKS0_@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapDataI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE8findNodeERKS0_@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapDataI7QString8QVariantE8findNodeERKS0_@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapDataI7QStringPN3Dtk4Core12DFileWatcherEE8findNodeERKS0_@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapDataI7QStringiE8findNodeERKS0_@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapNodeI7QString8QPointerIN3Dtk4Core14DSettingsGroupEEE4copyEP8QMapDataIS0_S5_E@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapNodeI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE4copyEP8QMapDataIS0_S5_E@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapNodeI7QString8QVariantE4copyEP8QMapDataIS0_S1_E@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapNodeI7QStringPN3Dtk4Core12DFileWatcherEE4copyEP8QMapDataIS0_S4_E@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapNodeI7QStringPN3Dtk4Core16AbstractAppenderEE4copyEP8QMapDataIS0_S4_E@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapNodeI7QStringS0_E4copyEP8QMapDataIS0_S0_E@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapNodeI7QStringbE4copyEP8QMapDataIS0_bE@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapNodeI7QStringiE4copyEP8QMapDataIS0_iE@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapNodeI9QDateTime7QStringE4copyEP8QMapDataIS0_S1_E@Base 2.0.7.1
+ (optional=templinst)_ZNK8QMapNodeIi7QStringE4copyEP8QMapDataIiS0_E@Base 2.0.7.1
+ (optional=templinst)_ZNKSt5ctypeIcE8do_widenEc@Base 2.0.7.1
  _ZTIN3Dtk4Core12DFileWatcherE@Base 2.0.7.1
  _ZTIN3Dtk4Core12FileAppenderE@Base 2.0.7.1
  _ZTIN3Dtk4Core14DObjectPrivateE@Base 2.0.7.1
@@ -542,13 +547,9 @@ libdtkcore.so.2 libdtkcore2 #MINVER#
  _ZTVN3Dtk4Core7DObjectE@Base 2.0.7.1
  _ZTVN3Dtk4Core9DSettingsE@Base 2.0.7.1
  _ZTVN3Dtk4Core9LogDeviceE@Base 2.0.7.1
- _ZThn16_N3Dtk4Core12DFileWatcherD0Ev@Base 2.0.7.1
- _ZThn16_N3Dtk4Core12DFileWatcherD1Ev@Base 2.0.7.1
- _ZThn16_N3Dtk4Core16DBaseFileWatcherD0Ev@Base 2.0.7.1
- _ZThn16_N3Dtk4Core16DBaseFileWatcherD1Ev@Base 2.0.7.1
- _ZThn16_N3Dtk4Core18DFileSystemWatcherD0Ev@Base 2.0.7.1
- _ZThn16_N3Dtk4Core18DFileSystemWatcherD1Ev@Base 2.0.7.1
- _ZThn16_N3Dtk4Core19DFileWatcherManagerD0Ev@Base 2.0.7.1
- _ZThn16_N3Dtk4Core19DFileWatcherManagerD1Ev@Base 2.0.7.1
  _ZZN3Dtk4Core11DLogManager8instanceEvE8instance@Base 2.0.7.1
- _ZZN9QtPrivate15ConnectionTypesINS_4ListIJRK7QStringRK8QVariantEEELb1EE5typesEvE1t@Base 2.0.7.1
+ (optional=templinst)_ZZN9QtPrivate15ConnectionTypesINS_4ListIJRK7QStringRK8QVariantEEELb1EE5typesEvE1t@Base 2.0.7.1
+ (c++)"non-virtual thunk to Dtk::Core::DBaseFileWatcher::~DBaseFileWatcher()@Base" 2.0.7.1
+ (c++)"non-virtual thunk to Dtk::Core::DFileSystemWatcher::~DFileSystemWatcher()@Base" 2.0.7.1
+ (c++)"non-virtual thunk to Dtk::Core::DFileWatcher::~DFileWatcher()@Base" 2.0.7.1
+ (c++)"non-virtual thunk to Dtk::Core::DFileWatcherManager::~DFileWatcherManager()@Base" 2.0.7.1
