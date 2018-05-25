@@ -195,7 +195,7 @@ void DSettingsOptionPrivate::parseJson(const QString &prefixKey, const QJsonObje
             }
             datas.insert(key, stringlist);
         } else {
-            datas.insert(key, value);
+            datas.insert(key, value.toVariant());
         }
     }
 }
