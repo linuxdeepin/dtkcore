@@ -150,7 +150,7 @@ static bool writeGSettingXML(Dtk::Core::DSettings *settings,
         auto value = settings->option(key)->value();
         auto gtype = gsettings_type_from_QVarint(value.type());
         if (gtype.isEmpty()) {
-            qDebug() << "skip unsupport type:" << value.type() << key;
+            qDebug() << "skip unsupported type:" << value.type() << key;
             continue;
         }
 
