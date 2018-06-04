@@ -379,7 +379,6 @@ libdtkcore.so.2 libdtkcore2 #MINVER#
  (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core12DFileWatcherEFvRK7QStringS6_S6_S6_ENS_4ListIJS6_S6_S6_S6_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
  (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core16DSettingsBackendEFvRK7QStringRK8QVariantENS_4ListIJS6_S9_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
  (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core16DSettingsBackendEFvvENS_4ListIJEEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
- _ZN9QtPrivate8RefCount3refEv@Base 2.0.7.1
  _ZNK3Dtk4Core12DFileWatcher10metaObjectEv@Base 2.0.7.1
  _ZNK3Dtk4Core12FileAppender4sizeEv@Base 2.0.7.1
  _ZNK3Dtk4Core12FileAppender8fileNameEv@Base 2.0.7.1
@@ -452,12 +451,7 @@ libdtkcore.so.2 libdtkcore2 #MINVER#
  _ZNK3Dtk4Core9DSettings9getOptionERK7QString@Base 2.0.7.1
  _ZNK3Dtk4Core9DSettings9groupKeysEv@Base 2.0.7.1
  (optional=templinst)_ZNK4QMapI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE6valuesEv@Base 2.0.7.1
- (optional=templinst)_ZNK4QMapI7QStringPN3Dtk4Core16AbstractAppenderEE6valuesERKS0_@Base 2.0.7.1
  (optional=templinst)_ZNK5QHashI7QStringiE8findNodeERKS0_Pj@Base 2.0.7.1
- (optional=templinst)_ZNK5QHashIi15QHashDummyValueE8findNodeERKij@Base 2.0.7.1
- (optional=templinst)_ZNK5QHashIi7QStringE8findNodeERKij@Base 2.0.7.1
- (optional=templinst)_ZNK8QMapDataI7QString8QPointerIN3Dtk4Core14DSettingsGroupEEE8findNodeERKS0_@Base 2.0.7.1
- (optional=templinst)_ZNK8QMapDataI7QString8QPointerIN3Dtk4Core15DSettingsOptionEEE8findNodeERKS0_@Base 2.0.7.1
  (optional=templinst)_ZNK8QMapDataI7QString8QVariantE8findNodeERKS0_@Base 2.0.7.1
  (optional=templinst)_ZNK8QMapDataI7QStringPN3Dtk4Core12DFileWatcherEE8findNodeERKS0_@Base 2.0.7.1
  (optional=templinst)_ZNK8QMapDataI7QStringiE8findNodeERKS0_@Base 2.0.7.1
