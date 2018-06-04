@@ -375,10 +375,6 @@ libdtkcore.so.2 libdtkcore2 #MINVER#
  (optional=templinst)_ZN8QMapNodeI7QStringiE14destroySubTreeEv@Base 2.0.7.1
  (optional=templinst)_ZN8QMapNodeI9QDateTime7QStringE14destroySubTreeEv@Base 2.0.7.1
  (optional=templinst)_ZN8QMapNodeIi7QStringE14destroySubTreeEv@Base 2.0.7.1
- (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core12DFileWatcherEFvRK7QStringS6_ENS_4ListIJS6_S6_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
- (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core12DFileWatcherEFvRK7QStringS6_S6_S6_ENS_4ListIJS6_S6_S6_S6_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
- (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core16DSettingsBackendEFvRK7QStringRK8QVariantENS_4ListIJS6_S9_EEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
- (optional=templinst)_ZN9QtPrivate11QSlotObjectIMN3Dtk4Core16DSettingsBackendEFvvENS_4ListIJEEEvE4implEiPNS_15QSlotObjectBaseEP7QObjectPPvPb@Base 2.0.7.1
  _ZNK3Dtk4Core12DFileWatcher10metaObjectEv@Base 2.0.7.1
  _ZNK3Dtk4Core12FileAppender4sizeEv@Base 2.0.7.1
  _ZNK3Dtk4Core12FileAppender8fileNameEv@Base 2.0.7.1
@@ -542,7 +538,6 @@ libdtkcore.so.2 libdtkcore2 #MINVER#
  _ZTVN3Dtk4Core9DSettingsE@Base 2.0.7.1
  _ZTVN3Dtk4Core9LogDeviceE@Base 2.0.7.1
  _ZZN3Dtk4Core11DLogManager8instanceEvE8instance@Base 2.0.7.1
- (optional=templinst)_ZZN9QtPrivate15ConnectionTypesINS_4ListIJRK7QStringRK8QVariantEEELb1EE5typesEvE1t@Base 2.0.7.1
  (c++)"non-virtual thunk to Dtk::Core::DBaseFileWatcher::~DBaseFileWatcher()@Base" 2.0.7.1
  (c++)"non-virtual thunk to Dtk::Core::DFileSystemWatcher::~DFileSystemWatcher()@Base" 2.0.7.1
  (c++)"non-virtual thunk to Dtk::Core::DFileWatcher::~DFileWatcher()@Base" 2.0.7.1
