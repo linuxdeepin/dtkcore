@@ -1,3 +1,14 @@
+<a name="2.0.9"></a>
+## 2.0.9 (2018-07-20)
+
+
+#### Bug Fixes
+
+*   remove qt symbols ([57ec78ba](https://github.com/linuxdeepin/dtkcore/commit/57ec78ba685a53692b0260d3d558d8b0915fc3e4))
+*   non array type value is wrong on parse josn file ([9f138664](https://github.com/linuxdeepin/dtkcore/commit/9f13866439d8d650893434594da023e7d331d866))
+
+
+
 <a name="2.0.8.1"></a>
 ### 2.0.8.1 (2018-05-14)
 
