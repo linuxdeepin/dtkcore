@@ -23,3 +23,5 @@ src/DtkCore
 src/dtkcore_config.h
 cmake/DtkCore/DtkCoreConfig.cmake
 src/qt_lib_d*.pri
+
+bin/

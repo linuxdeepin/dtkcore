@@ -9,6 +9,7 @@ MODULE_ID=$$DTK_MODULE
 mod_inst_pfx=$$_PRO_FILE_PWD_
 MODULE_PRI = $$mod_inst_pfx/qt_lib_$${MODULE_ID}.pri
 module_libs = $$target.path
+module_tools = $$TOOL_INSTALL_DIR
 MODULE_INCLUDES = $$includes.path
 DTK_MODULE_DEPENDS=$$find(QT, dtk*)
 
@@ -30,6 +31,9 @@ host_build: \
     module_libs = "\$\$QT_MODULE_HOST_LIB_BASE"
 else: \
     module_libs = "\$\$QT_MODULE_LIB_BASE"
+}
+isEmpty(module_tools) {
+    module_tools=$$module_libs/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}/D$$upper($$member($$list($$split(TARGET,)), 3, 3))$$join($$list($$member($$list($$split(TARGET,)), 4, -1)))/bin
 }
 # In addition to the library's private deps, the private module's deps
 # are logically runtime deps of the public module.
@@ -75,6 +79,7 @@ MODULE_PRI_CONT = \
     "" \
     "QT.$${MODULE_ID}.name = $${TARGET}" \
     "QT.$${MODULE_ID}.module = $$module_module" \
+    "QT.$${MODULE_ID}.tools = $$module_tools" \
     "QT.$${MODULE_ID}.libs = $$module_libs" \
     $$module_master \
     "QT.$${MODULE_ID}.includes = $$MODULE_INCLUDES" \

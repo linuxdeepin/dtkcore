@@ -60,6 +60,10 @@ isEmpty(LIB_INSTALL_DIR) {
     }
 }
 
+isEmpty(BIN_INSTALL_DIR) {
+    TOOL_INSTALL_DIR=$$LIB_INSTALL_DIR/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}/D$$upper($$member($$list($$split(TARGET,)), 3, 3))$$join($$list($$member($$list($$split(TARGET,)), 4, -1)))/bin
+}
+
 isEmpty(target.path): target.path = $$LIB_INSTALL_DIR
 
 isEmpty(INCLUDE_INSTALL_DIR) {

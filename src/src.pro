@@ -6,7 +6,11 @@ TARGET = dtkcore
 include(dtk_build.prf)
 
 INCLUDEPATH += $$PWD
-HEADERS += $$PWD/dtkcore_global.h
+HEADERS += $$PWD/dtkcore_global.h \
+    dsysinfo.h
+
+SOURCES += \
+    dsysinfo.cpp
 
 include($$PWD/base/base.pri)
 include($$PWD/util/util.pri)
@@ -76,7 +80,11 @@ defineTest(updateDtkCoreConfigFile) {
 
 # ----------------------------------------------
 # install config
-includes.files += $$PWD/*.h $$PWD/dtkcore_config.h $$PWD/DtkCore
+includes.files += \
+    $$PWD/*.h \
+    $$PWD/dtkcore_config.h \
+    $$PWD/DtkCore \
+    $$PWD/DSysInfo
 
 INSTALLS += includes target
 
@@ -94,4 +102,17 @@ include(dtk_module.prf)
 
 prf.files+= $$PWD/*.prf
 prf.path = $${QT_HOST_DATA}/mkspecs/features
+
+linux {
+    # dtk for qmake
+    include(dtk_qmake.prf)
+
+    deepin_os_release_tool.files=$$PWD/../bin/deepin-os-release
+    deepin_os_release_tool.path=$$TOOL_INSTALL_DIR
+
+    INSTALLS += deepin_os_release_tool
+} else {
+    prf.files-=$$PWD/dtk_qmake.prf
+}
+
 INSTALLS += prf
