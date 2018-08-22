@@ -4,8 +4,8 @@ DEFINES += Q_HOST_NAME=\\\"$$QMAKE_HOST.arch\\\" Q_HOST_$$upper($$QMAKE_HOST.arc
 isEqual(TARGET, dtkcore) {
     # build tools/deepin-os-release first
     QMAKE_CONFIG_TESTS_DIR_BAK=$$QMAKE_CONFIG_TESTS_DIR
-    QMAKE_CONFIG_TESTS_DIR=$$_PRO_FILE_PWD_/../tools
     load(configure)
+    QMAKE_CONFIG_TESTS_DIR=$$_PRO_FILE_PWD_/../tools
     qtCompileTest(deepin-os-release)
     DEEPIN_OS_RELEASE_TOOL=$$_PRO_FILE_PWD_/../bin/deepin-os-release
     QMAKE_CONFIG_TESTS_DIR=$$QMAKE_CONFIG_TESTS_DIR_BAK
