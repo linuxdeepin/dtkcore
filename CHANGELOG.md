@@ -1,3 +1,17 @@
+<a name="2.0.9.4"></a>
+## 2.0.9.4 (2018-09-06)
+
+
+#### Bug Fixes
+
+*   can not build on Qt 5.6.1 ([752bf435](https://github.com/linuxdeepin/dtkcore/commit/752bf435a99330241b99d85a4020f2cddd4ff48e))
+
+#### Features
+
+*   add DSysInfo class ([16faf6c8](https://github.com/linuxdeepin/dtkcore/commit/16faf6c84d1a2ce520eecd42f369b78d24e03b9c))
+
+
+
 <a name="2.0.9"></a>
 ## 2.0.9 (2018-07-20)
 
