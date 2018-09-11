@@ -34,6 +34,7 @@ defineReplace(formatString) {
 }
 
 DEEPIN_OS_TYPE = $$system($$DEEPIN_OS_RELEASE_TOOL --deepin-type)
+DEEPIN_OS_VERSION = $$system($$DEEPIN_OS_RELEASE_TOOL --deepin-version)
 DISTRIB_ID = $$system($$DEEPIN_OS_RELEASE_TOOL --product-type)
 DISTRIB_RELEASE = $$system($$DEEPIN_OS_RELEASE_TOOL --product-version)
 
@@ -45,14 +46,11 @@ else {
 
     QMAKE_PLATFORM += $$lower($$DISTRIB_ID)
 
-    !isEmpty(DISTRIB_ID): DEFINES *= Q_OS_$$upper($$DISTRIB_ID)
+    !isEmpty(DISTRIB_ID): DEFINES += Q_OS_$$upper($$DISTRIB_ID)
     CONFIG *= $$QMAKE_PLATFORM
 
-    isEmpty(DISTRIB_RELEASE): warning(No value of the "--product-version")
-    else {
-        DISTRIB_RELEASE = $$formatString($$DISTRIB_RELEASE)
-        !isEmpty(DISTRIB_RELEASE): DEFINES *= Q_OS_VERSION=\\\"$$DISTRIB_RELEASE\\\"
-    }
+    DISTRIB_RELEASE = $$formatString($$DISTRIB_RELEASE)
+    DEFINES += Q_OS_VERSION=\\\"$$DISTRIB_RELEASE\\\"
 }
 
 isEmpty(DEEPIN_OS_TYPE): warning(No value of the "--deepin-type" in the process "$$DEEPIN_OS_RELEASE_TOOL")
@@ -60,14 +58,15 @@ else {
     DEEPIN_OS_TYPE = $$formatString($$DEEPIN_OS_TYPE)
 
     message(Deepin OS Type: $$DEEPIN_OS_TYPE)
-
-    QMAKE_PLATFORM += deepin
+    message(Deepin OS Version: $$DEEPIN_OS_VERSION)
 
     !isEmpty(DEEPIN_OS_TYPE) {
-        QMAKE_PLATFORM += deepin_$$lower($$DEEPIN_OS_TYPE)
-        DEFINES *= Q_OS_DEEPIN_$$upper($$DEEPIN_OS_TYPE)
+        QMAKE_PLATFORM += deepin_$$lower($$DEEPIN_OS_TYPE) deepin_dde
+        DEFINES += Q_OS_DEEPIN_$$upper($$DEEPIN_OS_TYPE) DEEPIN_DDE
     }
 
+    DEEPIN_OS_VERSION = $$formatString($$DEEPIN_OS_VERSION)
+    DEFINES += Q_OS_DEEPIN_VERSION=\\\"$$DEEPIN_OS_VERSION\\\"
+
     CONFIG *= $$QMAKE_PLATFORM
-    DEFINES *= Q_OS_DEEPIN
 }

@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
     QCommandLineParser parser;
     QCommandLineOption option_all("all");
     QCommandLineOption option_deepin_type("deepin-type");
+    QCommandLineOption option_deepin_version("deepin-version");
     QCommandLineOption option_deepin_edition("deepin-edition");
     QCommandLineOption option_deepin_copyright("deepin-copyright");
     QCommandLineOption option_product_type("product-type");
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
     QCommandLineOption optioin_memory_size("memory-size");
     QCommandLineOption optioin_disk_size("disk-size");
 
-    parser.addOptions({option_all, option_deepin_type, option_deepin_edition,
+    parser.addOptions({option_all, option_deepin_type, option_deepin_version, option_deepin_edition,
                        option_deepin_copyright, option_product_type, option_product_version,
                        option_computer_name, option_cpu_model, optioin_memory_size, optioin_disk_size});
     parser.addHelpOption();
@@ -59,9 +60,16 @@ int main(int argc, char *argv[])
         printf("Memory Size: %f GiB\n", DSysInfo::memoryTotalSize() / 1024.0 / 1024 / 1024);
         printf("Disk Size: %f GiB\n", DSysInfo::systemDiskSize() / 1024.0 / 1024 / 1024);
 
-        printf("Deepin Type: %s\n", qPrintable(DSysInfo::deepinTypeDisplayName(QLocale::c())));
-        printf("Deepin Edition: %s\n", qPrintable(DSysInfo::deepinEdition()));
-        printf("Deepin Copyright: %s\n", qPrintable(DSysInfo::deepinCopyright()));
+        if (DSysInfo::isDDE()) {
+            printf("Deepin Type: %s\n", qPrintable(DSysInfo::deepinTypeDisplayName()));
+            printf("Deepin Version: %s\n", qPrintable(DSysInfo::deepinVersion()));
+
+            if (!DSysInfo::deepinEdition().isEmpty())
+                printf("Deepin Edition: %s\n", qPrintable(DSysInfo::deepinEdition()));
+
+            if (!DSysInfo::deepinCopyright().isEmpty())
+                printf("Deepin Copyright: %s\n", qPrintable(DSysInfo::deepinCopyright()));
+        }
 
         printf("Operating System Name: %s\n", qPrintable(DSysInfo::operatingSystemName()));
         printf("Product Type: %s\n", qPrintable(DSysInfo::productTypeString()));
@@ -69,6 +77,8 @@ int main(int argc, char *argv[])
     } else {
         if (parser.isSet(option_deepin_type))
             printf("%s", qPrintable(DSysInfo::deepinTypeDisplayName(QLocale::c())));
+        else if (parser.isSet(option_deepin_version))
+            printf("%s", qPrintable(DSysInfo::deepinVersion()));
         else if (parser.isSet(option_deepin_edition))
             printf("%s", qPrintable(DSysInfo::deepinEdition()));
         else if (parser.isSet(option_deepin_copyright))

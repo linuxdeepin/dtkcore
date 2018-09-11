@@ -48,6 +48,7 @@ public:
 #ifdef Q_OS_LINUX
     DSysInfo::DeepinType deepinType = DSysInfo::DeepinType(-1);
     QMap<QString, QString> deepinTypeMap; //Type Name with Language
+    QString deepinVersion;
     QString deepinEdition;
     QString deepinCopyright;
 #endif
@@ -100,7 +101,9 @@ void DSysInfoPrivate::ensureDeepinInfo()
 
         const auto key_value = qMakePair(list.first().trimmed(), list.last().trimmed());
 
-        if (line.startsWith("Type")) {
+        if (key_value.first == "Version") {
+            deepinVersion = key_value.second;
+        } else if (line.startsWith("Type")) {
             if (key_value.first == "Type") {
                 deepinTypeMap[QString()] = QString::fromLatin1(key_value.second);
             } else if (key_value.first.at(4) == '[' && key_value.first.at(key_value.first.size() - 1) == ']') {
@@ -134,11 +137,6 @@ void DSysInfoPrivate::ensureDeepinInfo()
     } else {
         deepinType = DSysInfo::UnknownDeepin;
     }
-
-    if (!deepinTypeMap.isEmpty() && productTypeString.isEmpty()) {
-        productTypeString = "deepin";
-        productType = DSysInfo::Deepin;
-    }
 }
 
 static QString unquote(const QByteArray &value)
@@ -171,21 +169,21 @@ static bool readEtcFile(DSysInfoPrivate *info, const char *filename,
 
         const QByteArray line(buf, buf_length - 1);
 
-        if (line.startsWith(idKey)) {
+        if (info->productTypeString.isEmpty() && line.startsWith(idKey)) {
             const QByteArray value(line.constData() + idKey.size());
             info->productTypeString = unquote(value);
             ++valid_data_count;
             continue;
         }
 
-        if (line.startsWith(prettyNameKey)) {
+        if (info->prettyName.isEmpty() && line.startsWith(prettyNameKey)) {
             const QByteArray value(line.constData() + prettyNameKey.size());
             info->prettyName = unquote(value);
             ++valid_data_count;
             continue;
         }
 
-        if (line.startsWith(versionKey)) {
+        if (info->productVersion.isEmpty() && line.startsWith(versionKey)) {
             const QByteArray value(line.constData() + versionKey.size());
             info->productVersion = unquote(value);
             ++valid_data_count;
@@ -219,8 +217,8 @@ void DSysInfoPrivate::ensureReleaseInfo()
     }
 
 #ifdef Q_OS_LINUX
-    if (!readOsRelease(this))
-        readLsbRelease(this);
+    readOsRelease(this);
+    readLsbRelease(this);
 
     if (productTypeString.isEmpty()) {
         productType = DSysInfo::UnknownType;
@@ -355,10 +353,14 @@ bool DSysInfo::isDeepin()
 {
     siGlobal->ensureReleaseInfo();
 
-    if (siGlobal->productTypeString.isEmpty())
-        siGlobal->ensureDeepinInfo();
-
     return productType() == Deepin;
+}
+
+bool DSysInfo::isDDE()
+{
+    siGlobal->ensureDeepinInfo();
+
+    return siGlobal->deepinType != UnknownDeepin;
 }
 
 DSysInfo::DeepinType DSysInfo::deepinType()
@@ -373,6 +375,13 @@ QString DSysInfo::deepinTypeDisplayName(const QLocale &locale)
     siGlobal->ensureDeepinInfo();
 
     return siGlobal->deepinTypeMap.value(locale.name(), siGlobal->deepinTypeMap.value(QString()));
+}
+
+QString DSysInfo::deepinVersion()
+{
+    siGlobal->ensureDeepinInfo();
+
+    return siGlobal->deepinVersion;
 }
 
 QString DSysInfo::deepinEdition()

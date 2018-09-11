@@ -53,8 +53,10 @@ public:
 
 #ifdef Q_OS_LINUX
     static bool isDeepin();
+    static bool isDDE();
     static DeepinType deepinType();
     static QString deepinTypeDisplayName(const QLocale &locale = QLocale::system());
+    static QString deepinVersion();
     static QString deepinEdition();
     static QString deepinCopyright();
 #endif
