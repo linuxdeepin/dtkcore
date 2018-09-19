@@ -431,7 +431,7 @@ QString AbstractStringAppender::formattedString(const QDateTime& timeStamp, Logg
       else if (command == QLatin1String("pid"))
         chunk = QString::number(QCoreApplication::applicationPid());
 
-      // Appplication name
+      // Application name
       else if (command == QLatin1String("appname"))
         chunk = QCoreApplication::applicationName();
 
