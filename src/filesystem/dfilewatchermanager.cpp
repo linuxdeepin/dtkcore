@@ -40,6 +40,16 @@ DFileWatcherManagerPrivate::DFileWatcherManagerPrivate(DFileWatcherManager *qq)
 
 }
 
+/*!
+    \~english \class DFileWatcherManager
+    \~english \brief The DFileWatcherManager class can help you manage file watchers and get signal when file got changed.
+*/
+
+/*!
+    \~chinese \class DFileWatcherManager
+    \~chinese \brief DFileWatcherManager 类可以帮助管理一系列 DFileWatcher 文件监视器，并在文件变动时发送信号通知。
+*/
+
 DFileWatcherManager::DFileWatcherManager(QObject *parent)
     : QObject(parent)
     , DObject(*new DFileWatcherManagerPrivate(this))
@@ -52,6 +62,13 @@ DFileWatcherManager::~DFileWatcherManager()
 
 }
 
+/*!
+ * \~chinese \brief 为路径 \a filePatch 创建 DFileWatcher 并将其添加到 DFileWatcherManager 中.
+ * \~english \brief Add file watcher for \a filePatch to the file watcher manager.
+ *
+ * \~chinese \return 被创建并添加到 DFileWatcherManager 的 DFileWatcher
+ * \~english \return The file watcher which got created and added into the file watcher manager.
+ */
 DFileWatcher *DFileWatcherManager::add(const QString &filePath)
 {
     Q_D(DFileWatcherManager);
@@ -89,6 +106,10 @@ DFileWatcher *DFileWatcherManager::add(const QString &filePath)
     return watcher;
 }
 
+/*!
+ * \~chinese \brief 从当前 DFileWatcherManager 中移除监视 \a filePath 的 DFileWatcher.
+ * \~english \brief Remove file watcher for \a filePatch from the file watcher manager.
+ */
 void DFileWatcherManager::remove(const QString &filePath)
 {
     Q_D(DFileWatcherManager);
