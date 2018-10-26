@@ -1,3 +1,13 @@
+<a name="2.0.9.5"></a>
+## 2.0.9.5 (2018-10-26)
+
+
+#### Features
+
+*   update version number for expermimental ([02b5d5c1](https://github.com/linuxdeepin/dtkcore/commit/02b5d5c1e01a05f57651b774b02cae31ef9a549f))
+
+
+
 <a name="2.0.9"></a>
 ## 2.0.9 (2018-07-20)
 
