@@ -21,8 +21,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
-
-class DSnapStandardPaths
+class DSnapStandardPathsPrivate
 {
 public:
     inline  static QString writableLocation(QStandardPaths::StandardLocation /*type*/)
@@ -49,10 +48,26 @@ public:
     }
 
 private:
-    DSnapStandardPaths();
-    ~DSnapStandardPaths();
-    Q_DISABLE_COPY(DSnapStandardPaths)
+    DSnapStandardPathsPrivate();
+    ~DSnapStandardPathsPrivate();
+    Q_DISABLE_COPY(DSnapStandardPathsPrivate)
 };
+
+
+/*!
+ * \~chinese \class Dtk::Core::DStandardPaths
+ * \brief DStandardPaths提供兼容Snap/Dtk标准的路径模式。DStandardPaths实现了Qt的QStandardPaths主要接口。
+ * \sa QStandardPaths
+ *
+ * \enum DStandardPaths::Mode
+ * \brief DStandardPaths支持的路径产生模式。
+ * \var DStandardPaths::Mode DStandardPaths::Auto
+ * \brief 和Qt标准的行为表现一致。
+ * \var DStandardPaths::Mode DStandardPaths::Snap
+ * \brief 读取SNAP相关的环境变量，支持将配置存储在SNAP对应目录。
+ * \var DStandardPaths::Mode DStandardPaths::Test
+ * \brief 和Qt标准的行为表现一致，但是会开启测试模式，参考QStandardPaths::setTestModeEnabled。
+ */
 
 
 static DStandardPaths::Mode s_mode = DStandardPaths::Auto;
@@ -64,7 +79,7 @@ QString DStandardPaths::writableLocation(QStandardPaths::StandardLocation type)
     case Test:
         return  QStandardPaths::writableLocation(type);
     case Snap:
-        return DSnapStandardPaths::writableLocation(type);
+        return DSnapStandardPathsPrivate::writableLocation(type);
     }
     return QStandardPaths::writableLocation(type);
 }
@@ -76,7 +91,7 @@ QStringList DStandardPaths::standardLocations(QStandardPaths::StandardLocation t
     case Test:
         return  QStandardPaths::standardLocations(type);
     case Snap:
-        return DSnapStandardPaths::standardLocations(type);
+        return DSnapStandardPathsPrivate::standardLocations(type);
     }
     return  QStandardPaths::standardLocations(type);
 }

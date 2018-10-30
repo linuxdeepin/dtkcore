@@ -1,15 +1,30 @@
 #include "dpathbuf.h"
 
 /*!
- * \class DPathBuf
- * \brief DPathBuf cat path friendly and supoort multiplatform.
+ * \~english \class Dtk::Core::DPathBuf
+ * \brief Dtk::Core::DPathBuf cat path friendly and supoort multiplatform.
  */
 
 /*!
- * \brief Create DPathBuf from a string.
+ * \~chinese \class Dtk::Core::DPathBuf
+ * \brief Dtk::Core::DPathBuf是一个用于跨平台拼接路径的辅助类。
+ * 它能够方便的写出链式结构的路径拼接代码。
+```
+DPathBuf logPath(QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first());
+logPath = logPath / ".cache" / "deepin" / "deepin-test-dtk" / "deepin-test-dtk.log";
+```
+ */
+
+
+DCORE_BEGIN_NAMESPACE
+
+/*!
+ * \brief Create Dtk::Core::DPathBuf from string.
  * \param path
  */
-Dtk::Core::DPathBuf::DPathBuf(const QString &path)
+DPathBuf::DPathBuf(const QString &path)
 {
     m_path = QDir(path).absolutePath();
 }
+
+DCORE_END_NAMESPACE

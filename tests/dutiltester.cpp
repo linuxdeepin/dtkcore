@@ -42,7 +42,7 @@ void TestDUtil::testLogPath()
     qApp->setApplicationName("deepin-test-dtk");
 
     DPathBuf logPath(QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first());
-    logPath = logPath / ".cache/deepin/deepin-test-dtk/deepin-test-dtk.log";
+    logPath = logPath / ".cache" / "deepin" / "deepin-test-dtk" / "deepin-test-dtk.log";
 
     QCOMPARE(DLogManager::getlogFilePath(), logPath.toString());
 }
@@ -160,40 +160,41 @@ void TestDUtil::testDBusSender()
 {
     // basic method call
     DDBusSender()
-        .service("com.deepin.dde.ControlCenter")
-        .interface("com.deepin.dde.ControlCenter")
-        .path("/com/deepin/dde/ControlCenter")
-        .method("ShowPage")
-        .arg(QString("update"))
-        .arg(QString("available-updates"))
-        .call();
+    .service("com.deepin.dde.ControlCenter")
+    .interface("com.deepin.dde.ControlCenter")
+    .path("/com/deepin/dde/ControlCenter")
+    .method("ShowPage")
+    .arg(QString("update"))
+    .arg(QString("available-updates"))
+    .call();
 
     // property set
     QDBusPendingReply<> r1 = DDBusSender()
-        .service("com.deepin.dde.daemon.Dock")
-        .interface("com.deepin.dde.daemon.Dock")
-        .path("/com/deepin/dde/daemon/Dock")
-        .property("DisplayMode")
-        .set(1); // set to efficient mode
+                             .service("com.deepin.dde.daemon.Dock")
+                             .interface("com.deepin.dde.daemon.Dock")
+                             .path("/com/deepin/dde/daemon/Dock")
+                             .property("DisplayMode")
+                             .set(1); // set to efficient mode
 
     // property get
     QDBusPendingReply<QVariant> r2 = DDBusSender()
-        .service("com.deepin.dde.daemon.Dock")
-        .interface("com.deepin.dde.daemon.Dock")
-        .path("/com/deepin/dde/daemon/Dock")
-        .property("DisplayMode")
-        .get(); // read mode
+                                     .service("com.deepin.dde.daemon.Dock")
+                                     .interface("com.deepin.dde.daemon.Dock")
+                                     .path("/com/deepin/dde/daemon/Dock")
+                                     .property("DisplayMode")
+                                     .get(); // read mode
 
-    if (!r2.isError() && !r1.isError())
+    if (!r2.isError() && !r1.isError()) {
         Q_ASSERT(r2.value().toInt() == 1);
+    }
 
     // complex type property get
     QDBusPendingReply<QVariant> r3 = DDBusSender()
-        .service("com.deepin.dde.ControlCenter")
-        .interface("com.deepin.dde.ControlCenter")
-        .path("/com/deepin/dde/ControlCenter")
-        .property("Rect")
-        .get();
+                                     .service("com.deepin.dde.ControlCenter")
+                                     .interface("com.deepin.dde.ControlCenter")
+                                     .path("/com/deepin/dde/ControlCenter")
+                                     .property("Rect")
+                                     .get();
 
     QVariant variant = r3.value();
     const QDBusArgument v = variant.value<QDBusArgument>();
