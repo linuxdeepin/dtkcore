@@ -29,7 +29,7 @@ class LIBDTKCORESHARED_EXPORT DSettingsBackend : public QObject
 {
     Q_OBJECT
 public:
-    explicit DSettingsBackend(QObject *parent = 0): QObject(parent)
+    explicit DSettingsBackend(QObject *parent = Q_NULLPTR): QObject(parent)
     {
         connect(this, &DSettingsBackend::sync, this, &DSettingsBackend::doSync, Qt::QueuedConnection);
         connect(this, &DSettingsBackend::setOption, this, &DSettingsBackend::doSetOption, Qt::QueuedConnection);
