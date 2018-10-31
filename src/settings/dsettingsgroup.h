@@ -49,9 +49,6 @@ public:
     QList<QPointer<DSettingsOption> > options() const;
 
     static QPointer<DSettingsGroup> fromJson(const QString &prefixKey, const QJsonObject &group);
-Q_SIGNALS:
-
-public Q_SLOTS:
 
 private:
     void parseJson(const QString &prefixKey, const QJsonObject &group);

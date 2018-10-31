@@ -47,6 +47,12 @@ public:
     Q_DECLARE_PUBLIC(DSettingsGroup)
 };
 
+/*!
+ * \class DSettingsGroup
+ * \brief A group of DSettingsOption and DSettingsGroup.
+ * DSettingsGroup can contain a lost option and subgroup.
+ */
+
 DSettingsGroup::DSettingsGroup(QObject *parent) :
     QObject(parent), dd_ptr(new DSettingsGroupPrivate(this))
 {
@@ -57,49 +63,82 @@ DSettingsGroup::~DSettingsGroup()
 {
 
 }
-
+/*!
+ * \brief Get direct parent group of this group.
+ * \return
+ */
 QPointer<DSettingsGroup> DSettingsGroup::parentGroup() const
 {
     Q_D(const DSettingsGroup);
     return d->parent;
 }
 
+/*!
+ * \brief Change the direct parent group of this group.
+ * \param parentGroup
+ */
 void DSettingsGroup::setParentGroup(QPointer<DSettingsGroup> parentGroup)
 {
     Q_D(DSettingsGroup);
     d->parent = parentGroup;
 }
 
+/*!
+ * \brief Return the full key of this group, include all parent.
+ * \return
+ */
 QString DSettingsGroup::key() const
 {
     Q_D(const DSettingsGroup);
     return d->key;
 }
 
+/*!
+ * \brief Get display name of this group, it may be translated.
+ * \return
+ */
 QString DSettingsGroup::name() const
 {
     Q_D(const DSettingsGroup);
     return d->name;
 }
 
+/*!
+ * \brief Check this group will show on DSettings dialog.
+ * \return true if group not bind to ui element.
+ */
 bool DSettingsGroup::isHidden() const
 {
     Q_D(const DSettingsGroup);
     return d->hide;
 }
 
+/*!
+ * \brief Get the child group of groupKey
+ * \param groupKey is child group key
+ * \return
+ */
 QPointer<DSettingsGroup> DSettingsGroup::childGroup(const QString &groupKey) const
 {
     Q_D(const DSettingsGroup);
     return d->childGroups.value(groupKey);
 }
 
+/*!
+ * \brief Get the child option of key
+ * \param key is child option key
+ * \return
+ */
 QPointer<DSettingsOption> DSettingsGroup::option(const QString &key) const
 {
     Q_D(const DSettingsGroup);
     return d->childOptions.value(key);
 }
 
+/*!
+ * \brief Enum all direct child group of this group
+ * \return
+ */
 QList<QPointer<DSettingsGroup> > DSettingsGroup::childGroups() const
 {
     Q_D(const DSettingsGroup);
@@ -110,6 +149,10 @@ QList<QPointer<DSettingsGroup> > DSettingsGroup::childGroups() const
     return grouplist;
 }
 
+/*!
+ * \brief Enum all direct child option with the raw order in json description file.
+ * \return
+ */
 QList<QPointer<DSettingsOption> > DSettingsGroup::childOptions() const
 {
     Q_D(const DSettingsGroup);
@@ -120,12 +163,22 @@ QList<QPointer<DSettingsOption> > DSettingsGroup::childOptions() const
     return optionlist;
 }
 
+/*!
+ * \brief Enum all direct child option of this group.
+ * \return
+ */
 QList<QPointer<DSettingsOption> > DSettingsGroup::options() const
 {
     Q_D(const DSettingsGroup);
     return d->options.values();
 }
 
+/*!
+ * \brief Convert QJsonObject to DSettingsGroup.
+ * \param prefixKey instead parse prefix key from parent.
+ * \param json is an QJsonObejct instance.
+ * \sa QPointer<DSettingsOption> Dtk::Core::DSettingsGroup::parseJson(const QString &prefixKey, const QJsonObject &json)
+ */
 QPointer<DSettingsGroup> DSettingsGroup::fromJson(const QString &prefixKey, const QJsonObject &group)
 {
     auto groupPtr = QPointer<DSettingsGroup>(new DSettingsGroup);
@@ -133,6 +186,12 @@ QPointer<DSettingsGroup> DSettingsGroup::fromJson(const QString &prefixKey, cons
     return groupPtr;
 }
 
+/*!
+ * \brief Parse QJsonObject to DSettingsGroup.
+ * \param prefixKey instead parse prefix key from parent.
+ * \param json is an QJsonObejct instance.
+ * \sa QPointer<DSettingsOption> Dtk::Core::DSettingsGroup::fromJson(const QString &prefixKey, const QJsonObject &json)
+ */
 void DSettingsGroup::parseJson(const QString &prefixKey, const QJsonObject &group)
 {
     Q_D(DSettingsGroup);

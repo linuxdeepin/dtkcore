@@ -49,7 +49,7 @@ public:
     QString viewType() const;
     bool isHidden() const;
 
-    static QPointer<DSettingsOption> fromJson(const QString &prefixKey, const QJsonObject &group);
+    static QPointer<DSettingsOption> fromJson(const QString &prefixKey, const QJsonObject &json);
 Q_SIGNALS:
     void valueChanged(QVariant value);
     void dataChanged(const QString &dataType, QVariant value);
