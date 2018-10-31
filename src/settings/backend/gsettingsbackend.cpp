@@ -11,7 +11,6 @@
 
 DCORE_BEGIN_NAMESPACE
 
-
 QString unqtifyName(const QString &name)
 {
     QString ret;
@@ -45,6 +44,15 @@ public:
     Q_DECLARE_PUBLIC(GSettingsBackend)
 };
 
+/*!
+ * \class GSettingsBackend
+ * \brief Storage backend of DSettings use gsettings.
+ *
+ * You should generate gsetting schema with /usr/lib/dtk2/dtk-settings.
+ *
+ * You can find this tool from libdtkcore-bin. use /usr/lib/dtk2/dtk-settings -h for help.
+ */
+
 GSettingsBackend::GSettingsBackend(DSettings *settings, QObject *parent) :
     DSettingsBackend(parent), d_ptr(new GSettingsBackendPrivate(this))
 {
@@ -75,18 +83,30 @@ GSettingsBackend::~GSettingsBackend()
 
 }
 
+/*!
+ * \brief List all gsettings keys.
+ * \return
+ */
 QStringList GSettingsBackend::keys() const
 {
     Q_D(const GSettingsBackend);
     return d->gsettings->keys();
 }
 
+/*!
+ * \brief Get value of key.
+ * \return
+ */
 QVariant GSettingsBackend::getOption(const QString &key) const
 {
     Q_D(const GSettingsBackend);
     return d->gsettings->get(qtifyName(key));
 }
 
+/*!
+ * \brief Set value to gsettings
+ * \return
+ */
 void GSettingsBackend::doSetOption(const QString &key, const QVariant &value)
 {
     Q_D(GSettingsBackend);
@@ -96,6 +116,9 @@ void GSettingsBackend::doSetOption(const QString &key, const QVariant &value)
     }
 }
 
+/*!
+ * \brief Trigger DSettings to sync option to storage.
+ */
 void GSettingsBackend::doSync()
 {
     Q_EMIT sync();

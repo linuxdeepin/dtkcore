@@ -12,7 +12,7 @@ class LIBDTKCORESHARED_EXPORT GSettingsBackend: public DSettingsBackend
 {
     Q_OBJECT
 public:
-    explicit GSettingsBackend(DSettings *settings, QObject *parent = 0);
+    explicit GSettingsBackend(DSettings *settings, QObject *parent = nullptr);
     ~GSettingsBackend();
 
     virtual QStringList keys() const Q_DECL_OVERRIDE;

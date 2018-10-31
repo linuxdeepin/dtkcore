@@ -35,6 +35,16 @@ public:
     Q_DECLARE_PUBLIC(QSettingBackend)
 };
 
+/*!
+ * \class QSettingBackend
+ * \brief Storage DSetttings to an QSettings
+ */
+
+/*!
+ * \brief Save data to filepath with QSettings::NativeFormat format.
+ * \param filepath is path to storage data.
+ * \param parent
+ */
 QSettingBackend::QSettingBackend(const QString &filepath, QObject *parent) :
     DSettingsBackend(parent), d_ptr(new QSettingBackendPrivate(this))
 {
@@ -49,12 +59,21 @@ QSettingBackend::~QSettingBackend()
 
 }
 
+/*!
+ * \brief List all keys of QSettings
+ * \return
+ */
 QStringList QSettingBackend::keys() const
 {
     Q_D(const QSettingBackend);
     return d->settings->childGroups();
 }
 
+/*!
+ * \brief Get value of key from QSettings
+ * \param key
+ * \return
+ */
 QVariant QSettingBackend::getOption(const QString &key) const
 {
     Q_D(const QSettingBackend);
@@ -64,6 +83,11 @@ QVariant QSettingBackend::getOption(const QString &key) const
     return value;
 }
 
+/*!
+ * \brief Set value of key to QSettings
+ * \param key
+ * \param value
+ */
 void QSettingBackend::doSetOption(const QString &key, const QVariant &value)
 {
     Q_D(QSettingBackend);
@@ -78,6 +102,9 @@ void QSettingBackend::doSetOption(const QString &key, const QVariant &value)
     d->writeLock.unlock();
 }
 
+/*!
+ * \brief Trigger DSettings to save option value to QSettings
+ */
 void QSettingBackend::doSync()
 {
     Q_D(QSettingBackend);
