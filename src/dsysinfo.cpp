@@ -25,6 +25,8 @@
 #include <QStorageInfo>
 #include <QProcess>
 #include <QDebug>
+#include <QJsonDocument>
+#include <QJsonArray>
 
 #ifdef Q_OS_LINUX
 #include <sys/sysinfo.h>
@@ -315,27 +317,35 @@ void DSysInfoPrivate::ensureComputerInfo()
 
     memoryTotalSize = get_phys_pages() * sysconf(_SC_PAGESIZE);
 
-    const QString &root_part = QStorageInfo::root().device();
-
-    if (root_part.isEmpty())
-        return;
-
+    // Getting Disk Size
+    const QString &deviceName = QStorageInfo::root().device();
     QProcess lsblk;
 
-    lsblk.start("lsblk", {"-prno", "pkname", root_part}, QIODevice::ReadOnly);
+    lsblk.start("lsblk", {"-Jlpb", "-oNAME,KNAME,PKNAME,SIZE"}, QIODevice::ReadOnly);
 
-    if (!lsblk.waitForFinished())
+    if (!lsblk.waitForFinished()) {
         return;
+    }
 
-    const QString &root_disk = QString::fromLatin1(lsblk.readAllStandardOutput().trimmed());
+    const QByteArray &diskStatusJson = lsblk.readAllStandardOutput();
+    QJsonDocument diskStatus = QJsonDocument::fromJson(diskStatusJson);
+    QJsonValue diskStatusJsonValue = diskStatus["blockdevices"];
+    QMap<QString, QPair<QString, qulonglong>> deviceParentAndSizeMap;
 
-    lsblk.start("lsblk", {"-prnbdo", "size", root_disk}, QIODevice::ReadOnly);
-
-    if (!lsblk.waitForFinished())
-        return;
-
-    const QByteArray &disk_size = lsblk.readAllStandardOutput().trimmed();
-    diskSize = disk_size.toLongLong();
+    if (!diskStatusJsonValue.isUndefined()) {
+        QJsonArray diskStatusArray = diskStatusJsonValue.toArray();
+        QString keyName;
+        for (const QJsonValue &oneValue : diskStatusArray) {
+            if (keyName.isNull() && deviceName == oneValue["name"].toString()) {
+                keyName = oneValue["kname"].toString();
+            }
+            deviceParentAndSizeMap[oneValue["kname"].toString()] = QPair<QString, qulonglong>(oneValue["pkname"].toString(), oneValue["size"].toString().toULongLong());
+        }
+        while (!deviceParentAndSizeMap[keyName].first.isNull()) {
+            keyName = deviceParentAndSizeMap[keyName].first;
+        }
+        diskSize = deviceParentAndSizeMap[keyName].second;
+    }
 #endif
 }
 
