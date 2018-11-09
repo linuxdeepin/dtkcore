@@ -1,3 +1,13 @@
+<a name="2.0.9.8"></a>
+## 2.0.9.8 (2018-11-09)
+
+
+#### Bug Fixes
+
+*   can't get correct disk size in some case ([20a12b62](https://github.com/linuxdeepin/dtkcore/commit/20a12b622ea7b01f0616c15a8af85e31fc2d36cb))
+
+
+
 <a name="2.0.9.5"></a>
 ## 2.0.9.5 (2018-10-26)
 
