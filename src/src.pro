@@ -1,5 +1,6 @@
 QT -= gui
 QT += dbus
+QT += xml
 CONFIG += link_pkgconfig
 TARGET = dtkcore
 
