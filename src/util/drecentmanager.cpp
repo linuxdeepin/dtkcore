@@ -28,7 +28,6 @@
 #include <QFile>
 #include <QDir>
 #include <QUrl>
-#include <QDebug>
 
 DCORE_BEGIN_NAMESPACE
 
@@ -141,9 +140,10 @@ bool DRecentManager::addItem(const QString &uri, DRecentData &data)
     // add new elements if they don't exist.
     else {
         QDomElement bookmarkEle, infoEle, metadataEle, mimeEle, appsEle, appChildEle;
+        QString hrefStr = QString::fromLatin1(url.toEncoded(QUrl::FullyEncoded));
 
         bookmarkEle = doc.createElement("bookmark");
-        bookmarkEle.setAttribute("href", url.toString());
+        bookmarkEle.setAttribute("href", hrefStr);
         bookmarkEle.setAttribute("added", dateTime);
         bookmarkEle.setAttribute("modified", dateTime);
         bookmarkEle.setAttribute("visited", dateTime);
