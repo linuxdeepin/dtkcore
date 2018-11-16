@@ -225,7 +225,7 @@ void DRecentManager::removeItems(const QStringList &list)
     for (int i = 0; i < nodeList.count(); ) {
         const QString fileUrl = nodeList.at(i).toElement().attribute("href");
 
-        if (list.contains(fileUrl)) {
+        if (list.contains(QUrl::fromPercentEncoding(fileUrl.toUtf8()))) {
             rootEle.removeChild(nodeList.at(i));
         } else {
             ++i;
