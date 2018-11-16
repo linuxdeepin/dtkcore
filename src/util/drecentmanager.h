@@ -37,7 +37,7 @@ struct DRecentData
 class DRecentManager
 {
 public:
-    static void addItem(const QString &uri, DRecentData &data);
+    static bool addItem(const QString &uri, DRecentData &data);
     static void removeItem(const QString &target);
     static void removeItems(const QStringList &list);
 };

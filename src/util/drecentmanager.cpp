@@ -34,16 +34,41 @@ DCORE_BEGIN_NAMESPACE
 
 #define RECENT_PATH QDir::homePath() + "/.local/share/recently-used.xbel"
 
-void DRecentManager::addItem(const QString &uri, DRecentData &data)
+/*!
+ * \~chinese \class DRecentManager
+ *
+ * \~chinese \brief DRecentManager 是用来管理最近文件列表的类，提供了添加与删除文件项。
+ * \~chinese
+ * \~chinese 遵循 freedesktop 标准，在本地 share 目录存放，文件名为: recently-used.xbel，所以每个用户都有不同的列表。
+ * \~chinese
+ * \~chinese 该类的存在就是为 deepin 应用提供一个工具类，方便让打开的文件添加到最近文件列表中。
+ */
+
+/*!
+ * \~chinese \struct DRecentData
+ * \~chinese \brief 文件信息结构体
+ * \~chinese \var appName 应用名称
+ * \~chinese \var appExec 应用命令行名称
+ * \~chinese \var mimeType 文件 mimetype 名称，一般不需要填写，DRecentManager 内部自动获取
+ */
+
+/*!
+ * \brief DRecentManager::addItem 在最近列表中添加一个项
+ * \param uri 文件路径
+ * \param data 数据信息
+ * \return 如果返回 true 则成功添加，false 为添加失败
+ */
+
+bool DRecentManager::addItem(const QString &uri, DRecentData &data)
 {
     QFile file(RECENT_PATH);
 
     if (!QFileInfo(uri).exists() || uri.isEmpty()) {
-        return;
+        return false;
     }
 
     if (!file.open(QIODevice::ReadOnly)) {
-        return;
+        return false;
     }
 
     QString dateTime = QDateTime::currentDateTime().toTimeSpec(Qt::OffsetFromUTC).toString(Qt::ISODate);
@@ -51,7 +76,7 @@ void DRecentManager::addItem(const QString &uri, DRecentData &data)
 
     if (!doc.setContent(&file)) {
         file.close();
-        return;
+        return false;
     }
     file.close();
 
@@ -146,13 +171,13 @@ void DRecentManager::addItem(const QString &uri, DRecentData &data)
 
         QDomNode result = rootEle.appendChild(bookmarkEle);
         if (result.isNull()) {
-            return;
+            return false;
         }
     }
 
     // write to file.
     if (!file.open(QIODevice::WriteOnly)) {
-        return;
+        return false;
     }
 
     QTextStream out(&file);
@@ -161,13 +186,23 @@ void DRecentManager::addItem(const QString &uri, DRecentData &data)
     out.flush();
     file.close();
 
-    return;
+    return true;
 }
+
+/*!
+ * \brief DRecentManager::removeItem 在最近列表中移除单个文件路径
+ * \param target 需要移除的文件路径
+ */
 
 void DRecentManager::removeItem(const QString &target)
 {
     removeItems(QStringList() << target);
 }
+
+/*!
+ * \brief DRecentManager::removeItem 在最近列表中移除多个文件路径
+ * \param list 需要移除的文件路径列表
+ */
 
 void DRecentManager::removeItems(const QStringList &list)
 {
