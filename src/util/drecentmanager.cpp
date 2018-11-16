@@ -53,10 +53,10 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
- * \brief DRecentManager::addItem 在最近列表中添加一个项
- * \param uri 文件路径
- * \param data 数据信息
- * \return 如果返回 true 则成功添加，false 为添加失败
+ * \~chinese \brief DRecentManager::addItem 在最近列表中添加一个项
+ * \~chinese \param uri 文件路径
+ * \~chinese \param data 数据信息
+ * \~chinese \return 如果返回 true 则成功添加，false 为添加失败
  */
 
 bool DRecentManager::addItem(const QString &uri, DRecentData &data)
@@ -190,8 +190,8 @@ bool DRecentManager::addItem(const QString &uri, DRecentData &data)
 }
 
 /*!
- * \brief DRecentManager::removeItem 在最近列表中移除单个文件路径
- * \param target 需要移除的文件路径
+ * \~chinese \brief DRecentManager::removeItem 在最近列表中移除单个文件路径
+ * \~chinese \param target 需要移除的文件路径
  */
 
 void DRecentManager::removeItem(const QString &target)
@@ -200,8 +200,8 @@ void DRecentManager::removeItem(const QString &target)
 }
 
 /*!
- * \brief DRecentManager::removeItem 在最近列表中移除多个文件路径
- * \param list 需要移除的文件路径列表
+ * \~chinese \brief DRecentManager::removeItem 在最近列表中移除多个文件路径
+ * \~chinese \param list 需要移除的文件路径列表
  */
 
 void DRecentManager::removeItems(const QStringList &list)
