@@ -25,6 +25,7 @@
 #include <QStorageInfo>
 #include <QProcess>
 #include <QDebug>
+#include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>
 
@@ -329,21 +330,30 @@ void DSysInfoPrivate::ensureComputerInfo()
 
     const QByteArray &diskStatusJson = lsblk.readAllStandardOutput();
     QJsonDocument diskStatus = QJsonDocument::fromJson(diskStatusJson);
-    QJsonValue diskStatusJsonValue = diskStatus["blockdevices"];
+    QJsonValue diskStatusJsonValue = diskStatus.object().value("blockdevices");
     QMap<QString, QPair<QString, qulonglong>> deviceParentAndSizeMap;
 
     if (!diskStatusJsonValue.isUndefined()) {
         QJsonArray diskStatusArray = diskStatusJsonValue.toArray();
         QString keyName;
+
         for (const QJsonValue &oneValue : diskStatusArray) {
-            if (keyName.isNull() && deviceName == oneValue["name"].toString()) {
-                keyName = oneValue["kname"].toString();
+            QString name = oneValue.toObject().value("name").toString();
+            QString kname = oneValue.toObject().value("kname").toString();
+            QString pkname = oneValue.toObject().value("pkname").toString();
+            qulonglong size = oneValue.toObject().value("size").toVariant().toULongLong();
+
+            if (keyName.isNull() && deviceName == name) {
+                keyName = kname;
             }
-            deviceParentAndSizeMap[oneValue["kname"].toString()] = QPair<QString, qulonglong>(oneValue["pkname"].toString(), oneValue["size"].toString().toULongLong());
+
+            deviceParentAndSizeMap[kname] = QPair<QString, qulonglong>(pkname, size);
         }
+
         while (!deviceParentAndSizeMap[keyName].first.isNull()) {
             keyName = deviceParentAndSizeMap[keyName].first;
         }
+
         diskSize = deviceParentAndSizeMap[keyName].second;
     }
 #endif
