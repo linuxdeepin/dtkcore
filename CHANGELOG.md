@@ -1,3 +1,22 @@
+<a name="2.0.9.9"></a>
+## 2.0.9.9 (2018-11-19)
+
+
+#### Features
+
+*   add DRecentManager class. ([a2defafd](https://github.com/linuxdeepin/dtkcore/commit/a2defafdcf57078461221c665e322287a43d24a8))
+
+#### Bug Fixes
+
+*   compatibility with Qt 5.6 ([0ec7f3ce](https://github.com/linuxdeepin/dtkcore/commit/0ec7f3ce389b323ecb2b103801c1cd1d55f100fa))
+* **drecentmanager:**
+  *  xbel file does not exist. ([c57ffe71](https://github.com/linuxdeepin/dtkcore/commit/c57ffe714f26b1a8a8859e2ffbeeed3d75ee11a1))
+  *  uniform url format. ([413a8988](https://github.com/linuxdeepin/dtkcore/commit/413a8988116708ab8bcf9efbb9bc8f52e048efa5))
+  *  url encoded. ([e234a8cc](https://github.com/linuxdeepin/dtkcore/commit/e234a8cc5ad9d2c14a16950838115c4f2f27c605))
+* **recent:**  chinese doc ([fb256461](https://github.com/linuxdeepin/dtkcore/commit/fb256461d1bdb0862b1a3a129978fc3932a6bcab))
+
+
+
 <a name="2.0.9.8"></a>
 ## 2.0.9.8 (2018-11-09)
 
