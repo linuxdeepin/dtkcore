@@ -82,8 +82,7 @@ bool DRecentManager::addItem(const QString &uri, DRecentData &data)
     file.close();
 
     // need to add file:// protocol.
-    QUrl url(uri);
-    url.setScheme("file");
+    QUrl url = QUrl::fromLocalFile(uri);
 
     // get the MimeType name of the file.
     if (data.mimeType.isEmpty()) {
@@ -99,7 +98,7 @@ bool DRecentManager::addItem(const QString &uri, DRecentData &data)
     for (int i = 0; i < nodeList.size(); ++i) {
         const QString fileUrl = nodeList.at(i).toElement().attribute("href");
 
-        if (fileUrl == url.toString()) {
+        if (fileUrl == url.toEncoded(QUrl::FullyDecoded)) {
             bookmarkEle = nodeList.at(i).toElement();
             isFound = true;
             break;
@@ -142,7 +141,7 @@ bool DRecentManager::addItem(const QString &uri, DRecentData &data)
     // add new elements if they don't exist.
     else {
         QDomElement bookmarkEle, infoEle, metadataEle, mimeEle, appsEle, appChildEle;
-        QString hrefStr = QString::fromLatin1(url.toEncoded(QUrl::FullyEncoded));
+        QString hrefStr = url.toEncoded(QUrl::FullyEncoded);
 
         bookmarkEle = doc.createElement("bookmark");
         bookmarkEle.setAttribute("href", hrefStr);
@@ -227,7 +226,8 @@ void DRecentManager::removeItems(const QStringList &list)
     for (int i = 0; i < nodeList.count(); ) {
         const QString fileUrl = nodeList.at(i).toElement().attribute("href");
 
-        if (list.contains(QUrl::fromPercentEncoding(fileUrl.toUtf8()))) {
+        if (list.contains(QUrl::fromPercentEncoding(fileUrl.toLatin1())) ||
+            list.contains(QUrl(fileUrl).toEncoded(QUrl::FullyDecoded))) {
             rootEle.removeChild(nodeList.at(i));
         } else {
             ++i;
