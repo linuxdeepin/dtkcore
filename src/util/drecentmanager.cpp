@@ -60,22 +60,24 @@ DCORE_BEGIN_NAMESPACE
 
 bool DRecentManager::addItem(const QString &uri, DRecentData &data)
 {
-    QFile file(RECENT_PATH);
-
     if (!QFileInfo(uri).exists() || uri.isEmpty()) {
         return false;
     }
 
-    if (!file.open(QIODevice::ReadOnly)) {
-        return false;
-    }
+    QFile file(RECENT_PATH);
+    file.open(QIODevice::ReadWrite | QIODevice::Text);
 
     QString dateTime = QDateTime::currentDateTime().toTimeSpec(Qt::OffsetFromUTC).toString(Qt::ISODate);
     QDomDocument doc;
 
     if (!doc.setContent(&file)) {
-        file.close();
-        return false;
+        doc.clear();
+        doc.appendChild(doc.createProcessingInstruction("xml","version=\'1.0\' encoding=\'utf-8\'"));
+        QDomElement xbelEle = doc.createElement("xbel");
+        xbelEle.setAttribute("xmlns:mime", "http://www.freedesktop.org/standards/shared-mime-info");
+        xbelEle.setAttribute("version", "1.0");
+        xbelEle.setAttribute("xmlns:bookmark", "http://www.freedesktop.org/standards/desktop-bookmarks");
+        doc.appendChild(xbelEle);
     }
     file.close();
 
