@@ -32,7 +32,7 @@
 #ifdef Q_OS_LINUX
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
-#include <sys/unistd.h>
+#include <unistd.h>
 #endif
 
 DCORE_BEGIN_NAMESPACE
