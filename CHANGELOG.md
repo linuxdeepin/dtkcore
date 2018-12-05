@@ -1,3 +1,14 @@
+<a name="2.0.9.10"></a>
+## 2.0.9.10 (2018-12-05)
+
+
+#### Bug Fixes
+
+*   include unistd.h instead of sys/unistd.h ([39c50a13](https://github.com/linuxdeepin/dtkcore/commit/39c50a1398c34123e3806a3060a4c64e7f45ed68))
+*   url encoding ([4a6b7b61](https://github.com/linuxdeepin/dtkcore/commit/4a6b7b61bb3ad9ab417eda69249b5e9aced0aa97))
+
+
+
 <a name="2.0.9.9"></a>
 ## 2.0.9.9 (2018-11-19)
 
