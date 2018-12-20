@@ -23,17 +23,36 @@
 DCORE_BEGIN_NAMESPACE
 
 /*!
- * a simple singleton template for std c++ 11 or later.
+ * \~english a simple singleton template for std c++ 11 or later.
  *
  * example:
+
+```
+   class ExampleSingleton : public QObject, public Dtk::DSingleton<ExampleSingleton>
+   {
+       Q_OBJECT
+       friend class DSingleton<ExampleSingleton>;
+   };
+```
+
+ * \note: for Qt, "public DSingleton<ExampleSingleton>" must be after QObject.
+ */
+
+
+/*!
+ * \~chinese 通过c++11的特性实现的单例模板
  *
- *  class ExampleSingleton : public QObject, public Dtk::DSingleton<ExampleSingleton>
- *  {
- *      Q_OBJECT
- *      friend class DSingleton<ExampleSingleton>;
- *  };
- *
- * Warning: for Qt, "public DSingleton<LyricService>" must be after QObject.
+ * 使用示例:
+
+```
+   class ExampleSingleton : public QObject, public Dtk::DSingleton<ExampleSingleton>
+   {
+       Q_OBJECT
+       friend class DSingleton<ExampleSingleton>;
+   };
+```
+
+ * \note 对于Qt程序 public DSingleton<ExampleSingleton>" 必须在卸载QObject后面出现。
  */
 
 template <class T>
