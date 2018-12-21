@@ -99,7 +99,11 @@ write_file($$MODULE_PRI, MODULE_PRI_CONT)|error("Aborting.")
 
 QT_HOST_DATA=$$system(qmake -query QT_HOST_DATA)
 qt_module.files = $$MODULE_PRI
-qt_module.path = $${QT_HOST_DATA}/mkspecs/modules
+
+isEmpty(MKSPECS_INSTALL_DIR) {
+    MKSPECS_INSTALL_DIR=$${QT_HOST_DATA}/mkspecs
+}
+qt_module.path = $${MKSPECS_INSTALL_DIR}/modules
 
 INSTALLS += qt_module
 

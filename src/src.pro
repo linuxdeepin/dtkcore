@@ -102,7 +102,11 @@ include(dtk_cmake.prf)
 include(dtk_module.prf)
 
 prf.files+= $$PWD/*.prf
-prf.path = $${QT_HOST_DATA}/mkspecs/features
+
+isEmpty(MKSPECS_INSTALL_DIR) {
+    MKSPECS_INSTALL_DIR=$${QT_HOST_DATA}/mkspecs
+}
+prf.path = $${MKSPECS_INSTALL_DIR}/features
 
 linux {
     # dtk for qmake
