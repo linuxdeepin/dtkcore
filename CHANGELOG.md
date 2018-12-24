@@ -1,3 +1,17 @@
+<a name="2.0.9.12"></a>
+## 2.0.9.12 (2018-12-24)
+
+
+#### Bug Fixes
+
+* **DPathBuf:**  missing default constructor ([74374cb4](https://github.com/linuxdeepin/dtkcore/commit/74374cb4cf0245ab1fe73f62fe0d13566f945db3))
+
+#### Features
+
+*   support connan build ([ba2d213f](https://github.com/linuxdeepin/dtkcore/commit/ba2d213fd6c7e36e118288305e5892c339250623))
+
+
+
 <a name="2.0.9.11"></a>
 ## 2.0.9.11 (2018-12-14)
 
