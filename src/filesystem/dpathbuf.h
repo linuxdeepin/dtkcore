@@ -26,6 +26,7 @@ DCORE_BEGIN_NAMESPACE
 class LIBDTKCORESHARED_EXPORT DPathBuf
 {
 public:
+    DPathBuf();
     DPathBuf(const QString &path);
 
     /*!
