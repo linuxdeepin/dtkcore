@@ -43,7 +43,7 @@ DCORE_BEGIN_NAMESPACE
  * imagine.
  *
  * For the simple non-structured plain text logging (for example, to a plain text file or to the console output) you may
- * like to subclass the AbstractStringAppender instead of AbstractAppender, which will give you a more convinient way to
+ * like to subclass the AbstractStringAppender instead of AbstractAppender, which will give you a more convenient way to
  * control the format of the log output.
  *
  * \sa AbstractStringAppender

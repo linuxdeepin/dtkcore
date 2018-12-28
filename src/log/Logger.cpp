@@ -62,11 +62,11 @@ DCORE_BEGIN_NAMESPACE
  *
  * \brief Writes the trace log record
  *
- * This macro is the convinient way to call Logger::write(). It uses the common preprocessor macros \c __FILE__,
+ * This macro is the convenient way to call Logger::write(). It uses the common preprocessor macros \c __FILE__,
  * \c __LINE__ and the standard Qt \c Q_FUNC_INFO macros to automatically determine the needed parameters to call
  * Logger::write().
  *
- * \note This and other (dInfo() etc...) macros uses the variadic macro arguments to give convinient usage form for
+ * \note This and other (dInfo() etc...) macros uses the variadic macro arguments to give convenient usage form for
  * the different versions of Logger::write() (using the QString or const char* argument or returning the QDebug class
  * instance). Not all compilers will support this. Please, consider reviewing your compiler documentation to ensure
  * it support __VA_ARGS__ macro.
@@ -293,7 +293,7 @@ DCORE_BEGIN_NAMESPACE
  *
  * \brief Check the assertion
  *
- * This macro is a convinient and recommended to use way to call Logger::writeAssert() function. It uses the
+ * This macro is a convenient and recommended to use way to call Logger::writeAssert() function. It uses the
  * preprocessor macros (as the dDebug() does) to fill the necessary arguments of the Logger::writeAssert() call. It
  * also uses undocumented but rather mature and stable \c qt_noop() function (which does nothing) when the assertion
  * is true.

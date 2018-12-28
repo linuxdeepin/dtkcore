@@ -29,10 +29,10 @@ DCORE_BEGIN_NAMESPACE
 /**
  * \class AbstractStringAppender
  *
- * \brief The AbstractStringAppender class provides a convinient base for appenders working with plain text formatted
+ * \brief The AbstractStringAppender class provides a convenient base for appenders working with plain text formatted
  *        logs.
  *
- * AbstractSringAppender is the simple extension of the AbstractAppender class providing the convinient way to create
+ * AbstractSringAppender is the simple extension of the AbstractAppender class providing the convenient way to create
  * custom log appenders working with a plain text formatted log targets.
  *
  * It have the formattedString() protected function that formats the logging arguments according to a format set with
