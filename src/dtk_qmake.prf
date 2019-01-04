@@ -1,14 +1,34 @@
 CONFIG += host_$$QMAKE_HOST.arch
 DEFINES += Q_HOST_NAME=\\\"$$QMAKE_HOST.arch\\\" Q_HOST_$$upper($$QMAKE_HOST.arch)
 
-isEqual(TARGET, dtkcore) {
-    # build tools/deepin-os-release first
-    QMAKE_CONFIG_TESTS_DIR_BAK=$$QMAKE_CONFIG_TESTS_DIR
+defineTest(buildQMAKEProject) {
+    pro_dir = $$1
+    pro_out_dir = $$shadowed($$pro_dir)
+    pro_cmd_base = "$$QMAKE_CD $$system_quote($$system_path($$pro_out_dir)) &&"
+    mkpath($$pro_out_dir)
+    command = $$pro_cmd_base $$system_quote($$system_path($$QMAKE_QMAKE)) CONFIG=\"$$CONFIG\" -spec $$QMAKESPEC $$shell_quote($$pro_dir)
+    message($${command}:)
+    !equals(3, false): 1 = "( $$1 ) 2>&1"
+    output = $$system("$$command", lines, result)
+    !isEmpty(output): message($$output)
+    !equals(result, 0): return(false)
     load(configure)
-    QMAKE_CONFIG_TESTS_DIR=$$_PRO_FILE_PWD_/../tools
-    qtCompileTest(deepin-os-release)
+    command = $$pro_cmd_base $$QMAKE_MAKE
+    message($${command}:)
+    !equals(3, false): 1 = "( $$1 ) 2>&1"
+    output = $$system("$$command", lines, result)
+    !isEmpty(output): message($$output)
+    !equals(result, 0): return(false)
+    return(true)
+}
+
+isEqual(TARGET, dtkcore) {
     DEEPIN_OS_RELEASE_TOOL=$$_PRO_FILE_PWD_/../bin/deepin-os-release
-    QMAKE_CONFIG_TESTS_DIR=$$QMAKE_CONFIG_TESTS_DIR_BAK
+
+    !exists($$DEEPIN_OS_RELEASE_TOOL) {
+        tools_dir = $$_PRO_FILE_PWD_/../tools/deepin-os-release
+        !buildQMAKEProject($$tools_dir): error(Failed on build deepin-os-release)
+    }
 } else {
     isEmpty(QT.dtkcore.tools): error(QT += dtkcore first)
     DEEPIN_OS_RELEASE_TOOL=$${QT.dtkcore.tools}/deepin-os-release
