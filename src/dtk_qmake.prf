@@ -6,7 +6,18 @@ defineTest(buildQMAKEProject) {
     pro_out_dir = $$shadowed($$pro_dir)
     pro_cmd_base = "$$QMAKE_CD $$system_quote($$system_path($$pro_out_dir)) &&"
     mkpath($$pro_out_dir)
-    command = $$pro_cmd_base $$system_quote($$system_path($$QMAKE_QMAKE)) CONFIG=\"$$CONFIG\" -spec $$QMAKESPEC $$shell_quote($$pro_dir)
+    command = $$pro_cmd_base $$system_quote($$system_path($$QMAKE_QMAKE))
+    CONFIG(debug, debug|release) {
+        command += QMAKE_CFLAGS_DEBUG*=\"$$QMAKE_CFLAGS_DEBUG\" \
+            QMAKE_CXXFLAGS_DEBUG*=\"$$QMAKE_CXXFLAGS_DEBUG\" \
+            QMAKE_LFLAGS_DEBUG*=\"$$QMAKE_LFLAGS_DEBUG\" \
+            CONFIG+=debug
+    } else {
+        command += QMAKE_CFLAGS_RELEASE*=\"$$QMAKE_CFLAGS_RELEASE\" \
+            QMAKE_CXXFLAGS_RELEASE*=\"$$QMAKE_CXXFLAGS_RELEASE\" \
+            QMAKE_LFLAGS_RELEASE*=\"$$QMAKE_LFLAGS_RELEASE\"
+    }
+    command += -spec $$QMAKESPEC $$shell_quote($$pro_dir)
     message($${command}:)
     !equals(3, false): 1 = "( $$1 ) 2>&1"
     output = $$system("$$command", lines, result)
