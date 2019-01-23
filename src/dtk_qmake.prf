@@ -4,6 +4,7 @@ DEFINES += Q_HOST_NAME=\\\"$$QMAKE_HOST.arch\\\" Q_HOST_$$upper($$QMAKE_HOST.arc
 defineTest(buildQMAKEProject) {
     pro_dir = $$1
     pro_out_dir = $$shadowed($$pro_dir)
+    isEmpty(QMAKE_CD): QMAKE_CD=cd
     pro_cmd_base = "$$QMAKE_CD $$system_quote($$system_path($$pro_out_dir)) &&"
     mkpath($$pro_out_dir)
     command = $$pro_cmd_base $$system_quote($$system_path($$QMAKE_QMAKE))
@@ -19,17 +20,27 @@ defineTest(buildQMAKEProject) {
     }
     command += -spec $$QMAKESPEC $$shell_quote($$pro_dir)
     message($${command}:)
-    !equals(3, false): 1 = "( $$1 ) 2>&1"
-    output = $$system("$$command", lines, result)
-    !isEmpty(output): message($$output)
-    !equals(result, 0): return(false)
+    # Qt >= 5.8
+    greaterThan(QT_MINOR_VERSION, 7) {
+        !equals(3, false): 1 = "( $$1 ) 2>&1"
+        output = $$system("$$command", lines, result)
+        !isEmpty(output): message($$output)
+        !equals(result, 0): return(false)
+    } else {
+        system("$$command")|return(false)
+    }
     load(configure)
     command = $$pro_cmd_base $$QMAKE_MAKE
     message($${command}:)
-    !equals(3, false): 1 = "( $$1 ) 2>&1"
-    output = $$system("$$command", lines, result)
-    !isEmpty(output): message($$output)
-    !equals(result, 0): return(false)
+    # Qt >= 5.8
+    greaterThan(QT_MINOR_VERSION, 7) {
+        !equals(3, false): 1 = "( $$1 ) 2>&1"
+        output = $$system("$$command", lines, result)
+        !isEmpty(output): message($$output)
+        !equals(result, 0): return(false)
+    } else {
+        system("$$command")|return(false)
+    }
     return(true)
 }
 
