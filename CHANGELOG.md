@@ -1,3 +1,14 @@
+<a name="2.0.9.15"></a>
+## 2.0.9.15 (2019-01-25)
+
+
+#### Bug Fixes
+
+*   failed build the deepin-os-release on Qt 5.7.1 ([8bae8654](https://github.com/linuxdeepin/dtkcore/commit/8bae8654bdb20a7f773130d22b9db139460ba575))
+*   use main project c/cxx/ld flags on build deepin-os-release ([86dbd507](https://github.com/linuxdeepin/dtkcore/commit/86dbd507c1b3b101c1816f091782430ec1ce20ce))
+
+
+
 <a name="2.0.9.14"></a>
 ## 2.0.9.14 (2019-01-02)
 
