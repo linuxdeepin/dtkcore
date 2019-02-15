@@ -35,21 +35,21 @@ int main(int argc, char *argv[])
     Q_UNUSED(app)
 
     QCommandLineParser parser;
-    QCommandLineOption option_all("all");
-    QCommandLineOption option_deepin_type("deepin-type");
-    QCommandLineOption option_deepin_version("deepin-version");
-    QCommandLineOption option_deepin_edition("deepin-edition");
-    QCommandLineOption option_deepin_copyright("deepin-copyright");
-    QCommandLineOption option_product_type("product-type");
-    QCommandLineOption option_product_version("product-version");
-    QCommandLineOption option_computer_name("computer-name");
-    QCommandLineOption option_cpu_model("cpu-model");
-    QCommandLineOption optioin_memory_size("memory-size");
-    QCommandLineOption optioin_disk_size("disk-size");
+    QCommandLineOption option_all("all", "Print All Informations");
+    QCommandLineOption option_deepin_type("deepin-type", " ");
+    QCommandLineOption option_deepin_version("deepin-version", " ");
+    QCommandLineOption option_deepin_edition("deepin-edition", " ");
+    QCommandLineOption option_deepin_copyright("deepin-copyright", " ");
+    QCommandLineOption option_product_type("product-type", " ");
+    QCommandLineOption option_product_version("product-version", " ");
+    QCommandLineOption option_computer_name("computer-name", "Computer Name");
+    QCommandLineOption option_cpu_model("cpu-model", "CPU Model");
+    QCommandLineOption option_memory_size("memory-size", "Memory Size (GiB)");
+    QCommandLineOption option_disk_size("disk-size", "Disk Size (GiB)");
 
     parser.addOptions({option_all, option_deepin_type, option_deepin_version, option_deepin_edition,
                        option_deepin_copyright, option_product_type, option_product_version,
-                       option_computer_name, option_cpu_model, optioin_memory_size, optioin_disk_size});
+                       option_computer_name, option_cpu_model, option_memory_size, option_disk_size});
     parser.addHelpOption();
     parser.addVersionOption();
     parser.process(app);
@@ -87,6 +87,14 @@ int main(int argc, char *argv[])
             printf("%s", qPrintable(DSysInfo::productTypeString()));
         else if (parser.isSet(option_product_version))
             printf("%s", qPrintable(DSysInfo::productVersion()));
+        else if (parser.isSet(option_cpu_model))
+            printf("%s x %d", qPrintable(DSysInfo::cpuModelName()), QThread::idealThreadCount());
+        else if (parser.isSet(option_computer_name))
+            printf("%s", qPrintable(DSysInfo::computerName()));
+        else if (parser.isSet(option_memory_size))
+            printf("%f", DSysInfo::memoryTotalSize() / 1024.0 / 1024 / 1024);
+        else if (parser.isSet(option_disk_size))
+            printf("%f", DSysInfo::systemDiskSize() / 1024.0 / 1024 / 1024);
     }
 
     return 0;
