@@ -1,3 +1,13 @@
+<a name="2.0.9.16"></a>
+## 2.0.9.16 (2019-02-26)
+
+
+#### Bug Fixes
+
+*   deepin-os-release support cpu model and other info query ([cbeb47c9](https://github.com/linuxdeepin/dtkcore/commit/cbeb47c97e31d2b5dd3c198c60ee74332fecb293))
+
+
+
 <a name="2.0.9.15"></a>
 ## 2.0.9.15 (2019-01-25)
 
