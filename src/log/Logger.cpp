@@ -584,7 +584,7 @@ Logger::~Logger()
   // Cleanup appenders
   QMutexLocker appendersLocker(&d->loggerMutex);
   qDeleteAll(d->appenders);
-  qDeleteAll(d->categoryAppenders);
+  qDeleteAll(d->categoryAppenders.values().toSet());
 
   // Cleanup device
   delete d->logDevice;
@@ -746,7 +746,7 @@ void Logger::registerCategoryAppender(const QString& category, AbstractAppender*
 
   QMutexLocker locker(&d->loggerMutex);
 
-  if (!d->categoryAppenders.values().contains(appender))
+  if (!d->categoryAppenders.contains(category, appender))
     d->categoryAppenders.insert(category, appender);
   else
     std::cerr << "Trying to register appender that was already registered" << std::endl;
