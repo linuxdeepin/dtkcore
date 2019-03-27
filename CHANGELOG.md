@@ -1,3 +1,17 @@
+<a name="2.0.10"></a>
+## 2.0.10 (2019-03-27)
+
+
+#### Bug Fixes
+
+*   crash at application ([d852a218](https://github.com/linuxdeepin/dtkcore/commit/d852a21811f9f86e04274fc9f732d7c7a210ef3f))
+
+#### Features
+
+*   add DNotifySender ([89bbcd7c](https://github.com/linuxdeepin/dtkcore/commit/89bbcd7c3821985bb2bca51247394fd4a65b25bf))
+
+
+
 <a name="2.0.9.17"></a>
 ## 2.0.9.17 (2019-02-26)
 
