@@ -104,7 +104,7 @@ include(dtk_module.prf)
 prf.files+= $$PWD/*.prf
 
 isEmpty(MKSPECS_INSTALL_DIR) {
-    MKSPECS_INSTALL_DIR=$${QT_HOST_DATA}/mkspecs
+    MKSPECS_INSTALL_DIR=$${QT_INSTALL_ARCHDATA}/mkspecs
 }
 prf.path = $${MKSPECS_INSTALL_DIR}/features
 
