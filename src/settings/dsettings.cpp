@@ -145,7 +145,7 @@ public:
  * \brief write key/value to storage.
  *
  * \fn void DSettingsBackend::optionChanged(const QString &key, const QVariant &value);
- * \brief emited when option value changed.
+ * \brief emitted when option value changed.
  *
  * \fn void DSettingsBackend::sync();
  * \brief private signal, please do not use it.
