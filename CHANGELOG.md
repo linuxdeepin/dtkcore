@@ -1,3 +1,14 @@
+<a name="2.0.11"></a>
+## 2.0.11 (2019-04-17)
+
+
+#### Bug Fixes
+
+*   Cross-builds incorrectly, built packages contain paths from build architecture ([8d32577a](https://github.com/linuxdeepin/dtkcore/commit/8d32577a89e54b5c9c834caae83d98e50f59df77))
+*   https://github.com/linuxdeepin/dtkcore/issues/10 ([3f99873a](https://github.com/linuxdeepin/dtkcore/commit/3f99873a786f6830688ecd0d8d2e2bf8dfb63ce0))
+
+
+
 <a name="2.0.10"></a>
 ## 2.0.10 (2019-03-27)
 
