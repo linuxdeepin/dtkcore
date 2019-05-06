@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     Q_UNUSED(app)
 
     QCommandLineParser parser;
-    QCommandLineOption option_all("all", "Print All Informations");
+    QCommandLineOption option_all("all", "Print All Information");
     QCommandLineOption option_deepin_type("deepin-type", " ");
     QCommandLineOption option_deepin_version("deepin-version", " ");
     QCommandLineOption option_deepin_edition("deepin-edition", " ");
