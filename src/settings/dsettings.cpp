@@ -388,7 +388,11 @@ QList<QPointer<DSettingsOption> > DSettings::options() const
 
 QVariant DSettings::getOption(const QString &key) const
 {
-    return option(key)->value();
+    QPointer<DSettingsOption> optionPointer = option(key);
+    if (optionPointer) {
+        return optionPointer->value();
+    }
+    return QVariant();
 }
 
 void DSettings::setOption(const QString &key, const QVariant &value)
