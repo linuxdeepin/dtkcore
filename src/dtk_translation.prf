@@ -24,9 +24,9 @@ isEmpty(DTK_NO_TRANSLATION) {
         # qrc template
         #<RCC>
         #    <qresource prefix="/dtk/translations">
-        #        <file>dtkwidget2_am_ET.qm</file>
-        #        <file>dtkwidget2_ar.qm</file>
-        #        <file>dtkwidget2_ast.qm</file>
+        #        <file>dtkwidget_am_ET.qm</file>
+        #        <file>dtkwidget_ar.qm</file>
+        #        <file>dtkwidget_ast.qm</file>
         #    </qresource>
         #</RCC>
         QRC_PATH = $$ROOT_DIR/translations/$${BASENAME}_translations.qrc
@@ -44,3 +44,20 @@ isEmpty(DTK_NO_TRANSLATION) {
         write_file($$QRC_PATH, QRC_CONTENT) | error("Aborting.")
     }
 }
+
+!isEmpty(DTK_STATIC_TRANSLATION) {
+    QRC_PATH = $$mod_inst_pfx/../translations/$${TARGET}_translations.qrc
+    RESOURCES += $$QRC_PATH
+}
+
+TRANSLATIONS += $$mod_inst_pfx/../translations/*
+
+TRANSLATIONS_DIR = $$LIB_VERSION_NAME/$$MODULE_NAME/translations
+TRANSLATIONS_PATH = $$PREFIX/share/$$TRANSLATIONS_DIR
+DEFINES += $$upper($$MODULE_NAME)_TRANSLATIONS_PATH=\\\"$$TRANSLATIONS_PATH\\\"
+DEFINES += $$upper($$MODULE_NAME)_TRANSLATIONS_DIR=\\\"$$TRANSLATIONS_DIR\\\"
+
+dtk_translations.path = $$TRANSLATIONS_PATH
+dtk_translations.files = $$mod_inst_pfx/../translations/*.qm
+
+INSTALLS += dtk_translations

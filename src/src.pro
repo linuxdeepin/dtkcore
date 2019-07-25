@@ -112,10 +112,10 @@ linux {
     # dtk for qmake
     include(dtk_qmake.prf)
 
-    deepin_os_release_tool.files=$$PWD/../bin/deepin-os-release
-    deepin_os_release_tool.path=$$TOOL_INSTALL_DIR
+    tools.files=$$PWD/../bin/* $$PWD/../tools/script/*.py
+    tools.path=$$TOOL_INSTALL_DIR
 
-    INSTALLS += deepin_os_release_tool
+    INSTALLS += tools
 } else {
     prf.files-=$$PWD/dtk_qmake.prf
 }
