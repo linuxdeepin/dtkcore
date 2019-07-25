@@ -1,9 +1,3 @@
-exists($$_PRO_FILE_PWD_/src/dtk_translation.prf) {
-    include($$_PRO_FILE_PWD_/src/dtk_translation.prf)
-} else {
-    load(dtk_translation)
-}
-
 TEMPLATE  = subdirs
 CONFIG += ordered
 

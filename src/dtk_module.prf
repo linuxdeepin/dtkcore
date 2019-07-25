@@ -115,18 +115,3 @@ QMAKE_PKGCONFIG_DESCRIPTION = Deepin Tool Kit $$TARGET header files
 QMAKE_PKGCONFIG_REQUIRES += $$DTK_MODULE_DEPENDS
 QMAKE_PKGCONFIG_INCDIR = $$includes.path
 QMAKE_PKGCONFIG_LIBDIR = $$target.path
-
-
-# -----------------------
-# Config translations
-!isEmpty(DTK_STATIC_TRANSLATION) {
-    QRC_PATH = $$mod_inst_pfx/../translations/$${TARGET}_translations.qrc
-    RESOURCES += $$QRC_PATH
-}
-
-TRANSLATIONS += $$mod_inst_pfx/.../translations/*
-
-dtk_translations.path = $$PREFIX/share/$${TARGET}/translations
-dtk_translations.files = $$mod_inst_pfx/../translations/*.qm
-
-INSTALLS += dtk_translations
