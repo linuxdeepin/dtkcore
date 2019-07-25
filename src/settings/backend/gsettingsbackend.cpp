@@ -48,9 +48,9 @@ public:
  * \class GSettingsBackend
  * \brief Storage backend of DSettings use gsettings.
  *
- * You should generate gsetting schema with /usr/lib/dtk2/dtk-settings.
+ * You should generate gsetting schema with /usr/lib/dtk5/dtk-settings.
  *
- * You can find this tool from libdtkcore-bin. use /usr/lib/dtk2/dtk-settings -h for help.
+ * You can find this tool from libdtkcore-bin. use /usr/lib/dtk5/dtk-settings -h for help.
  */
 
 GSettingsBackend::GSettingsBackend(DSettings *settings, QObject *parent) :
