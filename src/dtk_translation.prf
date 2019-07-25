@@ -46,11 +46,11 @@ isEmpty(DTK_NO_TRANSLATION) {
 }
 
 !isEmpty(DTK_STATIC_TRANSLATION) {
-    QRC_PATH = $$mod_inst_pfx/../translations/$${TARGET}_translations.qrc
+    QRC_PATH = $$ROOT_DIR/translations/$${TARGET}_translations.qrc
     RESOURCES += $$QRC_PATH
 }
 
-TRANSLATIONS += $$mod_inst_pfx/../translations/*
+TRANSLATIONS += $$ROOT_DIR/translations/*
 
 TRANSLATIONS_DIR = $$LIB_VERSION_NAME/$$MODULE_NAME/translations
 TRANSLATIONS_PATH = $$PREFIX/share/$$TRANSLATIONS_DIR
@@ -58,6 +58,6 @@ DEFINES += $$upper($$MODULE_NAME)_TRANSLATIONS_PATH=\\\"$$TRANSLATIONS_PATH\\\"
 DEFINES += $$upper($$MODULE_NAME)_TRANSLATIONS_DIR=\\\"$$TRANSLATIONS_DIR\\\"
 
 dtk_translations.path = $$TRANSLATIONS_PATH
-dtk_translations.files = $$mod_inst_pfx/../translations/*.qm
+dtk_translations.files = $$ROOT_DIR/translations/*.qm
 
 INSTALLS += dtk_translations
