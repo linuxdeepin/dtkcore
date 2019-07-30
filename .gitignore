@@ -19,11 +19,11 @@ build*/
 # executeable files
 *.qm
 
-src/DtkCore
+src/DtkCores
 src/dtkcore_config.h
 cmake/DtkCore/DtkCoreConfig.cmake
 src/qt_lib_d*.pri
 
 bin/
 .qmake*
-tools/deepin-os-release/Makefile
+Makefile

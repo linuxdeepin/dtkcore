@@ -1,17 +1,14 @@
-isEmpty(DTK_MODULE): DTK_MODULE=$$TARGET
-isEmpty(DTK_MODULE): error("DTK_MODULE must not empty")
-isEmpty(includes.path): error("includes.path must not empty, please load(dtk_build) first!")
-isEmpty(target.path): error("target.path must not empty, , please load(dtk_build) first!")
+isEmpty(DTK_BUILD): error("Please load(dtk_build) first!")
 
 # -----------------------
 # Config Qt module
-MODULE_ID=$$DTK_MODULE
+MODULE_ID=$$DTK_MODULE_NAME
 mod_inst_pfx=$$_PRO_FILE_PWD_
 MODULE_PRI = $$mod_inst_pfx/qt_lib_$${MODULE_ID}.pri
-module_libs = $$target.path
+module_libs = $$LIB_INSTALL_DIR
 module_tools = $$TOOL_INSTALL_DIR
-MODULE_INCLUDES = $$includes.path
-DTK_MODULE_DEPENDS=$$find(QT, dtk*)
+MODULE_INCLUDES = $$INCLUDE_INSTALL_DIR
+MODULE_DEPENDS=$$find(QT, dtk*)
 
 message("config qt module: $$MODULE_ID")
 message("write $$MODULE_PRI to: $$mod_inst_pfx")
@@ -22,7 +19,7 @@ else: \
     MODULE_DEPENDS = $$replace(QT, -private$, )
 MODULE_DEPENDS = $$unique(MODULE_DEPENDS)
 contains(MODULE_DEPENDS, $$MODULE): \
-    error("$$TARGET depends on itself.")
+    error("$$MODULE_ID depends on itself.")
 
 # Create a module .pri file
 module_libs=$$LIB_INSTALL_DIR
@@ -32,9 +29,7 @@ host_build: \
 else: \
     module_libs = "\$\$QT_MODULE_LIB_BASE"
 }
-isEmpty(module_tools) {
-    module_tools=$$module_libs/libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}/D$$upper($$member($$list($$split(TARGET,)), 3, 3))$$join($$list($$member($$list($$split(TARGET,)), 4, -1)))/bin
-}
+
 # In addition to the library's private deps, the private module's deps
 # are logically runtime deps of the public module.
 runtime_deps = $$QT_PRIVATE $$QT_FOR_PRIVATE
@@ -55,7 +50,7 @@ ltcg: \
     module_build_type += ltcg
 module_module =
 !equals(TEMPLATE, aux) {
-    module_module = $$TARGET$$QT_LIBINFIX
+    module_module = $$MODULE_ID$$QT_LIBINFIX
     !lib_bundle: module_module ~= s,^Qt,Qt$$QT_MAJOR_VERSION,
 }
 !isEmpty(MODULE_CONFIG): \
@@ -73,11 +68,11 @@ else: \
 
 MODULE_PRI_CONT = \
     "QT.$${MODULE_ID}.VERSION = $${VERSION}" \
-    "QT.$${MODULE_ID}.MAJOR_VERSION = $$section(VERSION, ., 0, 0)" \
-    "QT.$${MODULE_ID}.MINOR_VERSION = $$section(VERSION, ., 1, 1)" \
-    "QT.$${MODULE_ID}.PATCH_VERSION = $$section(VERSION, ., 2, 2)" \
+    "QT.$${MODULE_ID}.MAJOR_VERSION = $${VER_MAJ}" \
+    "QT.$${MODULE_ID}.MINOR_VERSION = $${VER_MIN}" \
+    "QT.$${MODULE_ID}.PATCH_VERSION = $${VER_PAT}" \
     "" \
-    "QT.$${MODULE_ID}.name = $${TARGET}" \
+    "QT.$${MODULE_ID}.name = $${MODULE_ID}" \
     "QT.$${MODULE_ID}.module = $$module_module" \
     "QT.$${MODULE_ID}.tools = $$module_tools" \
     "QT.$${MODULE_ID}.libs = $$module_libs" \
@@ -110,8 +105,8 @@ INSTALLS += qt_module
 # Config pkg-config
 QMAKE_PKGCONFIG_VERSION = $$VERSION
 QMAKE_PKGCONFIG_DESTDIR = pkgconfig
-QMAKE_PKGCONFIG_NAME = DTK_$$upper($$replace(TARGET, "dtk", ""))
-QMAKE_PKGCONFIG_DESCRIPTION = Deepin Tool Kit $$TARGET header files
-QMAKE_PKGCONFIG_REQUIRES += $$DTK_MODULE_DEPENDS
+QMAKE_PKGCONFIG_NAME = DTK_$$upper($$MODULE_ID)
+QMAKE_PKGCONFIG_DESCRIPTION = Deepin Tool Kit $$MODULE_ID header files
+QMAKE_PKGCONFIG_REQUIRES += $$MODULE_DEPENDS
 QMAKE_PKGCONFIG_INCDIR = $$includes.path
 QMAKE_PKGCONFIG_LIBDIR = $$target.path
