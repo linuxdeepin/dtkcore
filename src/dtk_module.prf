@@ -102,16 +102,17 @@ INSTALLS += qt_module
 
 PKG_MODULE_DEPENDS=$$find(QT, dtk*)
 
-for (qt_module, QT) {
-    #DBus模块需要特殊处理
-    isEqual(qt_module, "dbus") {
-        PKG_MODULE_DEPENDS+=Qt5DBus
-    } else {
-        suffix = $$str_member($$qt_module, -7, -1)
-        #排除以private结尾的模块
-        !isEqual(suffix, "private"): PKG_MODULE_DEPENDS+=Qt5$$capitalizingString($$qt_module)
-    }
-}
+#不能添加Qt包的依赖，无法单纯的从Qt模块名称获取其pkgconfig的pc文件名
+#for (qt_module, QT) {
+#    #DBus模块需要特殊处理
+#    isEqual(qt_module, "dbus") {
+#        PKG_MODULE_DEPENDS+=Qt5DBus
+#    } else {
+#        suffix = $$str_member($$qt_module, -7, -1)
+#        #排除以private结尾的模块
+#        !isEqual(suffix, "private"): PKG_MODULE_DEPENDS+=Qt5$$capitalizingString($$qt_module)
+#    }
+#}
 
 PKG_MODULE_DEPENDS = $$unique(PKG_MODULE_DEPENDS)
 
