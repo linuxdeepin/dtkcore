@@ -12,10 +12,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp
 
-isEmpty(PREFIX){
-    PREFIX = /usr
-}
-
 !isEmpty(DTK_STATIC_LIB){
     DEFINES += DTK_STATIC_LIB
 }
