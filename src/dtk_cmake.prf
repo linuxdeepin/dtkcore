@@ -2,13 +2,6 @@
 
 #TODO: check cmake exist
 
-defineReplace(capitalizingString) {
-    RAW=$$1
-    FIRST = $$upper($$section(RAW, "", 1, 1))
-    OTHERS = $$section(RAW, "", 2, -1)
-    return($$FIRST$$OTHERS)
-}
-
 !win*: {
 MODULE_DEPENDS=$$find(QT, dtk*)
 CMAKE_MODULE_DEPENDS=$$replace(MODULE_DEPENDS,"dtk","")
