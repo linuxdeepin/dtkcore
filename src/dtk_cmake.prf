@@ -13,8 +13,6 @@ defineReplace(capitalizingString) {
 MODULE_DEPENDS=$$find(QT, dtk*)
 CMAKE_MODULE_DEPENDS=$$replace(MODULE_DEPENDS,"dtk","")
 
-MODULE_NAME=$$replace(TARGET,"dtk","")
-MODULE_NAME=$$capitalizingString($$MODULE_NAME)
 CMAKE_MODULE=Dtk$$MODULE_NAME
 WORK_DIR=$$_PRO_FILE_PWD_
 
@@ -30,7 +28,7 @@ for(MODULE_DEPEND, CMAKE_MODULE_DEPENDS) {
 }
 
 CMAKE_MODULE_INCLUDE_DIR=$$upper($${CMAKE_MODULE})_INCLUDE_DIR
-INC_DIR = $$replace(includes.path, "/", "/")
+INC_DIR = $$replace(INCLUDE_INSTALL_DIR, "/", "/")
 
 CMAKE_MODULE_TOO_DIR=$$upper($${CMAKE_MODULE})_TOOL_DIR
 TOOL_DIR = $$TOOL_INSTALL_DIR

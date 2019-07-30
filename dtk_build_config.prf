@@ -1,0 +1,69 @@
+isEmpty(DTK_MODULE_NAME): error(set DTK_MODULE_NAME first)
+!contains(DTK_MODULE_NAME, ^dtk[a-z0-9]+$): error(The format of the value of DTK_MODULE_NAME is incorrect. eg: dtk[a-z0-9]+)
+!isEqual(DTK_MODULE_NAME, dtkcore):!contains(QT, dtkcore): error(QT += dtkcore first)
+
+defineTest(checkDtkVersion) {
+    isEmpty(VERSION) {
+        !isEqual(TARGET, dtkcore) {
+            VERSION = $${QT.dtkcore.VERSION}
+        }
+
+        # TODO: failed in windows
+        isEmpty(VERSION): VERSION = $$system(git describe --tags --abbrev=0)
+        isEmpty(VERSION): VERSION = $$DTK_VERSION
+        isEmpty(VERSION): return(false)
+        VERSION = $$replace(VERSION, [^0-9.],)
+    }
+
+    export(VERSION)
+    return(true)
+}
+
+!checkDtkVersion():error("check dtk version failed")
+
+message("build dtk with version $$VERSION")
+ver_list = $$split(VERSION, .)
+
+isEmpty(VER_MAJ) {
+    VER_MAJ = $$first(ver_list)
+}
+isEmpty(VER_MIN) {
+    VER_MIN = $$member(ver_list, 1, 1)
+    isEmpty(VER_MIN):VER_MIN = 0
+}
+isEmpty(VER_PAT) {
+    VER_PAT = $$member(ver_list, 2, 2)
+    isEmpty(VER_PAT):VER_PAT = 0
+}
+isEmpty(VER_BUI) {
+    VER_BUI = $$member(ver_list, 3, 3)
+    isEmpty(VER_BUI):VER_BUI = 0
+}
+
+isEmpty(PREFIX){
+    PREFIX = /usr
+}
+
+isEmpty(LIB_INSTALL_DIR) {
+    isEqual(TARGET, dtkcore) {
+        LIB_INSTALL_DIR=$$PREFIX/lib
+    } else {
+        LIB_INSTALL_DIR=$${QT.dtkcore.libs}
+    }
+}
+
+LIB_VERSION_NAME = libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
+MODULE_NAME = $$upper($$member($$list($$split(DTK_MODULE_NAME,)), 3, 3))$$join($$list($$member($$list($$split(DTK_MODULE_NAME,)), 4, -1)))
+DMODULE_NAME = D$${MODULE_NAME}
+
+isEmpty(TOOL_INSTALL_DIR) {
+    TOOL_INSTALL_DIR=$$LIB_INSTALL_DIR/$$LIB_VERSION_NAME/$$DMODULE_NAME/bin
+}
+
+isEmpty(INCLUDE_INSTALL_DIR) {
+    isEqual(DTK_MODULE_NAME, dtkcore) {
+        INCLUDE_INSTALL_DIR = $$PREFIX/include/$$LIB_VERSION_NAME/$$DMODULE_NAME
+    } else {
+        INCLUDE_INSTALL_DIR = $${QT.dtkcore.includes}/../$$DMODULE_NAME
+    }
+}

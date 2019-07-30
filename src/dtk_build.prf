@@ -1,86 +1,22 @@
-isEmpty(TARGET): error(set TARGET first)
-!contains(TARGET, ^dtk[a-z0-9]+$): error(The format of the value of TARGET is incorrect. eg: dtk[a-z0-9]+)
-!isEqual(TARGET, dtkcore):!contains(QT, dtkcore): error(QT += dtkcore first)
-
-defineTest(checkDtkVersion) {
-    isEmpty(VERSION) {
-        !isEqual(TARGET, dtkcore) {
-            VERSION = $${QT.dtkcore.VERSION}
-        }
-
-        # TODO: failed in windows
-        isEmpty(VERSION): VERSION = $$system(git describe --tags --abbrev=0)
-        isEmpty(VERSION): VERSION = $$DTK_VERSION
-        isEmpty(VERSION): return(false)
-        VERSION = $$replace(VERSION, [^0-9.],)
-    }
-
-    export(VERSION)
-    return(true)
+exists(../dtk_build_config.prf) {
+    include(../dtk_build_config.prf)
+} else {
+    load(dtk_build_config)
 }
 
-!checkDtkVersion():error("check dtk version failed")
-
-message("build dtk with version $$VERSION")
-ver_list = $$split(VERSION, .)
-
-isEmpty(VER_MAJ) {
-    VER_MAJ = $$first(ver_list)
-}
-isEmpty(VER_MIN) {
-    VER_MIN = $$member(ver_list, 1, 1)
-    isEmpty(VER_MIN):VER_MIN = 0
-}
-isEmpty(VER_PAT) {
-    VER_PAT = $$member(ver_list, 2, 2)
-    isEmpty(VER_PAT):VER_PAT = 0
-}
-isEmpty(VER_BUI) {
-    VER_BUI = $$member(ver_list, 3, 3)
-    isEmpty(VER_BUI):VER_BUI = 0
-}
-
+#标记已经加载了dtk_build.prf
+DTK_BUILD=1
 TEMPLATE = lib
 
 CONFIG += c++11 create_pc create_prl no_install_prl
 CONFIG += no_keywords
 
 DEFINES += QT_MESSAGELOGCONTEXT
-DEFINES += LIB$$upper($$TARGET)_LIBRARY
-
-isEmpty(PREFIX){
-    PREFIX = /usr
-}
-
-isEmpty(LIB_INSTALL_DIR) {
-    isEqual(TARGET, dtkcore) {
-        LIB_INSTALL_DIR=$$PREFIX/lib
-    } else {
-        LIB_INSTALL_DIR=$${QT.dtkcore.libs}
-    }
-}
-
-LIB_VERSION_NAME = libdtk-$${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
-MODULE_NAME = D$$upper($$member($$list($$split(TARGET,)), 3, 3))$$join($$list($$member($$list($$split(TARGET,)), 4, -1)))
-
+DEFINES += LIB$$upper($$DTK_MODULE_NAME)_LIBRARY
 DEFINES += DTK_LIB_DIR_NAME=\\\"$$LIB_VERSION_NAME\\\"
 
-isEmpty(TOOL_INSTALL_DIR) {
-    TOOL_INSTALL_DIR=$$LIB_INSTALL_DIR/$$LIB_VERSION_NAME/$$MODULE_NAME/bin
-}
-
 isEmpty(target.path): target.path = $$LIB_INSTALL_DIR
-
-isEmpty(INCLUDE_INSTALL_DIR) {
-    isEqual(TARGET, dtkcore) {
-        INCLUDE_INSTALL_DIR = $$PREFIX/include/$$LIB_VERSION_NAME
-    } else {
-        INCLUDE_INSTALL_DIR = $${QT.dtkcore.includes}/..
-    }
-}
-
-DTK_INCLUDEPATH = $$INCLUDE_INSTALL_DIR
-isEmpty(includes.path): includes.path = $$quote($$DTK_INCLUDEPATH/$$MODULE_NAME,)
+isEmpty(includes.path): includes.path = $$quote($$INCLUDE_INSTALL_DIR)
 
 !isEmpty(DTK_STATIC_LIB) {
     DEFINES += DTK_STATIC_LIB
@@ -90,6 +26,70 @@ isEmpty(includes.path): includes.path = $$quote($$DTK_INCLUDEPATH/$$MODULE_NAME,
 !isEmpty(DTK_STATIC_TRANSLATION) {
     DEFINES += DTK_STATIC_TRANSLATION
 }
+
+defineTest(containIncludeFiles) {
+    header = $$absolute_path($$ARGS)
+    header_dir = $$quote($$dirname(header))
+
+    for (file, includes.files) {
+        file_ap = $$absolute_path($$file)
+        file_dir = $$quote($$dirname(file_ap))
+
+        isEqual(file_dir, $$header_dir):return(true)
+    }
+
+    return(false)
+}
+
+ALL_HEADER_FILE_NAME=Dtk$${MODULE_NAME}s
+
+#添加一个include模块提供的所有头文件的总的头文件
+defineTest(updateDtkHeaderFile) {
+    include_files = $$HEADERS
+    file_content = $$quote($${LITERAL_HASH}ifndef DTK_$$upper($$MODULE_NAME)_MODULE_H)
+    file_content += $$quote($${LITERAL_HASH}define DTK_$$upper($$MODULE_NAME)_MODULE_H)
+
+    for(header, include_files) {
+        #排除私有头文件，以 _p.h 结尾的认为是私有头文件
+        suffix = $$str_member($$header, -4, -1)
+        !isEqual(suffix, "_p.h"): containIncludeFiles($$header) {
+            file_content += $$quote($${LITERAL_HASH}include \"$$basename(header)\")
+        }
+    }
+
+    file_content += $$quote($${LITERAL_HASH}endif)
+    !write_file($$_PRO_FILE_PWD_/$$ALL_HEADER_FILE_NAME, file_content):return(false)
+
+    return(true)
+}
+
+!updateDtkHeaderFile():warning(Cannot create "$${ALL_HEADER_FILE_NAME}" header file)
+
+# create dtkxxx_config.h file
+defineTest(updateDtkConfigFile) {
+    isEqual(DTK_MODULE_NAME, dtkcore) {
+        config_content += $$quote($${LITERAL_HASH}define DTK_VERSION_MAJOR $$VER_MAJ)
+        config_content += $$quote($${LITERAL_HASH}define DTK_VERSION_MINOR $$VER_MIN)
+        config_content += $$quote($${LITERAL_HASH}define DTK_VERSION_PATCH $$VER_PAT)
+        config_content += $$quote($${LITERAL_HASH}define DTK_VERSION_BUILD $$VER_BUI)
+        config_content += $$quote($${LITERAL_HASH}define DTK_VERSION_STR \"$$VERSION\")
+        config_content += $$quote(//)
+    }
+
+    for(file, includes.files) {
+        file = $$quote($$basename(file))
+
+        !isEqual(file, $$ALL_HEADER_FILE_NAME):contains(file, D[A-Za-z0-9_]+) {
+            config_content += $$quote($${LITERAL_HASH}define $$upper($$DTK_MODULE_NAME)_CLASS_$$file)
+        }
+    }
+
+    !write_file($$_PRO_FILE_PWD_/$${DTK_MODULE_NAME}_config.h, config_content):return(false)
+
+    return(true)
+}
+
+!updateDtkConfigFile():warning(Cannot create "$${DTK_MODULE_NAME}_config.h" header file)
 
 exists($$PWD/dtk_translation.prf) {
     include($$PWD/dtk_translation.prf)
