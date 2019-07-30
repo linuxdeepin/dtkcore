@@ -100,6 +100,20 @@ qt_module.path = $${MKSPECS_INSTALL_DIR}/modules
 
 INSTALLS += qt_module
 
+PKG_MODULE_DEPENDS=$$find(QT, dtk*)
+
+for (qt_module, QT) {
+    #DBus模块需要特殊处理
+    isEqual(qt_module, "dbus") {
+        PKG_MODULE_DEPENDS+=Qt5DBus
+    } else {
+        suffix = $$str_member($$qt_module, -7, -1)
+        #排除以private结尾的模块
+        !isEqual(suffix, "private"): PKG_MODULE_DEPENDS+=Qt5$$capitalizingString($$qt_module)
+    }
+}
+
+PKG_MODULE_DEPENDS = $$unique(PKG_MODULE_DEPENDS)
 
 # -----------------------
 # Config pkg-config
@@ -107,6 +121,6 @@ QMAKE_PKGCONFIG_VERSION = $$VERSION
 QMAKE_PKGCONFIG_DESTDIR = pkgconfig
 QMAKE_PKGCONFIG_NAME = DTK_$$upper($$MODULE_ID)
 QMAKE_PKGCONFIG_DESCRIPTION = Deepin Tool Kit $$MODULE_ID header files
-QMAKE_PKGCONFIG_REQUIRES += $$MODULE_DEPENDS
+QMAKE_PKGCONFIG_REQUIRES += $$PKG_MODULE_DEPENDS
 QMAKE_PKGCONFIG_INCDIR = $$includes.path
 QMAKE_PKGCONFIG_LIBDIR = $$target.path

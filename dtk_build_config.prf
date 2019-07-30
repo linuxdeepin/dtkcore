@@ -2,6 +2,14 @@ isEmpty(DTK_MODULE_NAME): error(set DTK_MODULE_NAME first)
 !contains(DTK_MODULE_NAME, ^dtk[a-z0-9]+$): error(The format of the value of DTK_MODULE_NAME is incorrect. eg: dtk[a-z0-9]+)
 !isEqual(DTK_MODULE_NAME, dtkcore):!contains(QT, dtkcore): error(QT += dtkcore first)
 
+#将首字母改为大写
+defineReplace(capitalizingString) {
+    RAW=$$1
+    FIRST = $$upper($$section(RAW, "", 1, 1))
+    OTHERS = $$section(RAW, "", 2, -1)
+    return($$FIRST$$OTHERS)
+}
+
 defineTest(checkDtkVersion) {
     isEmpty(VERSION) {
         !isEqual(TARGET, dtkcore) {
