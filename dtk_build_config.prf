@@ -12,7 +12,7 @@ defineReplace(capitalizingString) {
 
 defineTest(checkDtkVersion) {
     isEmpty(VERSION) {
-        !isEqual(TARGET, dtkcore) {
+        !isEqual(DTK_MODULE_NAME, dtkcore) {
             VERSION = $${QT.dtkcore.VERSION}
         }
 
@@ -53,7 +53,7 @@ isEmpty(PREFIX){
 }
 
 isEmpty(LIB_INSTALL_DIR) {
-    isEqual(TARGET, dtkcore) {
+    isEqual(DTK_MODULE_NAME, dtkcore) {
         LIB_INSTALL_DIR=$$PREFIX/lib
     } else {
         LIB_INSTALL_DIR=$${QT.dtkcore.libs}
