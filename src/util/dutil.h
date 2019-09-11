@@ -42,5 +42,19 @@ inline void TimerSingleShot(int msec,  Func1 slot)
 #endif
 }
 
+template <class T>
+void SecureErase(T *p, size_t size)
+{
+    memset(p, 0, size);
+}
+
+template <class T>
+void SecureErase(T &obj)
+{
+    for (typename T::iterator i = obj.begin(); i != obj.end(); ++i) {
+        *i = 0;
+    }
+    obj.clear();
+}
 
 }
