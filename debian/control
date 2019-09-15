@@ -1,4 +1,4 @@
-Source: dtkcore2
+Source: dtkcore
 Section: libdevel
 Priority: optional
 Maintainer: Deepin Packages Builder <packages@deepin.com>
