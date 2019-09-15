@@ -371,17 +371,14 @@ libdtkcore.so.2 libdtkcore2 #MINVER#
  (optional=templinst)_ZN4QMapIi7QStringED1Ev@Base 2.0.11
  (optional=templinst)_ZN4QMapIi7QStringED2Ev@Base 2.0.11
  (optional=templinst)_ZN5QHashI7QStringiE11deleteNode2EPN9QHashData4NodeE@Base 2.0.11
- (optional=templinst)_ZN5QHashI7QStringiE13detach_helperEv@Base 2.0.11
  (optional=templinst)_ZN5QHashI7QStringiE13duplicateNodeEPN9QHashData4NodeEPv@Base 2.0.11
  (optional=templinst)_ZN5QHashIPN3Dtk4Core16AbstractAppenderE15QHashDummyValueE11deleteNode2EPN9QHashData4NodeE@Base 2.0.11
- (optional=templinst)_ZN5QHashIPN3Dtk4Core16AbstractAppenderE15QHashDummyValueE13detach_helperEv@Base 2.0.11
  (optional=templinst)_ZN5QHashIPN3Dtk4Core16AbstractAppenderE15QHashDummyValueE13duplicateNodeEPN9QHashData4NodeEPv@Base 2.0.11
  (optional=templinst)_ZN5QHashIPN3Dtk4Core16AbstractAppenderE15QHashDummyValueED1Ev@Base 2.0.11
  (optional=templinst)_ZN5QHashIPN3Dtk4Core16AbstractAppenderE15QHashDummyValueED2Ev@Base 2.0.11
  (optional=templinst)_ZN5QHashIi15QHashDummyValueE11deleteNode2EPN9QHashData4NodeE@Base 2.0.11
  (optional=templinst)_ZN5QHashIi15QHashDummyValueE13duplicateNodeEPN9QHashData4NodeEPv@Base 2.0.11
  (optional=templinst)_ZN5QHashIi7QStringE11deleteNode2EPN9QHashData4NodeE@Base 2.0.11
- (optional=templinst)_ZN5QHashIi7QStringE13detach_helperEv@Base 2.0.11
  (optional=templinst)_ZN5QHashIi7QStringE13duplicateNodeEPN9QHashData4NodeEPv@Base 2.0.11
  (optional=templinst)_ZN5QHashIi7QStringED1Ev@Base 2.0.11
  (optional=templinst)_ZN5QHashIi7QStringED2Ev@Base 2.0.11
@@ -591,7 +588,6 @@ libdtkcore.so.2 libdtkcore2 #MINVER#
  _ZTIN3Dtk4Core9LogDeviceE@Base 2.0.11
  _ZTISt11_Mutex_baseILN9__gnu_cxx12_Lock_policyE2EE@Base 2.0.11
  _ZTISt16_Sp_counted_baseILN9__gnu_cxx12_Lock_policyE2EE@Base 2.0.11
- _ZTISt19_Sp_make_shared_tag@Base 2.0.11
  _ZTISt23_Sp_counted_ptr_inplaceI9DDBusDataSaIS0_ELN9__gnu_cxx12_Lock_policyE2EE@Base 2.0.11
  _ZTISt23_Sp_counted_ptr_inplaceIN3Dtk4Core5DUtil11DNotifyDataESaIS3_ELN9__gnu_cxx12_Lock_policyE2EE@Base 2.0.11
  _ZTSN3Dtk4Core12DFileWatcherE@Base 2.0.11
