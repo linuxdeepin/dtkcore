@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <enum id="com.deepin.dtk.ColorType">
+        <value nick="UnknownType" value="0" />
+        <value nick="LightType" value="1" />
+        <value nick="DarkType" value="2" />
+    </enum>
+
+    <schema id="com.deepin.dtk">
+        <key enum="com.deepin.dtk.ColorType" name="palette-type">
+            <default>'UnknownType'</default>
+            <summary>application palette type</summary>
+            <description>Palette type of the application. SystemTheme=0 LightTheme=1 DarkTheme=2</description>
+        </key>
+    </schema>
+</schemalist>

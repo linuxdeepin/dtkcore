@@ -56,4 +56,7 @@ prf.path = $${MKSPECS_INSTALL_DIR}/features
     prf.files-=$$PWD/dtk_qmake.prf
 }
 
-INSTALLS += prf
+gsettings.files += $$PWD/com.deepin.dtk.gschema.xml
+gsettings.path = $${PREFIX}/share/glib-2.0/schemas
+
+INSTALLS += prf gsettings
