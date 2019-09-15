@@ -27,4 +27,5 @@ SOURCES += \
     $$PWD/ddisksizeformatter.cpp \
     $$PWD/ddbussender.cpp \
     $$PWD/drecentmanager.cpp \
-    $$PWD/dnotifysender.cpp
+    $$PWD/dnotifysender.cpp \
+    $$PWD/dpinyin.cpp
