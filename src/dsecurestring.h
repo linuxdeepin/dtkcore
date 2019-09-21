@@ -20,11 +20,17 @@
  */
 #pragma once
 
+#include <dtkcore_global.h>
 #include <QString>
+
+DCORE_BEGIN_NAMESPACE
 
 class DSecureString : public QString
 {
 public:
     using QString::QString;
+    DSecureString(const QString &other) noexcept;
     ~DSecureString();
 };
+
+DCORE_END_NAMESPACE

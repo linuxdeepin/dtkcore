@@ -21,7 +21,16 @@
 #include "dsecurestring.h"
 #include "dutil.h"
 
+DCORE_BEGIN_NAMESPACE
+
+DSecureString::DSecureString(const QString &other) noexcept
+    : QString(other)
+{
+}
+
 DSecureString::~DSecureString()
 {
     DUtil::SecureErase(*this);
 }
+
+DCORE_END_NAMESPACE
