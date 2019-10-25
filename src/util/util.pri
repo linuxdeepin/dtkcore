@@ -6,7 +6,8 @@ HEADERS += \
     $$PWD/ddisksizeformatter.h \
     $$PWD/ddbussender.h \
     $$PWD/drecentmanager.h \
-    $$PWD/dnotifysender.h
+    $$PWD/dnotifysender.h \
+    $$PWD/dexportedinterface.h
 
 INCLUDEPATH += $$PWD
 
@@ -16,7 +17,8 @@ includes.files += \
     $$PWD/DPinyin \
     $$PWD/DDBusSender \
     $$PWD/DRecentManager \
-    $$PWD/DNotifySender
+    $$PWD/DNotifySender \
+    $$PWD/DExportedInterface
 
 RESOURCES += \
     $$PWD/util.qrc
@@ -28,4 +30,5 @@ SOURCES += \
     $$PWD/ddbussender.cpp \
     $$PWD/drecentmanager.cpp \
     $$PWD/dnotifysender.cpp \
-    $$PWD/dpinyin.cpp
+    $$PWD/dpinyin.cpp \
+    $$PWD/dexportedinterface.cpp
