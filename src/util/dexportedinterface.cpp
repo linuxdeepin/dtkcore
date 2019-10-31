@@ -28,12 +28,14 @@
 #include <QVariant>
 #include <QDBusConnection>
 #include <QDBusVariant>
+#include <QDBusContext>
+#include <QDBusMessage>
 
 DCORE_BEGIN_NAMESPACE
 namespace DUtil {
 
 class DExportedInterfacePrivate;
-class DExportedInterfaceDBusInterface : public QObject
+class DExportedInterfaceDBusInterface : public QObject, protected QDBusContext
 {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "com.deepin.ExportedInterface")
@@ -135,7 +137,11 @@ QString DExportedInterfaceDBusInterface::help(const QString &action)
 QDBusVariant DExportedInterfaceDBusInterface::invoke(QString action, QString parameters)
 {
     QDBusVariant ret;
-    ret.setVariant(p->q_func()->invoke(action, parameters));
+    if (!p->actions.contains(action)) {
+        sendErrorReply(QDBusError::ErrorType::InvalidArgs, QString("Action \"%1\" is not registered").arg(action));
+    } else {
+        ret.setVariant(p->q_func()->invoke(action, parameters));
+    }
     return ret;
 }
 
