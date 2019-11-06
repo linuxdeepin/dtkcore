@@ -291,12 +291,17 @@ void DFileSystemWatcherPrivate::_q_readFromInotify()
             }
 
             if (event.mask & IN_MOVED_FROM) {
-                const QString &toPath = cookieToFilePath.value(event.cookie);
                 const QString toName = cookieToFileName.value(event.cookie);
 
-//                qDebug() << "IN_MOVED_FROM" << filePath << "to path:" << toPath << "to name:" << toName;
+                if (cookieToFilePath.values(event.cookie).empty()) {
+                    Q_EMIT q->fileMoved(path, name, QString(), QString(), DFileSystemWatcher::QPrivateSignal());
+                } else {
+                    for (QString &toPath : cookieToFilePath.values(event.cookie)) {
+//                        qDebug() << "IN_MOVED_FROM" << filePath << "to path:" << toPath << "to name:" << toName;
 
-                Q_EMIT q->fileMoved(path, name, toPath, toName, DFileSystemWatcher::QPrivateSignal());
+                        Q_EMIT q->fileMoved(path, name, toPath, toName, DFileSystemWatcher::QPrivateSignal());
+                    }
+                }
             }
 
             if (event.mask & IN_MOVED_TO) {
