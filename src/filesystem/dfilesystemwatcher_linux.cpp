@@ -112,16 +112,20 @@ QStringList DFileSystemWatcherPrivate::removePaths(const QStringList &paths, QSt
     while (it.hasNext()) {
         QString path = it.next();
         int id = pathToID.take(path);
-        QString x = idToPath.take(id);
+        for (auto hit = idToPath.find(id); hit != idToPath.end() && hit.key() == id; ++hit) {
+            if (hit.value() == path) {
+                idToPath.erase(hit);
+                break;
+            }
+        }
 
         it.remove();
 
-        if (x.isEmpty() || x != path)
-            continue;
-
-        int wd = id < 0 ? -id : id;
-        // qDebug() << "removing watch for path" << path << "wd" << wd;
-        inotify_rm_watch(inotifyFd, wd);
+        if (!idToPath.contains(id)) {
+            int wd = id < 0 ? -id : id;
+            //qDebug() << "removing watch for path" << path << "wd" << wd;
+            inotify_rm_watch(inotifyFd, wd);
+        }
 
         if (id < 0) {
             directories->removeAll(path);
@@ -146,7 +150,7 @@ void DFileSystemWatcherPrivate::_q_readFromInotify()
     char * const end = at + buffSize;
 
     QList<inotify_event *> eventList;
-    QHash<int, QString> pathForId;
+    QHash<int, QString> batch_pathmap;
     /// only save event: IN_MOVE_TO
     QMultiMap<int, QString> cookieToFilePath;
     QMultiMap<int, QString> cookieToFileName;
@@ -158,11 +162,11 @@ void DFileSystemWatcherPrivate::_q_readFromInotify()
         at += sizeof(inotify_event) + event->len;
 
         int id = event->wd;
-        paths = getPathFromID(id);
+        paths = idToPath.values(id);
         if (paths.empty()) {
             // perhaps a directory?
             id = -id;
-            paths = getPathFromID(id);
+            paths = idToPath.values(id);
             if (paths.empty())
                 continue;
         }
@@ -170,7 +174,7 @@ void DFileSystemWatcherPrivate::_q_readFromInotify()
         if (!(event->mask & IN_MOVED_TO) || !hasMoveFromByCookie.contains(event->cookie)) {
             eventList.append(event);
             for (auto &path : paths) {
-                pathForId.insert(id, path);
+                batch_pathmap.insert(id, path);
             }
         }
 
@@ -195,11 +199,11 @@ void DFileSystemWatcherPrivate::_q_readFromInotify()
 //        qDebug() << "inotify event, wd" << event.wd << "cookie" << event.cookie << "mask" << hex << event.mask;
 
         int id = event.wd;
-        QStringList paths = getPathFromID(id);
+        QStringList paths = batch_pathmap.values(id);
 
         if (paths.empty()) {
             id = -id;
-            paths = getPathFromID(id);
+            paths = batch_pathmap.values(id);
 
             if (paths.empty())
                 continue;
@@ -331,11 +335,6 @@ void DFileSystemWatcherPrivate::_q_readFromInotify()
             }
         }
     }
-}
-
-QStringList DFileSystemWatcherPrivate::getPathFromID(int id) const
-{
-    return idToPath.values(id);
 }
 
 void DFileSystemWatcherPrivate::onFileChanged(const QString &path, bool removed)
