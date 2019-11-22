@@ -457,7 +457,7 @@ QString DSysInfo::deepinDistributionInfoPath()
 
 QString DSysInfo::deepinDistributorName()
 {
-    siGlobal->ensureReleaseInfo();
+    siGlobal->ensureDeepinInfo();
 
     return siGlobal->deepinDistributorName;
 }
@@ -468,7 +468,7 @@ QString DSysInfo::deepinDistributorName()
  */
 QPair<QString, QString> DSysInfo::deepinDistributorWebsite()
 {
-    siGlobal->ensureReleaseInfo();
+    siGlobal->ensureDeepinInfo();
 
     return {siGlobal->deepinDistributorWebsite, siGlobal->deepinDistributorWebsiteUrl};
 }
