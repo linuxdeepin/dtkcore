@@ -42,13 +42,22 @@ public:
         Manjaro,
         openSUSE,
         SailfishOS,
-        Ubuntu
+        Ubuntu,
+        Uos
     };
 
     enum DeepinType {
         UnknownDeepin = 0,
         DeepinDesktop,
-        DeepinProfessional
+        DeepinProfessional,
+        DeepinServer
+    };
+
+    enum LogoType {
+        Normal = 0,
+        Light,
+        Symbolic,
+        Transparent
     };
 
 #ifdef Q_OS_LINUX
@@ -60,6 +69,11 @@ public:
     static QString deepinEdition();
     static QString deepinCopyright();
 #endif
+
+    static QString deepinDistributionInfoPath();
+    static QString deepinDistributorName();
+    static QPair<QString, QString> deepinDistributorWebsite();
+    static QString deepinDistributorLogo(LogoType type = Normal, const QString & fallback = QString());
 
     static QString operatingSystemName();
     static ProductType productType();

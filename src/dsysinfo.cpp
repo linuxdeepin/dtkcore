@@ -28,6 +28,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QSettings>
+#include <QStandardPaths>
 
 #ifdef Q_OS_LINUX
 #include <sys/sysinfo.h>
@@ -55,6 +57,10 @@ public:
     QString deepinEdition;
     QString deepinCopyright;
 #endif
+
+    QString deepinDistributorName;
+    QString deepinDistributorWebsite;
+    QString deepinDistributorWebsiteUrl;
 
     DSysInfo::ProductType productType = DSysInfo::ProductType(-1);
     QString prettyName;
@@ -137,9 +143,23 @@ void DSysInfoPrivate::ensureDeepinInfo()
         deepinType = DSysInfo::DeepinDesktop;
     } else if (deepin_type == "Professional") {
         deepinType = DSysInfo::DeepinProfessional;
+    } else if (deepin_type == "Server") {
+        deepinType = DSysInfo::DeepinServer;
     } else {
         deepinType = DSysInfo::UnknownDeepin;
     }
+
+    deepinDistributorName = "Deepin";
+    deepinDistributorWebsite = "www.deepin.org";
+    deepinDistributorWebsiteUrl = "https://www.deepin.org";
+
+    const QString distributionInfoFile(DSysInfo::deepinDistributionInfoPath());
+    if (!QFile::exists(DSysInfo::deepinDistributionInfoPath())) return;
+    // Generic DDE distribution info
+    QSettings distributionInfo(distributionInfoFile, QSettings::IniFormat); // TODO: treat as `.desktop` format instead of `.ini`
+    deepinDistributorName = distributionInfo.value("Distributor/Name", deepinDistributorName).toString(); // fallback
+    deepinDistributorWebsite = distributionInfo.value("Distributor/WebsiteName", deepinDistributorWebsite).toString();
+    deepinDistributorWebsiteUrl = distributionInfo.value("Distributor/Website", deepinDistributorWebsiteUrl).toString();
 }
 
 static QString unquote(const QByteArray &value)
@@ -272,8 +292,11 @@ void DSysInfoPrivate::ensureReleaseInfo()
             break;
         case 'u':
         case 'U':
-            if (productTypeString.compare("ubuntu", Qt::CaseInsensitive) == 0)
+            if (productTypeString.compare("ubuntu", Qt::CaseInsensitive) == 0) {
                 productType = DSysInfo::Ubuntu;
+            } else if (productTypeString.compare("uos", Qt::CaseInsensitive) == 0) {
+                productType = DSysInfo::Uos;
+            }
             break;
         default:
             productType = DSysInfo::UnknownType;
@@ -369,11 +392,15 @@ QString DSysInfo::operatingSystemName()
 }
 
 #ifdef Q_OS_LINUX
+/*!
+ * \brief Check current distro is Deepin or not.
+ * \note Uos will also return true.
+ */
 bool DSysInfo::isDeepin()
 {
     siGlobal->ensureReleaseInfo();
 
-    return productType() == Deepin;
+    return productType() == Deepin || productType() == Uos;
 }
 
 bool DSysInfo::isDDE()
@@ -418,6 +445,52 @@ QString DSysInfo::deepinCopyright()
     return siGlobal->deepinCopyright;
 }
 #endif
+
+QString DSysInfo::deepinDistributionInfoPath()
+{
+#ifdef Q_OS_LINUX
+    return "/usr/share/deepin/distribution.info";
+#else
+    return QDir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)).filePath("deepin-distribution.info");
+#endif // Q_OS_LINUX
+}
+
+QString DSysInfo::deepinDistributorName()
+{
+    siGlobal->ensureReleaseInfo();
+
+    return siGlobal->deepinDistributorName;
+}
+
+/*!
+ * \return the distributor website name and url.
+ * \sa deepinDistributionInfoPath()
+ */
+QPair<QString, QString> DSysInfo::deepinDistributorWebsite()
+{
+    siGlobal->ensureReleaseInfo();
+
+    return {siGlobal->deepinDistributorWebsite, siGlobal->deepinDistributorWebsiteUrl};
+}
+
+/*!
+ * \return the obtained logo path, or the given \l fallback one if there are no such logo.
+ * \sa deepinDistributionInfoPath()
+ */
+QString DSysInfo::deepinDistributorLogo(DSysInfo::LogoType type, const QString &fallback)
+{
+    QSettings distributionInfo(deepinDistributionInfoPath(), QSettings::IniFormat);
+    switch (type) {
+    case Normal:
+        return distributionInfo.value("Distributor/Logo", fallback).toString();
+    case Light:
+        return distributionInfo.value("Distributor/LogoLight", fallback).toString();
+    case Symbolic:
+        return distributionInfo.value("Distributor/LogoSymbolic", fallback).toString();
+    case Transparent:
+        return distributionInfo.value("Distributor/LogoTransparent", fallback).toString();
+    }
+}
 
 DSysInfo::ProductType DSysInfo::productType()
 {
