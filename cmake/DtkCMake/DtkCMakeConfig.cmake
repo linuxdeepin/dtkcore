@@ -47,6 +47,12 @@ else()
 
     formatString(CMAKE_PLATFORM_VERSION)
     add_definitions(-DQ_OS_VERSION=\"${CMAKE_PLATFORM_VERSION}\")
+
+    #uos base with deepin
+    if("${CMAKE_PLATFORM_ID}" STREQUAL "UOS")
+        addDefinitions(Q_OS_DEEPIN)
+        set(OS_DEEPIN TRUE)
+    endif()
 endif()
 
 if("${DEEPIN_OS_TYPE}" STREQUAL "")
