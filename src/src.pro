@@ -7,11 +7,13 @@ TARGET = dtkcore
 INCLUDEPATH += $$PWD
 HEADERS += $$PWD/dtkcore_global.h \
     dsysinfo.h \
-    dsecurestring.h
+    dsecurestring.h \
+    ddesktopentry.h
 
 SOURCES += \
     dsysinfo.cpp \
-    dsecurestring.cpp
+    dsecurestring.cpp \
+    ddesktopentry.cpp
 
 include($$PWD/base/base.pri)
 include($$PWD/util/util.pri)
@@ -29,7 +31,8 @@ includes.files += \
     $$PWD/dtkcore_config.h \
     $$PWD/DtkCores \
     $$PWD/DSysInfo \
-    $$PWD/DSecureString
+    $$PWD/DSecureString \
+    $$PWD/DDesktopEntry
 
 INSTALLS += includes target
 
