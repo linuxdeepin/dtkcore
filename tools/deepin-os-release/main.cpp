@@ -24,10 +24,22 @@
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QThread>
+#include <QFile>
 
 #include <stdio.h>
 
 DCORE_USE_NAMESPACE
+
+bool distributionInfoValid() {
+    return QFile::exists(DSysInfo::distributionInfoPath());
+}
+
+void printDistributionOrgInfo(DSysInfo::OrgType type) {
+    QString sectionName = DSysInfo::distributionInfoSectionName(type);
+    printf("%s Name: %s\n", qPrintable(sectionName), qPrintable(DSysInfo::distributionOrgName(type)));
+    printf("%s Logo (Normal size): %s\n", qPrintable(sectionName), qPrintable(DSysInfo::distributionOrgLogo(type)));
+    printf("%s Website: %s\n", qPrintable(sectionName), qPrintable(DSysInfo::distributionOrgWebsite(type).second));
+}
 
 int main(int argc, char *argv[])
 {
@@ -46,6 +58,8 @@ int main(int argc, char *argv[])
     QCommandLineOption option_cpu_model("cpu-model", "CPU Model");
     QCommandLineOption option_memory_size("memory-size", "Memory Size (GiB)");
     QCommandLineOption option_disk_size("disk-size", "Disk Size (GiB)");
+    QCommandLineOption option_distribution_info("distribution-info", "Distribution information");
+    QCommandLineOption option_distributer_info("distributer-info", "Distributer information");
 
     parser.addOptions({option_all, option_deepin_type, option_deepin_version, option_deepin_edition,
                        option_deepin_copyright, option_product_type, option_product_version,
@@ -74,6 +88,11 @@ int main(int argc, char *argv[])
         printf("Operating System Name: %s\n", qPrintable(DSysInfo::operatingSystemName()));
         printf("Product Type: %s\n", qPrintable(DSysInfo::productTypeString()));
         printf("Product Version: %s\n", qPrintable(DSysInfo::productVersion()));
+
+        if (distributionInfoValid()) {
+            printDistributionOrgInfo(DSysInfo::Distribution);
+            printDistributionOrgInfo(DSysInfo::Distributor);
+        }
     } else {
         if (parser.isSet(option_deepin_type))
             printf("%s", qPrintable(DSysInfo::deepinTypeDisplayName(QLocale::c())));
@@ -95,6 +114,11 @@ int main(int argc, char *argv[])
             printf("%f", DSysInfo::memoryTotalSize() / 1024.0 / 1024 / 1024);
         else if (parser.isSet(option_disk_size))
             printf("%f", DSysInfo::systemDiskSize() / 1024.0 / 1024 / 1024);
+        else if (parser.isSet(option_distribution_info)) {
+            printDistributionOrgInfo(DSysInfo::Distribution);
+        } else if (parser.isSet(option_distributer_info)) {
+            printDistributionOrgInfo(DSysInfo::Distributor);
+        }
     }
 
     return 0;

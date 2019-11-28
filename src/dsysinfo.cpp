@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "dsysinfo.h"
+#include "ddesktopentry.h"
 
 #include <QFile>
 #include <QLocale>
@@ -58,9 +59,7 @@ public:
     QString deepinCopyright;
 #endif
 
-    QString deepinDistributorName;
-    QString deepinDistributorWebsite;
-    QString deepinDistributorWebsiteUrl;
+    QScopedPointer<DDesktopEntry> distributionInfo;
 
     DSysInfo::ProductType productType = DSysInfo::ProductType(-1);
     QString prettyName;
@@ -149,17 +148,10 @@ void DSysInfoPrivate::ensureDeepinInfo()
         deepinType = DSysInfo::UnknownDeepin;
     }
 
-    deepinDistributorName = "Deepin";
-    deepinDistributorWebsite = "www.deepin.org";
-    deepinDistributorWebsiteUrl = "https://www.deepin.org";
-
-    const QString distributionInfoFile(DSysInfo::deepinDistributionInfoPath());
-    if (!QFile::exists(DSysInfo::deepinDistributionInfoPath())) return;
+    const QString distributionInfoFile(DSysInfo::distributionInfoPath());
     // Generic DDE distribution info
+    distributionInfo.reset(new DDesktopEntry(distributionInfoFile));
     QSettings distributionInfo(distributionInfoFile, QSettings::IniFormat); // TODO: treat as `.desktop` format instead of `.ini`
-    deepinDistributorName = distributionInfo.value("Distributor/Name", deepinDistributorName).toString(); // fallback
-    deepinDistributorWebsite = distributionInfo.value("Distributor/WebsiteName", deepinDistributorWebsite).toString();
-    deepinDistributorWebsiteUrl = distributionInfo.value("Distributor/Website", deepinDistributorWebsiteUrl).toString();
 }
 
 static QString unquote(const QByteArray &value)
@@ -360,7 +352,7 @@ void DSysInfoPrivate::ensureComputerInfo()
         QJsonArray diskStatusArray = diskStatusJsonValue.toArray();
         QString keyName;
 
-        for (const QJsonValue &oneValue : diskStatusArray) {
+        for (const QJsonValue oneValue : diskStatusArray) {
             QString name = oneValue.toObject().value("name").toString();
             QString kname = oneValue.toObject().value("kname").toString();
             QString pkname = oneValue.toObject().value("pkname").toString();
@@ -448,6 +440,11 @@ QString DSysInfo::deepinCopyright()
 
 QString DSysInfo::deepinDistributionInfoPath()
 {
+    return distributionInfoPath();
+}
+
+QString DSysInfo::distributionInfoPath()
+{
 #ifdef Q_OS_LINUX
     return "/usr/share/deepin/distribution.info";
 #else
@@ -455,41 +452,91 @@ QString DSysInfo::deepinDistributionInfoPath()
 #endif // Q_OS_LINUX
 }
 
+QString DSysInfo::distributionInfoSectionName(DSysInfo::OrgType type)
+{
+    switch (type) {
+    case Distribution:
+        return "Distribution";
+    case Distributor:
+        return "Distributor";
+    case Manufacturer:
+        return "Manufacturer";
+    }
+}
+
+/*!
+ * \return the organization name.
+ *
+ * use \l type as Distribution to get the name of current deepin distribution itself.
+ *
+ * \sa deepinDistributionInfoPath()
+ */
+QString DSysInfo::distributionOrgName(DSysInfo::OrgType type, const QLocale &locale)
+{
+    siGlobal->ensureDeepinInfo();
+
+    QString fallback = type == Distribution ? QStringLiteral("Deepin") : QString();
+
+    return siGlobal->distributionInfo->localizedValue("Name", locale, distributionInfoSectionName(type), fallback);
+}
+
 QString DSysInfo::deepinDistributorName()
 {
-    siGlobal->ensureDeepinInfo();
-
-    return siGlobal->deepinDistributorName;
+    return distributionOrgName(Distributor);
 }
 
 /*!
- * \return the distributor website name and url.
+ * \return the organization website name and url.
+ *
+ * use \l type as Distribution to get the name of current deepin distribution itself.
+ *
  * \sa deepinDistributionInfoPath()
  */
+QPair<QString, QString> DSysInfo::distributionOrgWebsite(DSysInfo::OrgType type)
+{
+    siGlobal->ensureDeepinInfo();
+
+    QString fallbackSiteName = type == Distribution ? QStringLiteral("www.deepin.org") : QString();
+    QString fallbackSiteUrl = type == Distribution ? QStringLiteral("https://www.deepin.org") : QString();
+
+    return {
+        siGlobal->distributionInfo->stringValue("WebsiteName", distributionInfoSectionName(type), fallbackSiteName),
+        siGlobal->distributionInfo->stringValue("Website", distributionInfoSectionName(type), fallbackSiteUrl),
+    };
+}
+
 QPair<QString, QString> DSysInfo::deepinDistributorWebsite()
 {
-    siGlobal->ensureDeepinInfo();
-
-    return {siGlobal->deepinDistributorWebsite, siGlobal->deepinDistributorWebsiteUrl};
+    return distributionOrgWebsite(Distributor);
 }
 
 /*!
- * \return the obtained logo path, or the given \l fallback one if there are no such logo.
+ * \return the obtained organization logo path, or the given \l fallback one if there are no such logo.
+ *
+ * use \l type as Distribution to get the logo of current deepin distribution itself.
+ *
  * \sa deepinDistributionInfoPath()
  */
-QString DSysInfo::deepinDistributorLogo(DSysInfo::LogoType type, const QString &fallback)
+QString DSysInfo::distributionOrgLogo(DSysInfo::OrgType orgType, DSysInfo::LogoType type, const QString &fallback)
 {
-    QSettings distributionInfo(deepinDistributionInfoPath(), QSettings::IniFormat);
+    DDesktopEntry distributionInfo(distributionInfoPath());
+    QString orgSectionName = distributionInfoSectionName(orgType);
+
     switch (type) {
     case Normal:
-        return distributionInfo.value("Distributor/Logo", fallback).toString();
+        return distributionInfo.stringValue("Logo", orgSectionName, fallback);
     case Light:
-        return distributionInfo.value("Distributor/LogoLight", fallback).toString();
+        return distributionInfo.stringValue("LogoLight", orgSectionName, fallback);
     case Symbolic:
-        return distributionInfo.value("Distributor/LogoSymbolic", fallback).toString();
+        return distributionInfo.stringValue("LogoSymbolic", orgSectionName, fallback);
     case Transparent:
-        return distributionInfo.value("Distributor/LogoTransparent", fallback).toString();
+        return distributionInfo.stringValue("LogoTransparent", orgSectionName, fallback);
     }
+}
+
+QString DSysInfo::deepinDistributorLogo(DSysInfo::LogoType type, const QString &fallback)
+{
+    return distributionOrgLogo(Distributor, type, fallback);
 }
 
 DSysInfo::ProductType DSysInfo::productType()

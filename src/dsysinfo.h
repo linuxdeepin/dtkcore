@@ -60,6 +60,12 @@ public:
         Transparent
     };
 
+    enum OrgType {
+        Distribution, //!< distribution itself
+        Distributor, //!< distributer of the current distribution
+        Manufacturer //!< manufacturer of the current distribution or device
+    };
+
 #ifdef Q_OS_LINUX
     static bool isDeepin();
     static bool isDDE();
@@ -70,10 +76,16 @@ public:
     static QString deepinCopyright();
 #endif
 
-    static QString deepinDistributionInfoPath();
-    static QString deepinDistributorName();
-    static QPair<QString, QString> deepinDistributorWebsite();
-    static QString deepinDistributorLogo(LogoType type = Normal, const QString & fallback = QString());
+    Q_DECL_DEPRECATED_X("Use distributionInfoPath() instead") static QString deepinDistributionInfoPath();
+    static QString distributionInfoPath();
+    static QString distributionInfoSectionName(OrgType type);
+
+    static QString distributionOrgName(OrgType type = Distribution, const QLocale &locale = QLocale::system());
+    Q_DECL_DEPRECATED_X("Use deepinDistributionOrgName() instead") static QString deepinDistributorName();
+    static QPair<QString, QString> distributionOrgWebsite(OrgType type = Distribution);
+    Q_DECL_DEPRECATED_X("Use deepinDistributionOrgWebsite() instead") static QPair<QString, QString> deepinDistributorWebsite();
+    static QString distributionOrgLogo(OrgType orgType = Distribution, LogoType type = Normal, const QString & fallback = QString());
+    Q_DECL_DEPRECATED_X("Use deepinDistributionOrgLogo() instead") static QString deepinDistributorLogo(LogoType type = Normal, const QString & fallback = QString());
 
     static QString operatingSystemName();
     static ProductType productType();
