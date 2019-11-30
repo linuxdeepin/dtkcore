@@ -462,6 +462,8 @@ QString DSysInfo::distributionInfoSectionName(DSysInfo::OrgType type)
     case Manufacturer:
         return "Manufacturer";
     }
+
+    return QString();
 }
 
 /*!
@@ -532,6 +534,8 @@ QString DSysInfo::distributionOrgLogo(DSysInfo::OrgType orgType, DSysInfo::LogoT
     case Transparent:
         return distributionInfo.stringValue("LogoTransparent", orgSectionName, fallback);
     }
+
+    return QString();
 }
 
 QString DSysInfo::deepinDistributorLogo(DSysInfo::LogoType type, const QString &fallback)
