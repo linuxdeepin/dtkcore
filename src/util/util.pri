@@ -7,7 +7,8 @@ HEADERS += \
     $$PWD/ddbussender.h \
     $$PWD/drecentmanager.h \
     $$PWD/dnotifysender.h \
-    $$PWD/dexportedinterface.h
+    $$PWD/dexportedinterface.h \
+    $$PWD/dvtablehook.h
 
 INCLUDEPATH += $$PWD
 
@@ -18,7 +19,8 @@ includes.files += \
     $$PWD/DDBusSender \
     $$PWD/DRecentManager \
     $$PWD/DNotifySender \
-    $$PWD/DExportedInterface
+    $$PWD/DExportedInterface \
+    $$PWD/DVtableHook
 
 RESOURCES += \
     $$PWD/util.qrc
@@ -31,4 +33,5 @@ SOURCES += \
     $$PWD/drecentmanager.cpp \
     $$PWD/dnotifysender.cpp \
     $$PWD/dpinyin.cpp \
-    $$PWD/dexportedinterface.cpp
+    $$PWD/dexportedinterface.cpp \
+    $$PWD/dvtablehook.cpp
