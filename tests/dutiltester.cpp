@@ -42,7 +42,12 @@ void TestDUtil::testLogPath()
     qApp->setApplicationName("deepin-test-dtk");
 
     DPathBuf logPath(QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first());
+
+#ifdef Q_OS_OSX
+    logPath = logPath / "Library" / "Caches" / "deepin" / "deepin-test-dtk" / "deepin-test-dtk.log";
+#else
     logPath = logPath / ".cache" / "deepin" / "deepin-test-dtk" / "deepin-test-dtk.log";
+#endif
 
     QCOMPARE(DLogManager::getlogFilePath(), logPath.toString());
 }

@@ -475,7 +475,9 @@ QString DSysInfo::distributionInfoSectionName(DSysInfo::OrgType type)
  */
 QString DSysInfo::distributionOrgName(DSysInfo::OrgType type, const QLocale &locale)
 {
+#ifdef Q_OS_LINUX
     siGlobal->ensureDeepinInfo();
+#endif
 
     QString fallback = type == Distribution ? QStringLiteral("Deepin") : QString();
 
@@ -496,7 +498,9 @@ QString DSysInfo::deepinDistributorName()
  */
 QPair<QString, QString> DSysInfo::distributionOrgWebsite(DSysInfo::OrgType type)
 {
+#ifdef Q_OS_LINUX
     siGlobal->ensureDeepinInfo();
+#endif
 
     QString fallbackSiteName = type == Distribution ? QStringLiteral("www.deepin.org") : QString();
     QString fallbackSiteUrl = type == Distribution ? QStringLiteral("https://www.deepin.org") : QString();

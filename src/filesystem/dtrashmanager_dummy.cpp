@@ -17,7 +17,7 @@
 
 #include "dtrashmanager.h"
 
-#include <DObjectPrivate>
+#include "DObjectPrivate"
 
 #include <QDirIterator>
 #include <QStorageInfo>
@@ -25,7 +25,7 @@
 #include <QDateTime>
 #include <QDebug>
 
-DWIDGET_BEGIN_NAMESPACE
+DCORE_BEGIN_NAMESPACE
 
 class DTrashManager_ : public DTrashManager {};
 Q_GLOBAL_STATIC(DTrashManager_, globalTrashManager)
@@ -153,4 +153,4 @@ DTrashManager::DTrashManager()
 
 }
 
-DWIDGET_END_NAMESPACE
+DCORE_END_NAMESPACE
