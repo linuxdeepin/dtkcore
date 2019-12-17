@@ -657,6 +657,62 @@ bool DDesktopEntry::contains(const QString &key, const QString &section) const
 }
 
 /*!
+ * \brief Returns the localized string value of the "Name" key under "Desktop Entry" section.
+ *
+ * It's equivalent to calling localizedValue("Name").
+ *
+ * \sa localizedValue(), genericName(), ddeDisplayName()
+ */
+QString DDesktopEntry::name() const
+{
+    return localizedValue(QStringLiteral("Name"));
+}
+
+/*!
+ * \brief Returns the localized string value of the "GenericName" key under "Desktop Entry" section.
+ *
+ * It's equivalent to calling localizedValue("GenericName"). It will NOT fallback to "Name" if "GenericName"
+ * is not existed.
+ *
+ * \sa localizedValue(), name(), ddeDisplayName()
+ */
+QString DDesktopEntry::genericName() const
+{
+    return localizedValue(QStringLiteral("GenericName"));
+}
+
+/*!
+ * \brief Display name specially for DDE applications.
+ *
+ * This will check "X-Deepin-Vendor" and will return the localized string value of "GenericName" if
+ * "X-Deepin-Vendor" is "deepin", or it will return the localized string value of "Name".
+ *
+ * \sa localizedValue(), name(), genericName()
+ */
+QString DDesktopEntry::ddeDisplayName() const
+{
+    QString deepinVendor = stringValue("X-Deepin-Vendor");
+    QString genericNameStr = genericName();
+    if (deepinVendor == QStringLiteral("deepin") && !genericNameStr.isEmpty()) {
+        return genericNameStr;
+    }
+
+    return name();
+}
+
+/*!
+ * \brief Returns the localized string value of the "Comment" key under "Desktop Entry" section.
+ *
+ * It's equivalent to calling localizedValue("Comment").
+ *
+ * \sa localizedValue()
+ */
+QString DDesktopEntry::comment() const
+{
+    return localizedValue(QStringLiteral("Comment"));
+}
+
+/*!
  * \brief Returns the raw string value associated with the given \a key in \a section.
  *
  * If the entry contains no item with the key, the function returns a default-constructed value.

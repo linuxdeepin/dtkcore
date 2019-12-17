@@ -74,6 +74,11 @@ public:
 
     bool contains(const QString &key, const QString &section = "Desktop Entry") const;
 
+    QString name() const;
+    QString genericName() const;
+    QString ddeDisplayName() const;
+    QString comment() const;
+
     QString rawValue(const QString &key, const QString &section = "Desktop Entry",
                      const QString &defaultValue = QString()) const;
     QString stringValue(const QString &key, const QString &section = "Desktop Entry",
