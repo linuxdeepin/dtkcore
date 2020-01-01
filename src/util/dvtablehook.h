@@ -34,7 +34,7 @@ DCORE_BEGIN_NAMESPACE
 class DVtableHook
 {
 public:
-    static inline quintptr toQuintptr(void *ptr)
+    static inline quintptr toQuintptr(const void *ptr)
     {
         return *(quintptr*)ptr;
     }
@@ -46,27 +46,47 @@ public:
         return begin - *obj;
     }
 
+    static inline quintptr *getVtableOfObject(const void *obj)
+    {
+        return *(quintptr**)obj;
+    }
+
+    template <typename T>
+    static quintptr *getVtableOfClass()
+    {
+        QByteArray vtable_symbol(typeid(T).name());
+        vtable_symbol.prepend("_ZTV");
+
+        quintptr *vfptr_t1 = reinterpret_cast<quintptr*>(resolve(vtable_symbol.constData()));
+
+        if (!vfptr_t1)
+            return nullptr;
+
+        // symbol address + 2 * sizeof(quintptr) = virtal table start address
+        return vfptr_t1 + 2;
+    }
+
     static int getDestructFunIndex(quintptr **obj, std::function<void(void)> destoryObjFun);
     static constexpr const QObject *getQObject(...) { return nullptr;}
     static constexpr const QObject *getQObject(const QObject *obj) { return obj;}
-    static void autoCleanVtable(void *obj);
-    static bool ensureVtable(void *obj, std::function<void(void)> destoryObjFun);
-    static bool hasVtable(void *obj);
-    static void resetVtable(void *obj);
-    static quintptr resetVfptrFun(void *obj, quintptr functionOffset);
-    static quintptr originalFun(void *obj, quintptr functionOffset);
+    static void autoCleanVtable(const void *obj);
+    static bool ensureVtable(const void *obj, std::function<void(void)> destoryObjFun);
+    static bool hasVtable(const void *obj);
+    static void resetVtable(const void *obj);
+    static quintptr resetVfptrFun(const void *obj, quintptr functionOffset);
+    static quintptr originalFun(const void *obj, quintptr functionOffset);
+    static bool forceWriteMemory(void *adr, const void *data, size_t length);
+    static QFunctionPointer resolve(const char *symbol);
 
     template <typename T> class OverrideDestruct : public T { ~OverrideDestruct() override;};
     template <typename List1, typename List2> struct CheckCompatibleArguments { enum { value = false }; };
     template <typename List> struct CheckCompatibleArguments<List, List> { enum { value = true }; };
+
     template<typename Fun1, typename Fun2>
-    static bool overrideVfptrFun(const typename QtPrivate::FunctionPointer<Fun1>::Object *t1, Fun1 fun1,
-                      const typename QtPrivate::FunctionPointer<Fun2>::Object *t2, Fun2 fun2)
+    static bool overrideVfptrFun(quintptr *vfptr_t1, Fun1 fun1, quintptr *vfptr_t2, Fun2 fun2, bool forceWrite)
     {
         typedef QtPrivate::FunctionPointer<Fun1> FunInfo1;
         typedef QtPrivate::FunctionPointer<Fun2> FunInfo2;
-        // 检查析构函数是否为虚
-        class OverrideDestruct : public FunInfo1::Object { ~OverrideDestruct() override;};
 
         //compilation error if the arguments does not match.
         Q_STATIC_ASSERT_X((CheckCompatibleArguments<typename FunInfo1::Arguments, typename FunInfo2::Arguments>::value),
@@ -81,19 +101,58 @@ public:
         if (fun1_offset < 0 || fun1_offset > UINT_LEAST16_MAX)
             return false;
 
+        quintptr *vfun = vfptr_t1 + fun1_offset / sizeof(quintptr);
+
+        // if the fun2 is not virtual function
+        if (fun2_offset <= UINT_LEAST16_MAX) {
+            fun2_offset = *(vfptr_t2 + fun2_offset / sizeof(quintptr));
+        }
+
+        if (forceWrite)
+            return forceWriteMemory(vfun, &fun2_offset, sizeof(fun2_offset));
+
+        *vfun = fun2_offset;
+
+        return true;
+    }
+
+    template<typename Fun1, typename Fun2>
+    static bool overrideVfptrFun(const typename QtPrivate::FunctionPointer<Fun1>::Object *t1, Fun1 fun1,
+                      const typename QtPrivate::FunctionPointer<Fun2>::Object *t2, Fun2 fun2)
+    {
+        typedef QtPrivate::FunctionPointer<Fun1> FunInfo1;
+        // 检查析构函数是否为虚
+        class OverrideDestruct : public FunInfo1::Object { ~OverrideDestruct() override;};
+
         if (!ensureVtable((void*)t1, std::bind(&_destory_helper<typename FunInfo1::Object>, t1))) {
             return false;
         }
 
-        quintptr *vfptr_t1 = *(quintptr**)t1;
-        quintptr *vfptr_t2 = *(quintptr**)t2;
+        quintptr *vfptr_t1 = getVtableOfObject(t1);
+        quintptr *vfptr_t2 = getVtableOfObject(t2);
 
-        if (fun2_offset > UINT_LEAST16_MAX)
-            *(vfptr_t1 + fun1_offset / sizeof(quintptr)) = fun2_offset;
-        else
-            *(vfptr_t1 + fun1_offset / sizeof(quintptr)) = *(vfptr_t2 + fun2_offset / sizeof(quintptr));
+        bool ok = overrideVfptrFun(vfptr_t1, fun1, vfptr_t2, fun2, false);
 
-        return true;
+        if (!ok) {
+            // 恢复旧环境
+            resetVtable(t1);
+        }
+
+        return ok;
+    }
+
+    template<typename Fun1, typename Fun2>
+    static bool overrideVfptrFun(Fun1 fun1, const typename QtPrivate::FunctionPointer<Fun2>::Object *t2, Fun2 fun2)
+    {
+        typedef QtPrivate::FunctionPointer<Fun1> FunInfo1;
+        quintptr *vfptr_t1 = getVtableOfClass<typename FunInfo1::Object>();
+
+        if (!vfptr_t1)
+            return false;
+
+        quintptr *vfptr_t2 = getVtableOfObject(t2);
+
+        return overrideVfptrFun(vfptr_t1, fun1, vfptr_t2, fun2, true);
     }
 
     template<typename Func> struct FunctionPointer { };
@@ -106,12 +165,10 @@ public:
         typedef QtPrivate::List<Obj*, Args...> Arguments;
     };
     template<typename Fun1, typename Fun2>
-    static bool overrideVfptrFun(const typename QtPrivate::FunctionPointer<Fun1>::Object *t1, Fun1 fun1, Fun2 fun2)
+    static bool overrideVfptrFun(quintptr *vfptr_t1, Fun1 fun1, Fun2 fun2, bool forceWrite)
     {
         typedef QtPrivate::FunctionPointer<Fun1> FunInfo1;
         typedef QtPrivate::FunctionPointer<Fun2> FunInfo2;
-        // 检查析构函数是否为虚
-        class OverrideDestruct : public FunInfo1::Object { ~OverrideDestruct() override;};
 
         Q_STATIC_ASSERT(!FunInfo2::IsPointerToMemberFunction);
         //compilation error if the arguments does not match.
@@ -127,14 +184,47 @@ public:
         if (fun1_offset < 0 || fun1_offset > UINT_LEAST16_MAX)
             return false;
 
+        quintptr *vfun = vfptr_t1 + fun1_offset / sizeof(quintptr);
+
+        if (forceWrite)
+            return forceWriteMemory(vfun, &fun2_offset, sizeof(fun2_offset));
+
+        *vfun = fun2_offset;
+
+        return true;
+    }
+
+    template<typename Fun1, typename Fun2>
+    static bool overrideVfptrFun(const typename QtPrivate::FunctionPointer<Fun1>::Object *t1, Fun1 fun1, Fun2 fun2)
+    {
+        typedef QtPrivate::FunctionPointer<Fun1> FunInfo1;
+        // 检查析构函数是否为虚
+        class OverrideDestruct : public FunInfo1::Object { ~OverrideDestruct() override;};
+
         if (!ensureVtable((void*)t1, std::bind(&_destory_helper<typename FunInfo1::Object>, t1))) {
             return false;
         }
 
-        quintptr *vfptr_t1 = *(quintptr**)t1;
-        *(vfptr_t1 + fun1_offset / sizeof(quintptr)) = fun2_offset;
+        bool ok = overrideVfptrFun(getVtableOfObject(t1), fun1, fun2, false);
+
+        if (!ok) {
+            // 恢复旧环境
+            resetVtable(t1);
+        }
 
         return true;
+    }
+
+    template<typename Fun1, typename Fun2>
+    static bool overrideVfptrFun(Fun1 fun1, Fun2 fun2)
+    {
+        typedef QtPrivate::FunctionPointer<Fun1> FunInfo1;
+        quintptr *vfptr_t1 = getVtableOfClass<typename FunInfo1::Object>();
+
+        if (!vfptr_t1)
+            return false;
+
+        return overrideVfptrFun(vfptr_t1, fun1, fun2, true);
     }
 
     template<typename Fun1>
@@ -185,7 +275,7 @@ public:
 
 private:
     static bool copyVtable(quintptr **obj);
-    static bool clearGhostVtable(void *obj);
+    static bool clearGhostVtable(const void *obj);
 
     template<typename T>
     static void _destory_helper(const T *obj) {
@@ -193,8 +283,8 @@ private:
     }
 
     static QMap<quintptr**, quintptr*> objToOriginalVfptr;
-    static QMap<void*, quintptr*> objToGhostVfptr;
-    static QMap<void*, quintptr> objDestructFun;
+    static QMap<const void*, quintptr*> objToGhostVfptr;
+    static QMap<const void*, quintptr> objDestructFun;
 };
 
 DCORE_END_NAMESPACE
