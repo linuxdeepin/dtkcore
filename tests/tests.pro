@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
 SUBDIRS += \
     dutils \
-    dvtablehook
+    dvtablehook \
+    ddesktopentry
