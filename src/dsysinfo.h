@@ -50,7 +50,8 @@ public:
         UnknownDeepin = 0,
         DeepinDesktop,
         DeepinProfessional,
-        DeepinServer
+        DeepinServer,
+        DeepinPersonal
     };
 
     enum LogoType {
@@ -91,6 +92,7 @@ public:
     static ProductType productType();
     static QString productTypeString();
     static QString productVersion();
+    static bool isCommunityEdition();
 
     static QString computerName();
     static QString cpuModelName();

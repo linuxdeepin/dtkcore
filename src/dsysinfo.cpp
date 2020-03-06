@@ -144,6 +144,8 @@ void DSysInfoPrivate::ensureDeepinInfo()
         deepinType = DSysInfo::DeepinProfessional;
     } else if (deepin_type == "Server") {
         deepinType = DSysInfo::DeepinServer;
+    } else if (deepin_type == "Personal") {
+        deepinType = DSysInfo::DeepinPersonal;
     } else {
         deepinType = DSysInfo::UnknownDeepin;
     }
@@ -566,6 +568,38 @@ QString DSysInfo::productVersion()
     siGlobal->ensureReleaseInfo();
 
     return siGlobal->productVersion;
+}
+
+/*!
+ * \brief Check if current edition is a community edition
+ *
+ * Developer can use this way to check if we need enable or disable features
+ * for community or enterprise edition.
+ *
+ * Current rule:
+ *  - Professional, Server, Personal edition (DeepinType) will be treat as Enterprise edition.
+ *  - Uos (ProductType) will be treat as Enterprise edition.
+ *
+ * \return true if it's on a community edition distro/installation
+ */
+bool DSysInfo::isCommunityEdition()
+{
+#ifdef Q_OS_LINUX
+    DeepinType type = deepinType();
+    QList<DeepinType> enterpriseTypes {
+        DeepinProfessional, DeepinServer, DeepinPersonal
+    };
+
+    if (enterpriseTypes.contains(type)) {
+        return false;
+    }
+
+    if (productType() == Uos) {
+        return false;
+    }
+#endif // Q_OS_LINUX
+
+    return true;
 }
 
 QString DSysInfo::computerName()
