@@ -63,7 +63,8 @@ int main(int argc, char *argv[])
 
     parser.addOptions({option_all, option_deepin_type, option_deepin_version, option_deepin_edition,
                        option_deepin_copyright, option_product_type, option_product_version,
-                       option_computer_name, option_cpu_model, option_memory_size, option_disk_size});
+                       option_computer_name, option_cpu_model, option_memory_size, option_disk_size,
+                       option_distribution_info, option_distributer_info});
     parser.addHelpOption();
     parser.addVersionOption();
     parser.process(app);
