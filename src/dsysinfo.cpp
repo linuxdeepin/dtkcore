@@ -50,6 +50,7 @@ public:
 #endif
     void ensureReleaseInfo();
     void ensureComputerInfo();
+    QMap<QString, QString> parseInfoFile(QFile &file);
 
 #ifdef Q_OS_LINUX
     DSysInfo::DeepinType deepinType = DSysInfo::DeepinType(-1);
@@ -313,22 +314,17 @@ void DSysInfoPrivate::ensureComputerInfo()
     QFile file("/proc/cpuinfo");
 
     if (file.open(QFile::ReadOnly)) {
-        char buf[1024];
-        qint64 lineLength = 0;
-
-        do {
-            lineLength = file.readLine(buf, sizeof(buf));
-
-            const QByteArray line(buf, lineLength);
-
-            if (line.startsWith("model name")) {
-                if (int index = line.indexOf(':', 10)) {
-                    if (index > 0)
-                        cpuModelName = QString::fromLatin1(line.mid(index + 1).trimmed());
-                }
-                break;
-            }
-        } while (lineLength >= 0);
+        QMap<QString, QString> map = parseInfoFile(file);
+        if (map.contains("Processor")) {
+            // arm-cpuinfo hw_kirin-cpuinfo
+            cpuModelName = map.value("Processor");
+        } else if (map.contains("model name")) {
+            // cpuinfo
+            cpuModelName = map.value("model name");
+        } else if (map.contains("cpu model")) {
+            // loonson3-cpuinfo sw-cpuinfo
+            cpuModelName = map.value("cpu model");
+        }
 
         file.close();
     }
@@ -374,6 +370,24 @@ void DSysInfoPrivate::ensureComputerInfo()
         diskSize = deviceParentAndSizeMap[keyName].second;
     }
 #endif
+}
+
+QMap<QString, QString> DSysInfoPrivate::parseInfoFile(QFile &file)
+{
+    char buf[1024];
+    qint64 lineLength = 0;
+    QMap<QString, QString> map;
+    do {
+        lineLength = file.readLine(buf, sizeof(buf));
+        QString s(buf);
+        if (s.contains(':')) {
+            QStringList list = s.split(':');
+            if (list.size() == 2) {
+                map.insert(list.first().trimmed(), list.back().trimmed());
+            }
+        }
+    } while (lineLength >= 0);
+    return map;
 }
 
 Q_GLOBAL_STATIC(DSysInfoPrivate, siGlobal)
