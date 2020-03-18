@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
     QCommandLineOption option_product_version("product-version", " ");
     QCommandLineOption option_computer_name("computer-name", "Computer Name");
     QCommandLineOption option_cpu_model("cpu-model", "CPU Model");
+    QCommandLineOption option_installed_memory_size("installed-memory-size", "Installed Memory Size (GiB)");
     QCommandLineOption option_memory_size("memory-size", "Memory Size (GiB)");
     QCommandLineOption option_disk_size("disk-size", "Disk Size (GiB)");
     QCommandLineOption option_distribution_info("distribution-info", "Distribution information");
@@ -63,8 +64,8 @@ int main(int argc, char *argv[])
 
     parser.addOptions({option_all, option_deepin_type, option_deepin_version, option_deepin_edition,
                        option_deepin_copyright, option_product_type, option_product_version,
-                       option_computer_name, option_cpu_model, option_memory_size, option_disk_size,
-                       option_distribution_info, option_distributer_info});
+                       option_computer_name, option_cpu_model, option_installed_memory_size, option_memory_size,
+                       option_disk_size, option_distribution_info, option_distributer_info});
     parser.addHelpOption();
     parser.addVersionOption();
     parser.process(app);
@@ -72,6 +73,7 @@ int main(int argc, char *argv[])
     if (parser.isSet(option_all)) {
         printf("Computer Name: %s\n", qPrintable(DSysInfo::computerName()));
         printf("CPU Model: %s x %d\n", qPrintable(DSysInfo::cpuModelName()), QThread::idealThreadCount());
+        printf("Installed Memory Size: %f GiB\n", DSysInfo::memoryInstalledSize() / 1024.0 / 1024 / 1024);
         printf("Memory Size: %f GiB\n", DSysInfo::memoryTotalSize() / 1024.0 / 1024 / 1024);
         printf("Disk Size: %f GiB\n", DSysInfo::systemDiskSize() / 1024.0 / 1024 / 1024);
 
@@ -111,6 +113,8 @@ int main(int argc, char *argv[])
             printf("%s x %d", qPrintable(DSysInfo::cpuModelName()), QThread::idealThreadCount());
         else if (parser.isSet(option_computer_name))
             printf("%s", qPrintable(DSysInfo::computerName()));
+        else if (parser.isSet(option_installed_memory_size))
+            printf("%f", DSysInfo::memoryInstalledSize() / 1024.0 / 1024 / 1024);
         else if (parser.isSet(option_memory_size))
             printf("%f", DSysInfo::memoryTotalSize() / 1024.0 / 1024 / 1024);
         else if (parser.isSet(option_disk_size))

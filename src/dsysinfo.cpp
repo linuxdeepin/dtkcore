@@ -69,7 +69,8 @@ public:
 
     QString computerName;
     QString cpuModelName;
-    qint64 memoryTotalSize = -1;
+    qint64 memoryAvailableSize = -1;
+    qint64 memoryInstalledSize = -1;
     qint64 diskSize = 0;
 };
 
@@ -303,7 +304,7 @@ void DSysInfoPrivate::ensureReleaseInfo()
 
 void DSysInfoPrivate::ensureComputerInfo()
 {
-    if (memoryTotalSize >= 0)
+    if (memoryAvailableSize >= 0)
         return;
 
 #ifdef Q_OS_LINUX
@@ -329,7 +330,28 @@ void DSysInfoPrivate::ensureComputerInfo()
         file.close();
     }
 
-    memoryTotalSize = get_phys_pages() * sysconf(_SC_PAGESIZE);
+    memoryAvailableSize = get_phys_pages() * sysconf(_SC_PAGESIZE);
+
+    // Getting Memory Installed Size
+    // TODO: way to not dept on lshw?
+    if (!QStandardPaths::findExecutable("lshw").isEmpty()) {
+        QProcess lshw;
+
+        lshw.start("lshw", {"-c", "memory", "-json", "-sanitize"}, QIODevice::ReadOnly);
+
+        if (!lshw.waitForFinished()) {
+            return;
+        }
+
+        const QByteArray &lshwInfoJson = lshw.readAllStandardOutput();
+        QJsonArray lshwResultArray = QJsonDocument::fromJson(lshwInfoJson).array();
+        if (!lshwResultArray.isEmpty()) {
+            QJsonValue memoryHwInfo = lshwResultArray.first();
+            QString id = memoryHwInfo.toObject().value("id").toString();
+            Q_ASSERT(id == "memory");
+            memoryInstalledSize = memoryHwInfo.toObject().value("size").toDouble(); // TODO: check "units" is "bytes" ?
+        }
+    }
 
     // Getting Disk Size
     const QString &deviceName = QStorageInfo::root().device();
@@ -630,11 +652,24 @@ QString DSysInfo::cpuModelName()
     return siGlobal->cpuModelName;
 }
 
+/*!
+ * \return the installed memory size
+ */
+qint64 DSysInfo::memoryInstalledSize()
+{
+    siGlobal->ensureComputerInfo();
+
+    return siGlobal->memoryInstalledSize;
+}
+
+/*!
+ * \return the total available to use memory size
+ */
 qint64 DSysInfo::memoryTotalSize()
 {
     siGlobal->ensureComputerInfo();
 
-    return siGlobal->memoryTotalSize;
+    return siGlobal->memoryAvailableSize;
 }
 
 qint64 DSysInfo::systemDiskSize()

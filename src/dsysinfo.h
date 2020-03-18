@@ -96,6 +96,7 @@ public:
 
     static QString computerName();
     static QString cpuModelName();
+    static qint64 memoryInstalledSize();
     static qint64 memoryTotalSize();
     static qint64 systemDiskSize();
 };
