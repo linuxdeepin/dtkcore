@@ -403,6 +403,11 @@ void DSettings::setOption(const QString &key, const QVariant &value)
 void DSettings::sync()
 {
     Q_D(DSettings);
+    if (!d->backend) {
+        qWarning() << "backend was not setted..!";
+        return;
+    }
+
     d->backend->doSync();
 }
 
@@ -415,6 +420,12 @@ void DSettings::reset()
             setOption(option->key(), option->defaultValue());
         }
     }
+
+    if (!d->backend) {
+        qWarning() << "backend was not setted..!";
+        return;
+    }
+
     d->backend->sync();
 }
 
@@ -438,7 +449,11 @@ void DSettings::parseJson(const QByteArray &json)
         d->options.insert(option->key(), option);
         connect(option.data(), &DSettingsOption::valueChanged,
         this, [ = ](QVariant value) {
-            Q_EMIT d->backend->setOption(option->key(), value);
+            if (d->backend) {
+                Q_EMIT d->backend->setOption(option->key(), value);
+            } else {
+                qWarning() << "backend was not setted..!";
+            }
             Q_EMIT valueChanged(option->key(), value);
         });
     }
@@ -447,6 +462,10 @@ void DSettings::parseJson(const QByteArray &json)
 void DSettings::loadValue()
 {
     Q_D(DSettings);
+    if (!d->backend) {
+        qWarning() << "backend was not setted..!";
+        return;
+    }
 
     for (auto key : d->backend->keys()) {
         auto value = d->backend->getOption(key);

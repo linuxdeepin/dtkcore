@@ -266,7 +266,8 @@ void DSettingsOption::setValue(QVariant value)
 {
     Q_D(DSettingsOption);
 
-    if (d->value == value) {
+    // 默认没有设置value时比较默认值。防止reset时出现所有的option都发射valueChanged
+    if (this->value() == value) {
         return;
     }
 
