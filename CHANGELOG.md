@@ -1,7 +1,6 @@
 <a name="2.0.14"></a>
 ## 2.0.14 (2019-05-23)
 
-
 #### Bug Fixes
 
 * **DSettings:**  crash when calling getOption() if option doesn't exist ([90ac734b](https://github.com/linuxdeepin/dtkcore/commit/90ac734b872203ea698808a7197aa7a9c7e2b5bd))

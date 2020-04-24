@@ -1,6 +1,7 @@
 include($$PWD/private/private.pri)
 
 INCLUDEPATH += $$PWD/base
+INCLUDEPATH += $$PWD/private
 
 HEADERS += \
     $$PWD/dobject.h \

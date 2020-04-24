@@ -6,10 +6,14 @@ TARGET = dtkcore
 
 INCLUDEPATH += $$PWD
 HEADERS += $$PWD/dtkcore_global.h \
-    dsysinfo.h
+    dsysinfo.h \
+    dsecurestring.h \
+    ddesktopentry.h
 
 SOURCES += \
-    dsysinfo.cpp
+    dsysinfo.cpp \
+    dsecurestring.cpp \
+    ddesktopentry.cpp
 
 include($$PWD/base/base.pri)
 include($$PWD/util/util.pri)
@@ -26,7 +30,9 @@ includes.files += \
     $$PWD/*.h \
     $$PWD/dtkcore_config.h \
     $$PWD/DtkCores \
-    $$PWD/DSysInfo
+    $$PWD/DSysInfo \
+    $$PWD/DSecureString \
+    $$PWD/DDesktopEntry
 
 INSTALLS += includes target
 
@@ -53,4 +59,7 @@ prf.path = $${MKSPECS_INSTALL_DIR}/features
     prf.files-=$$PWD/dtk_qmake.prf
 }
 
-INSTALLS += prf
+gsettings.files += $$PWD/com.deepin.dtk.gschema.xml
+gsettings.path = $${PREFIX}/share/glib-2.0/schemas
+
+INSTALLS += prf gsettings

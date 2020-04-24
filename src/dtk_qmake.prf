@@ -88,11 +88,18 @@ else {
 
     QMAKE_PLATFORM += $$lower($$DISTRIB_ID)
 
-    !isEmpty(DISTRIB_ID): DEFINES += Q_OS_$$upper($$DISTRIB_ID)
+    DISTRIB_ID = $$upper($$DISTRIB_ID)
+    !isEmpty(DISTRIB_ID): DEFINES += Q_OS_$$DISTRIB_ID
     CONFIG *= $$QMAKE_PLATFORM
 
     DISTRIB_RELEASE = $$formatString($$DISTRIB_RELEASE)
     DEFINES += Q_OS_VERSION=\\\"$$DISTRIB_RELEASE\\\"
+
+    #uos base with deepin
+    isEqual(DISTRIB_ID, UOS) {
+        QMAKE_PLATFORM += deepin
+        DEFINES += Q_OS_DEEPIN
+    }
 }
 
 isEmpty(DEEPIN_OS_TYPE): warning(No value of the "--deepin-type" in the process "$$DEEPIN_OS_RELEASE_TOOL")

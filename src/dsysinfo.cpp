@@ -6,7 +6,7 @@
  * Maintainer: zccrs <zhangjide@deepin.com>
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
@@ -15,10 +15,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "dsysinfo.h"
+#include "ddesktopentry.h"
 
 #include <QFile>
 #include <QLocale>
@@ -28,6 +29,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QSettings>
+#include <QStandardPaths>
 
 #ifdef Q_OS_LINUX
 #include <sys/sysinfo.h>
@@ -47,6 +50,7 @@ public:
 #endif
     void ensureReleaseInfo();
     void ensureComputerInfo();
+    QMap<QString, QString> parseInfoFile(QFile &file);
 
 #ifdef Q_OS_LINUX
     DSysInfo::DeepinType deepinType = DSysInfo::DeepinType(-1);
@@ -56,6 +60,8 @@ public:
     QString deepinCopyright;
 #endif
 
+    QScopedPointer<DDesktopEntry> distributionInfo;
+
     DSysInfo::ProductType productType = DSysInfo::ProductType(-1);
     QString prettyName;
     QString productTypeString;
@@ -63,7 +69,8 @@ public:
 
     QString computerName;
     QString cpuModelName;
-    qint64 memoryTotalSize = -1;
+    qint64 memoryAvailableSize = -1;
+    qint64 memoryInstalledSize = -1;
     qint64 diskSize = 0;
 };
 
@@ -137,9 +144,18 @@ void DSysInfoPrivate::ensureDeepinInfo()
         deepinType = DSysInfo::DeepinDesktop;
     } else if (deepin_type == "Professional") {
         deepinType = DSysInfo::DeepinProfessional;
+    } else if (deepin_type == "Server") {
+        deepinType = DSysInfo::DeepinServer;
+    } else if (deepin_type == "Personal") {
+        deepinType = DSysInfo::DeepinPersonal;
     } else {
         deepinType = DSysInfo::UnknownDeepin;
     }
+
+    const QString distributionInfoFile(DSysInfo::distributionInfoPath());
+    // Generic DDE distribution info
+    distributionInfo.reset(new DDesktopEntry(distributionInfoFile));
+    QSettings distributionInfo(distributionInfoFile, QSettings::IniFormat); // TODO: treat as `.desktop` format instead of `.ini`
 }
 
 static QString unquote(const QByteArray &value)
@@ -272,8 +288,11 @@ void DSysInfoPrivate::ensureReleaseInfo()
             break;
         case 'u':
         case 'U':
-            if (productTypeString.compare("ubuntu", Qt::CaseInsensitive) == 0)
+            if (productTypeString.compare("ubuntu", Qt::CaseInsensitive) == 0) {
                 productType = DSysInfo::Ubuntu;
+            } else if (productTypeString.compare("uos", Qt::CaseInsensitive) == 0) {
+                productType = DSysInfo::Uos;
+            }
             break;
         default:
             productType = DSysInfo::UnknownType;
@@ -285,7 +304,7 @@ void DSysInfoPrivate::ensureReleaseInfo()
 
 void DSysInfoPrivate::ensureComputerInfo()
 {
-    if (memoryTotalSize >= 0)
+    if (memoryAvailableSize >= 0)
         return;
 
 #ifdef Q_OS_LINUX
@@ -296,27 +315,43 @@ void DSysInfoPrivate::ensureComputerInfo()
     QFile file("/proc/cpuinfo");
 
     if (file.open(QFile::ReadOnly)) {
-        char buf[1024];
-        qint64 lineLength = 0;
-
-        do {
-            lineLength = file.readLine(buf, sizeof(buf));
-
-            const QByteArray line(buf, lineLength);
-
-            if (line.startsWith("model name")) {
-                if (int index = line.indexOf(':', 10)) {
-                    if (index > 0)
-                        cpuModelName = QString::fromLatin1(line.mid(index + 1).trimmed());
-                }
-                break;
-            }
-        } while (lineLength >= 0);
+        QMap<QString, QString> map = parseInfoFile(file);
+        if (map.contains("Processor")) {
+            // arm-cpuinfo hw_kirin-cpuinfo
+            cpuModelName = map.value("Processor");
+        } else if (map.contains("model name")) {
+            // cpuinfo
+            cpuModelName = map.value("model name");
+        } else if (map.contains("cpu model")) {
+            // loonson3-cpuinfo sw-cpuinfo
+            cpuModelName = map.value("cpu model");
+        }
 
         file.close();
     }
 
-    memoryTotalSize = get_phys_pages() * sysconf(_SC_PAGESIZE);
+    memoryAvailableSize = get_phys_pages() * sysconf(_SC_PAGESIZE);
+
+    // Getting Memory Installed Size
+    // TODO: way to not dept on lshw?
+    if (!QStandardPaths::findExecutable("lshw").isEmpty()) {
+        QProcess lshw;
+
+        lshw.start("lshw", {"-c", "memory", "-json", "-sanitize"}, QIODevice::ReadOnly);
+
+        if (!lshw.waitForFinished()) {
+            return;
+        }
+
+        const QByteArray &lshwInfoJson = lshw.readAllStandardOutput();
+        QJsonArray lshwResultArray = QJsonDocument::fromJson(lshwInfoJson).array();
+        if (!lshwResultArray.isEmpty()) {
+            QJsonValue memoryHwInfo = lshwResultArray.first();
+            QString id = memoryHwInfo.toObject().value("id").toString();
+            Q_ASSERT(id == "memory");
+            memoryInstalledSize = memoryHwInfo.toObject().value("size").toDouble(); // TODO: check "units" is "bytes" ?
+        }
+    }
 
     // Getting Disk Size
     const QString &deviceName = QStorageInfo::root().device();
@@ -337,7 +372,7 @@ void DSysInfoPrivate::ensureComputerInfo()
         QJsonArray diskStatusArray = diskStatusJsonValue.toArray();
         QString keyName;
 
-        for (const QJsonValue &oneValue : diskStatusArray) {
+        for (const QJsonValue oneValue : diskStatusArray) {
             QString name = oneValue.toObject().value("name").toString();
             QString kname = oneValue.toObject().value("kname").toString();
             QString pkname = oneValue.toObject().value("pkname").toString();
@@ -359,6 +394,24 @@ void DSysInfoPrivate::ensureComputerInfo()
 #endif
 }
 
+QMap<QString, QString> DSysInfoPrivate::parseInfoFile(QFile &file)
+{
+    char buf[1024];
+    qint64 lineLength = 0;
+    QMap<QString, QString> map;
+    do {
+        lineLength = file.readLine(buf, sizeof(buf));
+        QString s(buf);
+        if (s.contains(':')) {
+            QStringList list = s.split(':');
+            if (list.size() == 2) {
+                map.insert(list.first().trimmed(), list.back().trimmed());
+            }
+        }
+    } while (lineLength >= 0);
+    return map;
+}
+
 Q_GLOBAL_STATIC(DSysInfoPrivate, siGlobal)
 
 QString DSysInfo::operatingSystemName()
@@ -369,11 +422,15 @@ QString DSysInfo::operatingSystemName()
 }
 
 #ifdef Q_OS_LINUX
+/*!
+ * \brief Check current distro is Deepin or not.
+ * \note Uos will also return true.
+ */
 bool DSysInfo::isDeepin()
 {
     siGlobal->ensureReleaseInfo();
 
-    return productType() == Deepin;
+    return productType() == Deepin || productType() == Uos;
 }
 
 bool DSysInfo::isDDE()
@@ -419,6 +476,115 @@ QString DSysInfo::deepinCopyright()
 }
 #endif
 
+QString DSysInfo::deepinDistributionInfoPath()
+{
+    return distributionInfoPath();
+}
+
+QString DSysInfo::distributionInfoPath()
+{
+#ifdef Q_OS_LINUX
+    return "/usr/share/deepin/distribution.info";
+#else
+    return QDir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)).filePath("deepin-distribution.info");
+#endif // Q_OS_LINUX
+}
+
+QString DSysInfo::distributionInfoSectionName(DSysInfo::OrgType type)
+{
+    switch (type) {
+    case Distribution:
+        return "Distribution";
+    case Distributor:
+        return "Distributor";
+    case Manufacturer:
+        return "Manufacturer";
+    }
+
+    return QString();
+}
+
+/*!
+ * \return the organization name.
+ *
+ * use \l type as Distribution to get the name of current deepin distribution itself.
+ *
+ * \sa deepinDistributionInfoPath()
+ */
+QString DSysInfo::distributionOrgName(DSysInfo::OrgType type, const QLocale &locale)
+{
+#ifdef Q_OS_LINUX
+    siGlobal->ensureDeepinInfo();
+#endif
+
+    QString fallback = type == Distribution ? QStringLiteral("Deepin") : QString();
+
+    return siGlobal->distributionInfo->localizedValue("Name", locale, distributionInfoSectionName(type), fallback);
+}
+
+QString DSysInfo::deepinDistributorName()
+{
+    return distributionOrgName(Distributor);
+}
+
+/*!
+ * \return the organization website name and url.
+ *
+ * use \l type as Distribution to get the name of current deepin distribution itself.
+ *
+ * \sa deepinDistributionInfoPath()
+ */
+QPair<QString, QString> DSysInfo::distributionOrgWebsite(DSysInfo::OrgType type)
+{
+#ifdef Q_OS_LINUX
+    siGlobal->ensureDeepinInfo();
+#endif
+
+    QString fallbackSiteName = type == Distribution ? QStringLiteral("www.deepin.org") : QString();
+    QString fallbackSiteUrl = type == Distribution ? QStringLiteral("https://www.deepin.org") : QString();
+
+    return {
+        siGlobal->distributionInfo->stringValue("WebsiteName", distributionInfoSectionName(type), fallbackSiteName),
+        siGlobal->distributionInfo->stringValue("Website", distributionInfoSectionName(type), fallbackSiteUrl),
+    };
+}
+
+QPair<QString, QString> DSysInfo::deepinDistributorWebsite()
+{
+    return distributionOrgWebsite(Distributor);
+}
+
+/*!
+ * \return the obtained organization logo path, or the given \l fallback one if there are no such logo.
+ *
+ * use \l type as Distribution to get the logo of current deepin distribution itself.
+ *
+ * \sa deepinDistributionInfoPath()
+ */
+QString DSysInfo::distributionOrgLogo(DSysInfo::OrgType orgType, DSysInfo::LogoType type, const QString &fallback)
+{
+    DDesktopEntry distributionInfo(distributionInfoPath());
+    QString orgSectionName = distributionInfoSectionName(orgType);
+
+    switch (type) {
+    case Normal:
+        return distributionInfo.stringValue("Logo", orgSectionName, fallback);
+    case Light:
+        return distributionInfo.stringValue("LogoLight", orgSectionName, fallback);
+    case Symbolic:
+        return distributionInfo.stringValue("LogoSymbolic", orgSectionName, fallback);
+    case Transparent:
+        return distributionInfo.stringValue("LogoTransparent", orgSectionName, fallback);
+    }
+
+    return QString();
+}
+
+QString DSysInfo::deepinDistributorLogo(DSysInfo::LogoType type, const QString &fallback)
+{
+    return distributionOrgLogo(Distributor, type, fallback);
+}
+
 DSysInfo::ProductType DSysInfo::productType()
 {
     siGlobal->ensureReleaseInfo();
@@ -440,6 +606,38 @@ QString DSysInfo::productVersion()
     return siGlobal->productVersion;
 }
 
+/*!
+ * \brief Check if current edition is a community edition
+ *
+ * Developer can use this way to check if we need enable or disable features
+ * for community or enterprise edition.
+ *
+ * Current rule:
+ *  - Professional, Server, Personal edition (DeepinType) will be treat as Enterprise edition.
+ *  - Uos (ProductType) will be treat as Enterprise edition.
+ *
+ * \return true if it's on a community edition distro/installation
+ */
+bool DSysInfo::isCommunityEdition()
+{
+#ifdef Q_OS_LINUX
+    DeepinType type = deepinType();
+    QList<DeepinType> enterpriseTypes {
+        DeepinProfessional, DeepinServer, DeepinPersonal
+    };
+
+    if (enterpriseTypes.contains(type)) {
+        return false;
+    }
+
+    if (productType() == Uos) {
+        return false;
+    }
+#endif // Q_OS_LINUX
+
+    return true;
+}
+
 QString DSysInfo::computerName()
 {
     siGlobal->ensureComputerInfo();
@@ -454,11 +652,24 @@ QString DSysInfo::cpuModelName()
     return siGlobal->cpuModelName;
 }
 
+/*!
+ * \return the installed memory size
+ */
+qint64 DSysInfo::memoryInstalledSize()
+{
+    siGlobal->ensureComputerInfo();
+
+    return siGlobal->memoryInstalledSize;
+}
+
+/*!
+ * \return the total available to use memory size
+ */
 qint64 DSysInfo::memoryTotalSize()
 {
     siGlobal->ensureComputerInfo();
 
-    return siGlobal->memoryTotalSize;
+    return siGlobal->memoryAvailableSize;
 }
 
 qint64 DSysInfo::systemDiskSize()

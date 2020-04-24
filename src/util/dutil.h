@@ -2,7 +2,7 @@
  * Copyright (C) 2016 ~ 2017 Deepin Technology Co., Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -42,5 +42,19 @@ inline void TimerSingleShot(int msec,  Func1 slot)
 #endif
 }
 
+template <class T>
+void SecureErase(T *p, size_t size)
+{
+    memset(p, 0, size);
+}
+
+template <class T>
+void SecureErase(T &obj)
+{
+    for (typename T::iterator i = obj.begin(); i != obj.end(); ++i) {
+        *i = 0;
+    }
+    obj.clear();
+}
 
 }

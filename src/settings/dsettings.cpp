@@ -2,7 +2,7 @@
  * Copyright (C) 2016 ~ 2017 Deepin Technology Co., Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -403,6 +403,11 @@ void DSettings::setOption(const QString &key, const QVariant &value)
 void DSettings::sync()
 {
     Q_D(DSettings);
+    if (!d->backend) {
+        qWarning() << "backend was not setted..!";
+        return;
+    }
+
     d->backend->doSync();
 }
 
@@ -415,6 +420,12 @@ void DSettings::reset()
             setOption(option->key(), option->defaultValue());
         }
     }
+
+    if (!d->backend) {
+        qWarning() << "backend was not setted..!";
+        return;
+    }
+
     d->backend->sync();
 }
 
@@ -438,7 +449,11 @@ void DSettings::parseJson(const QByteArray &json)
         d->options.insert(option->key(), option);
         connect(option.data(), &DSettingsOption::valueChanged,
         this, [ = ](QVariant value) {
-            Q_EMIT d->backend->setOption(option->key(), value);
+            if (d->backend) {
+                Q_EMIT d->backend->setOption(option->key(), value);
+            } else {
+                qWarning() << "backend was not setted..!";
+            }
             Q_EMIT valueChanged(option->key(), value);
         });
     }
@@ -447,6 +462,10 @@ void DSettings::parseJson(const QByteArray &json)
 void DSettings::loadValue()
 {
     Q_D(DSettings);
+    if (!d->backend) {
+        qWarning() << "backend was not setted..!";
+        return;
+    }
 
     for (auto key : d->backend->keys()) {
         auto value = d->backend->getOption(key);
