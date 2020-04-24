@@ -1,6 +1,6 @@
 message ("Process dtk translation")
-message ("Add DTK_NO_TRANSLATION=YES to qmake arguments skip this")
-message ("Add DTK_STATIC_TRANSLATION=YES to add support static translations")
+message ("Add DTK_NO_TRANSLATION=YES to qmake arguments to skip this")
+message ("Add DTK_STATIC_TRANSLATION=YES to add support for static translations")
 
 # TODO: check lrelease/lupdate exist
 
