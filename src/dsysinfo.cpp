@@ -47,6 +47,7 @@ public:
 
 #ifdef Q_OS_LINUX
     void ensureDeepinInfo();
+    bool ensureOsVersion();
 #endif
     void ensureReleaseInfo();
     void ensureComputerInfo();
@@ -58,6 +59,22 @@ public:
     QString deepinVersion;
     QString deepinEdition;
     QString deepinCopyright;
+
+    QString majorVersion;
+    QString minorVersion;
+    struct MinVersion {
+        MinVersion():A(0), BC(0), D(0){
+        }
+        uint A, BC, D; // A-BC-D
+    };
+    struct OSBuild {
+        OSBuild():A(0), B(0), C(0), D(0), xyz(100){
+        }
+        uint A, B, C, D, E, xyz; // ABCDE.xyz
+    };
+
+    MinVersion minVersion;
+    OSBuild osBuild;
 #endif
 
     QScopedPointer<DDesktopEntry> distributionInfo;
@@ -82,7 +99,7 @@ DSysInfoPrivate::DSysInfoPrivate()
 #ifdef Q_OS_LINUX
 void DSysInfoPrivate::ensureDeepinInfo()
 {
-    if (deepinType >= 0)
+    if (static_cast<int>(deepinType) >= 0)
         return;
 
     QFile file("/etc/deepin-version");
@@ -156,6 +173,54 @@ void DSysInfoPrivate::ensureDeepinInfo()
     // Generic DDE distribution info
     distributionInfo.reset(new DDesktopEntry(distributionInfoFile));
     QSettings distributionInfo(distributionInfoFile, QSettings::IniFormat); // TODO: treat as `.desktop` format instead of `.ini`
+}
+
+bool DSysInfoPrivate::ensureOsVersion()
+{
+    if (minVersion.A > 0)
+        return true;
+
+    DDesktopEntry entry("/etc/os-version");
+    majorVersion = entry.stringValue("MajorVersion", "Version");
+    minorVersion = entry.stringValue("MinorVersion", "Version");
+    Q_ASSERT(minorVersion.length() == 4);
+
+    // A-BC-D
+    bool ok = false;
+    uint minv = minorVersion.toUInt(&ok);
+    if (ok) {
+        minVersion.D = minv % 10;
+    } else if (minorVersion.length() > 0) {
+        // 0-9...A-Z
+        minVersion.D = 10 + static_cast<uint>(minorVersion.right(1).data()->toLatin1() - 'A');
+    }
+    uint minVer = minorVersion.left(3).toUInt();
+    minVersion.BC = minVer % 100;
+    minVer /= 100;
+    minVersion.A = minVer % 10;
+
+    // ABCDE.xyz
+    QString osb = entry.stringValue("OsBuild", "Version");
+    QStringList osbs = osb.split(".");
+    Q_ASSERT(osbs.size() == 2 && osbs.value(0).size() == 5);
+    uint left = osbs.value(0).trimmed().toUInt(&ok);
+    Q_ASSERT(ok);
+    if (ok) {
+        osBuild.E = left % 10;
+        left /= 10;
+        osBuild.D = left % 10;
+        left /= 10;
+        osBuild.C = left % 10; // default C is 0
+        left /= 10;
+        osBuild.B = left % 10;
+        left /= 10;
+        osBuild.A = left % 10;
+    }
+
+    // xyz
+    osBuild.xyz = osbs.value(1).trimmed().toUInt(&ok);
+
+    return ok;
 }
 
 static QString unquote(const QByteArray &value)
@@ -473,6 +538,161 @@ QString DSysInfo::deepinCopyright()
     siGlobal->ensureDeepinInfo();
 
     return siGlobal->deepinCopyright;
+}
+
+/*!
+ * \~chinese \brief DSysInfo::osType 系统类型
+ * \~chinese \row 显示系统类型【1：桌面】【2：服务器】【3：专用设备】
+ * \~chinese \note 根据 osBuild.B 判断
+ */
+DSysInfo::UosType DSysInfo::uosType()
+{
+    siGlobal->ensureOsVersion();
+
+    UosType ost = UosTypeUnknown;
+    if ((siGlobal->osBuild.B > UosTypeUnknown && siGlobal->osBuild.B < UosTypeCount)) {
+        ost = static_cast<UosType>(siGlobal->osBuild.B);
+    }
+
+    return ost;
+}
+
+/*!
+ * \~chinese \brief DSysInfo::osEditionType 版本类型
+ * \~chinese \row 显示版本类型 专业版/个人版/社区版...
+ * \~chinese \note 根据 osBuild.B && osBuild.D
+ */
+DSysInfo::UosEdition DSysInfo::uosEditionType()
+{
+    siGlobal->ensureOsVersion();
+    UosEdition ospt = UosEditionUnknown;
+
+    if (siGlobal->osBuild.B == UosDesktop) {
+        ospt = static_cast<UosEdition>(siGlobal->osBuild.D);
+    } else if (siGlobal->osBuild.B == UosServer) {
+        ospt = static_cast<UosEdition>(siGlobal->osBuild.D + UosMilitary);
+    } else if (siGlobal->osBuild.B == UosDevice){
+        ospt = UosProfessional;
+    }
+
+    return ospt;
+}
+
+/*!
+ * \~chinese \brief DSysInfo::osArch 架构信息（使用一个字节的二进制位，从低位到高位）
+ * \~chinese \row 【0x8 sw64】【0x4 mips64】【0x2 arm64】【0x1 amd64】
+ */
+DSysInfo::UosArch DSysInfo::uosArch()
+{
+    siGlobal->ensureOsVersion();
+
+    return static_cast<UosArch>(siGlobal->osBuild.E);
+}
+
+static QString getUosVersionValue(const QString &key, const QLocale &locale)
+{
+    DDesktopEntry entry("/etc/os-version");
+    QString localKey = QString("%1[%2]").arg(key, locale.name());
+
+    return entry.stringValue(localKey, "Version", entry.stringValue(key, "Version"));
+}
+
+/*!
+ * \~chinese \brief DSysInfo::osProductTypeName 版本名称
+ * \~chinese \row ProductType[xx] 项对应的值, 如果找不到对应语言的默认使用 ProductType的值(Desktop/Server/Device)
+ * \~chinese \param locale 当前系统语言
+ */
+QString DSysInfo::uosProductTypeName(const QLocale &locale)
+{
+    return getUosVersionValue("ProductType", locale);
+}
+
+/*!
+ * \~chinese \brief DSysInfo::osSystemName 版本名称
+ * \~chinese \row SystemName[xx] 项对应的值, 如果找不到对应语言的默认使用 SystemName 的值 Uniontech OS
+ * \~chinese \param locale 当前系统语言
+ */
+QString DSysInfo::uosSystemName(const QLocale &locale)
+{
+    return getUosVersionValue("SystemName", locale);
+}
+
+/*!
+ * \~chinese \brief DSysInfo::osEditionName 版本名称
+ * \~chinese \row EditionName[xx] 项对应的值, 如果找不到对应语言的默认使用 EditionName 的值(Professional/Home/Community...)
+ * \~chinese \param locale 当前系统语言
+ */
+QString DSysInfo::uosEditionName(const QLocale &locale)
+{
+    return getUosVersionValue("EditionName", locale);
+}
+
+/*!
+ * \~chinese \brief DSysInfo::spVersion 阶段版本名称
+ * \~chinese \row 小版本号 A-BC-D 中 BC, 返回 SP1-SPxx， 如果正式版返回空
+ * \~chinese \note minVersion.BC == 00：正式版本    minVersion.BC == 01-99：SP1….SP99
+ */
+QString DSysInfo::spVersion()
+{
+    siGlobal->ensureOsVersion();
+    if (siGlobal->minVersion.BC > 0) {
+        return QString("SP%1").arg(siGlobal->minVersion.BC);
+    } else {
+        return QString(); // 00 正式版
+    }
+}
+
+/*!
+ * \~chinese \brief DSysInfo::udpateVersion 更新版本名称
+ * \~chinese \row 小版本号 A-BC-D 中 D, 返回 update1… update9， 如果正式版返回空
+ * \~chinese \note minVersion.D == 0：正式版本    minVersion.D == 1-9：update1… update9,updateA...updateZ
+ */
+QString DSysInfo::udpateVersion()
+{
+    siGlobal->ensureOsVersion();
+    if (siGlobal->minVersion.D > 0) {
+        uint uv = siGlobal->minVersion.D;
+        if (uv < 10) {
+            return QString("update%1").arg(uv);
+        } else {
+            return QString("update").append(QChar(uv - 10 + 'A'));
+        }
+    } else {
+        return QString(); // 0 正式版
+    }
+}
+
+/*!
+ * \~chinese \brief DSysInfo::majorVersion 主版本号
+ * \~chinese \row 主版本号 【20】【23】【25】【26】【29】【30】
+ * \~chinese \note 返回 MajorVersion 的值
+ */
+QString DSysInfo::majorVersion()
+{
+    siGlobal->ensureOsVersion();
+    return siGlobal->majorVersion;
+}
+
+/*!
+ * \~chinese \brief DSysInfo::minorVersion 小版本号
+ * \~chinese \row 【ABCD】 ·[0-9]{4}
+ * \~chinese \note 返回 MinorVersion 的值
+ */
+QString DSysInfo::minorVersion()
+{
+    siGlobal->ensureOsVersion();
+    return siGlobal->minorVersion;
+}
+
+/*!
+ * \~chinese \brief DSysInfo::buildVersion 小版本号
+ * \~chinese \row 系统镜像批次号，按时间顺序（不可回退）从100-999递增
+ * \~chinese \note 返回 osBuild.xyz 的值
+ */
+QString DSysInfo::buildVersion()
+{
+    siGlobal->ensureOsVersion();
+    return QString::number(siGlobal->osBuild.xyz);
 }
 #endif
 

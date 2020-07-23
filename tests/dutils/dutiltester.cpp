@@ -33,6 +33,7 @@
 #include "settings/dsettings.h"
 #include "settings/dsettingsgroup.h"
 #include "settings/dsettingsoption.h"
+#include "dsysinfo.h"
 
 DCORE_USE_NAMESPACE
 
@@ -224,4 +225,19 @@ void TestDUtil::testGroups()
     }
     qDebug() << settings->group("shortcuts.ternimal");
     qDebug() << settings->group("shortcuts.ternimal")->options();
+}
+
+void TestDUtil::testSysInfo()
+{
+    qDebug() << DSysInfo::uosType() <<
+                DSysInfo::uosEditionType() <<
+                DSysInfo::uosArch() <<
+                DSysInfo::uosProductTypeName() <<
+                DSysInfo::uosSystemName() <<
+                DSysInfo::uosEditionName() <<
+                DSysInfo::spVersion() <<
+                DSysInfo::udpateVersion() <<
+                DSysInfo::majorVersion() <<
+                DSysInfo::minorVersion() <<
+                DSysInfo::buildVersion() ;
 }

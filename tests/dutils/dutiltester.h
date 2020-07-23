@@ -35,6 +35,7 @@ private Q_SLOTS:
     void testDBusSender();
 
     void testGroups();
+    void testSysInfo();
 };
 
 

@@ -67,6 +67,38 @@ public:
         Manufacturer //!< manufacturer of the current distribution or device
     };
 
+    enum UosType {
+        UosTypeUnknown,
+        UosDesktop,
+        UosServer,
+        UosDevice,
+
+        UosTypeCount // must at last
+    };
+
+    enum UosEdition {
+        UosEditionUnknown,
+        UosProfessional,
+        UosHome,
+        UosCommunity,
+        UosMilitary,
+        UosEnterprise,
+        UosEnterpriseC,
+        UosEuler,
+        UosMilitaryS, // for Server
+
+        UosEditionCount // must at last
+    };
+
+    // 注意：此处架构是从OsBuild获取的系统版本的Arch信息，并不是指硬件的Arch信息
+    enum UosArch {
+        UosArchUnknown,
+        UosAMD64 = 1 << 0,
+        UosARM64 = 1 << 1,
+        UosMIPS64 = 1 << 2,
+        UosSW64 = 1 << 3
+    };
+
 #ifdef Q_OS_LINUX
     static bool isDeepin();
     static bool isDDE();
@@ -75,6 +107,20 @@ public:
     static QString deepinVersion();
     static QString deepinEdition();
     static QString deepinCopyright();
+
+    // uos version interface
+    static UosType uosType();
+    static UosEdition uosEditionType();
+    static UosArch uosArch();
+    static QString uosProductTypeName(const QLocale &locale = QLocale::system());
+    static QString uosSystemName(const QLocale &locale = QLocale::system());
+    static QString uosEditionName(const QLocale &locale = QLocale::system());
+
+    static QString spVersion(); // SP1...SP99
+    static QString udpateVersion(); // update1...update9
+    static QString majorVersion();
+    static QString minorVersion();
+    static QString buildVersion(); // xyz
 #endif
 
     Q_DECL_DEPRECATED_X("Use distributionInfoPath() instead") static QString deepinDistributionInfoPath();

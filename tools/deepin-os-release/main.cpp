@@ -92,15 +92,24 @@ int main(int argc, char *argv[])
         printf("Product Type: %s\n", qPrintable(DSysInfo::productTypeString()));
         printf("Product Version: %s\n", qPrintable(DSysInfo::productVersion()));
 
+        printf("Uos Product Name: %s\n", qPrintable(DSysInfo::uosProductTypeName()));
+        printf("Uos SystemName Name: %s\n", qPrintable(DSysInfo::uosSystemName()));
+        printf("Uos Product Name: %s\n", qPrintable(DSysInfo::uosEditionName()));
+        printf("Uos SP Version: %s\n", qPrintable(DSysInfo::spVersion()));
+        printf("Uos update Version: %s\n", qPrintable(DSysInfo::udpateVersion()));
+        printf("Uos major Version: %s\n", qPrintable(DSysInfo::majorVersion()));
+        printf("Uos minor Version: %s\n", qPrintable(DSysInfo::minorVersion()));
+        printf("Uos build Version: %s\n", qPrintable(DSysInfo::buildVersion()));
+
         if (distributionInfoValid()) {
             printDistributionOrgInfo(DSysInfo::Distribution);
             printDistributionOrgInfo(DSysInfo::Distributor);
         }
     } else {
         if (parser.isSet(option_deepin_type))
-            printf("%s", qPrintable(DSysInfo::deepinTypeDisplayName(QLocale::c())));
+            printf("%s", qPrintable(DSysInfo::uosEditionName(QLocale::c())));
         else if (parser.isSet(option_deepin_version))
-            printf("%s", qPrintable(DSysInfo::deepinVersion()));
+            printf("%s", qPrintable(DSysInfo::majorVersion()));
         else if (parser.isSet(option_deepin_edition))
             printf("%s", qPrintable(DSysInfo::deepinEdition()));
         else if (parser.isSet(option_deepin_copyright))
