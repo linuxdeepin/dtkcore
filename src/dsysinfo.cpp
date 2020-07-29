@@ -355,7 +355,7 @@ void DSysInfoPrivate::ensureReleaseInfo()
         case 'U':
             if (productTypeString.compare("ubuntu", Qt::CaseInsensitive) == 0) {
                 productType = DSysInfo::Ubuntu;
-            } else if (productTypeString.compare("uos", Qt::CaseInsensitive) == 0) {
+            } else if (productTypeString.compare("uos", Qt::CaseInsensitive) == 0 || productTypeString.compare("UnionTech OS", Qt::CaseInsensitive) == 0) {
                 productType = DSysInfo::Uos;
             }
             break;
