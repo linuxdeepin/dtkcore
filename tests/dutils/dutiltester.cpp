@@ -229,15 +229,5 @@ void TestDUtil::testGroups()
 
 void TestDUtil::testSysInfo()
 {
-    qDebug() << DSysInfo::uosType() <<
-                DSysInfo::uosEditionType() <<
-                DSysInfo::uosArch() <<
-                DSysInfo::uosProductTypeName() <<
-                DSysInfo::uosSystemName() <<
-                DSysInfo::uosEditionName() <<
-                DSysInfo::spVersion() <<
-                DSysInfo::udpateVersion() <<
-                DSysInfo::majorVersion() <<
-                DSysInfo::minorVersion() <<
-                DSysInfo::buildVersion() ;
+    qDebug() << DSysInfo::uosType() << DSysInfo::isDeepin() << DSysInfo::uosEditionType() << DSysInfo::uosArch() << DSysInfo::uosProductTypeName() << DSysInfo::uosSystemName() << DSysInfo::uosEditionName() << DSysInfo::spVersion() << DSysInfo::udpateVersion() << DSysInfo::majorVersion() << DSysInfo::minorVersion() << DSysInfo::buildVersion();
 }

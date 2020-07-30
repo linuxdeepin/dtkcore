@@ -17,6 +17,7 @@ endif()
 
 function(formatString string)
     string(REGEX REPLACE "\\s+" "_" string ${string})
+    string(REGEX REPLACE " " "_" string ${string})
 endfunction()
 
 macro(execDeepinOsRelease args output)
@@ -50,6 +51,9 @@ else()
 
     #uos base with deepin
     if("${CMAKE_PLATFORM_ID}" STREQUAL "UOS")
+        addDefinitions(Q_OS_DEEPIN)
+        set(OS_DEEPIN TRUE)
+    elseif("${CMAKE_PLATFORM_ID}" STREQUAL "uniontechos")
         addDefinitions(Q_OS_DEEPIN)
         set(OS_DEEPIN TRUE)
     endif()
