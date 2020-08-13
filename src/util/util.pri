@@ -9,7 +9,8 @@ HEADERS += \
     $$PWD/dnotifysender.h \
     $$PWD/dexportedinterface.h \
     $$PWD/dvtablehook.h \
-    $$PWD/dfileservices.h
+    $$PWD/dfileservices.h \
+    $$PWD/dthreadutils.h
 
 INCLUDEPATH += $$PWD
 
@@ -22,7 +23,8 @@ includes.files += \
     $$PWD/DNotifySender \
     $$PWD/DExportedInterface \
     $$PWD/DVtableHook \
-    $$PWD/DFileServices
+    $$PWD/DFileServices \
+    $$PWD/DThreadUtils
 
 RESOURCES += \
     $$PWD/util.qrc
@@ -36,7 +38,8 @@ SOURCES += \
     $$PWD/dnotifysender.cpp \
     $$PWD/dpinyin.cpp \
     $$PWD/dexportedinterface.cpp \
-    $$PWD/dvtablehook.cpp
+    $$PWD/dvtablehook.cpp \
+    $$PWD/dthreadutils.cpp
 
 linux {
     QT += dbus
