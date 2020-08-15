@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 SUBDIRS += \
     dutils \
     dvtablehook \
-    ddesktopentry
+    ddesktopentry \
+    dthreadutils
