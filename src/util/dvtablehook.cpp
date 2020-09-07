@@ -287,7 +287,8 @@ quintptr DVtableHook::originalFun(const void *obj, quintptr functionOffset)
 bool DVtableHook::forceWriteMemory(void *adr, const void *data, size_t length)
 {
 #ifdef Q_OS_LINUX
-    int page_size = sysconf(_SC_PAGESIZE);
+    //int page_size = sysconf(_SC_PAGESIZE);
+    int page_size = 4096; // fix 64k crashed
     quintptr x = reinterpret_cast<quintptr>(adr);
     void *new_adr = reinterpret_cast<void*>((x - page_size - 1) & ~(page_size -1));
     size_t override_data_length = length + x - reinterpret_cast<quintptr>(new_adr);
