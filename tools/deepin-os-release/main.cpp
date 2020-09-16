@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
         printf("Uos Product Name: %s\n", qPrintable(DSysInfo::uosProductTypeName()));
         printf("Uos SystemName Name: %s\n", qPrintable(DSysInfo::uosSystemName()));
-        printf("Uos Product Name: %s\n", qPrintable(DSysInfo::uosEditionName()));
+        printf("Uos Edition Name: %s\n", qPrintable(DSysInfo::uosEditionName()));
         printf("Uos SP Version: %s\n", qPrintable(DSysInfo::spVersion()));
         printf("Uos update Version: %s\n", qPrintable(DSysInfo::udpateVersion()));
         printf("Uos major Version: %s\n", qPrintable(DSysInfo::majorVersion()));
