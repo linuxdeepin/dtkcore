@@ -1,14 +1,19 @@
 Name:           dtkcore
-Version:        5.2.2.3
+Version:        5.2.2.15
 Release:        1%{?dist}
 Summary:        Deepin tool kit core modules
-License:        GPLv3
+License:        LGPLv3+
 URL:            https://github.com/linuxdeepin/dtkcore
+%if 0%{?fedora}
+Source0:        %{url}/archive/%{version}/%{name}-%{version}.tar.gz
+%else
 Source0:        %{name}_%{version}.orig.tar.xz
+%endif
 BuildRequires:  gcc-c++
 BuildRequires:  annobin
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(gsettings-qt)
+# since f30
 Obsoletes:      deepin-tool-kit <= 0.3.3
 Obsoletes:      deepin-tool-kit-devel <= 0.3.3
 Obsoletes:      dtksettings <= 0.1.7
@@ -20,18 +25,13 @@ Deepin tool kit core modules.
 %package devel
 Summary:        Development package for %{name}
 Requires:       %{name}%{?_isa} = %{version}-%{release}
-Requires:       qt5-qtbase-devel
+Requires:       qt5-qtbase-devel%{?_isa}
 
 %description devel
 Header files and libraries for %{name}.
 
 %prep
-%setup -q
-
-sed -i 's|/lib|/libexec|' tools/settings/settings.pro
-## consider relying on %%_qt5_bindir (see %%build below) instead of patching -- rex
-#sed -i 's|qmake|qmake-qt5|' src/dtk_module.prf
-#sed -i 's|lrelease|lrelease-qt5|' tools/script/dtk-translate.py src/dtk_translation.prf
+%autosetup
 
 %build
 # help find (and prefer) qt5 utilities, e.g. qmake, lrelease
@@ -46,15 +46,14 @@ export PATH=%{_qt5_bindir}:$PATH
 %install
 %make_install INSTALL_ROOT=%{buildroot}
 
-%ldconfig_scriptlets
-
 %files
 %doc README.md
 %license LICENSE
-%{_libdir}/libdtkcore.so.*
+%{_libdir}/lib%{name}.so.5*
+%dir %{_libexecdir}/dtk5/
 %{_libexecdir}/dtk5/dtk-settings
-%{_libexecdir}/dtk5/dtk-license.py*
-%{_libexecdir}/dtk5/dtk-translate.py*
+%{_libexecdir}/dtk5/dtk-license.py
+%{_libexecdir}/dtk5/dtk-translate.py
 %{_libexecdir}/dtk5/deepin-os-release
 
 %files devel
@@ -67,8 +66,8 @@ export PATH=%{_qt5_bindir}:$PATH
 %{_libdir}/cmake/DtkCMake/
 %{_libdir}/cmake/DtkTools/
 %{_libdir}/pkgconfig/dtkcore.pc
-%{_libdir}/libdtkcore.so
-/usr/share/glib-2.0/schemas/*
+%{_libdir}/lib%{name}.so
+%{_datadir}/glib-2.0/schemas/*
 
 %changelog
 * Thu Jun 11 2020 uoser <uoser@uniontech.com> - 5.2.2.3
