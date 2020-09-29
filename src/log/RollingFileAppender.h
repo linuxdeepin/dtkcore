@@ -60,7 +60,6 @@ class CUTELOGGERSHARED_EXPORT RollingFileAppender : public FileAppender
       /*! The monthly date pattern string is "'.'yyyy-MM". */
       MonthlyRollover
     };
-    Q_ENUMS(DatePattern)
 
     RollingFileAppender(const QString& fileName = QString());
 
