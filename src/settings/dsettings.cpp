@@ -438,6 +438,7 @@ void DSettings::parseJson(const QByteArray &json)
     auto mainGroups = d->meta.value("groups");
     for (auto groupJson : mainGroups.toArray()) {
         auto group = DSettingsGroup::fromJson("", groupJson.toObject());
+        group->setParent(this);
         for (auto option : group->options()) {
             d->options.insert(option->key(), option);
         }

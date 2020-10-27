@@ -259,6 +259,7 @@ void DSettingsGroupPrivate::parseJson(const QString &prefixKey, const QJsonObjec
     for (auto optionJson :  group.value("options").toArray()) {
         auto optionObject = optionJson.toObject();
         auto option = DSettingsOption::fromJson(key, optionObject);
+        option->setParent(q);
         options.insert(option->key(), option);
         childOptions.insert(option->key(), option);
         childOptionKeys << option->key();
@@ -267,6 +268,7 @@ void DSettingsGroupPrivate::parseJson(const QString &prefixKey, const QJsonObjec
     auto subGroups = group.value("groups").toArray();
     for (auto subGroup : subGroups) {
         auto child = DSettingsGroup::fromJson(key, subGroup.toObject());
+        child->setParent(q);
         child->setParentGroup(q);
         childGroups.insert(child->key(), child);
         childGroupKeys << child->key();
