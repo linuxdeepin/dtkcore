@@ -762,13 +762,17 @@ QString DDesktopEntry::localizedValue(const QString &key, const QString &localeK
 
     QStringList possibleKeys;
 
+    // 此处添加 bcp47Name() 是为了兼容 desktop 文件中的语言长短名解析。
+    // 比如芬兰语，有 [fi] 和 [fi_FI] 两种情况，QLocale::name() 对应 fi_FI，QLocale::bcp47Name() 对应 fi。
     if (!localeKey.isEmpty()) {
         if (localeKey == "empty") {
             possibleKeys << key;
         } else if (localeKey == "default") {
             possibleKeys << QString("%1[%2]").arg(key, QLocale().name());
+            possibleKeys << QString("%1[%2]").arg(key, QLocale().bcp47Name());
         } else if (localeKey == "system") {
             possibleKeys << QString("%1[%2]").arg(key, QLocale::system().name());
+            possibleKeys << QString("%1[%2]").arg(key, QLocale::system().bcp47Name());
         } else {
             possibleKeys << QString("%1[%2]").arg(key, localeKey);
         }
