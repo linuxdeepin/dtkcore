@@ -20,27 +20,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QDebug>
 #include <QString>
-#include <QtTest>
+#include <QTemporaryFile>
 #include <DDesktopEntry>
+#include <gtest/gtest.h>
 
 DCORE_USE_NAMESPACE
-
-class DDesktopEntryTest : public QObject
-{
-    Q_OBJECT
-
-public:
-    DDesktopEntryTest();
-
-private Q_SLOTS:
-    void testCase_ParseFile();
-};
-
-DDesktopEntryTest::DDesktopEntryTest()
-{
-    //
-}
 
 const QString testFileContent = { QStringLiteral(R"desktop(# A. Example Desktop Entry File
 [Desktop Entry]
@@ -67,26 +53,49 @@ Name=Create a new Foo!
 Icon=fooview-new
 )desktop") };
 
-void DDesktopEntryTest::testCase_ParseFile()
+class gts_DesktopEntry : public testing::Test
+{
+public:
+    static void SetUpTestCase()
+    {
+        qDebug() << "*****************" << __FUNCTION__;
+    }
+    static void TearDownTestCase()
+    {
+        qDebug() << "*****************" << __FUNCTION__;
+    }
+    virtual void SetUp();
+    virtual void TearDown();
+};
+void gts_DesktopEntry::SetUp()
+{
+
+}
+void gts_DesktopEntry::TearDown()
+{
+
+}
+
+TEST_F(gts_DesktopEntry, ParseFile)
 {
     QTemporaryFile file("testReadXXXXXX.desktop");
-    QVERIFY(file.open());
+    ASSERT_TRUE(file.open());
     const QString fileName = file.fileName();
     QTextStream ts(&file);
     ts << testFileContent;
     file.close();
-    QVERIFY(QFile::exists(fileName));
+    ASSERT_TRUE(QFile::exists(fileName));
 
     DDesktopEntry *desktopFile = new DDesktopEntry(fileName);
     QStringList allGroups = desktopFile->allGroups();
-    QCOMPARE(allGroups.count(), 3);
-    QVERIFY(allGroups.contains("Desktop Entry") &&
+    ASSERT_EQ(allGroups.count(), 3);
+    ASSERT_TRUE(allGroups.contains("Desktop Entry") &&
             allGroups.contains("Desktop Action Gallery") &&
             allGroups.contains("Desktop Action Create"));
-    QCOMPARE(desktopFile->allGroups(true)[0], QStringLiteral("Desktop Entry"));
-    QCOMPARE(desktopFile->localizedValue("Name", "zh_CN"), QStringLiteral("福查看器"));
-    QCOMPARE(desktopFile->localizedValue("Name", "empty"), QStringLiteral("Foo Viewer"));
-    QCOMPARE(desktopFile->keys(QStringLiteral("Desktop Entry")),
+    ASSERT_EQ(desktopFile->allGroups(true)[0], QStringLiteral("Desktop Entry"));
+    ASSERT_EQ(desktopFile->localizedValue("Name", "zh_CN"), QStringLiteral("福查看器"));
+    ASSERT_EQ(desktopFile->localizedValue("Name", "empty"), QStringLiteral("Foo Viewer"));
+    ASSERT_EQ(desktopFile->keys("Desktop Entry"),
              QStringList({"Actions", "Comment", "Comment[zh_CN]", "Exec", "Icon", "MimeType", "Name", "Name[zh_CN]", "TryExec", "Type", "Version"}));
 
     {
@@ -96,28 +105,31 @@ void DDesktopEntryTest::testCase_ParseFile()
         Q_UNUSED(restoreLocale);
 
         QLocale::setDefault(QLocale("zh_CN"));
-        QCOMPARE(desktopFile->localizedValue("Name"), QStringLiteral("福查看器"));
+        ASSERT_EQ(desktopFile->localizedValue("Name"), QStringLiteral("福查看器"));
 
         QLocale::setDefault(QLocale::c());
-        QCOMPARE(desktopFile->localizedValue("Name"), QStringLiteral("Foo Viewer"));
+        ASSERT_EQ(desktopFile->localizedValue("Name"), QStringLiteral("Foo Viewer"));
     }
 
-    QCOMPARE(desktopFile->stringValue("Name"), QStringLiteral("Foo Viewer"));
-    QCOMPARE(desktopFile->setRawValue("Bar Viewer", "Name"), true);
-    QCOMPARE(desktopFile->stringValue("Name"), QStringLiteral("Bar Viewer"));
-    QCOMPARE(desktopFile->setLocalizedValue("霸查看器", "zh_CN", "Name"), true);
-    QCOMPARE(desktopFile->localizedValue("Name", "zh_CN"), QStringLiteral("霸查看器"));
-    QCOMPARE(desktopFile->contains("Semicolon"), false);
-    QCOMPARE(desktopFile->setRawValue(";grp\\;2;grp3;", "Semicolon"), true);
-    QCOMPARE(desktopFile->stringListValue("Semicolon"), QStringList({"", "grp;2", "grp3"}));
-    QCOMPARE(desktopFile->contains("Semicolon"), true);
-    QCOMPARE(desktopFile->removeEntry("Semicolon"), true);
-    QCOMPARE(desktopFile->contains("Semicolon"), false);
+    ASSERT_EQ(desktopFile->stringValue("Name"), QStringLiteral("Foo Viewer"));
+    ASSERT_EQ(desktopFile->setRawValue("Bar Viewer", "Name"), true);
+    ASSERT_EQ(desktopFile->stringValue("Name"), QStringLiteral("Bar Viewer"));
+    ASSERT_EQ(desktopFile->setLocalizedValue("霸查看器", "zh_CN", "Name"), true);
+    ASSERT_EQ(desktopFile->localizedValue("Name", "zh_CN"), QStringLiteral("霸查看器"));
+    ASSERT_EQ(desktopFile->contains("Semicolon"), false);
+    ASSERT_EQ(desktopFile->setRawValue(";grp\\;2;grp3;", "Semicolon"), true);
+    ASSERT_EQ(desktopFile->stringListValue("Semicolon"), QStringList({"", "grp;2", "grp3"}));
+    ASSERT_EQ(desktopFile->contains("Semicolon"), true);
+    ASSERT_EQ(desktopFile->removeEntry("Semicolon"), true);
+    ASSERT_EQ(desktopFile->contains("Semicolon"), false);
 
     qDebug() << desktopFile->save();
     qDebug() << fileName;
 }
 
-QTEST_APPLESS_MAIN(DDesktopEntryTest)
+int main(int argc, char *argv[])
+{
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
 
-#include "tst_ddesktopentrytest.moc"

@@ -17,9 +17,9 @@ HEADERS += \
     dutiltester.h \
     singletontester.h
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../src/release/ -ldtkcore
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../src/debug/ -ldtkcore
-else:unix: LIBS += -L$$OUT_PWD/../../src/ -ldtkcore
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../src/release/ -ldtkcore -lgtest
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../src/debug/ -ldtkcore -lgtest
+else:unix: LIBS += -L$$OUT_PWD/../../src/ -ldtkcore -lgtest
 
 INCLUDEPATH += $$PWD/../../src
 DEPENDPATH += $$PWD/../../src

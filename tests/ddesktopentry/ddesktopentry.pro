@@ -10,9 +10,9 @@ CONFIG -= app_bundle
     DEFINES += DTK_STATIC_LIB
 }
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../src/release/ -ldtkcore
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../src/debug/ -ldtkcore
-else:unix: LIBS += -L$$OUT_PWD/../../src/ -ldtkcore
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../src/release/ -ldtkcore -lgtest
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../src/debug/ -ldtkcore -lgtest
+else:unix: LIBS += -L$$OUT_PWD/../../src/ -ldtkcore -lgtest
 
 INCLUDEPATH += $$PWD/../../src
 DEPENDPATH += $$PWD/../../src
@@ -24,4 +24,4 @@ CONFIG(debug, debug|release) {
 QMAKE_LFLAGS += -Wl,--export-dynamic
 
 SOURCES += \
-    tst_ddesktopentrytest.cpp
+    gts_ddesktopentrytest.cpp

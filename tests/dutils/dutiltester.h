@@ -17,25 +17,15 @@
 
 #pragma once
 
-#include <QObject>
+#include <gtest/gtest.h>
 
-class TestDUtil: public QObject
+class gts_DUtil : public testing::Test
 {
-    Q_OBJECT
-
-private Q_SLOTS:
-    void testLogPath();
-    void testPathChange();
-    void testDSingleton();
-    void testTimeFormatter();
-    void testTimeFormatterList();
-    void testDiskFormatter();
-    void testDiskFormatterList();
-    void testDiskFormatter1024();
-    void testDBusSender();
-
-    void testGroups();
-    void testSysInfo();
+protected:
+    static void SetUpTestCase();
+    static void TearDownTestCase();
+    virtual void SetUp();
+    virtual void TearDown();
 };
 
 
