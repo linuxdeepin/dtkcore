@@ -8,6 +8,8 @@ CONFIG += c++11
     DEFINES += DTK_STATIC_LIB
 }
 
+include(../dtk_testcase.prf)
+
 SOURCES += \
     main.cpp \
     dutiltester.cpp \

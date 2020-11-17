@@ -48,7 +48,7 @@ include(dtk_cmake.prf)
 #qt module
 include(dtk_module.prf)
 
-prf.files+= $$PWD/*.prf ../dtk_build_config.prf
+prf.files+= $$PWD/*.prf ../dtk_build_config.prf ../tests/dtk_testcase.prf
 
 isEmpty(MKSPECS_INSTALL_DIR) {
     MKSPECS_INSTALL_DIR=$$[QT_INSTALL_ARCHDATA]/mkspecs

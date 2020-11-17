@@ -1,0 +1,6 @@
+
+# 执行 make check 会运行 tests
+CONFIG += testcase no_testcase_installs
+# 生成统计信息
+QMAKE_CXXFLAGS += -g -Wall -fprofile-arcs -ftest-coverage -O0
+QMAKE_LFLAGS += -g -Wall -fprofile-arcs -ftest-coverage  -O0
