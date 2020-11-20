@@ -27,5 +27,5 @@ override_dh_auto_configure:
 #override_dh_auto_test:
 #	echo "skip auto test"
 
-#override_dh_makeshlibs:
-#	dh_makeshlibs -V
+override_dh_makeshlibs:
+	dh_makeshlibs -V "libdtkcore5 (>= $(shell echo $(VERSION) | cut -d '.' -f 1,2))"
