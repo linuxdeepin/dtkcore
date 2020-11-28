@@ -229,6 +229,7 @@ void TestDUtil::testGroups()
 
 void TestDUtil::testSysInfo()
 {
+#ifdef Q_OS_LINUX
     qDebug() << DSysInfo::uosType() <<
                 DSysInfo::uosEditionType() <<
                 DSysInfo::uosArch() <<
@@ -240,4 +241,5 @@ void TestDUtil::testSysInfo()
                 DSysInfo::majorVersion() <<
                 DSysInfo::minorVersion() <<
                 DSysInfo::buildVersion() ;
+#endif
 }

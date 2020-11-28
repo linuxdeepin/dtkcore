@@ -31,7 +31,7 @@
 DCORE_BEGIN_NAMESPACE
 
 class DDesktopEntryPrivate;
-class DDesktopEntry
+class LIBDTKCORESHARED_EXPORT DDesktopEntry
 {
     Q_GADGET
 public:
