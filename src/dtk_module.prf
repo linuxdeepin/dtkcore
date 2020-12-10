@@ -66,7 +66,7 @@ else: \
 else: \
     module_master =
 
-MODULE_PRI_CONT = \
+MODULE_PRI_CONT += \
     "QT.$${MODULE_ID}.VERSION = $${VERSION}" \
     "QT.$${MODULE_ID}.MAJOR_VERSION = $${VER_MAJ}" \
     "QT.$${MODULE_ID}.MINOR_VERSION = $${VER_MIN}" \
