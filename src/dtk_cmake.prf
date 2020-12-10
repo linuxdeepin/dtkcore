@@ -11,7 +11,6 @@ WORK_DIR=$$_PRO_FILE_PWD_
 
 message("config cmake module: $$CMAKE_MODULE")
 
-MODULE_PRI_CONT = ""
 LINK_LIBRARIES = ""
 
 for(MODULE_DEPEND, CMAKE_MODULE_DEPENDS) {
