@@ -103,7 +103,6 @@ TEST_F(gts_DVtableHook, objectFun2Fun)
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
 }
 
-#if 0
 TEST_F(gts_DVtableHook, fun2ObjectFun)
 {
     B *b = new B();
@@ -119,7 +118,6 @@ TEST_F(gts_DVtableHook, fun2Fun)
     A *a = new A();
     ASSERT_TRUE(a->test(3));
 }
-#endif
 
 int main(int argc, char *argv[])
 {

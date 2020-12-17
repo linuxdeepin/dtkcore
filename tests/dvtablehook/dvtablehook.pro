@@ -4,6 +4,9 @@ QT -= gui
 TEMPLATE = app
 CONFIG += c++11
 
+# TODO: vtabhook release test failed
+QMAKE_CXXFLAGS_RELEASE -= -O2
+
 !isEmpty(DTK_STATIC_LIB){
     DEFINES += DTK_STATIC_LIB
 }
