@@ -80,6 +80,12 @@ static bool test(A *obj, int v)
     return true;
 }
 
+static bool test2(A *obj, int v, bool v2)
+{
+    qDebug() << Q_FUNC_INFO << obj << v << v2;
+    return v2;
+}
+
 TEST_F(gts_DVtableHook, objectFun2ObjectFun)
 {
     A *a = new A();
@@ -103,20 +109,76 @@ TEST_F(gts_DVtableHook, objectFun2Fun)
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
 }
 
+TEST_F(gts_DVtableHook, objectFun2StdFun)
+{
+    A *a = new A();
+    ASSERT_TRUE(DVtableHook::overrideVfptrFun(a, &A::test, std::bind(&test2, std::placeholders::_1, std::placeholders::_2, true)));
+    ASSERT_TRUE(a->test(2));
+    DVtableHook::resetVtable(a);
+    ASSERT_TRUE(!DVtableHook::hasVtable(a));
+    // not support
+//    A *a2 = new A();
+//    ASSERT_TRUE(DVtableHook::overrideVfptrFun(a2, &A::test, std::bind(&test2, std::placeholders::_1, std::placeholders::_2, false)));
+//    ASSERT_TRUE(!a2->test(2));
+//    DVtableHook::resetVtable(a2);
+//    ASSERT_TRUE(!DVtableHook::hasVtable(a2));
+}
+
+TEST_F(gts_DVtableHook, objectFun2LambdaFun)
+{
+    A *a = new A();
+    auto lambda1 = [a] (A *obj, int v) {
+        qDebug() << Q_FUNC_INFO << obj << v;
+        return a == obj;
+    };
+    auto lambda2 = [a] (A *obj, int v) {
+        qDebug() << Q_FUNC_INFO << obj << v;
+        return a != obj;
+    };
+    ASSERT_TRUE(DVtableHook::overrideVfptrFun(a, &A::test, lambda1));
+    ASSERT_TRUE(a->test(3));
+    ASSERT_TRUE(DVtableHook::overrideVfptrFun(a, &A::test, lambda2));
+    ASSERT_TRUE(!a->test(3));
+    DVtableHook::resetVtable(a);
+    ASSERT_TRUE(!DVtableHook::hasVtable(a));
+}
+
 TEST_F(gts_DVtableHook, fun2ObjectFun)
 {
     B *b = new B();
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, b, &B::test));
     A *a = new A();
     ASSERT_TRUE(DVtableHook::getVtableOfObject(a) == DVtableHook::getVtableOfClass<A>());
-    ASSERT_TRUE(a->test(2));
+    ASSERT_TRUE(a->test(4));
 }
 
 TEST_F(gts_DVtableHook, fun2Fun)
 {
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, &test));
     A *a = new A();
-    ASSERT_TRUE(a->test(3));
+    ASSERT_TRUE(a->test(5));
+}
+
+TEST_F(gts_DVtableHook, fun2StdFun)
+{
+    A *a = new A();
+    ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, std::bind(&test2, std::placeholders::_1, std::placeholders::_2, true)));
+    ASSERT_TRUE(a->test(6));
+    DVtableHook::resetVtable(a);
+    ASSERT_TRUE(!DVtableHook::hasVtable(a));
+}
+
+TEST_F(gts_DVtableHook, fun2LambdaFun)
+{
+    A *a = new A();
+    auto lambda = [a] (A *obj, int v) {
+        qDebug() << Q_FUNC_INFO << obj << v;
+        return a == obj;
+    };
+    ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, lambda));
+    ASSERT_TRUE(a->test(7));
+    DVtableHook::resetVtable(a);
+    ASSERT_TRUE(!DVtableHook::hasVtable(a));
 }
 
 int main(int argc, char *argv[])

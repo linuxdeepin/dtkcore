@@ -28,6 +28,7 @@
 #include <QDebug>
 
 #include <functional>
+#include <type_traits>
 
 DCORE_BEGIN_NAMESPACE
 
@@ -172,7 +173,8 @@ public:
         typedef QtPrivate::List<Obj*, Args...> Arguments;
     };
     template<typename Fun1, typename Fun2>
-    static bool overrideVfptrFun(quintptr *vfptr_t1, Fun1 fun1, Fun2 fun2, bool forceWrite)
+    static typename std::enable_if<QtPrivate::FunctionPointer<Fun2>::ArgumentCount >= 0, bool>::type
+            overrideVfptrFun(quintptr *vfptr_t1, Fun1 fun1, Fun2 fun2, bool forceWrite)
     {
         typedef QtPrivate::FunctionPointer<Fun1> FunInfo1;
         typedef QtPrivate::FunctionPointer<Fun2> FunInfo2;
@@ -199,6 +201,43 @@ public:
         *vfun = fun2_offset;
 
         return true;
+    }
+
+    template<typename StdFun, typename Func> struct StdFunWrap {};
+    template<typename StdFun, class Obj, typename Ret, typename... Args>
+    struct StdFunWrap<StdFun, Ret (Obj::*) (Args...)> {
+        typedef std::function<Ret(Obj*, Args...)> StdFunType;
+        static inline StdFunType fun(StdFunType f, bool check = true) {
+            static StdFunType fun = f;
+            static bool initialized = false;
+            if (initialized && check) {
+                qWarning("The StdFunWrap is dirty! Don't use std::bind(use lambda functions).");
+            }
+            initialized = true;
+            return fun;
+        }
+        static Ret call(Obj *o, Args... args) {
+            return fun(call, false)(o, std::forward<Args>(args)...);
+        }
+    };
+
+    template<typename Fun1, typename Fun2>
+    static inline typename std::enable_if<QtPrivate::FunctionPointer<Fun2>::ArgumentCount == -1, bool>::type
+            overrideVfptrFun(quintptr *vfptr_t1, Fun1 fun1, Fun2 fun2, bool forceWrite)
+    {
+        typedef QtPrivate::FunctionPointer<Fun1> FunInfo1;
+        const int FunctorArgumentCount = QtPrivate::ComputeFunctorArgumentCount<Fun2, typename FunctionPointer<Fun1>::Arguments>::Value;
+
+        Q_STATIC_ASSERT_X((FunctorArgumentCount >= 0),
+                          "Function1 and Function2 arguments are not compatible.");
+        const int Fun2ArgumentCount = (FunctorArgumentCount >= 0) ? FunctorArgumentCount : 0;
+        typedef typename QtPrivate::FunctorReturnType<Fun2, typename QtPrivate::List_Left<typename FunctionPointer<Fun1>::Arguments, Fun2ArgumentCount>::Value>::Value Fun2ReturnType;
+
+        Q_STATIC_ASSERT_X((QtPrivate::AreArgumentsCompatible<Fun2ReturnType, typename FunInfo1::ReturnType>::value),
+                          "Function1 and Function2 return type are not compatible.");
+
+        StdFunWrap<Fun2, Fun1>::fun(fun2);
+        return overrideVfptrFun(vfptr_t1, fun1, StdFunWrap<Fun2, Fun1>::call, forceWrite);
     }
 
     template<typename Fun1, typename Fun2>
