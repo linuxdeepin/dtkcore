@@ -220,6 +220,8 @@ public:
             return fun(call, false)(o, std::forward<Args>(args)...);
         }
     };
+    template<typename StdFun, class Obj, typename Ret, typename... Args>
+    struct StdFunWrap<StdFun, Ret (Obj::*) (Args...) const> : StdFunWrap<StdFun, Ret (Obj::*) (Args...)>{};
 
     template<typename Fun1, typename Fun2>
     static inline typename std::enable_if<QtPrivate::FunctionPointer<Fun2>::ArgumentCount == -1, bool>::type
