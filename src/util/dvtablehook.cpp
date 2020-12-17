@@ -20,10 +20,12 @@
  */
 #include "dvtablehook.h"
 
+#include <QFileInfo>
 #include <algorithm>
 #ifdef Q_OS_LINUX
 #include <sys/mman.h>
 #include <unistd.h>
+#include <dlfcn.h>
 
 QT_BEGIN_NAMESPACE
 QFunctionPointer qt_linux_find_symbol_sys(const char *symbol);
@@ -284,17 +286,83 @@ quintptr DVtableHook::originalFun(const void *obj, quintptr functionOffset)
     return *(vfptr_t2 + functionOffset / sizeof(quintptr));
 }
 
+#if defined(Q_OS_LINUX)
+static int readProtFromPsm(quintptr adr, size_t length)
+{
+    int prot = PROT_NONE;
+    QString fname = "/proc/self/maps";
+    QFileInfo fi(fname);
+    QFile f(fname);
+    if (!f.open(QIODevice::ReadOnly)) {
+        qFatal("%s", f.errorString().toStdString().data());
+        //return prot; // never be executed
+    }
+    QByteArray data = f.readLine();
+    bool ok = false;
+    quintptr startAddr = 0, endAddr = 0;
+    // line-reading
+    while (Q_UNLIKELY(!f.atEnd())) {
+        const QByteArrayList &maps = data.split(' ');
+        if (Q_UNLIKELY(maps.size() < 3)) {
+            data = f.readLine();
+            continue;
+        }
+
+        //"00400000-00431000" "r--p"
+        const QByteArrayList &addrs = maps.value(0).split('-');
+        startAddr = addrs.value(0).toULongLong(&ok, 16);
+        Q_ASSERT(ok);
+        endAddr = addrs.value(1).toULongLong(&ok, 16);
+        Q_ASSERT(ok);
+        if (Q_LIKELY(adr >= endAddr)) {
+            data = f.readLine();
+            continue;
+        }
+
+        if (adr >= startAddr && adr + length <= endAddr) {
+            data = maps.value(1);
+            // qDebug() << maps.value(0) << maps.value(1);
+            for (char c : data) {
+                switch (c) {
+                case 'r':
+                    prot |= PROT_READ;
+                    break;
+                case 'w':
+                    prot |= PROT_WRITE;
+                    break;
+                case 'x':
+                    prot |= PROT_EXEC;
+                    break;
+                default:
+                    break; // '-' 'p' don't care
+                }
+            }
+            break;
+        } else if (adr < startAddr) {
+            qFatal("%p not found in proc maps", reinterpret_cast<void *>(adr));
+            //break; // 超出了地址不需要再去检查了
+        }
+        data = f.readLine();
+    }
+    return prot;
+}
+#endif
+
 bool DVtableHook::forceWriteMemory(void *adr, const void *data, size_t length)
 {
 #ifdef Q_OS_LINUX
-    //int page_size = sysconf(_SC_PAGESIZE);
-    int page_size = 4096; // fix 64k crashed
+    int page_size = sysconf(_SC_PAGESIZE);
     quintptr x = reinterpret_cast<quintptr>(adr);
-    void *new_adr = reinterpret_cast<void*>((x - page_size - 1) & ~(page_size -1));
+    // 不减去一个pagesize防止跨越两个数据区域(对应/proc/self/maps两行数据)
+    void *new_adr = reinterpret_cast<void *>((x /*- page_size - 1*/) & ~(page_size - 1));
     size_t override_data_length = length + x - reinterpret_cast<quintptr>(new_adr);
 
+    int oldProt = readProtFromPsm(quintptr(new_adr), override_data_length);
+    bool writeable = oldProt & PROT_WRITE;
+    // 增加判断是否已经可写，不能写才调用。
     // 失败时直接放弃
-    if (mprotect(new_adr, override_data_length, PROT_READ | PROT_WRITE)) {
+    if (!writeable && mprotect(new_adr, override_data_length, PROT_READ | PROT_WRITE)) {
+        qWarning() << "mprotect(change) failed" << strerror(errno);
         return false;
     }
 #endif
@@ -302,7 +370,10 @@ bool DVtableHook::forceWriteMemory(void *adr, const void *data, size_t length)
     memcpy(adr, data, length);
 #ifdef Q_OS_LINUX
     // 恢复内存标志位
-    mprotect(new_adr, override_data_length, PROT_READ);
+    if (!writeable && mprotect(new_adr, override_data_length, oldProt)) {
+        qWarning() << "mprotect(restore) failed" << strerror(errno);
+        return false;
+    }
 #endif
 
     return true;
@@ -311,7 +382,14 @@ bool DVtableHook::forceWriteMemory(void *adr, const void *data, size_t length)
 QFunctionPointer DVtableHook::resolve(const char *symbol)
 {
 #ifdef Q_OS_LINUX
-    return QT_PREPEND_NAMESPACE(qt_linux_find_symbol_sys)(symbol);
+    /**
+  * ！！不要使用qt_linux_find_symbol_sys函数去获取符号
+  *
+  * 在龙芯平台上，qt_linux_find_symbol_sys 无法获取部分已加载动态库的符号，
+  * 可能的原因是这个函数对 dlsym 的调用是在 libQt5Core 动态库中，这个库加载的比较早，
+  * 有可能是因此导致无法获取比这个库加载更晚的库中的符号(仅为猜测)
+  */
+    return QFunctionPointer(dlsym(RTLD_DEFAULT, symbol));
 #else
     // TODO
     return nullptr;
