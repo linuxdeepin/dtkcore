@@ -291,39 +291,38 @@ static int readProtFromPsm(quintptr adr, size_t length)
 {
     int prot = PROT_NONE;
     QString fname = "/proc/self/maps";
-    QFileInfo fi(fname);
     QFile f(fname);
     if (!f.open(QIODevice::ReadOnly)) {
         qFatal("%s", f.errorString().toStdString().data());
         //return prot; // never be executed
     }
-    QByteArray data = f.readLine();
+
+    QByteArray data = f.readAll();
     bool ok = false;
     quintptr startAddr = 0, endAddr = 0;
-    // line-reading
-    while (Q_UNLIKELY(!f.atEnd())) {
-        const QByteArrayList &maps = data.split(' ');
+    QTextStream ts(data);
+    while (Q_UNLIKELY(!ts.atEnd())) {
+        const QString line = ts.readLine();
+        const QStringList &maps = line.split(' ');
         if (Q_UNLIKELY(maps.size() < 3)) {
             data = f.readLine();
             continue;
         }
 
         //"00400000-00431000" "r--p"
-        const QByteArrayList &addrs = maps.value(0).split('-');
+        const QStringList addrs = maps.value(0).split('-');
         startAddr = addrs.value(0).toULongLong(&ok, 16);
         Q_ASSERT(ok);
         endAddr = addrs.value(1).toULongLong(&ok, 16);
         Q_ASSERT(ok);
         if (Q_LIKELY(adr >= endAddr)) {
-            data = f.readLine();
             continue;
         }
-
         if (adr >= startAddr && adr + length <= endAddr) {
-            data = maps.value(1);
-            // qDebug() << maps.value(0) << maps.value(1);
-            for (char c : data) {
-                switch (c) {
+            QString ps = maps.value(1);
+            //qDebug() << maps.value(0) << maps.value(1);
+            for (QChar c : ps) {
+                switch (c.toLatin1()) {
                 case 'r':
                     prot |= PROT_READ;
                     break;
@@ -342,8 +341,8 @@ static int readProtFromPsm(quintptr adr, size_t length)
             qFatal("%p not found in proc maps", reinterpret_cast<void *>(adr));
             //break; // 超出了地址不需要再去检查了
         }
-        data = f.readLine();
     }
+
     return prot;
 }
 #endif
