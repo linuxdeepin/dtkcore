@@ -30,11 +30,6 @@ DCORE_BEGIN_NAMESPACE
 
 DLogManager::DLogManager()
 {
-    QString cachePath = QStandardPaths::standardLocations(QStandardPaths::CacheLocation).at(0);
-    if (!QDir(cachePath).exists()){
-        QDir(cachePath).mkpath(cachePath);
-    }
-    m_logPath = joinPath(cachePath, QString("%1.log").arg(qApp->applicationName()));
     m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
 }
 
@@ -45,7 +40,7 @@ void DLogManager::initConsoleAppender(){
 }
 
 void DLogManager::initRollingFileAppender(){
-    m_rollingFileAppender = new RollingFileAppender(m_logPath);
+    m_rollingFileAppender = new RollingFileAppender(getlogFilePath());
     m_rollingFileAppender->setFormat(m_format);
     m_rollingFileAppender->setLogFilesLimit(5);
     m_rollingFileAppender->setDatePattern(RollingFileAppender::DailyRollover);
@@ -74,6 +69,16 @@ void DLogManager::registerFileAppender() {
  * \sa registerFileAppender
  */
 QString DLogManager::getlogFilePath(){
+    // 不再构造时去设置默认logpath(且mkdir), 而在getlogPath时再去判断是否设置默认值
+    // 修复设置了日志路径还是会在默认的位置创建目录的问题
+    if (DLogManager::instance()->m_logPath.isEmpty()) {
+        QString cachePath = QStandardPaths::standardLocations(QStandardPaths::CacheLocation).at(0);
+        if (!QDir(cachePath).exists()) {
+            QDir(cachePath).mkpath(cachePath);
+        }
+        DLogManager::instance()->m_logPath = DLogManager::instance()->joinPath(cachePath, QString("%1.log").arg(qApp->applicationName()));
+    }
+
     return QDir::toNativeSeparators(DLogManager::instance()->m_logPath);
 }
 
