@@ -245,7 +245,7 @@ void DFileSystemWatcherPrivate::_q_readFromInotify()
             if ((event.mask & (IN_DELETE_SELF | IN_MOVE_SELF | IN_UNMOUNT)) != 0) {
                 do {
                     if (event.mask & IN_MOVE_SELF) {
-                        QMap<int, QString>::const_iterator iterator = cookieToFilePath.constBegin();
+                        QMultiMap<int, QString>::const_iterator iterator = cookieToFilePath.constBegin();
 
                         bool isMove = false;
 

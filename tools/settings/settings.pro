@@ -1,7 +1,7 @@
 QT += core xml
 QT -= gui
 
-CONFIG += c++11
+CONFIG += c++17
 
 TARGET = dtk-settings
 CONFIG += console link_pkgconfig

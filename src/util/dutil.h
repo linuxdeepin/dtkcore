@@ -21,6 +21,7 @@
 #include <QThread>
 #include <QMetaObject>
 #include <QCoreApplication>
+#include <QChar>
 
 namespace DUtil
 {
@@ -43,6 +44,17 @@ inline void TimerSingleShot(int msec,  Func1 slot)
 }
 
 template <class T>
+void _SecureErase(T &obj)
+{
+    if constexpr (std::is_same<T, QChar>::value) {
+        obj = T();
+    }
+    else {
+        obj = 0;
+    }
+}
+
+template <class T>
 void SecureErase(T *p, size_t size)
 {
     memset(p, 0, size);
@@ -52,7 +64,7 @@ template <class T>
 void SecureErase(T &obj)
 {
     for (typename T::iterator i = obj.begin(); i != obj.end(); ++i) {
-        *i = 0;
+        _SecureErase(*i);
     }
     obj.clear();
 }

@@ -2,7 +2,7 @@ QT += testlib
 QT -= gui
 
 TEMPLATE = app
-CONFIG += c++11
+CONFIG += c++17
 
 # TODO: vtabhook release test failed
 QMAKE_CXXFLAGS_RELEASE -= -O2

@@ -3,7 +3,7 @@ QT -= gui
 
 TARGET = tst_ddesktopentrytest
 TEMPLATE = app
-CONFIG += c++11
+CONFIG += c++17
 CONFIG -= app_bundle
 
 !isEmpty(DTK_STATIC_LIB){

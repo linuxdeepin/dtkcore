@@ -18,6 +18,7 @@
 #include <QString>
 #include <QDebug>
 #include <QDateTime>
+#include <QElapsedTimer>
 
 // Local
 #include "CuteLogger_global.h"
@@ -194,7 +195,7 @@ CUTELOGGERSHARED_EXPORT Logger *loggerInstance();
 
     private:
         Logger *m_logger;
-        QTime m_time;
+        QElapsedTimer m_time;
         Logger::LogLevel m_logLevel;
         const char *m_file;
         int m_line;

@@ -22,7 +22,6 @@
 #include <QSemaphore>
 #include <QDateTime>
 #include <QIODevice>
-#include <QTextCodec>
 
 #if defined(Q_OS_ANDROID)
 #  include <android/log.h>
@@ -459,7 +458,7 @@ class LoggerPrivate
     static Logger* globalInstance;
     static QReadWriteLock globalInstanceLock;
 
-    QList<AbstractAppender*> appenders;
+    QSet<AbstractAppender*> appenders;
     QMutex loggerMutex;
 
     QMap<QString, bool> categories;
@@ -584,8 +583,12 @@ Logger::~Logger()
   // Cleanup appenders
   QMutexLocker appendersLocker(&d->loggerMutex);
 
-  QSet<AbstractAppender*> appenderList;
-  appenderList += d->appenders.toSet() += d->categoryAppenders.values().toSet();
+  QSet<AbstractAppender*> appenderList{ d->appenders };
+
+  for (auto it = d->categoryAppenders.begin(); it != d->categoryAppenders.end(); ++it) {
+      appenderList += it.value();
+  }
+
   qDeleteAll(appenderList);
 
   // Cleanup device
@@ -713,7 +716,7 @@ void Logger::registerAppender(AbstractAppender* appender)
   QMutexLocker locker(&d->loggerMutex);
 
   if (!d->appenders.contains(appender))
-    d->appenders.append(appender);
+    d->appenders.insert(appender);
   else
     std::cerr << "Trying to register appender that was already registered" << std::endl;
 }
@@ -1006,7 +1009,7 @@ void LoggerTimingHelper::start(const char* msg, ...)
 {
   va_list va;
   va_start(va, msg);
-  m_block = QString().vsprintf(msg, va);
+  m_block = QString().vasprintf(msg, va);
   va_end(va);
 
   m_time.start();
@@ -1041,7 +1044,7 @@ void CuteMessageLogger::write(const char* msg, ...) const
 {
   va_list va;
   va_start(va, msg);
-  m_l->write(m_level, m_file, m_line, m_function, m_category, QString().vsprintf(msg, va));
+  m_l->write(m_level, m_file, m_line, m_function, m_category, QString().vasprintf(msg, va));
   va_end(va);
 }
 

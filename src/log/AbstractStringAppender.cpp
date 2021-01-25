@@ -20,7 +20,7 @@
 #include <QReadLocker>
 #include <QWriteLocker>
 #include <QDateTime>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QCoreApplication>
 #include <QThread>
 
@@ -155,14 +155,7 @@ QByteArray AbstractStringAppender::qCleanupFuncinfo(const char* name)
       }
   }
 
-  bool hasLambda = false;
-  QRegExp lambdaRegex("::<lambda\\(.*\\)>");
-  int lambdaIndex = lambdaRegex.indexIn(QString::fromLatin1(info));
-  if (lambdaIndex != -1)
-  {
-    hasLambda = true;
-    info.remove(lambdaIndex, lambdaRegex.matchedLength());
-  }
+  info = QString::fromLatin1(info).remove(QRegularExpression("::<lambda\\(.*\\)>")).toLatin1();
 
   // operator names with '(', ')', '<', '>' in it
   static const char operator_call[] = "operator()";
@@ -213,8 +206,7 @@ QByteArray AbstractStringAppender::qCleanupFuncinfo(const char* name)
       }
   }
 
-  if (hasLambda)
-    info.append("::lambda");
+  info.append("::lambda");
 
   // find the beginning of the function name
   int parencount = 0;
@@ -285,7 +277,7 @@ QByteArray AbstractStringAppender::qCleanupFuncinfo(const char* name)
       templatecount = 1;
       --pos;
       while (pos && templatecount) {
-          register char c = info.at(pos);
+          const char c = info.at(pos);
           if (c == '>')
               ++templatecount;
           else if (c == '<')

@@ -2,7 +2,7 @@ QT += testlib concurrent
 QT -= gui
 
 TEMPLATE = app
-CONFIG += c++11
+CONFIG += c++17
 
 !isEmpty(DTK_STATIC_LIB){
     DEFINES += DTK_STATIC_LIB
