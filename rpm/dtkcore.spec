@@ -1,5 +1,5 @@
 Name:           dtkcore
-Version:        5.2.2.16
+Version:        5.4.0
 Release:        1%{?dist}
 Summary:        Deepin tool kit core modules
 License:        LGPLv3+
@@ -13,6 +13,7 @@ BuildRequires:  gcc-c++
 BuildRequires:  annobin
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(gsettings-qt)
+BuildRequires:  make
 # since f30
 Obsoletes:      deepin-tool-kit <= 0.3.3
 Obsoletes:      deepin-tool-kit-devel <= 0.3.3
