@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "dutiltester.h"
+#include "ut_dutil.h"
 
 #include <QThread>
 #include <QStandardPaths>
@@ -24,7 +24,7 @@
 
 #include "log/LogManager.h"
 #include "filesystem/dpathbuf.h"
-#include "singletontester.h"
+#include "ut_singleton.h"
 #include "util/dtimeunitformatter.h"
 #include "util/ddisksizeformatter.h"
 #include "util/ddbussender.h"
