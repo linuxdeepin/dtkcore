@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "dutiltester.h"
+#include "ut_dutil.h"
 
 int main(int argc, char *argv[])
 {

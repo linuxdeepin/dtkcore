@@ -23,4 +23,5 @@ unix:QMAKE_RPATHDIR += $$OUT_PWD/../../src
 QMAKE_LFLAGS += -Wl,--export-dynamic
 
 SOURCES += \
-    gts_ddesktopentrytest.cpp
+    $$PWD/../../src/ddesktopentry.cpp \
+    ut_ddesktopentrytest.cpp

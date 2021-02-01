@@ -84,4 +84,4 @@ void tst_DThreadUtils::testCallInMainThread()
 
 QTEST_MAIN(tst_DThreadUtils)
 
-#include "tst_dthreadutils.moc"
+#include "ut_dthreadutils.moc"

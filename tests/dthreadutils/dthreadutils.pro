@@ -21,4 +21,5 @@ QMAKE_RPATHDIR += $$OUT_PWD/../../src
 QMAKE_LFLAGS += -Wl,--export-dynamic
 
 SOURCES += \
-    tst_dthreadutils.cpp
+    $$PWD/../../src/util/dthreadutils.cpp \
+    ut_dthreadutils.cpp
