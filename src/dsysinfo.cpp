@@ -48,6 +48,7 @@ public:
 #ifdef Q_OS_LINUX
     void ensureDeepinInfo();
     bool ensureOsVersion();
+    void ensureDistributionInfo();
 #endif
     void ensureReleaseInfo();
     void ensureComputerInfo();
@@ -97,6 +98,16 @@ DSysInfoPrivate::DSysInfoPrivate()
 }
 
 #ifdef Q_OS_LINUX
+void DSysInfoPrivate::ensureDistributionInfo()
+{
+    if (distributionInfo)
+        return;
+
+    const QString distributionInfoFile(DSysInfo::distributionInfoPath());
+    // Generic DDE distribution info
+    distributionInfo.reset(new DDesktopEntry(distributionInfoFile));
+}
+
 void DSysInfoPrivate::ensureDeepinInfo()
 {
     if (static_cast<int>(deepinType) >= 0)
@@ -168,11 +179,6 @@ void DSysInfoPrivate::ensureDeepinInfo()
     } else {
         deepinType = DSysInfo::UnknownDeepin;
     }
-
-    const QString distributionInfoFile(DSysInfo::distributionInfoPath());
-    // Generic DDE distribution info
-    distributionInfo.reset(new DDesktopEntry(distributionInfoFile));
-    QSettings distributionInfo(distributionInfoFile, QSettings::IniFormat); // TODO: treat as `.desktop` format instead of `.ini`
 }
 
 bool DSysInfoPrivate::ensureOsVersion()
@@ -734,7 +740,7 @@ QString DSysInfo::distributionInfoSectionName(DSysInfo::OrgType type)
 QString DSysInfo::distributionOrgName(DSysInfo::OrgType type, const QLocale &locale)
 {
 #ifdef Q_OS_LINUX
-    siGlobal->ensureDeepinInfo();
+    siGlobal->ensureDistributionInfo();
 #endif
 
     QString fallback = type == Distribution ? QStringLiteral("Deepin") : QString();
@@ -757,7 +763,7 @@ QString DSysInfo::deepinDistributorName()
 QPair<QString, QString> DSysInfo::distributionOrgWebsite(DSysInfo::OrgType type)
 {
 #ifdef Q_OS_LINUX
-    siGlobal->ensureDeepinInfo();
+    siGlobal->ensureDistributionInfo();
 #endif
 
     QString fallbackSiteName = type == Distribution ? QStringLiteral("www.deepin.org") : QString();
