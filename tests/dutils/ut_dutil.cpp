@@ -21,6 +21,8 @@
 #include <QStandardPaths>
 #include <QDBusPendingCall>
 #include <QDBusReply>
+#include <QDir>
+#include <DDesktopEntry>
 
 #include "log/LogManager.h"
 #include "filesystem/dpathbuf.h"
@@ -38,19 +40,25 @@ DCORE_USE_NAMESPACE
 
 void gts_DUtil::SetUpTestCase()
 {
-    qDebug() << "*****************" << __FUNCTION__;
+    //qDebug() << "*****************" << __FUNCTION__;
 }
+
 void gts_DUtil::TearDownTestCase()
 {
-    qDebug() << "*****************" << __FUNCTION__;
+    //qDebug() << "*****************" << __FUNCTION__;
 }
+
 void gts_DUtil::SetUp()
 {
-
+    QDir dir("/tmp/etc/");
+    if (!dir.exists())
+        dir.mkdir("/tmp/etc/");
 }
 void gts_DUtil::TearDown()
 {
-
+    QDir dir("/tmp/etc/");
+    if (dir.exists())
+        dir.remove("/tmp/etc/");
 }
 
 TEST_F(gts_DUtil, testLogPath)
@@ -234,7 +242,7 @@ TEST_F(gts_DUtil, testDBusSender)
     v >> x >> y >> w >> h;
     v.endStructure();
 
-    qDebug() << x << y << w << h;
+    //qDebug() << x << y << w << h;
 }
 
 TEST_F(gts_DUtil, testGroups)
@@ -251,17 +259,132 @@ TEST_F(gts_DUtil, testGroups)
     qDebug() << settings->group("shortcuts.ternimal")->options();
 }
 
-TEST_F(gts_DUtil, testSysInfo)
+TEST_F(gts_DUtil, testOsVersion)
 {
-    qDebug() << DSysInfo::uosType() <<
-                DSysInfo::uosEditionType() <<
-                DSysInfo::uosArch() <<
-                DSysInfo::uosProductTypeName() <<
-                DSysInfo::uosSystemName() <<
-                DSysInfo::uosEditionName() <<
-                DSysInfo::spVersion() <<
-                DSysInfo::udpateVersion() <<
-                DSysInfo::majorVersion() <<
-                DSysInfo::minorVersion() <<
-                DSysInfo::buildVersion() ;
+    DDesktopEntry entry("/tmp/etc/os-version");
+    entry.setStringValue("UnionTech OS Desktop", "SystemName", "Version");
+    entry.setStringValue("统信桌面操作系统", "SystemName[zh_CN]", "Version");
+    entry.setStringValue("Desktop", "ProductType", "Version");
+    entry.setStringValue("桌面", "ProductType[zh_CN]", "Version");
+    entry.setStringValue("Professional", "EditionName", "Version");
+    entry.setStringValue("专业版", "EditionName[zh_CN]", "Version");
+    entry.setStringValue("20", "MajorVersion", "Version");
+    entry.setStringValue("100A", "MinorVersion", "Version");
+    entry.setStringValue("11018.107", "OsBuild", "Version");
+    ASSERT_TRUE(entry.save());
+
+    ASSERT_TRUE(DSysInfo::uosSystemName(QLocale("C")) == "UnionTech OS Desktop");
+    ASSERT_TRUE(DSysInfo::uosSystemName(QLocale("zh_CN")) == "统信桌面操作系统");
+    ASSERT_TRUE(DSysInfo::uosProductTypeName(QLocale("zh_CN")) == "桌面");
+    ASSERT_TRUE(DSysInfo::uosProductTypeName(QLocale("C")) == "Desktop");
+    ASSERT_TRUE(DSysInfo::uosEditionName(QLocale("zh_CN")) == "专业版");
+    ASSERT_TRUE(DSysInfo::uosEditionName(QLocale("C")) == "Professional");
+    ASSERT_TRUE(DSysInfo::majorVersion() == "20");
+    ASSERT_TRUE(DSysInfo::minorVersion() == "100A");
+    ASSERT_TRUE(DSysInfo::buildVersion() == "107");
+
+    // test minVersion.BC SP1….SP99
+    for (int i = 0; i < 100; ++i) {
+        entry.setStringValue(QString("%1").arg(1001 + i * 10), "MinorVersion", "Version");
+        ASSERT_TRUE(entry.save());
+        ASSERT_TRUE(DSysInfo::spVersion() == (i ? QString("SP%1").arg(i) : QString()));
+    }
+
+    // test minVersion.D udpate1~udpate9 updateA~udpateZ
+    for (int i = 0; i < 10; ++i) {
+        entry.setStringValue(QString("%1").arg(1000 + i), "MinorVersion", "Version");
+        ASSERT_TRUE(entry.save());
+        ASSERT_TRUE(DSysInfo::udpateVersion() == (i ? QString("update%1").arg(i) : QString()));
+    }
+
+    for (char c = 'A'; c <= 'Z'; ++c) {
+        entry.setStringValue(QString("100").append(c), "MinorVersion", "Version");
+        ASSERT_TRUE(entry.save());
+        ASSERT_TRUE(DSysInfo::udpateVersion() == QString("update%1").arg(c));
+    }
+
+    // test incalide MinorVersion
+    entry.setStringValue(QString("100?"), "MinorVersion", "Version");
+    ASSERT_TRUE(entry.save());
+    ASSERT_TRUE(DSysInfo::udpateVersion() == QString());
+    // restore MinorVersion
+    entry.setStringValue(QString("1000"), "MinorVersion", "Version");
+    ASSERT_TRUE(entry.save());
+
+    // test OsBuild.B == 1 && OsBuild.D = [1, 6]
+    ASSERT_TRUE(DSysInfo::uosType() == DSysInfo::UosDesktop);
+    for (int i = 1; i <= 6; ++i) {
+        entry.setStringValue(QString("%1").arg(11008.107 + i * 10), "OsBuild", "Version");
+        ASSERT_TRUE(entry.save());
+        switch (i) {
+        case 1:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosProfessional);
+            break;
+        case 2:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosHome);
+            break;
+        case 3:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosCommunity);
+            break;
+        case 4:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosMilitary);
+            break;
+        case 5:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosDeviceEdition);
+            break;
+        case 6:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosEducation);
+            break;
+        default:
+            break;
+        }
+    }
+
+    // test OsBuild.B == 2 && OsBuild.D = [1, 5]
+    entry.setStringValue("12018.107", "OsBuild", "Version");
+    ASSERT_TRUE(entry.save());
+    ASSERT_TRUE(DSysInfo::uosType() == DSysInfo::UosServer);
+    for (int i = 1; i <= 5; ++i) {
+        entry.setStringValue(QString("%1").arg(12008.107 + i * 10), "OsBuild", "Version");
+        ASSERT_TRUE(entry.save());
+        switch (i) {
+        case 1:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosEnterprise);
+            break;
+        case 2:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosEnterpriseC);
+            break;
+        case 3:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosEuler);
+            break;
+        case 4:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosMilitaryS);
+            break;
+        case 5:
+            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosDeviceEdition);
+            break;
+        default:
+            break;
+        }
+    }
+
+    // test OsBuild.B == 3
+    entry.setStringValue("13018.107", "OsBuild", "Version");
+    ASSERT_TRUE(entry.save());
+    ASSERT_TRUE(DSysInfo::uosType() == DSysInfo::UosDevice);
+    ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosEnterprise);
+
+    // test invalid OsBuild.B
+    entry.setStringValue("10018.107", "OsBuild", "Version");
+    ASSERT_TRUE(entry.save());
+    ASSERT_TRUE(DSysInfo::uosType() == DSysInfo::UosTypeUnknown);
+
+    // test OsBuild.E
+    for (int i = 0; i < 4; ++i) {
+        entry.setStringValue(QString("%1").arg(11000.107 + qreal(1 << i)), "OsBuild", "Version");
+        ASSERT_TRUE(entry.save());
+        ASSERT_TRUE(DSysInfo::uosArch() == (1 << i));
+    }
+
+    QFile::remove("/tmp/etc/os-version");
 }
