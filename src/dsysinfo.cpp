@@ -38,6 +38,12 @@
 #include <unistd.h>
 #endif
 
+#ifndef OS_VERSION_TEST_FILE
+#define OS_VERSION_FILE "/etc/os-version"
+#else
+#define OS_VERSION_FILE OS_VERSION_TEST_FILE
+#endif
+
 DCORE_BEGIN_NAMESPACE
 
 class DSysInfoPrivate
@@ -177,10 +183,12 @@ void DSysInfoPrivate::ensureDeepinInfo()
 
 bool DSysInfoPrivate::ensureOsVersion()
 {
-    if (minVersion.A > 0)
+#ifndef OS_VERSION_TEST_FILE // 测试时总是重新读取文件
+    if (osBuild.A > 0)
         return true;
+#endif
 
-    DDesktopEntry entry("/etc/os-version");
+    DDesktopEntry entry(OS_VERSION_FILE);
     majorVersion = entry.stringValue("MajorVersion", "Version");
     minorVersion = entry.stringValue("MinorVersion", "Version");
     Q_ASSERT(minorVersion.length() == 4);
@@ -191,8 +199,14 @@ bool DSysInfoPrivate::ensureOsVersion()
     if (ok) {
         minVersion.D = minv % 10;
     } else if (minorVersion.length() > 0) {
-        // 0-9...A-Z
-        minVersion.D = 10 + static_cast<uint>(minorVersion.right(1).data()->toLatin1() - 'A');
+        const QString D = minorVersion.right(1);
+        if (D.contains(QRegExp("[0-9A-Z]"))) {
+            // 0-9...A-Z
+            minVersion.D = 10 + static_cast<uint>(D.data()->toLatin1() - 'A');
+        } else {
+            qWarning() << "invalid minorVersion";
+            minVersion.D = 0;
+        }
     }
     uint minVer = minorVersion.left(3).toUInt();
     minVersion.BC = minVer % 100;
@@ -566,13 +580,40 @@ DSysInfo::UosEdition DSysInfo::uosEditionType()
 {
     siGlobal->ensureOsVersion();
     UosEdition ospt = UosEditionUnknown;
-
     if (siGlobal->osBuild.B == UosDesktop) {
-        ospt = static_cast<UosEdition>(siGlobal->osBuild.D);
+        switch (siGlobal->osBuild.D) {
+        case 1:
+            return UosProfessional;
+        case 2:
+            return UosHome;
+        case 3:
+            return UosCommunity;
+        case 4:
+            return UosMilitary;
+        case 5:
+            return UosDeviceEdition;
+        case 6:
+            return UosEducation;
+        default:
+            break;
+        }
     } else if (siGlobal->osBuild.B == UosServer) {
-        ospt = static_cast<UosEdition>(siGlobal->osBuild.D + UosMilitary);
+        switch (siGlobal->osBuild.D) {
+        case 1:
+            return UosEnterprise;
+        case 2:
+            return UosEnterpriseC;
+        case 3:
+            return UosEuler;
+        case 4:
+            return UosMilitaryS;
+        case 5:
+            return UosDeviceEdition;
+        default:
+            break;
+        }
     } else if (siGlobal->osBuild.B == UosDevice){
-        ospt = UosProfessional;
+        ospt = UosEnterprise; // os-version 1.4 if B==Device then et=Enterprise
     }
 
     return ospt;
@@ -591,7 +632,7 @@ DSysInfo::UosArch DSysInfo::uosArch()
 
 static QString getUosVersionValue(const QString &key, const QLocale &locale)
 {
-    DDesktopEntry entry("/etc/os-version");
+    DDesktopEntry entry(OS_VERSION_FILE);
     QString localKey = QString("%1[%2]").arg(key, locale.name());
 
     return entry.stringValue(localKey, "Version", entry.stringValue(key, "Version"));
@@ -654,8 +695,11 @@ QString DSysInfo::udpateVersion()
         uint uv = siGlobal->minVersion.D;
         if (uv < 10) {
             return QString("update%1").arg(uv);
-        } else {
+        } else if (uv < 36) {
             return QString("update").append(QChar(uv - 10 + 'A'));
+        } else {
+            qWarning() << "invalid update versoin";
+            return QString();
         }
     } else {
         return QString(); // 0 正式版
