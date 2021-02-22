@@ -7,6 +7,8 @@ CONFIG += c++11
 !isEmpty(DTK_STATIC_LIB){
     DEFINES += DTK_STATIC_LIB
 }
+# 使用 tmp 目录下的 os-version
+DEFINES += OS_VERSION_TEST_FILE=\\\"/tmp/etc/os-version\\\"
 
 include(../dtk_testcase.prf)
 
