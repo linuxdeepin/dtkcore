@@ -86,6 +86,8 @@ public:
         UosEnterpriseC,
         UosEuler,
         UosMilitaryS, // for Server
+        UosDeviceEdition,
+        UosEducation,
 
         UosEditionCount // must at last
     };
