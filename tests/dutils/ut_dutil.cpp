@@ -38,30 +38,30 @@
 
 DCORE_USE_NAMESPACE
 
-void gts_DUtil::SetUpTestCase()
+void ut_DUtil::SetUpTestCase()
 {
     //qDebug() << "*****************" << __FUNCTION__;
 }
 
-void gts_DUtil::TearDownTestCase()
+void ut_DUtil::TearDownTestCase()
 {
     //qDebug() << "*****************" << __FUNCTION__;
 }
 
-void gts_DUtil::SetUp()
+void ut_DUtil::SetUp()
 {
     QDir dir("/tmp/etc/");
     if (!dir.exists())
         dir.mkdir("/tmp/etc/");
 }
-void gts_DUtil::TearDown()
+void ut_DUtil::TearDown()
 {
     QDir dir("/tmp/etc/");
     if (dir.exists())
         dir.remove("/tmp/etc/");
 }
 
-TEST_F(gts_DUtil, testLogPath)
+TEST_F(ut_DUtil, testLogPath)
 {
     qApp->setOrganizationName("deepin");
     qApp->setApplicationName("deepin-test-dtk");
@@ -77,7 +77,7 @@ TEST_F(gts_DUtil, testLogPath)
     ASSERT_EQ(DLogManager::getlogFilePath(), logPath.toString());
 }
 
-TEST_F(gts_DUtil, testPathChange)
+TEST_F(ut_DUtil, testPathChange)
 {
     DPathBuf root("/");
 
@@ -91,7 +91,7 @@ TEST_F(gts_DUtil, testPathChange)
     ASSERT_EQ(root.toString(), usr.toString());
 }
 
-TEST_F(gts_DUtil, testDSingleton)
+TEST_F(ut_DUtil, testDSingleton)
 {
     auto threadA = new QThread;
     auto testerA = new MultiSingletonTester;
@@ -117,7 +117,7 @@ TEST_F(gts_DUtil, testDSingleton)
     QThread::sleep(5);
 }
 
-TEST_F(gts_DUtil, testTimeFormatter)
+TEST_F(ut_DUtil, testTimeFormatter)
 {
     const DTimeUnitFormatter timeFormatter;
 
@@ -138,7 +138,7 @@ TEST_F(gts_DUtil, testTimeFormatter)
     ASSERT_TRUE(qFuzzyCompare(r4, 36));
 }
 
-TEST_F(gts_DUtil, testTimeFormatterList)
+TEST_F(ut_DUtil, testTimeFormatterList)
 {
     const DTimeUnitFormatter timeFormatter;
 
@@ -149,7 +149,7 @@ TEST_F(gts_DUtil, testTimeFormatterList)
     ASSERT_TRUE(qFuzzyCompare(r[2].first, 30) && r[2].second == DTimeUnitFormatter::Seconds);
 }
 
-TEST_F(gts_DUtil, testDiskFormatter)
+TEST_F(ut_DUtil, testDiskFormatter)
 {
     const DDiskSizeFormatter diskFormatter1000 = DDiskSizeFormatter();
 
@@ -162,7 +162,7 @@ TEST_F(gts_DUtil, testDiskFormatter)
     ASSERT_TRUE(qFuzzyCompare(i1, 1000000));
 }
 
-TEST_F(gts_DUtil, testDiskFormatterList)
+TEST_F(ut_DUtil, testDiskFormatterList)
 {
     const DDiskSizeFormatter diskFormatter = DDiskSizeFormatter();
 
@@ -177,7 +177,7 @@ TEST_F(gts_DUtil, testDiskFormatterList)
 //    Q_ASSERT(r[4].first == 123.4 && r[4].second == DiskSizeFormatter::B);
 }
 
-TEST_F(gts_DUtil, testDiskFormatter1024)
+TEST_F(ut_DUtil, testDiskFormatter1024)
 {
     const DDiskSizeFormatter diskFormatter = DDiskSizeFormatter().rate(1024);
 
@@ -194,7 +194,7 @@ TEST_F(gts_DUtil, testDiskFormatter1024)
     ASSERT_TRUE(qFuzzyCompare(0.09094947017729282, d2));
 }
 
-TEST_F(gts_DUtil, testDBusSender)
+TEST_F(ut_DUtil, testDBusSender)
 {
     // basic method call
     DDBusSender()
@@ -245,7 +245,7 @@ TEST_F(gts_DUtil, testDBusSender)
     //qDebug() << x << y << w << h;
 }
 
-TEST_F(gts_DUtil, testGroups)
+TEST_F(ut_DUtil, testGroups)
 {
     auto path = ":/data/dt-settings.json";
     auto settings = DSettings::fromJsonFile(path);
@@ -259,7 +259,7 @@ TEST_F(gts_DUtil, testGroups)
     qDebug() << settings->group("shortcuts.ternimal")->options();
 }
 
-TEST_F(gts_DUtil, testOsVersion)
+TEST_F(ut_DUtil, testOsVersion)
 {
     DDesktopEntry entry("/tmp/etc/os-version");
     entry.setStringValue("UnionTech OS Desktop", "SystemName", "Version");

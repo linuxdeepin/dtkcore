@@ -48,7 +48,7 @@ public:
 };
 }
 
-class gts_DVtableHook : public testing::Test
+class ut_DVtableHook : public testing::Test
 {
 public:
     static void SetUpTestCase()
@@ -62,11 +62,11 @@ public:
     virtual void SetUp();
     virtual void TearDown();
 };
-void gts_DVtableHook::SetUp()
+void ut_DVtableHook::SetUp()
 {
 
 }
-void gts_DVtableHook::TearDown()
+void ut_DVtableHook::TearDown()
 {
 
 }
@@ -80,7 +80,7 @@ static bool test(A *obj, int v)
     return true;
 }
 
-TEST_F(gts_DVtableHook, objectFun2ObjectFun)
+TEST_F(ut_DVtableHook, objectFun2ObjectFun)
 {
     A *a = new A();
     B *b = new B();
@@ -94,7 +94,7 @@ TEST_F(gts_DVtableHook, objectFun2ObjectFun)
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
 }
 
-TEST_F(gts_DVtableHook, objectFun2Fun)
+TEST_F(ut_DVtableHook, objectFun2Fun)
 {
     A *a = new A();
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(a, &A::test, &test));
@@ -103,7 +103,7 @@ TEST_F(gts_DVtableHook, objectFun2Fun)
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
 }
 
-TEST_F(gts_DVtableHook, fun2ObjectFun)
+TEST_F(ut_DVtableHook, fun2ObjectFun)
 {
     B *b = new B();
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, b, &B::test));
@@ -112,11 +112,11 @@ TEST_F(gts_DVtableHook, fun2ObjectFun)
     ASSERT_TRUE(a->test(2));
 }
 
-TEST_F(gts_DVtableHook, fun2Fun)
+TEST_F(ut_DVtableHook, fun2Fun)
 {
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, &test));
     A *a = new A();
-    ASSERT_TRUE(a->test(3));
+    ASSERT_TRUE(a->test(5));
 }
 
 int main(int argc, char *argv[])
