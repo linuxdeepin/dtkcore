@@ -53,7 +53,7 @@ Name=Create a new Foo!
 Icon=fooview-new
 )desktop") };
 
-class gts_DesktopEntry : public testing::Test
+class ut_DesktopEntry : public testing::Test
 {
 public:
     static void SetUpTestCase()
@@ -67,16 +67,16 @@ public:
     virtual void SetUp();
     virtual void TearDown();
 };
-void gts_DesktopEntry::SetUp()
+void ut_DesktopEntry::SetUp()
 {
 
 }
-void gts_DesktopEntry::TearDown()
+void ut_DesktopEntry::TearDown()
 {
 
 }
 
-TEST_F(gts_DesktopEntry, ParseFile)
+TEST_F(ut_DesktopEntry, ParseFile)
 {
     QTemporaryFile file("testReadXXXXXX.desktop");
     ASSERT_TRUE(file.open());

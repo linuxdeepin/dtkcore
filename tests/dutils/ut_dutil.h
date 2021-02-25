@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-class gts_DUtil : public testing::Test
+class ut_DUtil : public testing::Test
 {
 protected:
     static void SetUpTestCase();
