@@ -20,7 +20,8 @@
 #include <QDebug>
 #include <QThread>
 
-Singleton::Singleton(QObject *parent) : QObject(parent)
+Singleton::Singleton(QObject *parent)
+    : QObject(parent)
 {
     qDebug() << "Singleton Init Begin" << this;
     QThread::sleep(3);
@@ -32,7 +33,8 @@ void Singleton::test()
     qDebug() << "test" << this;
 }
 
-MultiSingletonTester::MultiSingletonTester(QObject *parent) : QObject(parent)
+MultiSingletonTester::MultiSingletonTester(QObject *parent)
+    : QObject(parent)
 {
 }
 

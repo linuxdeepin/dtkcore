@@ -35,7 +35,6 @@
 #include "settings/dsettingsoption.h"
 #include "dsysinfo.h"
 
-
 DCORE_USE_NAMESPACE
 
 void ut_DUtil::SetUpTestCase()
@@ -96,7 +95,7 @@ TEST_F(ut_DUtil, testDSingleton)
     auto threadA = new QThread;
     auto testerA = new MultiSingletonTester;
     QObject::connect(threadA, &QThread::started, testerA, &MultiSingletonTester::run);
-    QObject::connect(threadA, &QThread::finished, testerA, [=](){
+    QObject::connect(threadA, &QThread::finished, testerA, [=]() {
         threadA->deleteLater();
         testerA->deleteLater();
     });
@@ -106,7 +105,7 @@ TEST_F(ut_DUtil, testDSingleton)
     auto testerB = new MultiSingletonTester;
     testerB->moveToThread(threadB);
     QObject::connect(threadB, &QThread::started, testerB, &MultiSingletonTester::run);
-    QObject::connect(threadB, &QThread::finished, testerB, [=](){
+    QObject::connect(threadB, &QThread::finished, testerB, [=]() {
         threadB->deleteLater();
         testerB->deleteLater();
     });
@@ -174,7 +173,7 @@ TEST_F(ut_DUtil, testDiskFormatterList)
     ASSERT_TRUE(qFuzzyCompare(r[3].first, 412) && r[3].second == DDiskSizeFormatter::K);
 
     // TODO: test failed
-//    Q_ASSERT(r[4].first == 123.4 && r[4].second == DiskSizeFormatter::B);
+    //    Q_ASSERT(r[4].first == 123.4 && r[4].second == DiskSizeFormatter::B);
 }
 
 TEST_F(ut_DUtil, testDiskFormatter1024)
@@ -198,29 +197,29 @@ TEST_F(ut_DUtil, testDBusSender)
 {
     // basic method call
     DDBusSender()
-    .service("com.deepin.dde.ControlCenter")
-    .interface("com.deepin.dde.ControlCenter")
-    .path("/com/deepin/dde/ControlCenter")
-    .method("ShowPage")
-    .arg(QString("update"))
-    .arg(QString("available-updates"))
-    .call();
+        .service("com.deepin.dde.ControlCenter")
+        .interface("com.deepin.dde.ControlCenter")
+        .path("/com/deepin/dde/ControlCenter")
+        .method("ShowPage")
+        .arg(QString("update"))
+        .arg(QString("available-updates"))
+        .call();
 
     // property set
     QDBusPendingReply<> r1 = DDBusSender()
-                             .service("com.deepin.dde.daemon.Dock")
-                             .interface("com.deepin.dde.daemon.Dock")
-                             .path("/com/deepin/dde/daemon/Dock")
-                             .property("DisplayMode")
-                             .set(1); // set to efficient mode
+                                 .service("com.deepin.dde.daemon.Dock")
+                                 .interface("com.deepin.dde.daemon.Dock")
+                                 .path("/com/deepin/dde/daemon/Dock")
+                                 .property("DisplayMode")
+                                 .set(1); // set to efficient mode
 
     // property get
     QDBusPendingReply<QVariant> r2 = DDBusSender()
-                                     .service("com.deepin.dde.daemon.Dock")
-                                     .interface("com.deepin.dde.daemon.Dock")
-                                     .path("/com/deepin/dde/daemon/Dock")
-                                     .property("DisplayMode")
-                                     .get(); // read mode
+                                         .service("com.deepin.dde.daemon.Dock")
+                                         .interface("com.deepin.dde.daemon.Dock")
+                                         .path("/com/deepin/dde/daemon/Dock")
+                                         .property("DisplayMode")
+                                         .get(); // read mode
 
     if (!r2.isError() && !r1.isError()) {
         ASSERT_TRUE(r2.value().toInt() == 1);
@@ -228,11 +227,11 @@ TEST_F(ut_DUtil, testDBusSender)
 
     // complex type property get
     QDBusPendingReply<QVariant> r3 = DDBusSender()
-                                     .service("com.deepin.dde.ControlCenter")
-                                     .interface("com.deepin.dde.ControlCenter")
-                                     .path("/com/deepin/dde/ControlCenter")
-                                     .property("Rect")
-                                     .get();
+                                         .service("com.deepin.dde.ControlCenter")
+                                         .interface("com.deepin.dde.ControlCenter")
+                                         .path("/com/deepin/dde/ControlCenter")
+                                         .property("Rect")
+                                         .get();
 
     QVariant variant = r3.value();
     const QDBusArgument v = variant.value<QDBusArgument>();

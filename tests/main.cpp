@@ -16,10 +16,12 @@
  */
 
 #include "ut_dutil.h"
+#include <QGuiApplication>
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication app(argc, argv);
+
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
-

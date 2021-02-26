@@ -21,10 +21,12 @@
 
 #include "base/dsingleton.h"
 
-class Singleton : public QObject, public Dtk::Core::DSingleton<Singleton>
+class Singleton : public QObject
+    , public Dtk::Core::DSingleton<Singleton>
 {
     Q_OBJECT
     friend class Dtk::Core::DSingleton<Singleton>;
+
 public:
     explicit Singleton(QObject *parent = nullptr);
 
@@ -39,5 +41,3 @@ public:
 
     void run();
 };
-
-

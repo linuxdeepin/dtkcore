@@ -19,34 +19,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <gtest/gtest.h>
 #include <util/DVtableHook>
 
 namespace TestClass {
-class A {
+class A
+{
 public:
     virtual bool test(int v);
 
-    virtual ~A() {
-
+    virtual ~A()
+    {
     }
 };
-bool A::test(int v) {
+bool A::test(int v)
+{
     qDebug() << Q_FUNC_INFO << this << v;
 
     return false;
 }
 
-class B {
+class B
+{
 public:
-    bool test(int v) {
+    bool test(int v)
+    {
         qDebug() << Q_FUNC_INFO << v;
 
         return true;
     }
 };
-}
+} // namespace TestClass
 
 class ut_DVtableHook : public testing::Test
 {
@@ -64,11 +67,9 @@ public:
 };
 void ut_DVtableHook::SetUp()
 {
-
 }
 void ut_DVtableHook::TearDown()
 {
-
 }
 
 using namespace TestClass;
@@ -117,21 +118,21 @@ TEST_F(ut_DVtableHook, objectFun2StdFun)
     DVtableHook::resetVtable(a);
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
     // not support
-//    A *a2 = new A();
-//    ASSERT_TRUE(DVtableHook::overrideVfptrFun(a2, &A::test, std::bind(&test2, std::placeholders::_1, std::placeholders::_2, false)));
-//    ASSERT_TRUE(!a2->test(2));
-//    DVtableHook::resetVtable(a2);
-//    ASSERT_TRUE(!DVtableHook::hasVtable(a2));
+    //    A *a2 = new A();
+    //    ASSERT_TRUE(DVtableHook::overrideVfptrFun(a2, &A::test, std::bind(&test2, std::placeholders::_1, std::placeholders::_2, false)));
+    //    ASSERT_TRUE(!a2->test(2));
+    //    DVtableHook::resetVtable(a2);
+    //    ASSERT_TRUE(!DVtableHook::hasVtable(a2));
 }
 
 TEST_F(ut_DVtableHook, objectFun2LambdaFun)
 {
     A *a = new A();
-    auto lambda1 = [a] (A *obj, int v) {
+    auto lambda1 = [a](A *obj, int v) {
         qDebug() << Q_FUNC_INFO << obj << v;
         return a == obj;
     };
-    auto lambda2 = [a] (A *obj, int v) {
+    auto lambda2 = [a](A *obj, int v) {
         qDebug() << Q_FUNC_INFO << obj << v;
         return a != obj;
     };
@@ -141,6 +142,7 @@ TEST_F(ut_DVtableHook, objectFun2LambdaFun)
     ASSERT_TRUE(!a->test(3));
     DVtableHook::resetVtable(a);
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
+    delete a;
 }
 
 TEST_F(ut_DVtableHook, fun2ObjectFun)
@@ -150,6 +152,8 @@ TEST_F(ut_DVtableHook, fun2ObjectFun)
     A *a = new A();
     ASSERT_TRUE(DVtableHook::getVtableOfObject(a) == DVtableHook::getVtableOfClass<A>());
     ASSERT_TRUE(a->test(4));
+    delete a;
+    delete b;
 }
 
 TEST_F(ut_DVtableHook, fun2Fun)
@@ -157,6 +161,7 @@ TEST_F(ut_DVtableHook, fun2Fun)
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, &test));
     A *a = new A();
     ASSERT_TRUE(a->test(5));
+    delete a;
 }
 
 TEST_F(ut_DVtableHook, fun2StdFun)
@@ -166,12 +171,13 @@ TEST_F(ut_DVtableHook, fun2StdFun)
     ASSERT_TRUE(a->test(6));
     DVtableHook::resetVtable(a);
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
+    delete a;
 }
 
 TEST_F(ut_DVtableHook, fun2LambdaFun)
 {
     A *a = new A();
-    auto lambda = [a] (A *obj, int v) {
+    auto lambda = [a](A *obj, int v) {
         qDebug() << Q_FUNC_INFO << obj << v;
         return a == obj;
     };
@@ -179,10 +185,5 @@ TEST_F(ut_DVtableHook, fun2LambdaFun)
     ASSERT_TRUE(a->test(7));
     DVtableHook::resetVtable(a);
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
-}
-
-int main(int argc, char *argv[])
-{
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    delete a;
 }

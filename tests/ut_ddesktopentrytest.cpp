@@ -58,11 +58,11 @@ class ut_DesktopEntry : public testing::Test
 public:
     static void SetUpTestCase()
     {
-        qDebug() << "*****************" << __FUNCTION__;
+        //qDebug() << "*****************" << __FUNCTION__;
     }
     static void TearDownTestCase()
     {
-        qDebug() << "*****************" << __FUNCTION__;
+        //qDebug() << "*****************" << __FUNCTION__;
     }
     virtual void SetUp();
     virtual void TearDown();
@@ -123,13 +123,6 @@ TEST_F(ut_DesktopEntry, ParseFile)
     ASSERT_EQ(desktopFile->removeEntry("Semicolon"), true);
     ASSERT_EQ(desktopFile->contains("Semicolon"), false);
 
-    qDebug() << desktopFile->save();
-    qDebug() << fileName;
+    //qDebug() << desktopFile->save();
+    //qDebug() << fileName;
 }
-
-int main(int argc, char *argv[])
-{
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
-
