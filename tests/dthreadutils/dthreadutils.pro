@@ -1,20 +1,14 @@
-QT += core xml
+QT += testlib concurrent
 QT -= gui
 
-CONFIG += c++11
-
-TARGET = dtk-settings
-CONFIG += console link_pkgconfig
-CONFIG -= app_bundle
-PKGCONFIG += gsettings-qt
-
 TEMPLATE = app
-
-SOURCES += main.cpp
+CONFIG += c++11
 
 !isEmpty(DTK_STATIC_LIB){
     DEFINES += DTK_STATIC_LIB
 }
+
+load(dtk_testcase)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../src/release/ -ldtkcore
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../src/debug/ -ldtkcore
@@ -22,13 +16,10 @@ else:unix: LIBS += -L$$OUT_PWD/../../src/ -ldtkcore
 
 INCLUDEPATH += $$PWD/../../src
 DEPENDPATH += $$PWD/../../src
-DESTDIR = $$_PRO_FILE_PWD_/../../bin
+QMAKE_RPATHDIR += $$OUT_PWD/../../src
 
-DTK_MODULE_NAME=dtkcore
-load(dtk_build_config)
-target.path = $$TOOL_INSTALL_DIR
+QMAKE_LFLAGS += -Wl,--export-dynamic
 
-scripts.files += ../script/*.py
-scripts.path = $$TOOL_INSTALL_DIR
-
-INSTALLS += target scripts
+SOURCES += \
+    $$PWD/../../src/util/dthreadutils.cpp \
+    ut_dthreadutils.cpp
