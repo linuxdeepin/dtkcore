@@ -25,7 +25,7 @@ include($$PWD/filesystem/filesystem.pri)
 include($$PWD/settings/settings.pri)
 
 DTK_MODULE_NAME = $$TARGET
-include(dtk_build.prf)
+load(dtk_build)
 
 # ----------------------------------------------
 # install config
@@ -46,23 +46,7 @@ isEmpty(DTK_STATIC_LIB){
 }
 
 #cmake
-include(dtk_cmake.prf)
+load(dtk_cmake)
 
 #qt module
-include(dtk_module.prf)
-
-prf.files+= $$PWD/*.prf ../dtk_build_config.prf ../tests/dtk_testcase.prf
-
-isEmpty(MKSPECS_INSTALL_DIR) {
-    MKSPECS_INSTALL_DIR=$$[QT_INSTALL_ARCHDATA]/mkspecs
-}
-prf.path = $${MKSPECS_INSTALL_DIR}/features
-
-!linux {
-    prf.files-=$$PWD/dtk_qmake.prf
-}
-
-gsettings.files += $$PWD/com.deepin.dtk.gschema.xml
-gsettings.path = $${PREFIX}/share/glib-2.0/schemas
-
-INSTALLS += prf gsettings
+load(dtk_module)
