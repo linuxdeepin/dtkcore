@@ -1,6 +1,5 @@
 TEMPLATE = app
 QT += core dbus xml testlib concurrent
-#QT -= gui
 CONFIG += thread c++11 link_pkgconfig
 CONFIG -= app_bundle
 
@@ -15,8 +14,15 @@ MOC_DIR=$$OUT_PWD/../src
 DEFINES += OS_VERSION_TEST_FILE=\\\"/tmp/etc/os-version\\\"
 
 DEPENDPATH += $$PWD/../src
-unix:QMAKE_RPATHDIR += $$OUT_PWD/../src
-unix:LIBS += -L$$OUT_PWD/../src/ -lgtest -lglib-2.0
+
+unix: {
+QMAKE_RPATHDIR += $$OUT_PWD/../src
+LIBS += -L$$OUT_PWD/../src/ -ldtkcore -lgtest
+# for dlsym
+LIBS += -ldl
+# TODO: vtabhook release test failed
+QMAKE_CXXFLAGS_RELEASE -= -O2
+}
 
 INCLUDEPATH += \
     $$PWD/../src \
@@ -44,15 +50,4 @@ SOURCES += $$PWD/*.cpp \
     $$PWD/../src/dsecurestring.cpp \
     $$PWD/../src/ddesktopentry.cpp
 
-
 RESOURCES += data.qrc
-
-unix: {
-LIBS += -L$$OUT_PWD/../../src/ -ldtkcore -lgtest
-
-# for dlsym
-LIBS += -ldl
-
-# TODO: vtabhook release test failed
-QMAKE_CXXFLAGS_RELEASE -= -O2
-}
