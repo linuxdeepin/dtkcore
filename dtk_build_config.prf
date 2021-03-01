@@ -33,18 +33,20 @@ message("build dtk with version $$VERSION")
 ver_list = $$split(VERSION, .)
 
 isEmpty(VER_MAJ) {
-    VER_MAJ = $$first(ver_list)
+    VER_MAJ = $$format_number($$first(ver_list), ibase=10)
 }
 isEmpty(VER_MIN) {
-    VER_MIN = $$member(ver_list, 1, 1)
+    VER_MIN = $$format_number($$member(ver_list, 1, 1), ibase=10)
     isEmpty(VER_MIN):VER_MIN = 0
 }
 isEmpty(VER_PAT) {
-    VER_PAT = $$member(ver_list, 2, 2)
+    VER_PAT = $$format_number($$member(ver_list, 2, 2), ibase=10)
     isEmpty(VER_PAT):VER_PAT = 0
 }
 isEmpty(VER_BUI) {
     VER_BUI = $$member(ver_list, 3, 3)
+    # fix VER_BUI=009, invalid digit "9" in octal constant error
+    VER_BUI = $$format_number($$VER_BUI, ibase=10)
     isEmpty(VER_BUI):VER_BUI = 0
 }
 
