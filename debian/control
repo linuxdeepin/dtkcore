@@ -9,7 +9,7 @@ Standards-Version: 3.9.8
 
 Package: libdtkcore5
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, lshw
+Depends: ${shlibs:Depends}, ${misc:Depends}, lshw, libdtkcommon
 Multi-Arch: same
 Description: Deepin Tool Kit Core library
  DtkCore is base library of Deepin Qt/C++ applications.
@@ -27,7 +27,7 @@ Description: Deepin Tool Kit Core Utilities
 
 Package: libdtkcore-dev
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libdtkcore5( =${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, libdtkcore5( =${binary:Version}), libdtkcommon-dev
 Description: Deepin Tool Kit Core Devel library
  DtkCore is base devel library of Deepin Qt/C++ applications.
  .
