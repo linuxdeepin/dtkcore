@@ -27,3 +27,5 @@ src/qt_lib_d*.pri
 bin/
 .qmake*
 Makefile
+
+cmake/DtkCore*
