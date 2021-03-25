@@ -322,9 +322,6 @@ TEST_F(ut_DUtil, testOsVersion)
         case 2:
             ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosHome);
             break;
-        case 3:
-            ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosCommunity);
-            break;
         case 4:
             ASSERT_TRUE(DSysInfo::uosEditionType() == DSysInfo::UosMilitary);
             break;
@@ -384,6 +381,62 @@ TEST_F(ut_DUtil, testOsVersion)
         ASSERT_TRUE(entry.save());
         ASSERT_TRUE(DSysInfo::uosArch() == (1 << i));
     }
+
+    // 社区版测试
+    entry.setStringValue("Community", "EditionName", "Version");
+    entry.setStringValue("社区版", "EditionName[zh_CN]", "Version");
+    entry.setStringValue("21.1.2", "MinorVersion", "Version");
+    entry.setStringValue("11038.107", "OsBuild", "Version");
+    ASSERT_TRUE(entry.save());
+
+    ASSERT_TRUE(DSysInfo::uosEditionName(QLocale("zh_CN")) == "社区版");
+    ASSERT_TRUE(DSysInfo::uosEditionName(QLocale("C")) == "Community");
+    ASSERT_TRUE(DSysInfo::minorVersion() == "21.1.2");
+    ASSERT_TRUE(DSysInfo::buildVersion() == "107");
+
+    //社区版A_BC_D模式 test minVersion.BC SP1….SP99
+    for (int i = 0; i < 100; ++i) {
+        entry.setStringValue(QString("%1").arg(1001 + i * 10), "MinorVersion", "Version");
+        ASSERT_TRUE(entry.save());
+        ASSERT_TRUE(DSysInfo::spVersion() == (i ? QString("SP%1").arg(i) : QString()));
+    }
+
+    //社区版A_BC_D模式 test minVersion.D udpate1~udpate9 updateA~udpateZ
+    for (int i = 0; i < 10; ++i) {
+        entry.setStringValue(QString("%1").arg(1000 + i), "MinorVersion", "Version");
+        ASSERT_TRUE(entry.save());
+        ASSERT_TRUE(DSysInfo::udpateVersion() == (i ? QString("update%1").arg(i) : QString()));
+    }
+
+    //社区版A_B_C模式 test minVersion.BC SP1….SP99
+    const QString &defalutSP("21.%1");
+    for (int i = 1; i < 100; ++i) {
+        entry.setStringValue(defalutSP.arg(i), "MinorVersion", "Version");
+        ASSERT_TRUE(entry.save());
+        ASSERT_TRUE(DSysInfo::spVersion() == QString("SP%1").arg(i));
+    }
+
+    //社区版A_B_C模式 test minVersion.D udpate1~udpate9 updateA~udpateZ
+    const QString &defalutUpdate("21.1.%1");
+    for (int i = 1; i < 100; ++i) {
+        entry.setStringValue(defalutUpdate.arg(i), "MinorVersion", "Version");
+        ASSERT_TRUE(entry.save());
+        ASSERT_TRUE(DSysInfo::udpateVersion() == QString("update%1").arg(i));
+    }
+
+    // 家庭版测试
+    entry.setStringValue("Home", "EditionName", "Version");
+    entry.setStringValue("家庭版", "EditionName[zh_CN]", "Version");
+    entry.setStringValue("21.0", "MinorVersion", "Version");
+    entry.setStringValue("11078.107", "OsBuild", "Version");
+    ASSERT_TRUE(entry.save());
+
+    ASSERT_TRUE(DSysInfo::uosEditionName(QLocale("zh_CN")) == "家庭版");
+    ASSERT_TRUE(DSysInfo::uosEditionName(QLocale("C")) == "Home");
+    ASSERT_TRUE(DSysInfo::minorVersion() == "21.0");
+    ASSERT_TRUE(DSysInfo::buildVersion() == "107");
+    ASSERT_TRUE(DSysInfo::spVersion() == QStringLiteral(""));
+    ASSERT_TRUE(DSysInfo::udpateVersion() == QStringLiteral(""));
 
     QFile::remove("/tmp/etc/os-version");
 }

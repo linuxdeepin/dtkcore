@@ -122,7 +122,7 @@ public:
     static QString udpateVersion(); // update1...update9
     static QString majorVersion();
     static QString minorVersion();
-    static QString buildVersion(); // xyz
+    static QString buildVersion(); // xyzs
 #endif
 
     Q_DECL_DEPRECATED_X("Use distributionInfoPath() instead") static QString deepinDistributionInfoPath();
