@@ -18,7 +18,8 @@ HEADERS += $$PWD/dtkcore_global.h \
 SOURCES += \
     dsysinfo.cpp \
     dsecurestring.cpp \
-    ddesktopentry.cpp
+    ddesktopentry.cpp \
+    dtkcore_global.cpp
 
 include($$PWD/base/base.pri)
 include($$PWD/util/util.pri)
