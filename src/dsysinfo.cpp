@@ -55,6 +55,7 @@ public:
     void ensureDeepinInfo();
     bool ensureOsVersion();
     void ensureDistributionInfo();
+    bool splitA_BC_DMode();
 #endif
     void ensureReleaseInfo();
     void ensureComputerInfo();
@@ -70,9 +71,26 @@ public:
     QString majorVersion;
     QString minorVersion;
     struct MinVersion {
-        MinVersion():A(0), BC(0), D(0){
+        enum Type {
+            A_BC_D, // 专业版
+            X_Y_Z, // 家庭版
+            A_B_C // 社区版
+        };
+        MinVersion()
+            : A(0)
+            , B(0)
+            , BC(0)
+            , C(0)
+            , D(0)
+            , X(0)
+            , Y(0)
+            , Z(0)
+        {
         }
-        uint A, BC, D; // A-BC-D
+
+        uint A, B, BC, C, D; // A-BC-D
+        uint X, Y, Z;
+        Type type;
     };
     struct OSBuild {
         OSBuild():A(0), B(0), C(0), D(0), xyz(100){
@@ -112,6 +130,31 @@ void DSysInfoPrivate::ensureDistributionInfo()
     const QString distributionInfoFile(DSysInfo::distributionInfoPath());
     // Generic DDE distribution info
     distributionInfo.reset(new DDesktopEntry(distributionInfoFile));
+}
+
+bool DSysInfoPrivate::splitA_BC_DMode()
+{
+    // A-BC-D
+    bool ok = false;
+    uint minv = minorVersion.toUInt(&ok);
+    if (ok) {
+        minVersion.D = minv % 10;
+    } else if (minorVersion.length() > 0) {
+        const QString D = minorVersion.right(1);
+        if (D.contains(QRegExp("[0-9A-Z]"))) {
+            // 0-9...A-Z
+            minVersion.D = 10 + static_cast<uint>(D.data()->toLatin1() - 'A');
+        } else {
+            qWarning() << "invalid minorVersion";
+            minVersion.D = 0;
+        }
+    }
+    uint minVer = minorVersion.left(3).toUInt();
+    minVersion.BC = minVer % 100;
+    minVer /= 100;
+    minVersion.A = minVer % 10;
+    minVersion.type = MinVersion::A_BC_D;
+    return ok;
 }
 
 void DSysInfoPrivate::ensureDeepinInfo()
@@ -195,30 +238,9 @@ bool DSysInfoPrivate::ensureOsVersion()
 #endif
 
     DDesktopEntry entry(OS_VERSION_FILE);
-    majorVersion = entry.stringValue("MajorVersion", "Version");
-    minorVersion = entry.stringValue("MinorVersion", "Version");
-    Q_ASSERT(minorVersion.length() == 4);
-
-    // A-BC-D
     bool ok = false;
-    uint minv = minorVersion.toUInt(&ok);
-    if (ok) {
-        minVersion.D = minv % 10;
-    } else if (minorVersion.length() > 0) {
-        const QString D = minorVersion.right(1);
-        if (D.contains(QRegExp("[0-9A-Z]"))) {
-            // 0-9...A-Z
-            minVersion.D = 10 + static_cast<uint>(D.data()->toLatin1() - 'A');
-        } else {
-            qWarning() << "invalid minorVersion";
-            minVersion.D = 0;
-        }
-    }
-    uint minVer = minorVersion.left(3).toUInt();
-    minVersion.BC = minVer % 100;
-    minVer /= 100;
-    minVersion.A = minVer % 10;
 
+    // 先获取版本信息
     // ABCDE.xyz
     QString osb = entry.stringValue("OsBuild", "Version");
     QStringList osbs = osb.split(".");
@@ -240,6 +262,71 @@ bool DSysInfoPrivate::ensureOsVersion()
     // xyz
     osBuild.xyz = osbs.value(1).trimmed().toUInt(&ok);
 
+    majorVersion = entry.stringValue("MajorVersion", "Version");
+    minorVersion = entry.stringValue("MinorVersion", "Version");
+
+    switch (osBuild.D) {
+    case 7: {
+        // 家庭版使用“完整版本号编码-X.Y.Z”的形式
+        const QStringList &versionList = minorVersion.split('.');
+        if (versionList.isEmpty()) {
+            // 如果读取失败直接返回为空
+            qWarning() << "no minorVersion";
+            return false;
+        } else if (versionList.length() == 2) {
+            // Z为0
+            minVersion.X = versionList.first().toUInt();
+            minVersion.Y = versionList.last().toUInt();
+            minVersion.Z = 0;
+        } else if (versionList.length() == 3) {
+            // X.Y.Z都存在
+            minVersion.X = versionList.at(0).toUInt();
+            minVersion.Y = versionList.at(1).toUInt();
+            minVersion.Z = versionList.at(2).toUInt();
+        }
+        minVersion.type = MinVersion::X_Y_Z;
+    } break;
+
+    case 3: {
+        // 社区版使用“完整版本号编码-A.B.C”的形式
+        bool a_bc_dMode = false;
+        const QStringList &versionList = minorVersion.split('.');
+        if (versionList.isEmpty()) {
+            // 如果读取失败直接返回为空
+            qWarning() << "no minorVersion";
+            return false;
+        } else if (versionList.length() == 1) {
+            QString modeVersion = versionList.first();
+            if (modeVersion.length() == 2) {
+                //A.B.C模式且B C 为0
+                minVersion.A = modeVersion.toUInt();
+                minVersion.B = 0;
+                minVersion.C = 0;
+            } else {
+                // A_BC_D模式
+                splitA_BC_DMode();
+                a_bc_dMode = true;
+            }
+        } else if (versionList.length() == 2) {
+            // C为0
+            minVersion.A = versionList.first().toUInt();
+            minVersion.B = versionList.last().toUInt();
+            minVersion.C = 0;
+        } else if (versionList.length() == 3) {
+            // A.B.C都存在
+            minVersion.A = versionList.at(0).toUInt();
+            minVersion.B = versionList.at(1).toUInt();
+            minVersion.C = versionList.at(2).toUInt();
+        }
+
+        if (!a_bc_dMode)
+            minVersion.type = MinVersion::A_B_C;
+    } break;
+    default: {
+        // A-BC-D
+        ok = splitA_BC_DMode();
+    } break;
+    }
     return ok;
 }
 
@@ -591,6 +678,8 @@ DSysInfo::UosEdition DSysInfo::uosEditionType()
         case 1:
             return UosProfessional;
         case 2:
+        case 7:
+            // 新版本家庭版(7)与旧版本个人版(2)同为Home 不修改旧有逻辑的情况下新增7保证对旧版的适配
             return UosHome;
         case 3:
             return UosCommunity;
@@ -676,40 +765,78 @@ QString DSysInfo::uosEditionName(const QLocale &locale)
 
 /*!
  * \~chinese \brief DSysInfo::spVersion 阶段版本名称
- * \~chinese \row 小版本号 A-BC-D 中 BC, 返回 SP1-SPxx， 如果正式版返回空
- * \~chinese \note minVersion.BC == 00：正式版本    minVersion.BC == 01-99：SP1….SP99
+ * \~chinese \row 小版本号 A-BC-D 中 BC、 A.B.C 中的 B
+ * \~chinese \row 返回 SP1-SPxx， 如果正式版返回空
+ * \~chinese \row X.Y.Z模式下暂不支持返回此版本号
+ * \~chinese \note minVersion.BC == 00：正式版本    minVersion.BC | minVersion.B == 01-99：SP1….SP99
  */
 QString DSysInfo::spVersion()
 {
     siGlobal->ensureOsVersion();
-    if (siGlobal->minVersion.BC > 0) {
-        return QString("SP%1").arg(siGlobal->minVersion.BC);
-    } else {
-        return QString(); // 00 正式版
+    switch (siGlobal->minVersion.type) {
+    case DSysInfoPrivate::MinVersion::A_BC_D: {
+        if (siGlobal->minVersion.BC > 0) {
+            return QString("SP%1").arg(siGlobal->minVersion.BC);
+        } else {
+            return QString(); // 00 正式版
+        }
+    }
+
+    case DSysInfoPrivate::MinVersion::A_B_C: {
+        if (siGlobal->minVersion.B > 0) {
+            return QStringLiteral("SP%1").arg(siGlobal->minVersion.B);
+        } else {
+            return {};
+        }
+    }
+
+    case DSysInfoPrivate::MinVersion::X_Y_Z:
+        qWarning() << "Getting the SP version in this mode is not supported.";
+        return {};
     }
 }
 
 /*!
  * \~chinese \brief DSysInfo::udpateVersion 更新版本名称
- * \~chinese \row 小版本号 A-BC-D 中 D, 返回 update1… update9， 如果正式版返回空
- * \~chinese \note minVersion.D == 0：正式版本    minVersion.D == 1-9：update1… update9,updateA...updateZ
+ * \~chinese \row 小版本号 A-BC-D 中 D、A.B.C 模式中的 C
+ * \~chinese \row 返回 update1… update9， 如果正式版返回空
+ * \~chinese \row X.Y.Z模式下暂不支持返回此版本号
+ * \~chinese \note minVersion.D == 0：正式版本    minVersion.D | minVersion.C == 1-9：update1… update9,updateA...updateZ
  */
 QString DSysInfo::udpateVersion()
 {
     siGlobal->ensureOsVersion();
-    if (siGlobal->minVersion.D > 0) {
-        uint uv = siGlobal->minVersion.D;
-        if (uv < 10) {
-            return QString("update%1").arg(uv);
-        } else if (uv < 36) {
-            return QString("update").append(QChar(uv - 10 + 'A'));
+    switch (siGlobal->minVersion.type) {
+    case DSysInfoPrivate::MinVersion::A_BC_D: {
+        if (siGlobal->minVersion.D > 0) {
+            uint uv = siGlobal->minVersion.D;
+            if (uv < 10) {
+                return QString("update%1").arg(uv);
+            } else if (uv < 36) {
+                return QString("update").append(QChar(uv - 10 + 'A'));
+            } else {
+                qWarning() << "invalid update versoin";
+                break;
+            }
         } else {
-            qWarning() << "invalid update versoin";
-            return QString();
+            break; // 0 正式版
         }
-    } else {
-        return QString(); // 0 正式版
     }
+
+    case DSysInfoPrivate::MinVersion::A_B_C: {
+        if (siGlobal->minVersion.C > 0) {
+            return QStringLiteral("update%1").arg(siGlobal->minVersion.C);
+        } else {
+            break;
+        }
+    }
+
+    case DSysInfoPrivate::MinVersion::X_Y_Z:
+        qWarning() << "Getting the update version in this mode is not supported.";
+        break;
+    }
+
+    return {};
 }
 
 /*!
@@ -726,6 +853,7 @@ QString DSysInfo::majorVersion()
 /*!
  * \~chinese \brief DSysInfo::minorVersion 小版本号
  * \~chinese \row 【ABCD】 ·[0-9]{4}
+ * \~chinese \row【A.B.C】 或者【X.Y.Z】
  * \~chinese \note 返回 MinorVersion 的值
  */
 QString DSysInfo::minorVersion()
