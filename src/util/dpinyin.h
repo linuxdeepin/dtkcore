@@ -27,7 +27,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
-QString Chinese2Pinyin(const QString& words);
+QString LIBDTKCORESHARED_EXPORT Chinese2Pinyin(const QString& words);
 
 DCORE_END_NAMESPACE
 

@@ -28,7 +28,7 @@
 DCORE_BEGIN_NAMESPACE
 
 class DSysInfoPrivate;
-class DSysInfo
+class LIBDTKCORESHARED_EXPORT DSysInfo
 {
 public:
     enum ProductType {

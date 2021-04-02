@@ -56,7 +56,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 template <class T>
-class DSingleton
+class LIBDTKCORESHARED_EXPORT DSingleton
 {
 public:
     static inline T *instance()

@@ -25,7 +25,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
-class DSecureString : public QString
+class LIBDTKCORESHARED_EXPORT DSecureString : public QString
 {
 public:
     using QString::QString;

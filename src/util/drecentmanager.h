@@ -27,14 +27,14 @@
 
 DCORE_BEGIN_NAMESPACE
 
-struct DRecentData
+struct LIBDTKCORESHARED_EXPORT DRecentData
 {
     QString appName;
     QString appExec;
     QString mimeType;
 };
 
-class DRecentManager
+class LIBDTKCORESHARED_EXPORT DRecentManager
 {
 public:
     static bool addItem(const QString &uri, DRecentData &data);

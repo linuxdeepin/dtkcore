@@ -26,7 +26,7 @@
 DCORE_BEGIN_NAMESPACE
 
 class DTrashManagerPrivate;
-class DTrashManager : public QObject, public DObject
+class LIBDTKCORESHARED_EXPORT DTrashManager : public QObject, public DObject
 {
 public:
     static DTrashManager *instance();

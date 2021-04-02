@@ -32,7 +32,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
-class DVtableHook
+class LIBDTKCORESHARED_EXPORT DVtableHook
 {
 public:
     static inline quintptr toQuintptr(const void *ptr)

@@ -24,7 +24,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
-class DFileServices
+class LIBDTKCORESHARED_EXPORT DFileServices
 {
 public:
     static bool showFolder(QString localFilePath, const QString &startupId = QString());
