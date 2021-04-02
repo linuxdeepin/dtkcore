@@ -34,7 +34,7 @@ DCORE_BEGIN_NAMESPACE
 namespace DThreadUtil {
 typedef std::function<void()> FunctionType;
 
-class FunctionCallProxy : public QObject
+class LIBDTKCORESHARED_EXPORT FunctionCallProxy : public QObject
 {
     Q_OBJECT
 public:
@@ -47,7 +47,7 @@ Q_SIGNALS:
 };
 
 template <typename ReturnType>
-class _TMP
+class LIBDTKCORESHARED_EXPORT _TMP
 {
 public:
     inline static ReturnType runInThread(QSemaphore *s, QThread *thread, QObject *target, std::function<ReturnType()> fun)
@@ -69,7 +69,7 @@ public:
     }
 };
 template <>
-class _TMP<void>
+class LIBDTKCORESHARED_EXPORT _TMP<void>
 {
 public:
     inline static void runInThread(QSemaphore *s, QThread *thread, QObject *target, std::function<void()> fun)

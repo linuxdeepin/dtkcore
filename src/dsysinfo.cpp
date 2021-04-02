@@ -46,7 +46,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
-class DSysInfoPrivate
+class Q_DECL_HIDDEN DSysInfoPrivate
 {
 public:
     DSysInfoPrivate();

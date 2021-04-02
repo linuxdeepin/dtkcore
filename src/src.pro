@@ -7,6 +7,8 @@ TARGET = dtkcore
 # 龙芯架构上没有默认添加PT_GNU_STACK-section,所以此处手动指定一下
 contains(QMAKE_HOST.arch, mips.*): QMAKE_LFLAGS_SHLIB += "-Wl,-z,noexecstack"
 
+QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
+
 INCLUDEPATH += $$PWD
 HEADERS += $$PWD/dtkcore_global.h \
     dsysinfo.h \
