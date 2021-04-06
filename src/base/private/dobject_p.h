@@ -23,7 +23,7 @@
 DCORE_BEGIN_NAMESPACE
 
 class DObject;
-class DObjectPrivate
+class LIBDTKCORESHARED_EXPORT DObjectPrivate
 {
 public:
     virtual ~DObjectPrivate();
