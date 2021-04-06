@@ -82,9 +82,17 @@ QString DLogManager::getlogFilePath(){
     return QDir::toNativeSeparators(DLogManager::instance()->m_logPath);
 }
 
+
+/*!
+ * \~chinese \brief DLogManager::setlogFilePath 设置日志文件路径
+ * \~chinese \param logFilePath 日志文件路径
+ */
 void DLogManager::setlogFilePath(const QString &logFilePath)
 {
-    DLogManager::instance()->m_logPath = logFilePath;
+    if (QDir(logFilePath).exists())
+        DLogManager::instance()->m_logPath = DLogManager::instance()->joinPath(logFilePath, QString("%1.log").arg(qApp->applicationName()));
+    else
+        DLogManager::instance()->m_logPath = logFilePath;
 }
 
 void DLogManager::setLogFormat(const QString &format)
