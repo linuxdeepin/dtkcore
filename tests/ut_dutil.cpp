@@ -60,6 +60,17 @@ void ut_DUtil::TearDown()
         dir.remove("/tmp/etc/");
 }
 
+TEST_F(ut_DUtil, testDefaultLogPath)
+{
+    QByteArray home = qgetenv("HOME");
+    qunsetenv("HOME");
+
+    // unset HOME env will not init default log file path
+    ASSERT_EQ(DLogManager::getlogFilePath(), QString());
+
+    qputenv("HOME", home);
+}
+
 TEST_F(ut_DUtil, testLogPath)
 {
     qApp->setOrganizationName("deepin");
@@ -74,6 +85,14 @@ TEST_F(ut_DUtil, testLogPath)
 #endif
 
     ASSERT_EQ(DLogManager::getlogFilePath(), logPath.toString());
+}
+
+TEST_F(ut_DUtil, testSetInvalidLogPath)
+{
+    QString tmp = QDir::tempPath();
+    DLogManager::setlogFilePath(tmp);
+    // set log file path to a dir is not supported
+    ASSERT_NE(DLogManager::getlogFilePath(), tmp);
 }
 
 TEST_F(ut_DUtil, testPathChange)
