@@ -57,6 +57,7 @@ export PATH=%{_qt5_bindir}:$PATH
 %{_libexecdir}/dtk5/dtk-license.py
 %{_libexecdir}/dtk5/dtk-translate.py
 %{_libexecdir}/dtk5/deepin-os-release
+%{_prefix}/bin/qdbusxml2cpp-fix
 
 %files devel
 %doc doc/Specification.md
