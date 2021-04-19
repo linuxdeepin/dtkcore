@@ -68,6 +68,6 @@
 #define DTK_VERSION DTK_VERSION_CHECK(DTK_VERSION_MAJOR, DTK_VERSION_MINOR, DTK_VERSION_PATCH, DTK_VERSION_BUILD)
 
 extern "C" {
-int dtkVersion();
-const char *dtkVersionString();
+int LIBDTKCORESHARED_EXPORT dtkVersion();
+const LIBDTKCORESHARED_EXPORT char *dtkVersionString();
 }
