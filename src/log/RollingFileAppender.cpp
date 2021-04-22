@@ -59,7 +59,7 @@ QString RollingFileAppender::datePatternString() const
 
 void RollingFileAppender::setDatePattern(DatePattern datePattern)
 {
-  setDatePatternString(QLatin1String("'.'yyyy-MM-dd-hh-mm-zzz"));
+  setDatePatternString(QLatin1String("'.'yyyy-MM-dd-hh-mm-ss-zzz"));
 
   QMutexLocker locker(&m_rollingMutex);
   m_frequency = datePattern;
