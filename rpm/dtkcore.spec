@@ -58,6 +58,7 @@ export PATH=%{_qt5_bindir}:$PATH
 %{_libexecdir}/dtk5/dtk-translate.py
 %{_libexecdir}/dtk5/deepin-os-release
 %{_prefix}/bin/qdbusxml2cpp-fix
+%{_datadir}/glib-2.0/schemas/*
 
 %files devel
 %doc doc/Specification.md
@@ -70,7 +71,6 @@ export PATH=%{_qt5_bindir}:$PATH
 %{_libdir}/cmake/DtkTools/
 %{_libdir}/pkgconfig/dtkcore.pc
 %{_libdir}/lib%{name}.so
-%{_datadir}/glib-2.0/schemas/*
 
 %changelog
 * Thu Jun 11 2020 uoser <uoser@uniontech.com> - 5.2.2.3
