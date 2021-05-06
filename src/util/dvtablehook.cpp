@@ -161,7 +161,7 @@ void DVtableHook::autoCleanVtable(const void *obj)
         return;
 
     typedef void(*Destruct)(const void*);
-    Destruct destruct = *reinterpret_cast<Destruct*>(&fun);
+    Destruct destruct = reinterpret_cast<Destruct>(fun);
     // call origin destruct function
     destruct(obj);
 
