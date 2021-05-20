@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Deepin Packages Builder <packages@deepin.com>
 Build-Depends: debhelper (>= 9), pkg-config,
  qttools5-dev-tools, qtbase5-private-dev,
+ qtbase5-dev(>= 5.11.3.33) | qtbase5-dev(<= 5.11.3.28),
  libgsettings-qt-dev, libgtest-dev, libdtkcommon-dev
 Standards-Version: 3.9.8
 
