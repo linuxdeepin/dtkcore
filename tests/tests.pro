@@ -5,6 +5,13 @@ CONFIG -= app_bundle
 
 QMAKE_LFLAGS += -Wl,--export-dynamic
 
+CONFIG(debug, debug|release) {
+LIBS += -lgtest -lgmock
+QMAKE_CXXFLAGS += -g -Wall -fprofile-arcs -ftest-coverage -fsanitize=address -O2
+QMAKE_LFLAGS += -g -Wall -fprofile-arcs -ftest-coverage -fsanitize=address -O2
+MAKE_CXX += -g -fprofile-arcs -ftest-coverage -fsanitize=address -O2
+}
+
 load(dtk_testcase)
 
 # 指定moc文件生成目录和src一样

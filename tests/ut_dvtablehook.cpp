@@ -64,6 +64,7 @@ public:
     }
     virtual void SetUp();
     virtual void TearDown();
+    virtual ~ut_DVtableHook() {}
 };
 void ut_DVtableHook::SetUp()
 {
@@ -99,6 +100,7 @@ TEST_F(ut_DVtableHook, objectFun2ObjectFun)
     ASSERT_TRUE(!a->test(0));
     delete a;
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
+    delete b;
 }
 
 TEST_F(ut_DVtableHook, objectFun2Fun)
@@ -108,6 +110,8 @@ TEST_F(ut_DVtableHook, objectFun2Fun)
     ASSERT_TRUE(a->test(1));
     DVtableHook::resetVtable(a);
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
+
+    delete a;
 }
 
 TEST_F(ut_DVtableHook, objectFun2StdFun)
@@ -123,6 +127,7 @@ TEST_F(ut_DVtableHook, objectFun2StdFun)
     //    ASSERT_TRUE(!a2->test(2));
     //    DVtableHook::resetVtable(a2);
     //    ASSERT_TRUE(!DVtableHook::hasVtable(a2));
+    delete a;
 }
 
 TEST_F(ut_DVtableHook, objectFun2LambdaFun)
