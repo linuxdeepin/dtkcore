@@ -5,7 +5,7 @@ CONFIG -= app_bundle
 
 QMAKE_LFLAGS += -Wl,--export-dynamic
 
-include(dtk_testcase.prf)
+load(dtk_testcase)
 
 # 指定moc文件生成目录和src一样
 MOC_DIR=$$OUT_PWD/../src
