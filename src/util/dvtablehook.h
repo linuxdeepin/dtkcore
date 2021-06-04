@@ -242,6 +242,13 @@ public:
         return overrideVfptrFun(vfptr_t1, fun1, StdFunWrap<Fun2, Fun1>::call, forceWrite);
     }
 
+    /*!
+     * \fn template<typename Fun1, typename Fun2> static bool overrideVfptrFun(const typename QtPrivate::FunctionPointer<Fun1>::Object *t1, Fun1 fun1, Fun2 fun2)
+     *
+     * \note 重载多继承类中的多个虚函数时，fun1务必标记成一个类名的函数。否则可能出现内存泄露的情况
+     * \note 例如 class A 继承于 B，C，D，当需要重载B中的foo1，C中的foo2时，以下函数的fun1需要统一标记为&A::foo1和&A::foo2
+     * \note 因为如果分开写为&B::foo1和&C::foo2的话，指针转换内部会记录多张虚表，重载多份析构函数，可能导致最开始的部分无法正常析构！
+     */
     template<typename Fun1, typename Fun2>
     static bool overrideVfptrFun(const typename QtPrivate::FunctionPointer<Fun1>::Object *t1, Fun1 fun1, Fun2 fun2)
     {
