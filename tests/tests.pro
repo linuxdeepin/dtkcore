@@ -7,9 +7,9 @@ QMAKE_LFLAGS += -Wl,--export-dynamic
 
 CONFIG(debug, debug|release) {
 LIBS += -lgtest -lgmock
-QMAKE_CXXFLAGS += -g -Wall -fprofile-arcs -ftest-coverage -fsanitize=address -O2
-QMAKE_LFLAGS += -g -Wall -fprofile-arcs -ftest-coverage -fsanitize=address -O2
-MAKE_CXX += -g -fprofile-arcs -ftest-coverage -fsanitize=address -O2
+QMAKE_CXXFLAGS += -g -Wall -fprofile-arcs -ftest-coverage -fsanitize=address -fsanitize-recover=address -O2
+QMAKE_LFLAGS += -g -Wall -fprofile-arcs -ftest-coverage -fsanitize=address -fsanitize-recover=address -O2
+QMAKE_CXX += -g -fprofile-arcs -ftest-coverage -fsanitize=address -fsanitize-recover=address -O2
 }
 
 load(dtk_testcase)
