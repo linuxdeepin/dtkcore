@@ -30,7 +30,11 @@ DCORE_BEGIN_NAMESPACE
 
 DLogManager::DLogManager()
 {
+#if !defined(QT_DEBUG) && !defined(QT_MESSAGELOGCONTEXT)
+    m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} %{message}\n";
+#else
     m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
+#endif
 }
 
 void DLogManager::initConsoleAppender(){
