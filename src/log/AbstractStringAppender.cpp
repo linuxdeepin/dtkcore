@@ -450,7 +450,9 @@ QString AbstractStringAppender::formattedString(const QDateTime& timeStamp, Logg
         chunk.append(command);
       }
 
-      result.append(QString(QLatin1String("%1")).arg(chunk, fieldWidth));
+      if (!chunk.isEmpty() && chunk != "0") {
+          result.append(QString(QLatin1String("%1")).arg(chunk, fieldWidth));
+      }
     }
 
     ++i;
