@@ -275,6 +275,8 @@ TEST_F(ut_DUtil, testGroups)
     }
     qDebug() << settings->group("shortcuts.ternimal");
     qDebug() << settings->group("shortcuts.ternimal")->options();
+
+    delete settings;
 }
 
 TEST_F(ut_DUtil, testOsVersion)

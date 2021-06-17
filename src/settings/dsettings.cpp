@@ -302,6 +302,10 @@ void DSettings::setBackend(DSettingsBackend *backend)
     loadValue();
 }
 
+/*!
+   \fn DSettings::fromJson(const QByteArray &json)
+   \brief 从 json 中获取 DSettings， 返回的数据使用之后需要自己手动释放。
+ */
 QPointer<DSettings> DSettings::fromJson(const QByteArray &json)
 {
     auto settingsPtr = QPointer<DSettings>(new DSettings);
