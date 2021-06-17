@@ -86,7 +86,7 @@ TEST_F(ut_DesktopEntry, ParseFile)
     file.close();
     ASSERT_TRUE(QFile::exists(fileName));
 
-    DDesktopEntry *desktopFile = new DDesktopEntry(fileName);
+    QScopedPointer<DDesktopEntry> desktopFile(new DDesktopEntry(fileName));
     QStringList allGroups = desktopFile->allGroups();
     ASSERT_EQ(allGroups.count(), 3);
     ASSERT_TRUE(allGroups.contains("Desktop Entry") &&

@@ -292,6 +292,7 @@ int main(int argc, char *argv[])
         writeGSettingXML(settings, parseGSettingsMeta(jsonFile), outputXml);
     }
 
+    delete settings;
     return 0;
 }
 
