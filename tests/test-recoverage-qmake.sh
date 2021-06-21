@@ -27,4 +27,4 @@ genhtml -o $REPORT_DIR $BUILD_DIR/coverage.info
 #rm -rf $BUILD_DIR
 #rm -rf ../$BUILD_DIR
 
-mv ./build/asan.log* ./build/asan_dtkcore.log
+test -e ./build/asan.log* && mv ./build/asan.log* ./build/asan_dtkcore.log
