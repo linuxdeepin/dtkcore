@@ -16,7 +16,7 @@ mkdir $BUILD_DIR
 cd $BUILD_DIR
 qmake ../ CONFIG+=debug
 export ASAN_OPTIONS=halt_on_error=0
-make check -j$(nproc)
+TESTARGS="--gtest_output=xml:dde_test_report_dtkcore.xml"  make check -j$(nproc)
 
 lcov -d ./ -c -o coverage_all.info
 #lcov --extract coverage_all.info $EXTRACT_ARGS --output-file coverage.info
