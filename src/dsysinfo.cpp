@@ -526,10 +526,10 @@ void DSysInfoPrivate::ensureComputerInfo()
     }
 
     // Getting Disk Size
-    const QString &deviceName = QStorageInfo::root().device();
+    QString deviceName;
     QProcess lsblk;
 
-    lsblk.start("lsblk", {"-Jlpb", "-oNAME,KNAME,PKNAME,SIZE"}, QIODevice::ReadOnly);
+    lsblk.start("lsblk", {"-Jlpb", "-oNAME,KNAME,PKNAME,SIZE,MOUNTPOINT"}, QIODevice::ReadOnly);
 
     if (!lsblk.waitForFinished()) {
         return;
@@ -549,6 +549,11 @@ void DSysInfoPrivate::ensureComputerInfo()
             QString kname = oneValue.toObject().value("kname").toString();
             QString pkname = oneValue.toObject().value("pkname").toString();
             qulonglong size = oneValue.toObject().value("size").toVariant().toULongLong();
+            QString deviceNameMP = oneValue.toObject().value("mountpoint").toString();
+            
+            if ("/" ==  deviceNameMP){
+                deviceName = name;
+            }
 
             if (keyName.isNull() && deviceName == name) {
                 keyName = kname;
