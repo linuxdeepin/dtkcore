@@ -36,14 +36,15 @@ public:
 };
 
 /*!
- * \class QSettingBackend
- * \brief Storage DSetttings to an QSettings
+  \class Dtk::Core::QSettingBackend
+  \inmodule dtkcore
+  \brief Storage DSetttings to an QSettings.
  */
 
 /*!
- * \brief Save data to filepath with QSettings::NativeFormat format.
- * \param filepath is path to storage data.
- * \param parent
+  \brief Save data to filepath with QSettings::NativeFormat format.
+  \a filepath is path to storage data.
+  \a parent
  */
 QSettingBackend::QSettingBackend(const QString &filepath, QObject *parent) :
     DSettingsBackend(parent), d_ptr(new QSettingBackendPrivate(this))
@@ -60,8 +61,8 @@ QSettingBackend::~QSettingBackend()
 }
 
 /*!
- * \brief List all keys of QSettings
- * \return
+  \brief List all keys of QSettings
+  \return
  */
 QStringList QSettingBackend::keys() const
 {
@@ -70,9 +71,9 @@ QStringList QSettingBackend::keys() const
 }
 
 /*!
- * \brief Get value of key from QSettings
- * \param key
- * \return
+  \brief Get value of key from QSettings
+  \a key
+  \return
  */
 QVariant QSettingBackend::getOption(const QString &key) const
 {
@@ -84,9 +85,9 @@ QVariant QSettingBackend::getOption(const QString &key) const
 }
 
 /*!
- * \brief Set value of key to QSettings
- * \param key
- * \param value
+  \brief Set value of key to QSettings
+  \a key
+  \a value
  */
 void QSettingBackend::doSetOption(const QString &key, const QVariant &value)
 {
@@ -103,7 +104,7 @@ void QSettingBackend::doSetOption(const QString &key, const QVariant &value)
 }
 
 /*!
- * \brief Trigger DSettings to save option value to QSettings
+  \brief Trigger DSettings to save option value to QSettings
  */
 void QSettingBackend::doSync()
 {

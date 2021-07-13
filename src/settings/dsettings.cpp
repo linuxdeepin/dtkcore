@@ -49,12 +49,13 @@ public:
 
 
 /*!
- * \~english \class DSettingsBackend
- * \brief DSettingsBackend is interface of DSettings storage class.
- *
- * Simaple example:
+   \class Dtk::Core::DSettingsBackend
+   \inmodule dtkcore
+   \brief DSettingsBackend is interface of DSettings storage class.
 
-```json
+   Simaple example:
+
+\code
 {
     "groups": [{
         "key": "base",
@@ -96,11 +97,11 @@ public:
         ]
     }]
 }
-```
+\endcode
 
- * How to read/write key and value:
+    How to read/write key and value:
 
-```c++
+    \code
     // init a storage backend
     QTemporaryFile tmpFile;
     tmpFile.open();
@@ -117,81 +118,61 @@ public:
     // modify value
     opt->setValue("Test")
     qDebug() << opt->value();
-```
- * \sa Dtk::Core::DSettingsOption
- * \sa Dtk::Core::DSettingsGroup
- * \sa Dtk::Core::DSettingsBackend
- * \sa Dtk::Widget::DSettingsWidgetFactory
- * \sa Dtk::Widget::DSettingsDialog
- */
-
-
-/*!
- * \~english \class DSettings
- * \brief DSettings support base config storage and ui create tool for dtk applications.
- * \sa Dtk::Core::DSettings
- * \sa Dtk::Core::DSettingsBackend
- *
- * \fn virtual QStringList DSettingsBackend::keys() const = 0;
- * \brief return all key of storage.
- *
- * \fn virtual QVariant DSettingsBackend::getOption(const QString &key) const = 0;
- * \brief get value by key.
- *
- * \fn virtual void DSettingsBackend::doSync() = 0;
- * \brief do the real sync action.
- *
- * \fn virtual void DSettingsBackend::doSetOption(const QString &key, const QVariant &value) = 0;
- * \brief write key/value to storage.
- *
- * \fn void DSettingsBackend::optionChanged(const QString &key, const QVariant &value);
- * \brief emitted when option value changed.
- *
- * \fn void DSettingsBackend::sync();
- * \brief private signal, please do not use it.
- *
- * \fn void DSettingsBackend::setOption(const QString &key, const QVariant &value);
- * \brief private signal, please do not use it.
+   \endcode
+   \sa Dtk::Core::DSettingsOption
+   \sa Dtk::Core::DSettingsGroup
+   \sa Dtk::Core::DSettingsBackend
+   \sa Dtk::Widget::DSettingsWidgetFactory
+   \sa Dtk::Widget::DSettingsDialog
  */
 
 /*!
- * \~chinese \class DSettingsBackend
- * \brief DSettingsBackend是一个纯虚类, 用来描述DSettings的存储接口。
- * \sa Dtk::Core::DSettings
- * \sa Dtk::Core::DSettingsBackend
- *
- * \fn virtual QStringList DSettingsBackend::keys() const = 0;
- * \brief 返回全部键值。
- *
- * \fn virtual QVariant DSettingsBackend::getOption(const QString &key) const = 0;
- * \brief 获取key对应的值。
- *
- * \fn virtual void DSettingsBackend::doSync() = 0;
- * \brief 开始进行同步。
- *
- * \fn virtual void DSettingsBackend::doSetOption(const QString &key, const QVariant &value) = 0;
- * \brief 设置key对应的值，并使用存储后端进行存储。
- *
- * \fn void DSettingsBackend::optionChanged(const QString &key, const QVariant &value);
- * \brief DSettingsOption的值发生变化时发出的信号。
- *
- * \fn void DSettingsBackend::sync();
- * \brief 私有信号，请勿使用。
- *
- * \fn void DSettingsBackend::setOption(const QString &key, const QVariant &value);
- * \brief 私有信号，请勿使用。
+  \fn virtual QStringList DSettingsBackend::keys() const = 0;
+  \brief return all key of storage.
+  \brief 返回全部键值。
+ */
+/*!
+  \fn virtual QVariant DSettingsBackend::getOption(const QString &key) const = 0;
+  \brief get value by key.
+  \brief 获取key对应的值。
+ */
+/*!
+  \fn virtual void DSettingsBackend::doSync() = 0;
+  \brief do the real sync action.
+  \brief 开始进行同步。
+ */
+/*!
+  \fn virtual void DSettingsBackend::doSetOption(const QString &key, const QVariant &value) = 0;
+  \brief write key/value to storage.
+  \brief 设置key对应的值，并使用存储后端进行存储。
+ */
+/*!
+  \fn void DSettingsBackend::optionChanged(const QString &key, const QVariant &value);
+  \brief emitted when option \a value changed.
+  \brief DSettingsOption的值发生变化时发出的信号。
+ */
+/*!
+  \fn void DSettingsBackend::sync();
+  \brief private signal, please do not use it.
+  \brief 私有信号，请勿使用。
+ */
+/*!
+  \fn void DSettingsBackend::setOption(const QString &key, const QVariant &value);
+  \brief private signal, please do not use it.
+  \brief 私有信号，请勿使用。
  */
 
-
 /*!
- * \~chinese \class DSettings
- * \brief DSettings是设计上为Dtk的应用程序提供统一的配置存储以及界面生成工具的基础库。
- * DSetting使用json作为应用配置程序的描述文件。简单来说，应用查询的配置分为组/键值二个基础层级，
- * 对于一个标准的Dtk配置控件，一般只包含组/子组/键值三个层级，对于超过三个层级的键值，可以通过
- * DSettings的API接口进行读取和写入，但是不能在标准的DSettingsDialogs上显示出来。
- *
- * 一个简单的配置文件如下：
-```json
+ \class Dtk::Core::DSettings
+ \inmodule dtkcore
+ \brief DSettings是设计上为Dtk的应用程序提供统一的配置存储以及界面生成工具的基础库.
+
+ DSetting使用json作为应用配置程序的描述文件。简单来说，应用查询的配置分为组/键值二个基础层级，
+ 对于一个标准的Dtk配置控件，一般只包含组/子组/键值三个层级，对于超过三个层级的键值，可以通过
+ DSettings的API接口进行读取和写入，但是不能在标准的DSettingsDialogs上显示出来。
+
+ 一个简单的配置文件如下：
+\code
 {
     "groups": [{
         "key": "base",
@@ -233,13 +214,13 @@ public:
         ]
     }]
 }
-```
+\endcode
 
- * 改组中包含一个base的root组，两个子组: open_action/new_tab_windows,每个子组有包含若干选项。
- * 对于"New Window Open:"这个配置，其完整的访问id为base.new_tab_windows.new_window_path。
- * 读取/设置其值的示例如下:
+改组中包含一个base的root组，两个子组: open_action/new_tab_windows,每个子组有包含若干选项。
+对于"New Window Open:"这个配置，其完整的访问id为base.new_tab_windows.new_window_path。
+读取/设置其值的示例如下:
 
-```c++
+\code
     // 初始化一个存储后端
     QTemporaryFile tmpFile;
     tmpFile.open();
@@ -256,13 +237,13 @@ public:
     // 修改配置
     opt->setValue("Test")
     qDebug() << opt->value();
-```
- * \sa Dtk::Core::DSettingsOption
- * \sa Dtk::Core::DSettingsGroup
- * \sa Dtk::Core::DSettingsBackend
- * \sa Dtk::Widget::DSettingsWidgetFactory
- * \sa Dtk::Widget::DSettingsDialog
- */
+\endcode
+\sa Dtk::Core::DSettingsOption
+\sa Dtk::Core::DSettingsGroup
+\sa Dtk::Core::DSettingsBackend
+\sa Dtk::Widget::DSettingsWidgetFactory
+\sa Dtk::Widget::DSettingsDialog
+*/
 
 DSettings::DSettings(QObject *parent) :
     QObject(parent), dd_ptr(new DSettingsPrivate(this))
@@ -303,8 +284,7 @@ void DSettings::setBackend(DSettingsBackend *backend)
 }
 
 /*!
-   \fn DSettings::fromJson(const QByteArray &json)
-   \brief 从 json 中获取 DSettings， 返回的数据使用之后需要自己手动释放。
+   \brief 从 \a json 中获取 DSettings， 返回的数据使用之后需要自己手动释放。
  */
 QPointer<DSettings> DSettings::fromJson(const QByteArray &json)
 {
@@ -364,9 +344,9 @@ QList<QPointer<DSettingsGroup> > DSettings::groups() const
     return d->childGroups.values();
 }
 /*!
- * \brief DSettings::group will recurrence find childGroup
- * \param key
- * \return
+  \brief DSettings::group will recurrence find childGroup
+  \a key
+  \return
  */
 QPointer<DSettingsGroup> DSettings::group(const QString &key) const
 {

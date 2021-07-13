@@ -34,28 +34,42 @@ DCORE_BEGIN_NAMESPACE
 #define RECENT_PATH QDir::homePath() + "/.local/share/recently-used.xbel"
 
 /*!
- * \~chinese \class DRecentManager
- *
- * \~chinese \brief DRecentManager 是用来管理最近文件列表的类，提供了添加与删除文件项。
- * \~chinese
- * \~chinese 遵循 freedesktop 标准，在本地 share 目录存放，文件名为: recently-used.xbel，所以每个用户都有不同的列表。
- * \~chinese
- * \~chinese 该类的存在就是为 deepin 应用提供一个工具类，方便让打开的文件添加到最近文件列表中。
+  \class Dtk::Core::DRecentManager
+  \inmodule dtkcore
+  
+  \brief DRecentManager 是用来管理最近文件列表的类，提供了添加与删除文件项.
+  
+  遵循 freedesktop 标准，在本地 share 目录存放，文件名为: recently-used.xbel，所以每个用户都有不同的列表。
+  该类的存在就是为 deepin 应用提供一个工具类，方便让打开的文件添加到最近文件列表中。
+
+  \sa Dtk::Core::DRecentData
  */
 
 /*!
- * \~chinese \struct DRecentData
- * \~chinese \brief 文件信息结构体
- * \~chinese \var appName 应用名称
- * \~chinese \var appExec 应用命令行名称
- * \~chinese \var mimeType 文件 mimetype 名称，一般不需要填写，DRecentManager 内部自动获取
+  \class Dtk::Core::DRecentData
+  \inmodule dtkcore
+
+  \brief 文件信息结构体.
+  
+  \table
+  \row
+    \li appName
+    \li 应用名称
+  \row
+    \li appExec
+    \li 应用命令行名称
+  \row
+    \li mimeType
+    \li 文件 mimetype 名称，一般不需要填写，DRecentManager 内部自动获取
+  \endtable
+  \sa Dtk::Core::DRecentManager
  */
 
 /*!
- * \~chinese \brief DRecentManager::addItem 在最近列表中添加一个项
- * \~chinese \param uri 文件路径
- * \~chinese \param data 数据信息
- * \~chinese \return 如果返回 true 则成功添加，false 为添加失败
+  \brief DRecentManager::addItem 在最近列表中添加一个项.
+  \a uri 文件路径
+  \a data 数据信息
+  \return 如果返回 true 则成功添加，false 为添加失败
  */
 
 bool DRecentManager::addItem(const QString &uri, DRecentData &data)
@@ -191,8 +205,8 @@ bool DRecentManager::addItem(const QString &uri, DRecentData &data)
 }
 
 /*!
- * \~chinese \brief DRecentManager::removeItem 在最近列表中移除单个文件路径
- * \~chinese \param target 需要移除的文件路径
+  \brief DRecentManager::removeItem 在最近列表中移除单个文件路径
+  \a target 需要移除的文件路径
  */
 
 void DRecentManager::removeItem(const QString &target)
@@ -201,8 +215,8 @@ void DRecentManager::removeItem(const QString &target)
 }
 
 /*!
- * \~chinese \brief DRecentManager::removeItem 在最近列表中移除多个文件路径
- * \~chinese \param list 需要移除的文件路径列表
+  \brief DRecentManager::removeItem 在最近列表中移除多个文件路径
+  \a list 需要移除的文件路径列表
  */
 
 void DRecentManager::removeItems(const QStringList &list)

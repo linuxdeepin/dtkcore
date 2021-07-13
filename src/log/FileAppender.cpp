@@ -19,10 +19,11 @@
 
 DCORE_BEGIN_NAMESPACE
 
-/**
- * \class FileAppender
- *
- * \brief Simple appender that writes the log records to the plain text file.
+/*!
+  \class Dtk::Core::FileAppender
+  \inmodule dtkcore
+  
+  \brief Simple appender that writes the log records to the plain text file.
  */
 
 
@@ -40,8 +41,8 @@ FileAppender::~FileAppender()
 
 
 //! Returns the name set by setFileName() or to the FileAppender constructor.
-/**
- * \sa setFileName()
+/*!
+  \sa setFileName()
  */
 QString FileAppender::fileName() const
 {
@@ -51,8 +52,8 @@ QString FileAppender::fileName() const
 
 
 //! Sets the name of the file. The name can have no path, a relative path, or an absolute path.
-/**
- * \sa fileName()
+/*!
+  \sa fileName()
  */
 void FileAppender::setFileName(const QString& s)
 {
@@ -85,9 +86,9 @@ bool FileAppender::openFile()
 
 
 //! Write the log record to the file.
-/**
- * \sa fileName()
- * \sa AbstractStringAppender::format()
+/*!
+  \sa fileName()
+  \sa AbstractStringAppender::format()
  */
 void FileAppender::append(const QDateTime& timeStamp, Logger::LogLevel logLevel, const char* file, int line,
                           const char* function, const QString& category, const QString& message)

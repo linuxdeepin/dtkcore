@@ -20,32 +20,41 @@
 DCORE_BEGIN_NAMESPACE
 
 /*!
- * \~chinese \class DAbstractUnitFormatter
- * \~chinese \brief DAbstractUnitFormatter 类是对拥有相同类型数据管理的接口类
- * 接口定义了最大值、最小值、转换单位和单位对应的字符串。
- *
- * \~chinese \fn DAbstractUnitFormatter::unitMax
- * \~chinese \brief 返回列表中最大的单位
- *
- * \~chinese \fn DAbstractUnitFormatter::unitMin
- * \~chinese \brief 返回列表中最小的单位
- *
- * \~chinese \fn DAbstractUnitFormatter::unitConvertRate
- * \~chinese \brief 返回当前设置的转换单位
- *
- * \~chinese \fn DAbstractUnitFormatter::unitValueMax
- * \~chinese \brief 返回列表中根据当前设置的转换单位的最大值
- *
- * \~chinese \fn DAbstractUnitFormatter::unitValueMin
- * \~chinese \brief 返回列表中根据当前设置的转换单位的最小值
- *
- * \~chinese \fn DAbstractUnitFormatter::unitStr
- * \~chinese \brief 传入id，返回列表中对应的字符串
+  \class Dtk::Core::DAbstractUnitFormatter
+  \inmodule dtkcore
+  \brief DAbstractUnitFormatter 类是对拥有相同类型数据管理的接口类.
+  
+  接口定义了最大值、最小值、转换单位和单位对应的字符串。
  */
 
 /*!
- * \~chinese \brief DAbstractUnitFormatter 的构造函数
- *
+  \fn int DAbstractUnitFormatter::unitMax() const = 0
+  \brief 返回列表中最大的单位.
+ */
+/*!
+  \fn int DAbstractUnitFormatter::unitMin() const = 0
+  \brief 返回列表中最小的单位.
+ */
+/*!
+  \fn uint DAbstractUnitFormatter::unitConvertRate(int unitId) const = 0
+  \brief 返回当前设置的转换单位.
+ */
+/*!
+  \fn qreal DAbstractUnitFormatter::unitValueMax(int unitId) const
+  \brief 返回列表中根据当前设置的转换单位的最大值.
+ */
+/*!
+  \fn qreal DAbstractUnitFormatter::unitValueMin(int unitId) const
+  \brief 返回列表中根据当前设置的转换单位的最小值.
+ */
+/*!
+  \fn QString DAbstractUnitFormatter::unitStr(int unitId) const = 0
+  \brief 传入id，返回列表中对应的字符串.
+ */
+
+/*!
+  \brief DAbstractUnitFormatter 的构造函数.
+  
  */
 DAbstractUnitFormatter::DAbstractUnitFormatter()
 {
@@ -53,8 +62,8 @@ DAbstractUnitFormatter::DAbstractUnitFormatter()
 }
 
 /*!
- * \~chinese \brief DAbstractUnitFormatter 的析构函数
- *
+  \brief DAbstractUnitFormatter 的析构函数
+  
  */
 DAbstractUnitFormatter::~DAbstractUnitFormatter()
 {
@@ -62,13 +71,13 @@ DAbstractUnitFormatter::~DAbstractUnitFormatter()
 }
 
 /*!
- * \~chinese \brief 将传入的值从当前转换单位转换到目标单位上，返回转换过的值
- * 如果当前转换单位小于目标单位，值会被缩小，反之会放大，当前转换单位也会被缩小和放大，直至当前转换单位等于目标单位。
- *
- * @param value 原始数值
- * @param currentUnit 当前的转换比率
- * @param targetUnit 目标的转换比率
- * @return qreal 返回转换过的值
+  \brief 将传入的值从当前转换单位转换到目标单位上，返回转换过的值
+  如果当前转换单位小于目标单位，值会被缩小，反之会放大，当前转换单位也会被缩小和放大，直至当前转换单位等于目标单位。
+  
+  \a value 原始数值
+  \a currentUnit 当前的转换比率
+  \a targetUnit 目标的转换比率
+  \return qreal 返回转换过的值
  */
 qreal DAbstractUnitFormatter::formatAs(qreal value, int currentUnit, const int targetUnit) const
 {
@@ -81,13 +90,13 @@ qreal DAbstractUnitFormatter::formatAs(qreal value, int currentUnit, const int t
 }
 
 /*!
- * \~chinese \brief 将值转换到最合适的单位上
- *
- * 如果值大于 unitMin() 或者小于 unitMax() ，会尽量保证值被转换到接近最小值的合适单位上。
- *
- * @param value 原始数值
- * @param unit 当前的转换单位
- * @return QPair<qreal, int> 转换过的数值和转化单位
+  \brief 将值转换到最合适的单位上
+  
+  如果值大于 unitMin() 或者小于 unitMax() ，会尽量保证值被转换到接近最小值的合适单位上。
+  
+  \a value 原始数值
+  \a unit 当前的转换单位
+  \return QPair<qreal, int> 转换过的数值和转化单位
  */
 QPair<qreal, int> DAbstractUnitFormatter::format(const qreal value, const int unit) const
 {
@@ -103,11 +112,11 @@ QPair<qreal, int> DAbstractUnitFormatter::format(const qreal value, const int un
 }
 
 /*!
- * \~chinese \brief 是 format() ，但是包含了完整的转换数据
- *
- * @param value
- * @param unit
- * @return QList<QPair<qreal, int> >
+  \brief 是 format() ，但是包含了完整的转换数据
+  
+  \a value
+  \a unit
+  \return QList<QPair<qreal, int> >
  */
 QList<QPair<qreal, int> > DAbstractUnitFormatter::formatAsUnitList(const qreal value, int unit) const
 {

@@ -19,16 +19,19 @@
 
 DCORE_BEGIN_NAMESPACE
 
-/**
- * \class OutputDebugAppender
- *
- * \brief Appender that writes the log records to the Microsoft Debug Log
+/*!
+  \class Dtk::Core::OutputDebugAppender
+  \inmodule dtkcore
+  
+  \brief Appender that writes the log records to the Microsoft Debug Log.
  */
 
 
 //! Writes the log record to the windows debug log.
-/**
- * \sa AbstractStringAppender::format()
+/*!
+  \reimp
+  \brief Writes the log record to the windows debug log.
+  \sa AbstractStringAppender::format()
  */
 void OutputDebugAppender::append(const QDateTime& timeStamp,
                                  Logger::LogLevel logLevel,

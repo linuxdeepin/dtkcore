@@ -22,10 +22,11 @@
 
 DCORE_BEGIN_NAMESPACE
 
-/**
- * \class DLogManager
- *
- * \brief DLogManager is the deepin user application log manager
+/*!
+  \class Dtk::Core::DLogManager
+  \inmodule dtkcore
+  
+  \brief DLogManager is the deepin user application log manager.
  */
 
 DLogManager::DLogManager()
@@ -52,28 +53,28 @@ void DLogManager::initRollingFileAppender(){
 }
 
 //! Registers the appender to write the log records to the Console
-/**
- * \sa registerFileAppender
+/*!
+  \sa registerFileAppender
  */
 void DLogManager::registerConsoleAppender(){
     DLogManager::instance()->initConsoleAppender();
 }
 
 //! Registers the appender to write the log records to the file
-/**
- * \sa getlogFilePath
- * \sa registerConsoleAppender
+/*!
+  \sa getlogFilePath
+  \sa registerConsoleAppender
  */
 void DLogManager::registerFileAppender() {
     DLogManager::instance()->initRollingFileAppender();
 }
 
 //! Return the path file log storage
-/**
- * \~chinese \brief DLogManager::getlogFilePath 获取日志文件路径
- * \~chinese \brief 默认日志路径是 ~/.cache/organizationName/applicationName.log
- * \~chinese \brief 如果获取 HOME 环境变量失败将不写日志
- * \sa registerFileAppender
+/*!
+  \brief DLogManager::getlogFilePath 获取日志文件路径
+  \brief 默认日志路径是 ~/.cache/organizationName/applicationName.log
+  \brief 如果获取 HOME 环境变量失败将不写日志
+  \sa registerFileAppender
  */
 QString DLogManager::getlogFilePath()
 {
@@ -98,9 +99,9 @@ QString DLogManager::getlogFilePath()
 }
 
 /*!
- * \~chinese \brief DLogManager::setlogFilePath 设置日志文件路径
- * \~chinese \param logFilePath 日志文件路径
- * \~chinese \brief 如果设置的文件路进不是文件路径将什么都不做，输出一条警告
+  \brief DLogManager::setlogFilePath 设置日志文件路径
+  \a logFilePath 日志文件路径
+  \brief 如果设置的文件路进不是文件路径将什么都不做，输出一条警告
  */
 void DLogManager::setlogFilePath(const QString &logFilePath)
 {

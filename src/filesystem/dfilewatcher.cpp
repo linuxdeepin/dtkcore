@@ -216,13 +216,11 @@ QString DFileWatcherPrivate::formatPath(const QString &path)
 }
 
 /*!
-    \~english \class DFileWatcher
-    \~english \brief The DFileWatcher class provides an implemention of DBaseFileWatcher for monitoring files and directories for modifications.
-*/
+    \class Dtk::Core::DFileWatcher
+    \inmodule dtkcore
 
-/*!
-    \~chinese \class DFileWatcher
-    \~chinese \brief DFileWatcher 类提供了对 DBaseFileWatcher 接口的实现，可供监视文件和目录的变动。
+    \brief The DFileWatcher class provides an implemention of DBaseFileWatcher for monitoring files and directories for modifications.
+    \brief DFileWatcher 类提供了对 DBaseFileWatcher 接口的实现，可供监视文件和目录的变动。
 */
 
 DFileWatcher::DFileWatcher(const QString &filePath, QObject *parent)

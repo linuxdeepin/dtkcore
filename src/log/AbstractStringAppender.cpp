@@ -26,22 +26,23 @@
 
 DCORE_BEGIN_NAMESPACE
 
-/**
- * \class AbstractStringAppender
- *
- * \brief The AbstractStringAppender class provides a convenient base for appenders working with plain text formatted
- *        logs.
- *
- * AbstractSringAppender is the simple extension of the AbstractAppender class providing the convenient way to create
- * custom log appenders working with a plain text formatted log targets.
- *
- * It have the formattedString() protected function that formats the logging arguments according to a format set with
- * setFormat().
- *
- * This class can not be directly instantiated because it contains pure virtual function inherited from AbstractAppender
- * class.
- *
- * For more detailed description of customizing the log output format see the documentation on the setFormat() function.
+/*!
+  \class Dtk::Core::AbstractStringAppender
+  \inmodule dtkcore
+  
+  \brief The AbstractStringAppender class provides a convenient base for appenders working with plain text formatted
+         logs.
+  
+  AbstractSringAppender is the simple extension of the AbstractAppender class providing the convenient way to create
+  custom log appenders working with a plain text formatted log targets.
+  
+  It have the formattedString() protected function that formats the logging arguments according to a format set with
+  setFormat().
+  
+  This class can not be directly instantiated because it contains pure virtual function inherited from AbstractAppender
+  class.
+  
+  For more detailed description of customizing the log output format see the documentation on the setFormat() function.
  */
 
 
@@ -55,11 +56,11 @@ AbstractStringAppender::AbstractStringAppender()
 
 
 //! Returns the current log format string.
-/**
- * The default format is set to "%{time}{yyyy-MM-ddTHH:mm:ss.zzz} [%{type:-7}] <%{function}> %{message}\n". You can set a different log record
- * format using the setFormat() function.
- *
- * \sa setFormat(const QString&)
+/*!
+  The default format is set to "%{time}{yyyy-MM-ddTHH:mm:ss.zzz} [%{type:-7}] <%{function}> %{message}\n". You can set a different log record
+  format using the setFormat() function.
+  
+  \sa setFormat(const QString&)
  */
 QString AbstractStringAppender::format() const
 {
@@ -69,50 +70,52 @@ QString AbstractStringAppender::format() const
 
 
 //! Sets the logging format for writing strings to the log target with this appender.
-/**
- * The string format seems to be very common to those developers who have used a standard sprintf function.
- *
- * Log output format is a simple QString with the special markers (starting with % sign) which will be replaced with
- * it's internal meaning when writing a log record.
- *
- * Controlling marker begins with the percent sign (%) which is followed by the command inside {} brackets
- * (the command describes, what will be put to log record instead of marker).
- * Optional field width argument may be specified right after the command (through the colon symbol before the closing bracket)
- * Some commands requires an additional formatting argument (in the second {} brackets).
- *
- * Field width argument works almost identically to the \c QString::arg() \c fieldWidth argument (and uses it
- * internally). For example, \c "%{type:-7}" will be replaced with the left padded debug level of the message
- * (\c "Debug  ") or something. For the more detailed description of it you may consider to look to the Qt
- * Reference Documentation.
- *
- * Supported marker commands are:
- *   \arg \c %{time} - timestamp. You may specify your custom timestamp format using the second {} brackets after the marker,
- *           timestamp format here will be similar to those used in QDateTime::toString() function. For example,
- *           "%{time}{dd-MM-yyyy, HH:mm}" may be replaced with "17-12-2010, 20:17" depending on current date and time.
- *           The default format used here is "HH:mm:ss.zzz".
- *   \arg \c %{type} - Log level. Possible log levels are shown in the Logger::LogLevel enumerator.
- *   \arg \c %{Type} - Uppercased log level.
- *   \arg \c %{typeOne} - One letter log level.
- *   \arg \c %{TypeOne} - One uppercase letter log level.
- *   \arg \c %{File} - Full source file name (with path) of the file that requested log recording. Uses the \c __FILE__
- *           preprocessor macro.
- *   \arg \c %{file} - Short file name (with stripped path).
- *   \arg \c %{line} - Line number in the source file. Uses the \c __LINE__ preprocessor macro.
- *   \arg \c %{Function} - Name of function that called on of the LOG_* macros. Uses the \c Q_FUNC_INFO macro provided with
- *           Qt.
- *   \arg \c %{function} - Similar to the %{Function}, but the function name is stripped using stripFunctionName
- *   \arg \c %{message} - The log message sent by the caller.
- *   \arg \c %{category} - The log category.
- *   \arg \c %{appname} - Application name (returned by QCoreApplication::applicationName() function).
- *   \arg \c %{pid} - Application pid (returned by QCoreApplication::applicationPid() function).
- *   \arg \c %{threadid} - ID of current thread.
- *   \arg \c %% - Convinient marker that is replaced with the single \c % mark.
- *
- * \note Format doesn't add \c '\\n' to the end of the format line. Please consider adding it manually.
- *
- * \sa format()
- * \sa stripFunctionName()
- * \sa Logger::LogLevel
+/*!
+  The string format seems to be very common to those developers who have used a standard sprintf function.
+  
+  Log output format is a simple QString with the special markers (starting with % sign) which will be replaced with
+  it's internal meaning when writing a log record.
+  
+  Controlling marker begins with the percent sign (%) which is followed by the command inside {} brackets
+  (the command describes, what will be put to log record instead of marker).
+  Optional field width argument may be specified right after the command (through the colon symbol before the closing bracket)
+  Some commands requires an additional formatting argument (in the second {} brackets).
+  
+  Field width argument works almost identically to the QString::arg() fieldWidth argument (and uses it
+  internally). For example, "%{type:-7}" will be replaced with the left padded debug level of the message
+  ("Debug  ") or something. For the more detailed description of it you may consider to look to the Qt
+  Reference Documentation.
+  
+  Supported marker commands are:
+    \list
+    \li %{time} - timestamp. You may specify your custom timestamp \a format using the second {} brackets after the marker,
+    \li   timestamp \a format here will be similar to those used in QDateTime::toString() function. For example,
+    \li   "%{time}{dd-MM-yyyy, HH:mm}" may be replaced with "17-12-2010, 20:17" depending on current date and time.
+    \li   The default \a format used here is "HH:mm:ss.zzz".
+    \li %{type} - Log level. Possible log levels are shown in the Logger::LogLevel enumerator.
+    \li %{Type} - Uppercased log level.
+    \li %{typeOne} - One letter log level.
+    \li %{TypeOne} - One uppercase letter log level.
+    \li %{File} - Full source file name (with path) of the file that requested log recording. Uses the __FILE__
+    \li   preprocessor macro.
+    \li %{file} - Short file name (with stripped path).
+    \li %{line} - Line number in the source file. Uses the __LINE__ preprocessor macro.
+    \li %{Function} - Name of function that called on of the LOG_* macros. Uses the Q_FUNC_INFO macro provided with
+    \li   Qt.
+    \li %{function} - Similar to the %{Function}, but the function name is stripped using stripFunctionName
+    \li %{message} - The log message sent by the caller.
+    \li %{category} - The log category.
+    \li %{appname} - Application name (returned by QCoreApplication::applicationName() function).
+    \li %{pid} - Application pid (returned by QCoreApplication::applicationPid() function).
+    \li %{threadid} - ID of current thread.
+    \li %% - Convinient marker that is replaced with the single % mark.
+    \endlist
+  
+  \note Format doesn't add '\\n' to the end of the \a format line. Please consider adding it manually.
+  
+  \sa format()
+  \sa stripFunctionName()
+  \sa Logger::LogLevel
  */
 void AbstractStringAppender::setFormat(const QString& format)
 {
@@ -122,10 +125,10 @@ void AbstractStringAppender::setFormat(const QString& format)
 
 
 //! Strips the long function signature (as added by Q_FUNC_INFO macro)
-/**
- * The string processing drops the returning type, arguments and template parameters of function. It is definitely
- * useful for enchancing the log output readability.
- * \return stripped function name
+/*!
+  The string processing drops the returning type, arguments and template parameters of function. It is definitely
+  useful for enchancing the log output readability.
+  \return stripped function name
  */
 QString AbstractStringAppender::stripFunctionName(const char* name)
 {
@@ -301,9 +304,9 @@ QByteArray AbstractStringAppender::qCleanupFuncinfo(const char* name)
 
 
 //! Returns the string to record to the logging target, formatted according to the format().
-/**
- * \sa format()
- * \sa setFormat(const QString&)
+/*!
+  \sa format()
+  \sa setFormat(const QString&)
  */
 QString AbstractStringAppender::formattedString(const QDateTime& timeStamp, Logger::LogLevel logLevel, const char* file,
                                                 int line, const char* function, const QString& category, const QString& message) const

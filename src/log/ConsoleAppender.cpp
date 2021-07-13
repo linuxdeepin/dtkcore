@@ -19,17 +19,18 @@
 
 DCORE_BEGIN_NAMESPACE
 
-/**
- * \class ConsoleAppender
- *
- * \brief ConsoleAppender is the simple appender that writes the log records to the std::cerr output stream.
- *
- * ConsoleAppender uses "[%{type:-7}] <%{function}> %{message}\n" as a default output format. It is similar to the
- * AbstractStringAppender but doesn't show a timestamp.
- *
- * You can modify ConsoleAppender output format without modifying your code by using \c QT_MESSAGE_PATTERN environment
- * variable. If you need your application to ignore this environment variable you can call
- * ConsoleAppender::ignoreEnvironmentPattern(true)
+/*!
+  \class Dtk::Core::ConsoleAppender
+  \inmodule dtkcore
+  
+  \brief ConsoleAppender is the simple appender that writes the log records to the std::cerr output stream.
+  
+  ConsoleAppender uses "[%{type:-7}] <%{function}> %{message}\n" as a default output format. It is similar to the
+  AbstractStringAppender but doesn't show a timestamp.
+  
+  You can modify ConsoleAppender output format without modifying your code by using \c QT_MESSAGE_PATTERN environment
+  variable. If you need your application to ignore this environment variable you can call
+  ConsoleAppender::ignoreEnvironmentPattern(true)
  */
 
 
@@ -55,8 +56,8 @@ void ConsoleAppender::ignoreEnvironmentPattern(bool ignore)
 
 
 //! Writes the log record to the std::cerr stream.
-/**
- * \sa AbstractStringAppender::format()
+/*!
+  \sa AbstractStringAppender::format()
  */
 void ConsoleAppender::append(const QDateTime& timeStamp, Logger::LogLevel logLevel, const char* file, int line,
                              const char* function, const QString& category, const QString& message)

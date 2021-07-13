@@ -22,36 +22,49 @@
 DCORE_BEGIN_NAMESPACE
 
 /*!
- * \~chinese \class DDiskSizeFormatter
- *
- * \~chinese \brief DDiskSizeFormatter 是用来获取磁盘容量单位的类, 通过枚举值
- * 获取不同类型磁盘容量的单位
- *
- * \~chinese \enum DDiskSizeFormatter::DiskUnits 磁盘容量单位的枚举
- * \~chinese \var DDiskSizeFormatter::DiskUnits DDiskSizeFormatter::B
- * \~chinese \brief 字节
- * \~chinese \var DDiskSizeFormatter::DiskUnits DDiskSizeFormatter::K
- * \~chinese \brief 千字节
- * \~chinese \var DDiskSizeFormatter::DiskUnits DDiskSizeFormatter::M
- * \~chinese \brief 兆字节
- * \~chinese \var DDiskSizeFormatter::DiskUnits DDiskSizeFormatter::G
- * \~chinese \brief 吉字节
- * \~chinese \var DDiskSizeFormatter::DiskUnits DDiskSizeFormatter::T
- * \~chinese \brief 太字节
- *
- * \~chinese \fn DDiskSizeFormatter::unitMax
- * \~chinese \brief 返回最大磁盘容量单位的枚举
- *
- * \~chinese \fn DDiskSizeFormatter::unitMin
- * \~chinese \brief 返回最小磁盘容量单位的枚举
- *
- * \~chinese \fn DDiskSizeFormatter::unitConvertRate
- * \~chinese \brief 返回当前的单位转换比率
+  \class Dtk::Core::DDiskSizeFormatter
+  \inmodule dtkcore
+  \brief DDiskSizeFormatter 是用来获取磁盘容量单位的类, 通过枚举值.
+  
+  获取不同类型磁盘容量的单位
  */
 
 /*!
- * \~chinese \brief DDiskSizeFormatter的构造函数
- *
+  \enum Dtk::Core::DDiskSizeFormatter::DiskUnits
+  磁盘容量单位的枚举
+  \value B
+  字节
+  \value K
+  千字节
+  \value M
+  兆字节
+  \value G
+  吉字节
+  \value T
+  太字节
+ */
+
+/*!
+  \reimp
+  \fn int DDiskSizeFormatter::unitMax() const
+  \brief 返回最大磁盘容量单位的枚举
+ */
+
+/*!
+  \reimp
+  \fn int DDiskSizeFormatter::unitMin() const
+  \brief 返回最小磁盘容量单位的枚举
+ */
+
+/*!
+  \reimp
+  \fn uint DDiskSizeFormatter::unitConvertRate(int unitId) const
+  \brief 返回当前的单位转换比率
+ */
+
+/*!
+  \brief DDiskSizeFormatter的构造函数
+  
  */
 DDiskSizeFormatter::DDiskSizeFormatter()
     : DAbstractUnitFormatter()
@@ -60,10 +73,10 @@ DDiskSizeFormatter::DDiskSizeFormatter()
 }
 
 /*!
- * \~chinese \brief 根据枚举返回对应单位的字符串
- *
- * @param unitId DDiskSizeFormatter::DiskUnits 的枚举值
- * @return QString 对应单位的字符串
+  \brief 根据枚举返回对应单位的字符串
+  
+  \a unitId DDiskSizeFormatter::DiskUnits 的枚举值
+  \return QString 对应单位的字符串
  */
 QString DDiskSizeFormatter::unitStr(int unitId) const
 {
@@ -80,10 +93,10 @@ QString DDiskSizeFormatter::unitStr(int unitId) const
 }
 
 /*!
- * \~chinese \brief 设置当前的单位转换比率
- *
- * @param rate 转换比率
- * @return DDiskSizeFormatter 返回 DDiskSizeFormatter 对象
+  \brief 设置当前的单位转换比率
+  
+  \a rate 转换比率
+  \return DDiskSizeFormatter 返回 DDiskSizeFormatter 对象
  */
 DDiskSizeFormatter DDiskSizeFormatter::rate(int rate)
 {

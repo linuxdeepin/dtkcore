@@ -23,6 +23,23 @@
 
 DCORE_BEGIN_NAMESPACE
 
+/*!
+  \class Dtk::Core::RollingFileAppender
+  \inmodule dtkcore
+  \brief The RollingFileAppender class extends FileAppender so that the underlying file is rolled over at a user chosen frequency.
+
+  The class is based on Log4Qt.DailyRollingFileAppender class (http://log4qt.sourceforge.net/)
+  and has the same date pattern format.
+
+  For example, if the fileName is set to /foo/bar and the DatePattern set to the daily rollover ('.'yyyy-MM-dd'.log'), on 2014-02-16 at midnight,
+  the logging file /foo/bar.log will be copied to /foo/bar.2014-02-16.log and logging for 2014-02-17 will continue in /foo/bar
+  until it rolls over the next day.
+
+  The logFilesLimit parameter is used to automatically delete the oldest log files in the directory during rollover
+  (so no more than logFilesLimit recent log files exist in the directory at any moment).
+  \sa setDatePattern(), setLogFilesLimit()
+ */
+
 RollingFileAppender::RollingFileAppender(const QString& fileName)
   : FileAppender(fileName),
     m_logFilesLimit(0),

@@ -32,12 +32,9 @@ DFileSystemWatcherPrivate::~DFileSystemWatcherPrivate()
 }
 
 /*!
-    \class DFileSystemWatcher
-    \inmodule QtCore
+    \class Dtk::Core::DFileSystemWatcher
+    \inmodule dtkcore
     \brief The DFileSystemWatcher class provides an interface for monitoring files and directories for modifications.
-    \ingroup io
-    \since 4.2
-    \reentrant
 
     DFileSystemWatcher monitors the file system for changes to files
     and directories by watching a list of specified paths.
@@ -76,9 +73,6 @@ DFileSystemWatcherPrivate::~DFileSystemWatcherPrivate()
     being monitored, and these other open descriptors also count in
     the total. OS X uses a different backend and does not
     suffer from this issue.
-
-
-    \sa QFile, QDir
 */
 
 

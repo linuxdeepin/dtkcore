@@ -29,53 +29,26 @@ public:
     DPathBuf();
     DPathBuf(const QString &path);
 
-    /*!
-     * \brief join path with operator /
-     * \param p is subpath
-     * \return a new DPathBuf with subpath p
-     */
     DPathBuf operator/(const QString &p) const
     {
         return DPathBuf(m_path + "/" + p);
     }
 
-    /*!
-     * \brief join path to self with operator /=
-     * \param p is subpath to join
-     * \return self object
-     */
     DPathBuf &operator/=(const QString &p)
     {
         return join(p);
     }
 
-    /*!
-     * \brief join path with operator /
-     * \param p is subpath
-     * \return a new DPathBuf with subpath p
-     * \sa Dtk::Core::DPathBuf::operator/(const QString &p) const
-     */
     DPathBuf operator/(const char *p) const
     {
         return operator /(QString(p));
     }
 
-    /*!
-     * \brief join path to self with operator /=
-     * \param p is subpath to join
-     * \return self object
-     * \sa Dtk::Core::DPathBuf::operator/=(const QString &p)
-     */
     DPathBuf &operator/=(const char *p)
     {
         return operator /=(QString(p));
     }
 
-    /*!
-     * \brief join add subpath p to self
-     * \param p is subpath to join
-     * \return slef object with subpath joined
-     */
     DPathBuf &join(const QString &p)
     {
         m_path += "/" + p;
@@ -83,10 +56,6 @@ public:
         return *this;
     }
 
-    /*!
-     * \brief toString export native separators format string.
-     * \return string with native separators
-     */
     QString toString() const
     {
         return QDir::toNativeSeparators(m_path);

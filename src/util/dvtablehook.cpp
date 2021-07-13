@@ -90,10 +90,10 @@ bool DVtableHook::clearGhostVtable(const void *obj)
 }
 
 /*!
- * \brief 通过遍历尝试找到析构函数在虚表中的位置
- * \param obj
- * \param destoryObjFun
- * \return
+  \brief 通过遍历尝试找到析构函数在虚表中的位置
+  \a obj
+  \a destoryObjFun
+  \return
  */
 int DVtableHook::getDestructFunIndex(quintptr **obj, std::function<void(void)> destoryObjFun)
 {
@@ -208,9 +208,9 @@ bool DVtableHook::ensureVtable(const void *obj, std::function<void ()> destoryOb
 }
 
 /*!
- * \brief DVtableHook::hasVtable 对象的虚表已经被覆盖时返回true，否则返回false
- * \param obj
- * \return
+  \brief DVtableHook::hasVtable 对象的虚表已经被覆盖时返回true，否则返回false
+  \a obj
+  \return
  */
 bool DVtableHook::hasVtable(const void *obj)
 {
@@ -237,10 +237,10 @@ void DVtableHook::resetVtable(const void *obj)
 }
 
 /*!
- * \brief 将偏移量为functionOffset的虚函数还原到原本的实现
- * \param obj
- * \param functionIndex
- * \return 如果成功, 返回还原之前obj对象虚表中存储的函数指针, 否则返回0
+  \brief 将偏移量为\a functionOffset 的虚函数还原到原本的实现
+  \a obj
+  \a functionOffset
+  \return 如果成功, 返回还原之前obj对象虚表中存储的函数指针, 否则返回0
  */
 quintptr DVtableHook::resetVfptrFun(const void *obj, quintptr functionOffset)
 {
@@ -259,10 +259,8 @@ quintptr DVtableHook::resetVfptrFun(const void *obj, quintptr functionOffset)
 }
 
 /*!
- * \brief 获取obj对象偏移量为functionOffset的虚函数原本的函数指针
- * \param obj
- * \param functionOffset
- * \return 如果obj对象虚表没有被覆盖, 或者函数偏移量正确, 将返回0
+  \brief 获取 \a obj 对象偏移量为 \a functionOffset 的虚函数原本的函数指针
+  \return 如果obj对象虚表没有被覆盖, 或者函数偏移量正确, 将返回0
  */
 quintptr DVtableHook::originalFun(const void *obj, quintptr functionOffset)
 {
@@ -381,12 +379,12 @@ bool DVtableHook::forceWriteMemory(void *adr, const void *data, size_t length)
 QFunctionPointer DVtableHook::resolve(const char *symbol)
 {
 #ifdef Q_OS_LINUX
-    /**
-  * ！！不要使用qt_linux_find_symbol_sys函数去获取符号
-  *
-  * 在龙芯平台上，qt_linux_find_symbol_sys 无法获取部分已加载动态库的符号，
-  * 可能的原因是这个函数对 dlsym 的调用是在 libQt5Core 动态库中，这个库加载的比较早，
-  * 有可能是因此导致无法获取比这个库加载更晚的库中的符号(仅为猜测)
+  /*!
+  ！！不要使用qt_linux_find_symbol_sys函数去获取符号
+  
+  在龙芯平台上，qt_linux_find_symbol_sys 无法获取部分已加载动态库的符号，
+  可能的原因是这个函数对 dlsym 的调用是在 libQt5Core 动态库中，这个库加载的比较早，
+  有可能是因此导致无法获取比这个库加载更晚的库中的符号(仅为猜测)
   */
     return QFunctionPointer(dlsym(RTLD_DEFAULT, symbol));
 #else

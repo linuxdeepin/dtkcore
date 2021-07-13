@@ -37,7 +37,7 @@ public:
 
     /*!
      * \brief setlogFilePath will change log file path of registerFileAppender
-     * \param logFilePath is the full path of file appender log
+     * \a logFilePath is the full path of file appender log
      */
     static void setlogFilePath(const QString& logFilePath);
 

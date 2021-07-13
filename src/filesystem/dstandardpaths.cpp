@@ -55,18 +55,21 @@ private:
 
 
 /*!
- * \~chinese \class Dtk::Core::DStandardPaths
- * \brief DStandardPaths提供兼容Snap/Dtk标准的路径模式。DStandardPaths实现了Qt的QStandardPaths主要接口。
- * \sa QStandardPaths
- *
- * \enum DStandardPaths::Mode
- * \brief DStandardPaths支持的路径产生模式。
- * \var DStandardPaths::Mode DStandardPaths::Auto
- * \brief 和Qt标准的行为表现一致。
- * \var DStandardPaths::Mode DStandardPaths::Snap
- * \brief 读取SNAP相关的环境变量，支持将配置存储在SNAP对应目录。
- * \var DStandardPaths::Mode DStandardPaths::Test
- * \brief 和Qt标准的行为表现一致，但是会开启测试模式，参考QStandardPaths::setTestModeEnabled。
+  \class Dtk::Core::DStandardPaths
+  \inmodule dtkcore
+  \brief DStandardPaths提供兼容Snap/Dtk标准的路径模式。DStandardPaths实现了Qt的QStandardPaths主要接口.
+  \sa QStandardPaths
+ */
+
+/*!
+  \enum Dtk::Core::DStandardPaths::Mode
+  \brief DStandardPaths支持的路径产生模式。
+  \value Auto
+  \brief 和Qt标准的行为表现一致。
+  \value Snap
+  \brief 读取SNAP相关的环境变量，支持将配置存储在SNAP对应目录。
+  \value Test
+  \brief 和Qt标准的行为表现一致，但是会开启测试模式，参考QStandardPaths::setTestModeEnabled。
  */
 
 

@@ -31,13 +31,11 @@ DBaseFileWatcherPrivate::DBaseFileWatcherPrivate(DBaseFileWatcher *qq)
 }
 
 /*!
-    \~english \class DBaseFileWatcher
-    \~english \brief The DBaseFileWatcher class provides an interface for monitoring files and directories for modifications.
-*/
+    \class Dtk::Core::DBaseFileWatcher
+    \inmodule dtkcore
 
-/*!
-    \~chinese \class DBaseFileWatcher
-    \~chinese \brief DBaseFileWatcher 类提供了一系列接口可供监视文件和目录的变动。
+    \brief The DBaseFileWatcher class provides an interface for monitoring files and directories for modifications.
+    \brief DBaseFileWatcher 类提供了一系列接口可供监视文件和目录的变动。
 */
 
 DBaseFileWatcher::~DBaseFileWatcher()
@@ -54,10 +52,10 @@ QUrl DBaseFileWatcher::fileUrl() const
 }
 
 /*!
- * \~chinese \brief 开始文件变动监视
- * \~english \brief Let file watcher start watching file changes.
- *
- * \sa stopWatcher(), restartWatcher()
+  \brief 开始文件变动监视
+  \brief Let file watcher start watching file changes.
+  
+  \sa stopWatcher(), restartWatcher()
  */
 bool DBaseFileWatcher::startWatcher()
 {
@@ -76,10 +74,10 @@ bool DBaseFileWatcher::startWatcher()
 }
 
 /*!
- * \~chinese \brief 停止文件变动监视
- * \~english \brief Stop watching file changes.
- *
- * \sa startWatcher(), restartWatcher()
+  \brief 停止文件变动监视
+  \brief Stop watching file changes.
+  
+  \sa startWatcher(), restartWatcher()
  */
 bool DBaseFileWatcher::stopWatcher()
 {
@@ -98,10 +96,10 @@ bool DBaseFileWatcher::stopWatcher()
 }
 
 /*!
- * \~chinese \brief 重新开始文件变动监视
- * \~english \brief Stop file watcher and then restart it to watching file changes.
- *
- * \sa startWatcher(), stopWatcher()
+  \brief 重新开始文件变动监视
+  \brief Stop file watcher and then restart it to watching file changes.
+  
+  \sa startWatcher(), stopWatcher()
  */
 bool DBaseFileWatcher::restartWatcher()
 {
@@ -110,14 +108,14 @@ bool DBaseFileWatcher::restartWatcher()
 }
 
 /*!
- * \~chinese \brief 设置是否对 \a subfileUrl 目录启用文件监视
- * \~english \brief Set enable file watcher for \a subfileUrl or not
- *
- * \~chinese \param subfileUrl 设置所针对的 Url
- * \~english \param subfileUrl The given url
- *
- * \~chinese \param enabled 是否启用文件变动监视
- * \~english \param enabled Enable file change watching or not.
+  \brief 设置是否对 \a subfileUrl 目录启用文件监视
+  \brief Set enable file watcher for \a subfileUrl or not
+  
+  \a subfileUrl 设置所针对的 Url
+  \a subfileUrl The given url
+  
+  \a enabled 是否启用文件变动监视
+  \a enabled Enable file change watching or not.
  */
 void DBaseFileWatcher::setEnabledSubfileWatcher(const QUrl &subfileUrl, bool enabled)
 {
@@ -126,15 +124,15 @@ void DBaseFileWatcher::setEnabledSubfileWatcher(const QUrl &subfileUrl, bool ena
 }
 
 /*!
- * \~chinese \brief 发送一个信号表示目标目录 \a targetUrl 得到了一个 \a signal 信号，包含参数 \a arg1 。
- * \~english \brief Emit a signal about \a targetUrl got a \a signal with \a arg1
- *
- * \~chinese 示例用法：
- * \~english Example usage:
- *
- * \~ \code{.cpp}
- * DBaseFileWatcher::ghostSignal(QUrl("bookmark:///"), &DBaseFileWatcher::fileDeleted, QUrl("bookmark:///bookmarkFile1"));
- * \endcode
+  \brief 发送一个信号表示目标目录 \a targetUrl 得到了一个 \a signal 信号，包含参数 \a arg1 。
+  \brief Emit a signal about \a targetUrl got a \a signal with \a arg1
+  
+  示例用法：
+  Example usage:
+  
+  \code
+  DBaseFileWatcher::ghostSignal(QUrl("bookmark:///"), &DBaseFileWatcher::fileDeleted, QUrl("bookmark:///bookmarkFile1"));
+  \endcode
  */
 bool DBaseFileWatcher::ghostSignal(const QUrl &targetUrl, DBaseFileWatcher::SignalType1 signal, const QUrl &arg1)
 {
@@ -154,15 +152,15 @@ bool DBaseFileWatcher::ghostSignal(const QUrl &targetUrl, DBaseFileWatcher::Sign
 }
 
 /*!
- * \~chinese \brief 发送一个信号表示目标目录 \a targetUrl 得到了一个 \a signal 信号，包含参数 \a arg1 和 \arg2。
- * \~english \brief Emit a signal about \a targetUrl got a \a signal with \a arg1 and \a arg2
- *
- * \~chinese 示例用法：
- * \~english Example usage:
- *
- * \~ \code{.cpp}
- * DBaseFileWatcher::ghostSignal(QUrl("bookmark:///"), &DBaseFileWatcher::fileMoved, QUrl("bookmark:///bookmarkFile1"), QUrl("bookmark:///NewNameFile1"));
- * \endcode
+  \brief 发送一个信号表示目标目录 \a targetUrl 得到了一个 \a signal 信号，包含参数 \a arg1 和 arg2。
+  \brief Emit a signal about \a targetUrl got a \a signal with \a arg1 and \a arg2
+  
+  示例用法：
+  Example usage:
+  
+  \code
+  DBaseFileWatcher::ghostSignal(QUrl("bookmark:///"), &DBaseFileWatcher::fileMoved, QUrl("bookmark:///bookmarkFile1"), QUrl("bookmark:///NewNameFile1"));
+  \endcode
  */
 bool DBaseFileWatcher::ghostSignal(const QUrl &targetUrl, DBaseFileWatcher::SignalType2 signal, const QUrl &arg1, const QUrl &arg2)
 {

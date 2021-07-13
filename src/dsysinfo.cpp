@@ -510,8 +510,8 @@ QString DSysInfo::operatingSystemName()
 
 #ifdef Q_OS_LINUX
 /*!
- * \brief Check current distro is Deepin or not.
- * \note Uos will also return true.
+  \brief Check current distro is Deepin or not.
+  \note Uos will also return true.
  */
 bool DSysInfo::isDeepin()
 {
@@ -563,9 +563,9 @@ QString DSysInfo::deepinCopyright()
 }
 
 /*!
- * \~chinese \brief DSysInfo::osType 系统类型
- * \~chinese \row 显示系统类型【1：桌面】【2：服务器】【3：专用设备】
- * \~chinese \note 根据 osBuild.B 判断
+  \brief DSysInfo::osType 系统类型
+  显示系统类型【1：桌面】【2：服务器】【3：专用设备】
+  \note 根据 osBuild.B 判断
  */
 DSysInfo::UosType DSysInfo::uosType()
 {
@@ -580,9 +580,9 @@ DSysInfo::UosType DSysInfo::uosType()
 }
 
 /*!
- * \~chinese \brief DSysInfo::osEditionType 版本类型
- * \~chinese \row 显示版本类型 专业版/个人版/社区版...
- * \~chinese \note 根据 osBuild.B && osBuild.D
+  \brief DSysInfo::osEditionType 版本类型
+  显示版本类型 专业版/个人版/社区版...
+  \note 根据 osBuild.B && osBuild.D
  */
 DSysInfo::UosEdition DSysInfo::uosEditionType()
 {
@@ -630,8 +630,8 @@ DSysInfo::UosEdition DSysInfo::uosEditionType()
 }
 
 /*!
- * \~chinese \brief DSysInfo::osArch 架构信息（使用一个字节的二进制位，从低位到高位）
- * \~chinese \row 【0x8 sw64】【0x4 mips64】【0x2 arm64】【0x1 amd64】
+  \brief DSysInfo::osArch 架构信息（使用一个字节的二进制位，从低位到高位）
+  【0x8 sw64】【0x4 mips64】【0x2 arm64】【0x1 amd64】
  */
 DSysInfo::UosArch DSysInfo::uosArch()
 {
@@ -649,9 +649,9 @@ static QString getUosVersionValue(const QString &key, const QLocale &locale)
 }
 
 /*!
- * \~chinese \brief DSysInfo::osProductTypeName 版本名称
- * \~chinese \row ProductType[xx] 项对应的值, 如果找不到对应语言的默认使用 ProductType的值(Desktop/Server/Device)
- * \~chinese \param locale 当前系统语言
+  \brief DSysInfo::osProductTypeName 版本名称
+  ProductType[xx] 项对应的值, 如果找不到对应语言的默认使用 ProductType的值(Desktop/Server/Device)
+  \a locale 当前系统语言
  */
 QString DSysInfo::uosProductTypeName(const QLocale &locale)
 {
@@ -659,9 +659,10 @@ QString DSysInfo::uosProductTypeName(const QLocale &locale)
 }
 
 /*!
- * \~chinese \brief DSysInfo::osSystemName 版本名称
- * \~chinese \row SystemName[xx] 项对应的值, 如果找不到对应语言的默认使用 SystemName 的值 Uniontech OS
- * \~chinese \param locale 当前系统语言
+  \brief DSysInfo::osSystemName 版本名称
+  
+  SystemName[xx] 项对应的值, 如果找不到对应语言的默认使用 SystemName 的值 Uniontech OS
+  \a locale 当前系统语言
  */
 QString DSysInfo::uosSystemName(const QLocale &locale)
 {
@@ -669,9 +670,9 @@ QString DSysInfo::uosSystemName(const QLocale &locale)
 }
 
 /*!
- * \~chinese \brief DSysInfo::osEditionName 版本名称
- * \~chinese \row EditionName[xx] 项对应的值, 如果找不到对应语言的默认使用 EditionName 的值(Professional/Home/Community...)
- * \~chinese \param locale 当前系统语言
+  \brief DSysInfo::osEditionName 版本名称
+   EditionName[xx] 项对应的值, 如果找不到对应语言的默认使用 EditionName 的值(Professional/Home/Community...)
+  \a locale 当前系统语言
  */
 QString DSysInfo::uosEditionName(const QLocale &locale)
 {
@@ -679,11 +680,11 @@ QString DSysInfo::uosEditionName(const QLocale &locale)
 }
 
 /*!
- * \~chinese \brief DSysInfo::spVersion 阶段版本名称
- * \~chinese \row 小版本号 A-BC-D 中 BC、 A.B.C 中的 B
- * \~chinese \row 返回 SP1-SPxx， 如果正式版返回空
- * \~chinese \row X.Y.Z模式下暂不支持返回此版本号
- * \~chinese \note minVersion.BC == 00：正式版本    minVersion.BC | minVersion.B == 01-99：SP1….SP99
+  \brief DSysInfo::spVersion 阶段版本名称
+  小版本号 A-BC-D 中 BC、 A.B.C 中的 B
+  返回 SP1-SPxx， 如果正式版返回空
+  X.Y.Z模式下暂不支持返回此版本号
+  \note minVersion.BC == 00：正式版本    minVersion.BC | minVersion.B == 01-99：SP1….SP99
  */
 QString DSysInfo::spVersion()
 {
@@ -712,11 +713,11 @@ QString DSysInfo::spVersion()
 }
 
 /*!
- * \~chinese \brief DSysInfo::udpateVersion 更新版本名称
- * \~chinese \row 小版本号 A-BC-D 中 D、A.B.C 模式中的 C
- * \~chinese \row 返回 update1… update9， 如果正式版返回空
- * \~chinese \row X.Y.Z模式下暂不支持返回此版本号
- * \~chinese \note minVersion.D == 0：正式版本    minVersion.D | minVersion.C == 1-9：update1… update9,updateA...updateZ
+  \brief DSysInfo::udpateVersion 更新版本名称
+  小版本号 A-BC-D 中 D、A.B.C 模式中的 C
+  返回 update1… update9， 如果正式版返回空
+  X.Y.Z模式下暂不支持返回此版本号
+  \note minVersion.D == 0：正式版本    minVersion.D | minVersion.C == 1-9：update1… update9,updateA...updateZ
  */
 QString DSysInfo::udpateVersion()
 {
@@ -755,9 +756,9 @@ QString DSysInfo::udpateVersion()
 }
 
 /*!
- * \~chinese \brief DSysInfo::majorVersion 主版本号
- * \~chinese \row 主版本号 【20】【23】【25】【26】【29】【30】
- * \~chinese \note 返回 MajorVersion 的值
+  \brief DSysInfo::majorVersion 主版本号
+  主版本号 【20】【23】【25】【26】【29】【30】
+  \note 返回 MajorVersion 的值
  */
 QString DSysInfo::majorVersion()
 {
@@ -766,10 +767,10 @@ QString DSysInfo::majorVersion()
 }
 
 /*!
- * \~chinese \brief DSysInfo::minorVersion 小版本号
- * \~chinese \row 【ABCD】 ·[0-9]{4}
- * \~chinese \row【A.B.C】 或者【X.Y.Z】
- * \~chinese \note 返回 MinorVersion 的值
+  \brief DSysInfo::minorVersion 小版本号
+ *【ABCD】 ·[0-9]{4}
+ *【A.B.C】 或者【X.Y.Z】
+  \note 返回 MinorVersion 的值
  */
 QString DSysInfo::minorVersion()
 {
@@ -778,9 +779,9 @@ QString DSysInfo::minorVersion()
 }
 
 /*!
- * \~chinese \brief DSysInfo::buildVersion 小版本号
- * \~chinese \row 系统镜像批次号，按时间顺序（不可回退）从100-999递增
- * \~chinese \note 返回 osBuild.xyz 的值
+  \brief DSysInfo::buildVersion 小版本号
+  系统镜像批次号，按时间顺序（不可回退）从100-999递增
+  \note 返回 osBuild.xyz 的值
  */
 QString DSysInfo::buildVersion()
 {
@@ -818,11 +819,11 @@ QString DSysInfo::distributionInfoSectionName(DSysInfo::OrgType type)
 }
 
 /*!
- * \return the organization name.
- *
- * use \l type as Distribution to get the name of current deepin distribution itself.
- *
- * \sa deepinDistributionInfoPath()
+  \return the organization name.
+  
+  use \a type as Distribution to get the name of current deepin distribution itself.
+  
+  \sa deepinDistributionInfoPath()
  */
 QString DSysInfo::distributionOrgName(DSysInfo::OrgType type, const QLocale &locale)
 {
@@ -841,11 +842,11 @@ QString DSysInfo::deepinDistributorName()
 }
 
 /*!
- * \return the organization website name and url.
- *
- * use \l type as Distribution to get the name of current deepin distribution itself.
- *
- * \sa deepinDistributionInfoPath()
+  \return the organization website name and url.
+  
+  use \a type as Distribution to get the name of current deepin distribution itself.
+  
+  \sa deepinDistributionInfoPath()
  */
 QPair<QString, QString> DSysInfo::distributionOrgWebsite(DSysInfo::OrgType type)
 {
@@ -868,11 +869,11 @@ QPair<QString, QString> DSysInfo::deepinDistributorWebsite()
 }
 
 /*!
- * \return the obtained organization logo path, or the given \l fallback one if there are no such logo.
- *
- * use \l type as Distribution to get the logo of current deepin distribution itself.
- *
- * \sa deepinDistributionInfoPath()
+  \return the obtained organization logo path, or the given \a fallback one if there are no such logo.
+  
+  use \a type as Distribution to get the logo of current deepin distribution itself.
+  
+  \sa deepinDistributionInfoPath()
  */
 QString DSysInfo::distributionOrgLogo(DSysInfo::OrgType orgType, DSysInfo::LogoType type, const QString &fallback)
 {
@@ -920,16 +921,16 @@ QString DSysInfo::productVersion()
 }
 
 /*!
- * \brief Check if current edition is a community edition
- *
- * Developer can use this way to check if we need enable or disable features
- * for community or enterprise edition.
- *
- * Current rule:
- *  - Professional, Server, Personal edition (DeepinType) will be treat as Enterprise edition.
- *  - Uos (ProductType) will be treat as Enterprise edition.
- *
- * \return true if it's on a community edition distro/installation
+  \brief Check if current edition is a community edition
+  
+  Developer can use this way to check if we need enable or disable features
+  for community or enterprise edition.
+  
+  Current rule:
+   - Professional, Server, Personal edition (DeepinType) will be treat as Enterprise edition.
+   - Uos (ProductType) will be treat as Enterprise edition.
+  
+  \return true if it's on a community edition distro/installation
  */
 bool DSysInfo::isCommunityEdition()
 {
@@ -989,7 +990,7 @@ QString DSysInfo::cpuModelName()
 }
 
 /*!
- * \return the installed memory size
+  \return the installed memory size
  */
 qint64 DSysInfo::memoryInstalledSize()
 {
@@ -1021,7 +1022,7 @@ qint64 DSysInfo::memoryInstalledSize()
 }
 
 /*!
- * \return the total available to use memory size
+  \return the total available to use memory size
  */
 qint64 DSysInfo::memoryTotalSize()
 {

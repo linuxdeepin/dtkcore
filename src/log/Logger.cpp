@@ -34,360 +34,397 @@
 
 DCORE_BEGIN_NAMESPACE
 
-/**
- * \file Logger.h
- * \brief A file containing the description of Logger class and and additional useful macros for logging
+/*!
+  \headerfile <Logger.h>
+  \inmodule dtkcore
+  \brief A file containing the description of Logger class and and additional useful macros for logging.
  */
 
-/**
- * \def logger
- *
- * \brief Macro returning the current instance of Logger object
- *
- * If you haven't created a local Logger object it returns the same value as the Logger::globalInstance() functions.
- * This macro is a recommended way to get an access to the Logger instance used in current class.
- *
- * Example:
- * \code
- * ConsoleAppender* consoleAppender = new ConsoleAppender;
- * logger->registerAppender(consoleAppender);
- * \endcode
- *
- * \sa Dtk::Logger::globalInstance()
- */
-
-
-/**
- * \def dTrace
- *
- * \brief Writes the trace log record
- *
- * This macro is the convenient way to call Logger::write(). It uses the common preprocessor macros \c __FILE__,
- * \c __LINE__ and the standard Qt \c Q_FUNC_INFO macros to automatically determine the needed parameters to call
- * Logger::write().
- *
- * \note This and other (dInfo() etc...) macros uses the variadic macro arguments to give convenient usage form for
- * the different versions of Logger::write() (using the QString or const char* argument or returning the QDebug class
- * instance). Not all compilers will support this. Please, consider reviewing your compiler documentation to ensure
- * it support __VA_ARGS__ macro.
- *
- * \sa Dtk::Logger::LogLevel
- * \sa Dtk::Logger::write()
+/*!
+  \macro Dtk::Core::logger
+  \relates Dtk::Core::Logger
+  
+  \brief Macro returning the current instance of Logger object
+  
+  If you haven't created a local Logger object it returns the same value as the Logger::globalInstance() functions.
+  This macro is a recommended way to get an access to the Logger instance used in current class.
+  
+  Example:
+  \code
+  ConsoleAppender* consoleAppender = new ConsoleAppender;
+  logger->registerAppender(consoleAppender);
+  \endcode
+  
+  \sa Dtk::Core::Logger::globalInstance()
  */
 
 
-/**
- * \def dDebug
- *
- * \brief Writes the debug log record
- *
- * This macro records the debug log record using the Logger::write() function. It works similar to the dTrace()
- * macro.
- *
- * \sa dTrace()
- * \sa Dtk::Logger::LogLevel
- * \sa Dtk::Logger::write()
+/*!
+  \macro Dtk::Core::dTrace
+  \relates Dtk::Core::Logger
+  
+  \brief Writes the trace log record
+  
+  This macro is the convenient way to call Logger::write(). It uses the common preprocessor macros \c __FILE__,
+  \c __LINE__ and the standard Qt \c Q_FUNC_INFO macros to automatically determine the needed parameters to call
+  Logger::write().
+  
+  \note This and other (dInfo() etc...) macros uses the variadic macro arguments to give convenient usage form for
+  the different versions of Logger::write() (using the QString or const char* argument or returning the QDebug class
+  instance). Not all compilers will support this. Please, consider reviewing your compiler documentation to ensure
+  it support __VA_ARGS__ macro.
+  
+  \sa Dtk::Core::dInfo Dtk::Core::dDebug Dtk::Core::dWarging Dtk::Core::dError
+  \sa Dtk::Core::Logger::LogLevel
+  \sa Dtk::Core::Logger::write()
  */
 
 
-/**
- * \def dInfo
- *
- * \brief Writes the info log record
- *
- * This macro records the info log record using the Logger::write() function. It works similar to the dTrace()
- * macro.
- *
- * \sa dTrace()
- * \sa Dtk::Logger::LogLevel
- * \sa Dtk::Logger::write()
+/*!
+  \macro Dtk::Core::dDebug
+  \relates Dtk::Core::Logger
+  
+  \brief Writes the debug log record
+  
+  This macro records the debug log record using the Logger::write() function. It works similar to the dTrace()
+  macro.
+  
+  \sa Dtk::Core::dTrace Dtk::Core::dInfo Dtk::Core::dWaring Dtk::Core::dError
+  \sa Dtk::Core::Logger::LogLevel
+  \sa Dtk::Core::Logger::write()
  */
 
 
-/**
- * \def dWarning
- *
- * \brief Write the warning log record
- *
- * This macro records the warning log record using the Logger::write() function. It works similar to the dTrace()
- * macro.
- *
- * \sa dTrace()
- * \sa Dtk::Logger::LogLevel
- * \sa Dtk::Logger::write()
+/*!
+  \macro Dtk::Core::dInfo
+  \relates Dtk::Core::Logger
+  
+  \brief Writes the info log record
+  
+  This macro records the info log record using the Logger::write() function. It works similar to the dTrace()
+  macro.
+  
+  \sa Dtk::Core::dTrace Dtk::Core::dDebug Dtk::Core::dWaring Dtk::Core::dError
+  \sa Dtk::Core::Logger::LogLevel
+  \sa Dtk::Core::Logger::write()
  */
 
 
-/**
- * \def dError
- *
- * \brief Write the error log record
- * This macro records the error log record using the Logger::write() function. It works similar to the dTrace()
- * macro.
- *
- * \sa dTrace()
- * \sa Dtk::Logger::LogLevel
- * \sa Dtk::Logger::write()
+/*!
+  \macro Dtk::Core::dWarning
+  \relates Dtk::Core::Logger
+  
+  \brief Write the warning log record
+  
+  This macro records the warning log record using the Logger::write() function. It works similar to the dTrace()
+  macro.
+  
+  \sa Dtk::Core::dTrace Dtk::Core::dInfo Dtk::Core::dDebug Dtk::Core::dError
+  \sa Dtk::Logger::LogLevel
+  \sa Dtk::Logger::write()
  */
 
 
-/**
- * \def dFatal
- *
- * \brief Write the fatal log record
- *
- * This macro records the fatal log record using the Logger::write() function. It works similar to the dTrace()
- * macro.
- *
- * \note Recording of the log record using the Logger::Fatal log level will lead to calling the STL abort()
- *       function, which will interrupt the running of your software and begin the writing of the core dump.
- *
- * \sa dTrace()
- * \sa Dtk::Logger::LogLevel
- * \sa Dtk::Logger::write()
+/*!
+  \macro Dtk::Core::dError
+  \relates Dtk::Core::Logger
+  
+  \brief Write the error log record
+  This macro records the error log record using the Logger::write() function. It works similar to the dTrace()
+  macro.
+  
+  \sa Dtk::Core::dTrace
+  \sa Dtk::Logger::LogLevel
+  \sa Dtk::Logger::write()
  */
 
 
-/**
- * \def dCTrace(category)
- *
- * \brief Writes the trace log record to the specific category
- *
- * This macro is the similar to the dTrace() macro, but has a category parameter
- * to write only to the category appenders (registered using Logger::registerCategoryAppender() method).
- *
- * \param category category name string
- *
- * \sa dTrace()
- * \sa Dtk::Logger::LogLevel
- * \sa Dtk::Logger::registerCategoryAppender()
- * \sa Dtk::Logger::write()
- * \sa dCategory(), dGlobalCategory()
+/*!
+  \macro Dtk::Core::dFatal
+  \relates Dtk::Core::Logger
+  
+  \brief Write the fatal log record
+  
+  This macro records the fatal log record using the Logger::write() function. It works similar to the dTrace()
+  macro.
+  
+  \note Recording of the log record using the Logger::Fatal log level will lead to calling the STL abort()
+        function, which will interrupt the running of your software and begin the writing of the core dump.
+  
+  \sa Dtk::Core::dTrace
+  \sa Dtk::Logger::LogLevel
+  \sa Dtk::Logger::write()
  */
 
 
-/**
- * \def dCDebug
- *
- * \brief Writes the debug log record to the specific category
- *
- * This macro records the debug log record using the Logger::write() function. It works similar to the dCTrace()
- * macro.
- *
- * \sa dCTrace()
+/*!
+  \macro Dtk::Core::dCTrace(category)
+  \relates Dtk::Core::Logger
+  
+  \brief Writes the trace log record to the specific category
+  
+  This macro is the similar to the dTrace() macro, but has a category parameter
+  to write only to the category appenders (registered using Logger::registerCategoryAppender() method).
+  
+  \a category category name string
+  
+  \sa Dtk::Core::dTrace
+  \sa Dtk::Core::Logger::LogLevel
+  \sa Dtk::Core::Logger::registerCategoryAppender()
+  \sa Dtk::Core::Logger::write()
+  \sa dCategory(), dGlobalCategory()
  */
 
 
-/**
- * \def dCInfo
- *
- * \brief Writes the info log record to the specific category
- *
- * This macro records the info log record using the Logger::write() function. It works similar to the dCTrace()
- * macro.
- *
- * \sa dCTrace()
+/*!
+  \macro Dtk::Core::dCDebug
+  \relates Dtk::Core::Logger
+  
+  \brief Writes the debug log record to the specific category
+  
+  This macro records the debug log record using the Logger::write() function. It works similar to the dCTrace()
+  macro.
+  
+  \sa Dtk::Core::dCTrace()
  */
 
 
-/**
- * \def dCWarning
- *
- * \brief Writes the warning log record to the specific category
- *
- * This macro records the warning log record using the Logger::write() function. It works similar to the dCTrace()
- * macro.
- *
- * \sa dCTrace()
+/*!
+  \macro Dtk::Core::dCInfo
+  \relates Dtk::Core::Logger
+  
+  \brief Writes the info log record to the specific category
+  
+  This macro records the info log record using the Logger::write() function. It works similar to the dCTrace()
+  macro.
+  
+  \sa Dtk::Core::dCTrace()
  */
 
 
-/**
- * \def dCError
- *
- * \brief Writes the error log record to the specific category
- *
- * This macro records the error log record using the Logger::write() function. It works similar to the dCTrace()
- * macro.
- *
- * \sa dCTrace()
+/*!
+  \macro Dtk::Core::dCWarning
+  \relates Dtk::Core::Logger
+  
+  \brief Writes the warning log record to the specific category
+  
+  This macro records the warning log record using the Logger::write() function. It works similar to the dCTrace()
+  macro.
+  
+  \sa Dtk::Core::dCTrace()
  */
 
 
-/**
- * \def dCFatal
- *
- * \brief Write the fatal log record to the specific category
- *
- * This macro records the fatal log record using the Logger::write() function. It works similar to the dCTrace()
- * macro.
- *
- * \note Recording of the log record using the Logger::Fatal log level will lead to calling the STL abort()
- *       function, which will interrupt the running of your software and begin the writing of the core dump.
- *
- * \sa dCTrace()
+/*!
+  \macro Dtk::Core::dCError
+  \relates Dtk::Core::Logger
+  
+  \brief Writes the error log record to the specific category
+  
+  This macro records the error log record using the Logger::write() function. It works similar to the dCTrace()
+  macro.
+  
+  \sa Dtk::Core::dCTrace()
  */
 
 
-/**
- * \def dCategory(category)
- *
- * \brief Create logger instance inside your custom class to log all messages to the specified category
- *
- * This macro is used to pass all log messages inside your custom class to the specific category.
- * You must include this macro inside your class declaration (similarly to the Q_OBJECT macro).
- * Internally, this macro redefines loggerInstance() function, creates the local Logger object inside your class and
- * sets the default category to the specified parameter.
- *
- * Thus, any call to loggerInstance() (for example, inside dTrace() macro) will return the local Logger object,
- * so any logging message will be directed to the default category.
- *
- * \note This macro does not register any appender to the newly created logger instance. You should register
- * logger appenders manually, inside your class.
- *
- * Usage example:
- * \code
- * class CustomClass : public QObject
- * {
- *   Q_OBJECT
- *   dCategory("custom_category")
- *   ...
- * };
- *
- * CustomClass::CustomClass(QObject* parent) : QObject(parent)
- * {
- *   logger->registerAppender(new FileAppender("custom_category_log"));
- *   dTrace() << "Trace to the custom category log";
- * }
- * \endcode
- *
- * \sa Dtk::Logger::write()
- * \sa dTrace
- * \sa Dtk::Logger::registerCategoryAppender()
- * \sa Dtk::Logger::setDefaultCategory()
- * \sa dGlobalCategory
+/*!
+  \macro Dtk::Core::dCFatal
+  \relates Dtk::Core::Logger
+  
+  \brief Write the fatal log record to the specific category
+  
+  This macro records the fatal log record using the Logger::write() function. It works similar to the dCTrace()
+  macro.
+  
+  \note Recording of the log record using the Logger::Fatal log level will lead to calling the STL abort()
+        function, which will interrupt the running of your software and begin the writing of the core dump.
+  
+  \sa Dtk::Core::dCTrace()
  */
 
 
-/**
- * \def dGlobalCategory(category)
- *
- * \brief Create logger instance inside your custom class to log all messages both to the specified category and to
- * the global logger instance.
- *
- * This macro is similar to dCategory(), but also passes all log messages to the global logger instance appenders.
- * It is equal to defining the local category logger using dCategory macro and calling:
- * \code logger->logToGlobalInstance(logger->defaultCategory(), true); \endcode
- *
- * \sa dCategory
- * \sa Dtk::Logger::logToGlobalInstance()
- * \sa Dtk::Logger::defaultCategory()
- * \sa Dtk::Logger::registerCategoryAppender()
- * \sa Dtk::Logger::write()
+/*!
+  \macro Dtk::Core::dCategory(category)
+  \relates Dtk::Core::Logger
+
+  \brief Create logger instance inside your custom class to log all messages to the specified \a category
+
+  This macro is used to pass all log messages inside your custom class to the specific \a category.
+  You must include this macro inside your class declaration (similarly to the Q_OBJECT macro).
+  Internally, this macro redefines loggerInstance() function, creates the local Logger object inside your class and
+  sets the default category to the specified parameter.
+
+  Thus, any call to loggerInstance() (for example, inside dTrace() macro) will return the local Logger object,
+  so any logging message will be directed to the default category.
+
+  \note This macro does not register any appender to the newly created logger instance. You should register
+  logger appenders manually, inside your class.
+
+  Usage example:
+  \code
+  class CustomClass : public QObject
+  {
+    Q_OBJECT
+    dCategory("custom_category")
+    ...
+  };
+
+  CustomClass::CustomClass(QObject* parent) : QObject(parent)
+  {
+    logger->registerAppender(new FileAppender("custom_category_log"));
+    dTrace() << "Trace to the custom category log";
+  }
+  \endcode
+
+  \sa Dtk::Core::Logger::write()
+  \sa Dtk::Core::dTrace()
+  \sa Dtk::Core::Logger::registerCategoryAppender()
+  \sa Dtk::Core::Logger::setDefaultCategory()
+ */
+
+
+/*!
+  \macro Dtk::Core::dGlobalCategory(category)
+  \relates Dtk::Core::Logger
+  
+  \brief Create logger instance inside your custom class to log all messages both to the specified \a category and to
+  the global logger instance.
+  
+  This macro is similar to dCategory(), but also passes all log messages to the global logger instance appenders.
+  It is equal to defining the local \a category logger using dCategory macro and calling:
+  \code
+  logger->logToGlobalInstance(logger->defaultCategory(), true);
+  \endcode
+  
+  \sa dCategory
+  \sa Dtk::Core::Logger::logToGlobalInstance()
+  \sa Dtk::Core::Logger::defaultCategory()
+  \sa Dtk::Core::Logger::registerCategoryAppender()
+  \sa Dtk::Core::Logger::write()
  */
 
 
 
-/**
- * \def dAssert
- *
- * \brief Check the assertion
- *
- * This macro is a convenient and recommended to use way to call Logger::writeAssert() function. It uses the
- * preprocessor macros (as the dDebug() does) to fill the necessary arguments of the Logger::writeAssert() call. It
- * also uses undocumented but rather mature and stable \c qt_noop() function (which does nothing) when the assertion
- * is true.
- *
- * Example:
- * \code
- * bool b = checkSomething();
- * ...
- * dAssert(b == true);
- * \endcode
- *
- * \sa Dtk::Logger::writeAssert()
+/*!
+  \macro Dtk::Core::dAssert
+  \relates Dtk::Core::Logger
+  
+  \brief Check the assertion
+  
+  This macro is a convenient and recommended to use way to call Logger::writeAssert() function. It uses the
+  preprocessor macros (as the dDebug() does) to fill the necessary arguments of the Logger::writeAssert() call. It
+  also uses undocumented but rather mature and stable \c qt_noop() function (which does nothing) when the assertion
+  is true.
+  
+  Example:
+  \code
+  bool b = checkSomething();
+  ...
+  dAssert(b == true);
+  \endcode
+  
+  \sa Dtk::Core::Logger::writeAssert()
  */
 
 
-/**
- * \def dTraceTime
- *
- * \brief Logs the processing time of current function / code block
- *
- * This macro automagically measures the function or code of block execution time and outputs it as a Logger::Trace
- * level log record.
- *
- * Example:
- * \code
- * int foo()
- * {
- *   dTraceTime();
- *   ... // Do some long operations
- *   return 0;
- * } // Outputs: Function foo finished in <time> ms.
- * \endcode
- *
- * If you are measuring a code of block execution time you may also add a name of block to the macro:
- * \code
- * int bar(bool doFoo)
- * {
- *   dTraceTime();
- *
- *   if (doFoo)
- *   {
- *     dTraceTime("Foo");
- *     ...
- *   }
- *
- *   ...
- * }
- * // Outputs:
- * // "Foo" finished in <time1> ms.
- * // Function bar finished in <time2> ms.
- * \endcode
- *
- * \note Macro switches to logging the seconds instead of milliseconds when the execution time reaches 10000 ms.
- * \sa dDebugTime, dInfoTime
+/*!
+  \macro Dtk::Core::dTraceTime
+  \relates Dtk::Core::Logger
+  
+  \brief Logs the processing time of current function / code block
+  
+  This macro automagically measures the function or code of block execution time and outputs it as a Logger::Trace
+  level log record.
+  
+  Example:
+  \code
+  int foo()
+  {
+    dTraceTime();
+    ... // Do some long operations
+    return 0;
+  } // Outputs: Function foo finished in <time> ms.
+  \endcode
+  
+  If you are measuring a code of block execution time you may also add a name of block to the macro:
+  \code
+  int bar(bool doFoo)
+  {
+    dTraceTime();
+  
+    if (doFoo)
+    {
+      dTraceTime("Foo");
+      ...
+    }
+  
+    ...
+  }
+  // Outputs:
+  // "Foo" finished in <time1> ms.
+  // Function bar finished in <time2> ms.
+  \endcode
+  
+  \note Macro switches to logging the seconds instead of milliseconds when the execution time reaches 10000 ms.
+  \sa Dtk::Core::dDebugTime, Dtk::Core::dInfoTime
  */
 
 
-/**
- * \def dDebugTime
- *
- * \brief Logs the processing time of current function / code block
- *
- * This macro automagically measures the function or code of block execution time and outputs it as a Logger::Debug
- * level log record. It works similar to dTraceTime() macro.
- *
- * \sa dTraceTime
+/*!
+  \macro Dtk::Core::dDebugTime
+  \relates Dtk::Core::Logger
+  
+  \brief Logs the processing time of current function / code block
+  
+  This macro automagically measures the function or code of block execution time and outputs it as a Logger::Debug
+  level log record. It works similar to dTraceTime() macro.
+  
+  \sa Dtk::Core::dTraceTime
  */
 
 
-/**
- * \def dInfoTime
- *
- * \brief Logs the processing time of current function / code block
- *
- * This macro automagically measures the function or code of block execution time and outputs it as a Logger::Info
- * level log record. It works similar to dTraceTime() macro.
- *
- * \sa dTraceTime
+/*!
+  \macro Dtk::Core::dInfoTime
+  \relates Dtk::Core::Logger
+  
+  \brief Logs the processing time of current function / code block
+  
+  This macro automagically measures the function or code of block execution time and outputs it as a Logger::Info
+  level log record. It works similar to dTraceTime() macro.
+  
+  \sa Dtk::Core::dTraceTime
  */
 
+/*!
+ \enum Dtk::Core::Logger::LogLevel
+ \value Trace
+ Can be used for mostly unneeded records used for internal code tracing.
+ \value Debug
+ Useful for non-necessary records used for the debugging of the software.
+ \value Info
+ Can be used for informational records, which may be interesting for not only developers.
+ \value Warning
+ May be used to log some non-fatal warnings detected by your application.
+ \value Error
+ May be used for a big problems making your application work wrong but not crashing.
+ \value Fatal
+ Used for unrecoverable errors, crashes the application right after the log record is written.
+*/
 
-/**
- * \class Logger
- *
- * \brief Very simple but rather powerful component which may be used for logging your application activities.
- *
- * Global logger instance created on a first access to it (e.g. registering appenders, calling a dDebug() macro
- * etc.) registers itself as a Qt default message handler and captures all the qDebug/dWarning/qCritical output.
- *
- * \note Qt 4 qDebug set of macro doesn't support capturing source function name, file name or line number so we
- *       recommend to use dDebug() and other Logger macros instead.
- *
- * \sa logger
- * \sa [DLogger Documentation](index.html)
+/*!
+  \class Dtk::Core::Logger
+  \inmodule dtkcore
+  
+  \brief Very simple but rather powerful component which may be used for logging your application activities.
+  
+  Global logger instance created on a first access to it (e.g. registering appenders, calling a dDebug() macro
+  etc.) registers itself as a Qt default message handler and captures all the qDebug/dWarning/qCritical output.
+  
+  \note Qt 4 qDebug set of macro doesn't support capturing source function name, file name or line number so we
+        recommend to use dDebug() and other Logger macros instead.
+  
+  \sa Dtk::Core::logger
  */
 
 class LogDevice : public QIODevice
@@ -447,11 +484,11 @@ static void qtLoggerMessageHandler(QtMsgType, const QMessageLogContext& context,
 static void qtLoggerMessageHandler(QtMsgType type, const char* msg);
 #endif
 
-/**
- * \internal
- *
- * LoggerPrivate class implements the Singleton pattern in a thread-safe way. It contains a static pointer to the
- * global logger instance protected by QReadWriteLock
+/*!
+  \internal
+  
+  LoggerPrivate class implements the Singleton pattern in a thread-safe way. It contains a static pointer to the
+  global logger instance protected by QReadWriteLock
  */
 class LoggerPrivate
 {
@@ -540,9 +577,9 @@ static void qtLoggerMessageHandler(QtMsgType type, const char* msg)
 
 
 //! Construct the instance of Logger
-/**
- * If you're only using one global instance of logger you wouldn't probably need to use this constructor manually.
- * Consider using [logger](@ref logger) macro instead to access the logger instance
+/*!
+  If you're only using one global instance of logger you wouldn't probably need to use this constructor manually.
+  Consider using [logger](@ref logger) macro instead to access the logger instance
  */
 Logger::Logger()
   : d_ptr(new LoggerPrivate)
@@ -554,13 +591,12 @@ Logger::Logger()
 
 
 //! Construct the instance of Logger and set logger default category
-/**
- * If you're only using one global instance of logger you wouldn't probably need to use this constructor manually.
- * Consider using [logger](@ref logger) macro instead to access the logger instance and call
- * [setDefaultCategory](@ref setDefaultCategory) method.
- *
- * \sa Logger()
- * \sa setDefaultCategory()
+/*!
+  If you're only using one global instance of logger you wouldn't probably need to use this constructor manually.
+  Consider using logger macro instead to access the logger instance and call setDefaultCategory method.
+  
+  \sa Logger()
+  \sa setDefaultCategory()
  */
 Logger::Logger(const QString& defaultCategory)
   : d_ptr(new LoggerPrivate)
@@ -573,9 +609,9 @@ Logger::Logger(const QString& defaultCategory)
 
 
 //! Destroy the instance of Logger
-/**
- * You probably wouldn't need to use this function directly. Global instance of logger will be destroyed automatically
- * at the end of your QCoreApplication execution
+/*!
+  You probably wouldn't need to use this function directly. Global instance of logger will be destroyed automatically
+  at the end of your QCoreApplication execution
  */
 Logger::~Logger()
 {
@@ -597,11 +633,11 @@ Logger::~Logger()
 
 
 //! Converts the LogLevel enum value to its string representation
-/**
- * \param logLevel Log level to convert
- *
- * \sa LogLevel
- * \sa levelFromString()
+/*!
+  \a logLevel Log level to convert
+  
+  \sa LogLevel
+  \sa levelFromString()
  */
 QString Logger::levelToString(Logger::LogLevel logLevel)
 {
@@ -626,14 +662,14 @@ QString Logger::levelToString(Logger::LogLevel logLevel)
 
 
 //! Converts the LogLevel string representation to enum value
-/**
- * Comparation of the strings is case independent. If the log level string provided cannot be understood
- * Logger::Debug is returned.
- *
- * \param s String to be decoded
- *
- * \sa LogLevel
- * \sa levelToString()
+/*!
+  Comparation of the strings is case independent. If the log level string provided cannot be understood
+  Logger::Debug is returned.
+  
+  \a s String to be decoded
+  
+  \sa LogLevel
+  \sa levelToString()
  */
 Logger::LogLevel Logger::levelFromString(const QString& s)
 {
@@ -659,10 +695,10 @@ Logger::LogLevel Logger::levelFromString(const QString& s)
 
 
 //! Returns the global instance of Logger
-/**
- * In a most cases you shouldn't use this function directly. Consider using [logger](@ref logger) macro instead.
- *
- * \sa logger
+/*!
+  In a most cases you shouldn't use this function directly. Consider using [logger](@ref logger) macro instead.
+  
+  \sa Dtk::Core::logger
  */
 Logger* Logger::globalInstance()
 {
@@ -691,20 +727,20 @@ Logger* Logger::globalInstance()
 
 
 //! Registers the appender to write the log records to
-/**
- * On the log writing call (using one of the macros or the write() function) Logger traverses through the list of
- * the appenders and writes a log records to the each of them. Please, look through the AbstractAppender
- * documentation to understand the concept of appenders.
- *
- * If no appenders was added to Logger, it falls back to logging into the \c std::cerr STL stream.
- *
- * \param appender Appender to register in the Logger
- *
- * \note Logger takes ownership on the appender and it will delete it on the application exit. According to this,
- *       appenders must be created on heap to prevent double destruction of the appender.
- *
- * \sa registerCategoryAppender
- * \sa AbstractAppender
+/*!
+  On the log writing call (using one of the macros or the write() function) Logger traverses through the list of
+  the appenders and writes a log records to the each of them. Please, look through the AbstractAppender
+  documentation to understand the concept of appenders.
+  
+  If no appenders was added to Logger, it falls back to logging into the \c std::cerr STL stream.
+  
+  \a appender Appender to register in the Logger
+  
+  \note Logger takes ownership on the appender and it will delete it on the application exit. According to this,
+        appenders must be created on heap to prevent double destruction of the appender.
+  
+  \sa registerCategoryAppender
+  \sa AbstractAppender
  */
 void Logger::registerAppender(AbstractAppender* appender)
 {
@@ -719,28 +755,28 @@ void Logger::registerAppender(AbstractAppender* appender)
 }
 
 //! Registers the appender to write the log records to the specific category
-/**
- * Calling this method, you can link some appender with the named category.
- * On the log writing call to the specific category (calling write() with category parameter directly,
- * writing to the default category, or using special dCDebug(), dCWarning() etc. macros),
- * Logger writes the log message only to the list of registered category appenders.
- *
- * You can call logToGlobalInstance() to pass all category log messages to the global logger instance appenders
- * (registered using registerAppender()).
- * If no category appenders with specific name was registered to the Logger,
- * it falls back to logging into the \c std::cerr STL stream, both with simple warning message.
- *
- * \param category Category name
- * \param appender Appender to register in the Logger
- *
- * \note Logger takes ownership on the appender and it will delete it on the application exit. According to this,
- *       appenders must be created on heap to prevent double destruction of the appender.
- *
- * \sa registerAppender
- * \sa dCTrace(), dCDebug(), dCInfo(), dCWarning(), dCError(), dCFatal()
- * \sa dCategory(), dGlobalCategory()
- * \sa logToGlobalInstance
- * \sa setDefaultCategory
+/*!
+  Calling this method, you can link some appender with the named category.
+  On the log writing call to the specific category (calling write() with category parameter directly,
+  writing to the default category, or using special dCDebug(), dCWarning() etc. macros),
+  Logger writes the log message only to the list of registered category appenders.
+  
+  You can call logToGlobalInstance() to pass all category log messages to the global logger instance appenders
+  (registered using registerAppender()).
+  If no category appenders with specific name was registered to the Logger,
+  it falls back to logging into the \c std::cerr STL stream, both with simple warning message.
+  
+  \a category Category name
+  \a appender Appender to register in the Logger
+  
+  \note Logger takes ownership on the appender and it will delete it on the application exit. According to this,
+        appenders must be created on heap to prevent double destruction of the appender.
+  
+  \sa registerAppender
+  \sa Dtk::Core::dCTrace(), Dtk::Core::dCDebug(), Dtk::Core::dCInfo(), Dtk::Core::dCWarning(), Dtk::Core::dCError(), Dtk::Core::dCFatal()
+  \sa Dtk::Core::dCategory(), Dtk::Core::dGlobalCategory()
+  \sa logToGlobalInstance()
+  \sa setDefaultCategory()
  */
 void Logger::registerCategoryAppender(const QString& category, AbstractAppender* appender)
 {
@@ -755,22 +791,22 @@ void Logger::registerCategoryAppender(const QString& category, AbstractAppender*
 }
 
 //! Sets default logging category
-/**
- * All log messages to this category appenders will also be written to general logger instance appenders (registered
- * using [registerAppender](@ref registerAppender) method), and vice versa.
- * In particular, any calls to the dDebug() macro will be treated as category logging,
- * so you needn't to specify category name using dCDebug() macro.
- *
- * To unset the default category, pass a null string as a parameter.
- *
- * \param category Category name
- *
- * \note "category" format marker will be set to the category name for all of these messages
- * (see [AbstractStringAppender::setFormat](@ref AbstractStringAppender::setFormat)).
- *
- * \sa defaultCategory()
- * \sa registerCategoryAppender()
- * \sa logToGlobalInstance()
+/*!
+  All log messages to this category appenders will also be written to general logger instance appenders (registered
+  using [registerAppender](@ref registerAppender) method), and vice versa.
+  In particular, any calls to the dDebug() macro will be treated as category logging,
+  so you needn't to specify category name using dCDebug() macro.
+  
+  To unset the default category, pass a null string as a parameter.
+  
+  \a category Category name
+  
+  \note "category" format marker will be set to the category name for all of these messages
+  (see [AbstractStringAppender::setFormat](@ref AbstractStringAppender::setFormat)).
+  
+  \sa defaultCategory()
+  \sa registerCategoryAppender()
+  \sa logToGlobalInstance()
  */
 void Logger::setDefaultCategory(const QString& category)
 {
@@ -782,8 +818,8 @@ void Logger::setDefaultCategory(const QString& category)
 }
 
 //! Returns default logging category name
-/**
- * \sa setDefaultCategory
+/*!
+  \sa setDefaultCategory
  */
 QString Logger::defaultCategory() const
 {
@@ -792,19 +828,19 @@ QString Logger::defaultCategory() const
 }
 
 //! Links some logging category with the global logger instance appenders.
-/**
- * If set to true, all log messages to the specified category appenders will also be written to the global logger instance appenders,
- * registered using registerAppender().
- *
- * By default, all messages to the specific category are written only to the specific category appenders
- * (registered using registerCategoryAppender()).
- *
- * \param category Category name
- * \param logToGlobal Link or onlink the category from global logger instance appender
- *
- * \sa globalInstance
- * \sa registerAppender
- * \sa registerCategoryAppender
+/*!
+  If set to true, all log messages to the specified category appenders will also be written to the global logger instance appenders,
+  registered using registerAppender().
+  
+  By default, all messages to the specific category are written only to the specific category appenders
+  (registered using registerCategoryAppender()).
+  
+  \a category Category name
+  \a logToGlobal Link or onlink the category from global logger instance appender
+  
+  \sa globalInstance
+  \sa registerAppender
+  \sa registerCategoryAppender
  */
 void Logger::logToGlobalInstance(const QString& category, bool logToGlobal)
 {
@@ -901,27 +937,27 @@ void Logger::write(const QDateTime& timeStamp, LogLevel logLevel, const char* fi
 
 
 //! Writes the log record
-/**
- * Writes the log records with the supplied arguments to all the registered appenders.
- *
- * \note It is not recommended to call this function directly. Instead of this you can just call one of the macros
- *       (dTrace, dTrac, dInfo, dWarning, dError, dFatal) that will supply all the needed
- *       information to this function.
- *
- * \param timeStamp - the time stamp of the record
- * \param logLevel - the log level of the record
- * \param file - the name of the source file that requested the log record
- * \param line - the line of the code of source file that requested the log record
- * \param function - name of the function that requested the log record
- * \param category - logging category (0 for default category)
- * \param message - log message
- *
- * \note Recording of the log record using the Logger::Fatal log level will lead to calling the STL abort()
- *       function, which will interrupt the running of your software and begin the writing of the core dump.
- *
- * \sa LogLevel
- * \sa dTrace, dDebug, dInfo, dWarning, dError, dFatal
- * \sa AbstractAppender
+/*!
+  Writes the log records with the supplied arguments to all the registered appenders.
+  
+  \note It is not recommended to call this function directly. Instead of this you can just call one of the macros
+        (dTrace, dTrac, dInfo, dWarning, dError, dFatal) that will supply all the needed
+        information to this function.
+  
+  \a timeStamp - the time stamp of the record
+  \a logLevel - the log level of the record
+  \a file - the name of the source file that requested the log record
+  \a line - the line of the code of source file that requested the log record
+  \a function - name of the function that requested the log record
+  \a category - logging category (0 for default category)
+  \a message - log message
+  
+  \note Recording of the log record using the Logger::Fatal log level will lead to calling the STL abort()
+        function, which will interrupt the running of your software and begin the writing of the core dump.
+  
+  \sa LogLevel
+  \sa Dtk::Core::dTrace(), Dtk::Core::dDebug(), Dtk::Core::dInfo(), Dtk::Core::dWarning(), Dtk::Core::dError(), Dtk::Core::dFatal()
+  \sa AbstractAppender
  */
 void Logger::write(const QDateTime& timeStamp, LogLevel logLevel, const char* file, int line, const char* function, const char* category,
                    const QString& message)
@@ -929,12 +965,12 @@ void Logger::write(const QDateTime& timeStamp, LogLevel logLevel, const char* fi
   write(timeStamp, logLevel, file, line, function, category, message, /* fromLocalInstance = */ false);
 }
 
-/**
- * This is the overloaded function provided for the convenience. It behaves similar to the above function.
- *
- * This function uses the current timestamp obtained with \c QDateTime::currentDateTime().
- *
- * \sa write()
+/*!
+  This is the overloaded function provided for the convenience. It behaves similar to the above function.
+  
+  This function uses the current timestamp obtained with \c QDateTime::currentDateTime().
+  
+  \sa write()
  */
 void Logger::write(LogLevel logLevel, const char* file, int line, const char* function, const char* category,
                    const QString& message)
@@ -943,26 +979,26 @@ void Logger::write(LogLevel logLevel, const char* file, int line, const char* fu
 }
 
 
-/**
- * This is the overloaded function provided for the convenience. It behaves similar to the above function.
- *
- * This function doesn't accept any log message as argument. It returns the \c QDebug object that can be written
- * using the stream functions. For example, you may like to write:
- * \code
- * dDebug() << "This is the size" << size << "of the element" << elementName;
- * \endcode
- * instead of writing
- * \code
- * dDebug(QString(QLatin1String("This is the size %1x%2 of the element %3"))
- *           .arg(size.x()).arg(size.y()).arg(elementName));
- * \endcode
- *
- * Please consider reading the Qt Reference Documentation for the description of the QDebug class usage syntax.
- *
- * \note This overload is definitely more pleasant to use than the first write() overload, but it behaves definitely
- *       slower than all the above overloads.
- *
- * \sa write()
+/*!
+  This is the overloaded function provided for the convenience. It behaves similar to the above function.
+  
+  This function doesn't accept any log message as argument. It returns the \c QDebug object that can be written
+  using the stream functions. For example, you may like to write:
+  \code
+  dDebug() << "This is the size" << size << "of the element" << elementName;
+  \endcode
+  instead of writing
+  \code
+  dDebug(QString(QLatin1String("This is the size %1x%2 of the element %3"))
+            .arg(size.x()).arg(size.y()).arg(elementName));
+  \endcode
+  
+  Please consider reading the Qt Reference Documentation for the description of the QDebug class usage syntax.
+  
+  \note This overload is definitely more pleasant to use than the first write() overload, but it behaves definitely
+        slower than all the above overloads.
+  
+  \sa write()
  */
 QDebug Logger::write(LogLevel logLevel, const char* file, int line, const char* function, const char* category)
 {
@@ -974,20 +1010,19 @@ QDebug Logger::write(LogLevel logLevel, const char* file, int line, const char* 
 
 
 //! Writes the assertion
-/**
- * This function writes the assertion record using the write() function.
- *
- * The assertion record is always written using the Logger::Fatal log level which leads to the abortation of the
- * program and generation of the core dump (if supported).
- *
- * The message written to the appenders will be identical to the \c condition argument prefixed with the
- * <tt>ASSERT:</tt> notification.
- *
- * \note It is not recommended to call this function directly. Instead of this you can just call the LOG_ASSERT
- *       macro that will supply all the needed information to this function.
- *
- * \sa LOG_ASSERT
- * \sa write()
+/*!
+  This function writes the assertion record using the write() function.
+  
+  The assertion record is always written using the Logger::Fatal log level which leads to the abortation of the
+  program and generation of the core dump (if supported).
+  
+  The message written to the appenders will be identical to the \c condition argument prefixed with the
+  <tt>ASSERT:</tt> notification.
+  
+  \note It is not recommended to call this function directly. Instead of this you can just call the LOG_ASSERT
+        macro that will supply all the needed information to this function.
+  
+  \sa write()
  */
 void Logger::writeAssert(const char* file, int line, const char* function, const char* condition)
 {

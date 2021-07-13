@@ -45,12 +45,13 @@ public:
 };
 
 /*!
- * \class GSettingsBackend
- * \brief Storage backend of DSettings use gsettings.
- *
- * You should generate gsetting schema with /usr/lib/x86_64-linux-gnu/libdtk-$$VERSION/DCore/bin/dtk-settings.
- *
- * You can find this tool from libdtkcore-bin. use /usr/lib/x86_64-linux-gnu/libdtk-$$VERSION/DCore/bin/dtk-settings -h for help.
+  \class Dtk::Core::GSettingsBackend
+  \inmodule dtkcore
+  \brief Storage backend of DSettings use gsettings.
+  
+  You should generate gsetting schema with /usr/lib/x86_64-linux-gnu/libdtk-$$VERSION/DCore/bin/dtk-settings.
+  
+  You can find this tool from libdtkcore-bin. use /usr/lib/x86_64-linux-gnu/libdtk-$$VERSION/DCore/bin/dtk-settings -h for help.
  */
 
 GSettingsBackend::GSettingsBackend(DSettings *settings, QObject *parent) :
@@ -84,8 +85,8 @@ GSettingsBackend::~GSettingsBackend()
 }
 
 /*!
- * \brief List all gsettings keys.
- * \return
+  \brief List all gsettings keys.
+  \return
  */
 QStringList GSettingsBackend::keys() const
 {
@@ -94,8 +95,8 @@ QStringList GSettingsBackend::keys() const
 }
 
 /*!
- * \brief Get value of key.
- * \return
+  \brief Get value of key.
+  \return
  */
 QVariant GSettingsBackend::getOption(const QString &key) const
 {
@@ -104,8 +105,8 @@ QVariant GSettingsBackend::getOption(const QString &key) const
 }
 
 /*!
- * \brief Set value to gsettings
- * \return
+  \brief Set value to gsettings
+  \return
  */
 void GSettingsBackend::doSetOption(const QString &key, const QVariant &value)
 {
@@ -117,7 +118,7 @@ void GSettingsBackend::doSetOption(const QString &key, const QVariant &value)
 }
 
 /*!
- * \brief Trigger DSettings to sync option to storage.
+  \brief Trigger DSettings to sync option to storage.
  */
 void GSettingsBackend::doSync()
 {
