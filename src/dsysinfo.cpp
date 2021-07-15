@@ -476,9 +476,6 @@ void DSysInfoPrivate::ensureReleaseInfo()
 
 void DSysInfoPrivate::ensureComputerInfo()
 {
-    if (memoryAvailableSize >= 0)
-        return;
-
 #ifdef Q_OS_LINUX
     struct utsname u;
     if (uname(&u) == 0)
