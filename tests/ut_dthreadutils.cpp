@@ -34,7 +34,6 @@ class ThreadUtils : public QObject
 
 public Q_SLOTS:
     void testCallInMainThread();
-    void testCallAfterDestroyed();
 };
 
 void ThreadUtils::testCallInMainThread()
@@ -53,33 +52,6 @@ void ThreadUtils::testCallInMainThread()
     ASSERT_TRUE(QTest::qWaitFor([&] {
         return fe.isFinished();
     }));
-}
-
-void ThreadUtils::testCallAfterDestroyed()
-{
-    // 测试target对象销毁后是否还会触发函数调用
-    QPointer<QObject> object = new QObject();
-    bool test = false;
-    auto fun = [object, &test]() -> bool {
-        if (!object)
-            return test = false;
-
-        delete object.data();
-        return test = true;
-    };
-
-    auto result1 = QtConcurrent::run([&fun, object] {
-        DThreadUtil::runInMainThread(object, fun);
-    });
-    auto result2 = QtConcurrent::run([&fun, object] {
-        DThreadUtil::runInMainThread(object, fun);
-    });
-
-    ASSERT_TRUE(QTest::qWaitFor([&] {
-        return result1.isFinished() && result2.isFinished();
-    }));
-
-    ASSERT_TRUE(test);
 }
 
 class ut_DThreadUtils : public testing::Test
@@ -102,12 +74,6 @@ TEST_F(ut_DThreadUtils, CallInMainThread)
 {
     ASSERT_TRUE(m_threadutil);
     m_threadutil->testCallInMainThread();
-}
-
-TEST_F(ut_DThreadUtils, CallAfterDestroyed)
-{
-    ASSERT_TRUE(m_threadutil);
-    m_threadutil->testCallAfterDestroyed();
 }
 
 #include "ut_dthreadutils.moc"
