@@ -27,5 +27,5 @@ genhtml -o $REPORT_DIR $BUILD_DIR/coverage.info
 #rm -rf $BUILD_DIR
 #rm -rf ../$BUILD_DIR
 
-test -e ./build/asan.log* && mv ./build/asan.log* ./build/asan_dtkcore.log || echo "Not detected any memory leak."
+test -e ./build/asan.log* && mv ./build/asan.log* ./build/asan_dtkcore.log || touch ./build/asan.log
 
