@@ -27,6 +27,8 @@ include($$PWD/log/log.pri)
 include($$PWD/filesystem/filesystem.pri)
 include($$PWD/settings/settings.pri)
 
+LIBS += -ldl
+
 DTK_MODULE_NAME = $$TARGET
 load(dtk_build)
 
