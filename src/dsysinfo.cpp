@@ -477,89 +477,7 @@ void DSysInfoPrivate::ensureReleaseInfo()
 void DSysInfoPrivate::ensureComputerInfo()
 {
 #ifdef Q_OS_LINUX
-    struct utsname u;
-    if (uname(&u) == 0)
-        computerName = QString::fromLatin1(u.nodename);
 
-    QFile file("/proc/cpuinfo");
-
-    if (file.open(QFile::ReadOnly)) {
-        QMap<QString, QString> map = parseInfoFile(file);
-        if (map.contains("Processor")) {
-            // arm-cpuinfo hw_kirin-cpuinfo
-            cpuModelName = map.value("Processor");
-        } else if (map.contains("model name")) {
-            // cpuinfo
-            cpuModelName = map.value("model name");
-        } else if (map.contains("cpu model")) {
-            // loonson3-cpuinfo sw-cpuinfo
-            cpuModelName = map.value("cpu model");
-        }
-
-        file.close();
-    }
-
-    memoryAvailableSize = get_phys_pages() * sysconf(_SC_PAGESIZE);
-
-    // Getting Memory Installed Size
-    // TODO: way to not dept on lshw?
-    if (!QStandardPaths::findExecutable("lshw").isEmpty()) {
-        QProcess lshw;
-
-        lshw.start("lshw", {"-c", "memory", "-json", "-sanitize"}, QIODevice::ReadOnly);
-
-        if (!lshw.waitForFinished()) {
-            return;
-        }
-
-        const QByteArray &lshwInfoJson = lshw.readAllStandardOutput();
-        QJsonArray lshwResultArray = QJsonDocument::fromJson(lshwInfoJson).array();
-        if (!lshwResultArray.isEmpty()) {
-            QJsonValue memoryHwInfo = lshwResultArray.first();
-            QString id = memoryHwInfo.toObject().value("id").toString();
-            Q_ASSERT(id == "memory");
-            memoryInstalledSize = memoryHwInfo.toObject().value("size").toDouble(); // TODO: check "units" is "bytes" ?
-        }
-    }
-
-    // Getting Disk Size
-    const QString &deviceName = QStorageInfo::root().device();
-    QProcess lsblk;
-
-    lsblk.start("lsblk", {"-Jlpb", "-oNAME,KNAME,PKNAME,SIZE"}, QIODevice::ReadOnly);
-
-    if (!lsblk.waitForFinished()) {
-        return;
-    }
-
-    const QByteArray &diskStatusJson = lsblk.readAllStandardOutput();
-    QJsonDocument diskStatus = QJsonDocument::fromJson(diskStatusJson);
-    QJsonValue diskStatusJsonValue = diskStatus.object().value("blockdevices");
-    QMap<QString, QPair<QString, qulonglong>> deviceParentAndSizeMap;
-
-    if (!diskStatusJsonValue.isUndefined()) {
-        QJsonArray diskStatusArray = diskStatusJsonValue.toArray();
-        QString keyName;
-
-        for (const QJsonValue oneValue : diskStatusArray) {
-            QString name = oneValue.toObject().value("name").toString();
-            QString kname = oneValue.toObject().value("kname").toString();
-            QString pkname = oneValue.toObject().value("pkname").toString();
-            qulonglong size = oneValue.toObject().value("size").toVariant().toULongLong();
-
-            if (keyName.isNull() && deviceName == name) {
-                keyName = kname;
-            }
-
-            deviceParentAndSizeMap[kname] = QPair<QString, qulonglong>(pkname, size);
-        }
-
-        while (!deviceParentAndSizeMap[keyName].first.isNull()) {
-            keyName = deviceParentAndSizeMap[keyName].first;
-        }
-
-        diskSize = deviceParentAndSizeMap[keyName].second;
-    }
 #endif
 }
 
@@ -1035,16 +953,39 @@ bool DSysInfo::isCommunityEdition()
 
 QString DSysInfo::computerName()
 {
-    siGlobal->ensureComputerInfo();
+#ifdef Q_OS_LINUX
+    struct utsname u;
+    if (uname(&u) == 0)
+        siGlobal->computerName = QString::fromLatin1(u.nodename);
 
     return siGlobal->computerName;
+#endif
+    return QString();
 }
 
 QString DSysInfo::cpuModelName()
 {
-    siGlobal->ensureComputerInfo();
+#ifdef Q_OS_LINUX
+    static QFile file("/proc/cpuinfo");
 
+    if (file.open(QFile::ReadOnly)) {
+        QMap<QString, QString> map = siGlobal->parseInfoFile(file);
+        if (map.contains("Processor")) {
+            // arm-cpuinfo hw_kirin-cpuinfo
+            siGlobal->cpuModelName = map.value("Processor");
+        } else if (map.contains("model name")) {
+            // cpuinfo
+            siGlobal->cpuModelName = map.value("model name");
+        } else if (map.contains("cpu model")) {
+            // loonson3-cpuinfo sw-cpuinfo
+            siGlobal->cpuModelName = map.value("cpu model");
+        }
+
+        file.close();
+    }
     return siGlobal->cpuModelName;
+#endif
+    return QString();
 }
 
 /*!
@@ -1052,9 +993,31 @@ QString DSysInfo::cpuModelName()
  */
 qint64 DSysInfo::memoryInstalledSize()
 {
-    siGlobal->ensureComputerInfo();
+#ifdef Q_OS_LINUX
+    // Getting Memory Installed Size
+    // TODO: way to not dept on lshw?
+    if (!QStandardPaths::findExecutable("lshw").isEmpty()) {
+        QProcess lshw;
+
+        lshw.start("lshw", {"-c", "memory", "-json", "-sanitize"}, QIODevice::ReadOnly);
+
+        if (!lshw.waitForFinished()) {
+            return -1;
+        }
+
+        const QByteArray &lshwInfoJson = lshw.readAllStandardOutput();
+        QJsonArray lshwResultArray = QJsonDocument::fromJson(lshwInfoJson).array();
+        if (!lshwResultArray.isEmpty()) {
+            QJsonValue memoryHwInfo = lshwResultArray.first();
+            QString id = memoryHwInfo.toObject().value("id").toString();
+            Q_ASSERT(id == "memory");
+            siGlobal->memoryInstalledSize = memoryHwInfo.toObject().value("size").toDouble(); // TODO: check "units" is "bytes" ?
+        }
+    }
 
     return siGlobal->memoryInstalledSize;
+#endif
+    return -1;
 }
 
 /*!
@@ -1062,16 +1025,60 @@ qint64 DSysInfo::memoryInstalledSize()
  */
 qint64 DSysInfo::memoryTotalSize()
 {
-    siGlobal->ensureComputerInfo();
-
+#ifdef Q_OS_LINUX
+    siGlobal->memoryAvailableSize = get_phys_pages() * sysconf(_SC_PAGESIZE);
     return siGlobal->memoryAvailableSize;
+#endif
+    return -1;
 }
 
 qint64 DSysInfo::systemDiskSize()
 {
-    siGlobal->ensureComputerInfo();
+#ifdef Q_OS_LINUX
+    // Getting Disk Size
+    const QString &deviceName = QStorageInfo::root().device();
+    QProcess lsblk;
+
+    lsblk.start("lsblk", {"-Jlpb", "-oNAME,KNAME,PKNAME,SIZE"}, QIODevice::ReadOnly);
+
+    if (!lsblk.waitForFinished()) {
+        return -1;
+    }
+
+    const QByteArray &diskStatusJson = lsblk.readAllStandardOutput();
+    QJsonDocument diskStatus = QJsonDocument::fromJson(diskStatusJson);
+    QJsonValue diskStatusJsonValue = diskStatus.object().value("blockdevices");
+    QMap<QString, QPair<QString, qulonglong>> deviceParentAndSizeMap;
+
+    if (!diskStatusJsonValue.isUndefined()) {
+        QJsonArray diskStatusArray = diskStatusJsonValue.toArray();
+        QString keyName;
+
+        for (const QJsonValue oneValue : diskStatusArray) {
+            QString name = oneValue.toObject().value("name").toString();
+            QString kname = oneValue.toObject().value("kname").toString();
+            QString pkname = oneValue.toObject().value("pkname").toString();
+            qulonglong size = oneValue.toObject().value("size").toVariant().toULongLong();
+
+            if (keyName.isNull() && deviceName == name) {
+                keyName = kname;
+            }
+
+            deviceParentAndSizeMap[kname] = QPair<QString, qulonglong>(pkname, size);
+        }
+
+        while (!deviceParentAndSizeMap[keyName].first.isNull()) {
+            keyName = deviceParentAndSizeMap[keyName].first;
+        }
+
+        siGlobal->diskSize = deviceParentAndSizeMap[keyName].second;
+    }
 
     return siGlobal->diskSize;
+
+#endif
+
+    return -1;
 }
 
 DCORE_END_NAMESPACE
