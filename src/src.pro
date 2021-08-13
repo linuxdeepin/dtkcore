@@ -20,6 +20,14 @@ SOURCES += \
     dsecurestring.cpp \
     ddesktopentry.cpp
 
+linux: {
+    HEADERS += \
+        $$PWD/dconfigfile.h
+
+    SOURCES += \
+        $$PWD/dconfigfile.cpp
+}
+
 include($$PWD/base/base.pri)
 include($$PWD/util/util.pri)
 include($$PWD/log/log.pri)
@@ -37,7 +45,8 @@ includes.files += \
     $$PWD/DtkCores \
     $$PWD/DSysInfo \
     $$PWD/DSecureString \
-    $$PWD/DDesktopEntry
+    $$PWD/DDesktopEntry \
+    $$PWD/DConfigFile
 
 INSTALLS += includes target
 
