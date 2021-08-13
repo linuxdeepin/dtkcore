@@ -1,0 +1,8 @@
+<interface name='org.desktopspec.ConfigManager'>
+    <method name='acquireManager'>
+      <arg type='s' name='appid' direction='in'/>
+      <arg type='s' name='name' direction='in'/>
+      <arg type='s' name='subpath' direction='in'/>
+      <arg type='o' name='path' direction='out'/>
+    </method>
+</interface>

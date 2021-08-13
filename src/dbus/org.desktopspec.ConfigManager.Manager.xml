@@ -1,0 +1,40 @@
+<interface name='org.desktopspec.ConfigManager.Manager'>
+    <property access="read" type="s" name="version"/>
+    <property access="read" type="as" name="keyList"/>
+    <property access="read" type="b" name="canRead"/>
+    <property access="read" type="b" name="canWrite"/>
+    <property access="read" type="b" name="canOverride"/>
+    <!--为每个 key 提供一个只读属性，如：
+    <property access="read" type="v" name="key1"/>
+    ...
+    <property access="read" type="v" name="key2"/>
+    -->
+    <method name='value'>
+      <arg type='s' name='key' direction='in'/>
+      <arg type='v' name='value' direction='out'/>
+    </method>
+    <method name='setValue'>
+      <arg type='s' name='key' direction='in'/>
+      <arg type='v' name='value' direction='in'/>
+    </method>
+    <method name='name'>
+      <arg type='s' name='key' direction='in'/>
+      <arg type='s' name='language' direction='in'/>
+      <arg type='s' name='name' direction='out'/>
+    </method>
+    <method name='description'>
+      <arg type='s' name='key' direction='in'/>
+      <arg type='s' name='language' direction='in'/>
+      <arg type='s' name='description' direction='out'/>
+    </method>
+    <method name='visibility'>
+      <arg type='s' name='key' direction='in'/>
+      <arg type='s' name='visibility' direction='out'/>
+    </method>
+    <!--采用引用计数的方式，引用为 0 时才真正的销毁-->
+    <method name='release'>
+    </method>
+    <signal name="valueChanged">
+      <arg name="key" type="s" direction="out"/>'
+    </signal>
+</interface>
