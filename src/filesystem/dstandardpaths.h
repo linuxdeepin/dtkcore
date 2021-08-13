@@ -55,6 +55,7 @@ public:
     };
 
     static QString homePath();
+    static QString homePath(const uint uid);
     static QString path(XDG type);
     static QString path(DSG type);
     static QString filePath(XDG type, QString fileName);

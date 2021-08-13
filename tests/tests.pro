@@ -43,11 +43,34 @@ HEADERS += $$PWD/ut_*.h \
     $$PWD/../src/dtkcore_global.h \
     $$PWD/../src/dsysinfo.h \
     $$PWD/../src/dsecurestring.h \
-    $$PWD/../src/ddesktopentry.h
+    $$PWD/../src/ddesktopentry.h \
+    $$PWD/../src/dconfig.h
 
 SOURCES += $$PWD/*.cpp \
     $$PWD/../src/dsysinfo.cpp \
     $$PWD/../src/dsecurestring.cpp \
-    $$PWD/../src/ddesktopentry.cpp
+    $$PWD/../src/ddesktopentry.cpp \
+    $$PWD/../src/dconfig.cpp
+
+linux: {
+    HEADERS += \
+        $$PWD/../src/dconfigfile.h
+
+    SOURCES += \
+        $$PWD/../src/dconfigfile.cpp
+
+    QT += dbus
+
+    config.files = $$PWD/../src/dbus/org.desktopspec.ConfigManager.xml
+    config.header_flags += -c DSGConfig -N
+    config.source_flags += -c DSGConfig -N
+
+    manager.files = $$PWD/../src/dbus/org.desktopspec.ConfigManager.Manager.xml
+    manager.header_flags += -c DSGConfigManager -N
+    manager.source_flags += -c DSGConfigManager -N
+
+    DBUS_INTERFACES += config manager
+
+}
 
 RESOURCES += data.qrc

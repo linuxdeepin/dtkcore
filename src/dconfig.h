@@ -28,6 +28,16 @@
 #include <QVariant>
 
 DCORE_BEGIN_NAMESPACE
+class DConfigBackend {
+public:
+    virtual ~DConfigBackend();
+    virtual bool isValid() const = 0;
+    virtual bool load(const QString &/*appid*/) = 0;
+    virtual QStringList keyList() const = 0;
+    virtual QVariant value(const QString &/*key*/, const QVariant &/*fallback*/) const = 0;
+    virtual void setValue(const QString &/*key*/, const QVariant &/*value*/) = 0;
+    virtual QString name() const {return QString("");}
+};
 
 class DConfigPrivate;
 class LIBDTKCORESHARED_EXPORT DConfig : public QObject, public DObject
@@ -41,13 +51,19 @@ public:
     explicit DConfig(const QString &name, const QString &subpath = QString(),
                      QObject *parent = nullptr);
 
-    bool load();
+    explicit DConfig(DConfigBackend *backend, const QString &name, const QString &subpath = QString(),
+                     QObject *parent = nullptr);
+
+    QString backendName() const;
 
     QStringList keyList() const;
 
     bool isValid() const;
     QVariant value(const QString &key, const QVariant &fallback = QVariant()) const;
     void setValue(const QString &key, const QVariant &value);
+
+    QString name() const;
+    QString subpath() const;
 
 Q_SIGNALS:
     void valueChanged(const QString &key);

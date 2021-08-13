@@ -25,8 +25,6 @@
 #include "configmanager_interface.h"
 #include "manager_interface.h"
 #endif
-#include <unistd.h>
-#include <pwd.h>
 #else
 #include <QSettings>
 #endif
@@ -34,6 +32,7 @@
 
 #include <QLoggingCategory>
 #include <QCoreApplication>
+#include <unistd.h>
 
 // https://gitlabwh.uniontech.com/wuhan/se/deepin-specifications/-/issues/3
 
@@ -41,94 +40,425 @@ DCORE_BEGIN_NAMESPACE
 
 Q_DECLARE_LOGGING_CATEGORY(cfLog)
 
-#define DSG_CONFIG "org.desktopspec.ConfigManager"
-#define DSG_CONFIG_MANAGER "org.desktopspec.ConfigManager"
-
 inline static QString getAppId() {
     // TODO: 应该使用更可靠的接口获取 appid
     return QCoreApplication::applicationName();
 }
 
+/*!
+    \class DTK::Core::DConfigBackend
+    \inmodule dtkcore
+
+    \brief 配置后端的抽象接口.
+
+    所有DConfig使用的配置后端都继承此类,用户可以继承此类实现自己的配置后端.
+ */
+
+/*!
+    \fn bool load(const QString &/appid/) = 0
+
+    \brief 初始化后端
+
+    \a appid 管理的配置信息key值，默认为应用程序名称
+  */
+
+/*!
+    \fn bool isValid() const = 0
+
+    \sa DConfig::isValid().
+
+ */
+
+/*!
+    \fn QStringList keyList() const = 0
+
+    \sa DConfig::keyList()
+
+ */
+
+/*!
+    \fn QVariant value(const QString &key, const QVariant &fallback = QVariant()) const = 0
+
+    \sa DConfig::value()
+ */
+
+/*!
+    \fn void setValue(const QString &key, const QVariant &value) = 0
+
+    \sa DConfig::setValue()
+ */
+
+/*!
+    \fn QString name() const = 0
+
+    \breaf 后端配置的唯一标识
+
+ */
+
+DConfigBackend::~DConfigBackend()
+{
+}
+
 class Q_DECL_HIDDEN DConfigPrivate : public DObjectPrivate
 {
 public:
-    DConfigPrivate(DConfig *qq)
+    explicit DConfigPrivate(DConfig *qq)
         : DObjectPrivate(qq)
     {
-
     }
+
+    virtual ~DConfigPrivate() override;
+
+    DConfigBackend *getOrCreateBackend();
+    DConfigBackend *createBackendByEnv();
 
     QString name;
     QString subpath;
-#ifndef D_DISABLE_DCONFIG
-    inline static QString getUserName() {
-        uid_t uid = geteuid();
-        passwd *pw = getpwuid(uid);
-        return pw ? QString::fromLocal8Bit(pw->pw_name) : QString();
-    }
-
-#ifndef D_DISABLE_DBUS_CONFIG
-    DSGConfigManager *config = nullptr;
-#endif
-    QScopedPointer<DConfigFile> configFile;
-
-    inline QStringList keyList() const {
-#ifndef D_DISABLE_DBUS_CONFIG
-        if (Q_LIKELY(config)) {
-            return config->keyList();
-        }
-#endif
-        return configFile->keyList();
-    }
-    inline QVariant value(const QString &key, const QVariant &fallback) const {
-#ifndef D_DISABLE_DBUS_CONFIG
-        if (Q_LIKELY(config)) {
-            const QDBusVariant &dv = config->value(key);
-            const QVariant &v = dv.variant();
-            return v.isValid() ? v : fallback;
-        }
-#endif
-        return configFile->value(key, fallback);
-    }
-    inline void setValue(const QString &key, const QVariant &value) {
-#ifndef D_DISABLE_DBUS_CONFIG
-        if (Q_LIKELY(config)) {
-            config->setValue(key, QDBusVariant(value));
-            return;
-        }
-#endif
-        configFile->setValue(key, value, getUserName(), getAppId());
-    }
-#else
-    QSettings *settings = nullptr;
-
-    inline QStringList keyList() const {
-        return settings->childKeys();
-    }
-    inline QVariant value(const QString &key, const QVariant &fallback) const {
-        return settings->value(key, fallback);
-    }
-    inline void setValue(const QString &key, const QVariant &value) {
-        settings->setValue(key, value);
-    }
-#endif
+    QScopedPointer<DConfigBackend> backend;
 
     D_DECLARE_PUBLIC(DConfig)
 };
 
-DConfig::DConfig(const QString &name, const QString &subpath,
-                 QObject *parent)
+namespace {
+
+#ifndef D_DISABLE_DCONFIG
+class Q_DECL_HIDDEN FileBackend : public DConfigBackend
+{
+public:
+    explicit FileBackend(DConfigPrivate *o)
+        : owner(o)
+    {
+    }
+
+    virtual ~FileBackend() override;
+
+    virtual bool isValid() const override
+    {
+        return configFile && configFile->isValid();
+    }
+
+    virtual bool load(const QString &appid) override
+    {
+        if (configFile)
+            return true;
+
+        configFile.reset(new DConfigFile(appid,owner->name, owner->subpath));
+        configFile->addCacheService(getuid());
+        if (envLocalPrefix.isEmpty()) {
+            return configFile->load();
+        }
+        return configFile->load(QString::fromLocal8Bit(envLocalPrefix));
+    }
+
+    virtual QStringList keyList() const override
+    {
+        return configFile->metaService()->keyList();
+    }
+
+    virtual QVariant value(const QString &key, const QVariant &fallback) const override
+    {
+        const QVariant &v = configFile->value(key, getuid());
+        return v.isValid() ? v : fallback;
+    }
+
+    virtual void setValue(const QString &key, const QVariant &value) override
+    {
+        if (configFile->setValue(key, value, getuid(), getAppId())) {
+            Q_EMIT owner->q_func()->valueChanged(key);
+        }
+    }
+
+    virtual QString name() const override
+    {
+        return QString("FileBackend");
+    }
+
+private:
+    QScopedPointer<DConfigFile> configFile;
+    DConfigPrivate* owner;
+    const QByteArray envLocalPrefix = qgetenv("DSG_DCONFIG_FILE_BACKEND_LOCAL_PREFIX");
+};
+
+FileBackend::~FileBackend()
+{
+    if (envLocalPrefix.isEmpty()) {
+        configFile->save();
+    } else {
+        configFile->save(QString::fromLocal8Bit(envLocalPrefix));
+    }
+    configFile.reset();
+}
+
+#ifndef D_DISABLE_DBUS_CONFIG
+
+#define DSG_CONFIG "org.desktopspec.ConfigManager"
+#define DSG_CONFIG_MANAGER "org.desktopspec.ConfigManager"
+
+class Q_DECL_HIDDEN DBusBackend : public DConfigBackend
+{
+public:
+    explicit DBusBackend(DConfigPrivate* o):
+        owner(o)
+    {
+    }
+
+    virtual ~DBusBackend() override;
+
+    static bool isServiceRegistered()
+    {
+        return QDBusConnection::systemBus().interface()->isServiceRegistered(DSG_CONFIG);
+    }
+
+    virtual bool isValid() const override
+    {
+        return config && config->isValid();
+    }
+
+    /*!
+      \internal
+
+      初始化DBus连接,会先调用acquireManager动态获取一个配置连接,
+      再通过这个配置连接进行配置文件的访问.
+     */
+    virtual bool load(const QString &appid) override
+    {
+        if (config)
+            return true;
+
+        qCDebug(cfLog, "Try acquire config manager object form DBus");
+        DSGConfig dsg_config(DSG_CONFIG, "/", QDBusConnection::systemBus());
+        QDBusPendingReply<QDBusObjectPath> dbus_reply = dsg_config.acquireManager(appid, owner->name, owner->subpath);
+        const QDBusObjectPath dbus_path = dbus_reply.value();
+        if (dbus_reply.isError() || dbus_path.path().isEmpty()) {
+            qCWarning(cfLog, "Can't acquire config manager. error:\"%s\"", qPrintable(dbus_reply.error().message()));
+            return false;
+        } else {
+            qCWarning(cfLog(), "dbus path=\"%s\"", qPrintable(dbus_path.path()));
+            config.reset(new DSGConfigManager(DSG_CONFIG_MANAGER, dbus_path.path(),
+                                                QDBusConnection::systemBus(), owner->q_func()));
+            if (!config->isValid()) {
+                qCWarning(cfLog(), "Can't acquire config path=\"%s\"", qPrintable(dbus_path.path()));
+                config.reset();
+                return false;
+            } else {
+                QObject::connect(config.data(), &DSGConfigManager::valueChanged, owner->q_func(), &DConfig::valueChanged);
+            }
+        }
+        return true;
+    }
+
+    virtual QStringList keyList() const override
+    {
+        return config->keyList();
+    }
+
+    virtual QVariant value(const QString &key, const QVariant &fallback) const override
+    {
+        const QDBusVariant &dv = config->value(key);
+        const QVariant &v = dv.variant();
+        return v.isValid() ? v : fallback;
+    }
+
+    virtual void setValue(const QString &key, const QVariant &value) override
+    {
+        config->setValue(key, QDBusVariant(value));
+    }
+
+    virtual QString name() const override
+    {
+        return QString("DBusBackend");
+    }
+
+private:
+    QScopedPointer<DSGConfigManager> config;
+    DConfigPrivate* owner;
+};
+
+DBusBackend::~DBusBackend()
+{
+    if (config) {
+        config->release();
+    }
+}
+#endif //D_DISABLE_DBUS_CONFIG
+#else
+
+class Q_DECL_HIDDEN QSettingBackend : public DConfigBackend
+{
+public:
+    explicit QSettingBackend(DConfigPrivate* o):
+        owner(o)
+    {
+    }
+
+    virtual ~QSettingBackend() override;
+
+    virtual bool isValid() const override
+    {
+        return settings;
+    }
+
+    virtual bool load(const QString &appid) override
+    {
+        Q_UNUSED(appid);
+
+        if (settings)
+            return true;
+
+        settings = new QSettings(owner->name, QSettings::IniFormat, owner->q_func());
+        settings->beginGroup(owner->subpath);
+        return true;
+    }
+
+    virtual QStringList keyList() const override
+    {
+        return settings->childKeys();
+    }
+
+    virtual QVariant value(const QString &key, const QVariant &fallback) const override
+    {
+        return settings->value(key, fallback);
+    }
+
+    virtual void setValue(const QString &key, const QVariant &value) override
+    {
+        settings->setValue(key, value);
+    }
+
+    virtual QString name() const override
+    {
+        return QString("QSettingBackend");
+    }
+
+private:
+    QSettings *settings = nullptr;
+    DConfigPrivate* owner;
+};
+
+QSettingBackend::~QSettingBackend()
+{
+}
+
+#endif //D_DISABLE_DCONFIG
+}
+
+DConfigPrivate::~DConfigPrivate()
+{
+    backend.reset();
+}
+
+/*!
+  \internal
+
+    \brief 创建一个配置后端
+
+    默认使用的配置后端会优先根据环境变量来选择配置中心的D-Bus接口还是文件配置后端接口。
+    若没有配置此环境变量，则根据是否有配置中心提供D-Bus服务来选择配置中心服务还是文件配置后端接口.
+ */
+DConfigBackend *DConfigPrivate::getOrCreateBackend()
+{
+    if (backend) {
+        return backend.data();
+    }
+    if (auto backendEnv = createBackendByEnv()) {
+        backend.reset(backendEnv);
+        return backend.data();
+    }
+#ifndef D_DISABLE_DCONFIG
+#ifndef D_DISABLE_DBUS_CONFIG
+    if (DBusBackend::isServiceRegistered()) {
+        qCDebug(cfLog, "Fallback to DBus mode");
+        backend.reset(new DBusBackend(this));
+    } else {
+        qCDebug(cfLog, "Can't use DBus config service, fallback to DConfigFile mode");
+        backend.reset(new FileBackend(this));
+    }
+#else
+    backend.reset(new FileBackend(this));
+#endif //D_DISABLE_DBUS_CONFIG
+#else
+    qCDebug(cfLog, "Fallback to QSettings mode");
+    backend.reset(new QSettingBackend(this));
+#endif //D_DISABLE_DCONFIG
+    return backend.data();
+}
+
+/*!
+  \internal
+
+    \brief 创建一个配置后端
+
+    尝试根据环境变量来选择配置中心的D-Bus接口还是文件配置后端接口。
+ */
+DConfigBackend *DConfigPrivate::createBackendByEnv()
+{
+    const QByteArray &envBackend = qgetenv("DSG_DCONFIG_BACKEND_TYPE");
+    if (!envBackend.isEmpty()) {
+        if (envBackend == "DBusBackend") {
+
+#ifndef D_DISABLE_DCONFIG
+#ifndef D_DISABLE_DBUS_CONFIG
+            if (DBusBackend::isServiceRegistered()) {
+                qCDebug(cfLog, "Fallback to DBus mode");
+                return new DBusBackend(this);
+            }
+#endif //D_DISABLE_DBUS_CONFIG
+#endif //D_DISABLE_DCONFIG
+        } else if (envBackend == "FileBackend") {
+
+#ifndef D_DISABLE_DCONFIG
+            qCDebug(cfLog, "Fallback to DConfigFile mode");
+            return new FileBackend(this);
+#endif //D_DISABLE_DCONFIG
+        } else {
+
+#ifndef D_DISABLE_DCONFIG
+#else
+            qCDebug(cfLog, "Fallback to QSettings mode");
+            return new QSettingBackend(this);
+#endif //D_DISABLE_DCONFIG
+        }
+    }
+    return nullptr;
+}
+
+/*!
+    \class DTK::Core::DConfig
+    \inmodule dtkcore
+
+    \brief 配置策略提供的接口类
+
+    此接口规范定义了开发库所提供的关于配置文件读写的相关接口，
+    如果应用程序所使用的开发库实现了此规范，则程序应当优先使用开发库提供的接口。
+ */
+
+
+/*!
+ * \brief 构造配置策略提供的对象
+ * \a name 配置文件名
+ * \a subpath 配置文件对应的子目录
+ * \a parent 父对象
+ */
+DConfig::DConfig(const QString &name, const QString &subpath, QObject *parent)
+    : DConfig(nullptr, name, subpath, parent)
+{
+}
+
+/*!
+ * \brief 使用自定义的配置策略后端构造对象
+ * \a name 配置文件名
+ * \a backend 调用者继承于DConfigBackend的配置策略后端
+ * \a subpath 配置文件对应的子目录
+ * \a parent 父对象
+ * \note 调用者只构造backend，由DConfig释放。
+ */
+DConfig::DConfig(DConfigBackend *backend, const QString &name, const QString &subpath, QObject *parent)
     : QObject(parent)
     , DObject(*new DConfigPrivate(this))
 {
     D_D(DConfig);
     d->name = name;
     d->subpath = subpath;
-}
-
-bool DConfig::load()
-{
-    D_D(DConfig);
 
     const auto &appid = getAppId();
     Q_ASSERT(!appid.isEmpty());
@@ -136,85 +466,87 @@ bool DConfig::load()
     qCDebug(cfLog, "Load config of appid=%s name=%s, subpath=%s",
             qPrintable(appid), qPrintable(d->name), qPrintable(d->subpath));
 
-#ifndef D_DISABLE_DCONFIG
-    bool use_dbus_config = false;
-#ifndef D_DISABLE_DBUS_CONFIG
-    if (d->config)
-        return true;
-
-    use_dbus_config = QDBusConnection::systemBus().interface()->isServiceRegistered(DSG_CONFIG);
-
-    if (use_dbus_config) {
-        qCDebug(cfLog, "Try acquire config manager object form DBus");
-        DSGConfig dsg_config(DSG_CONFIG, "/", QDBusConnection::systemBus());
-        const QDBusObjectPath dbus_path = dsg_config.acquireManager(appid, d->name, d->subpath);
-        if (dbus_path.path().isEmpty()) {
-            qCWarning(cfLog, "Can't acquire config manager");
-            return false;
-        } else {
-            d->config = new DSGConfigManager(DSG_CONFIG_MANAGER, dbus_path.path(),
-                                             QDBusConnection::systemBus(), this);
-            if (!d->config->isValid()) {
-                delete d->config;
-                d->config = nullptr;
-                return false;
-            } else {
-                connect(d->config, &DSGConfigManager::valueChanged, this, &DConfig::valueChanged);
-                use_dbus_config = true;
-            }
-        }
+    if (backend) {
+        d->backend.reset(backend);
     }
-#endif
 
-    if (!use_dbus_config) {
-        qCDebug(cfLog, "Can't use DBus config service, fallback to DConfigFile mode");
-        if (d->configFile)
-            return true;
-        d->configFile.reset(new DConfigFile(appid, d->name, d->subpath));
+    if (auto backend = d->getOrCreateBackend()) {
+        backend->load(appid);
     }
-#else
-    qCDebug(cfLog, "Fallback to QSettings mode");
-    if (d->settings)
-        return true;
-
-    d->settings = new QSettings(d->name, QSettings::IniFormat, this);
-    d->settings->beginGroup(d->subpath);
-#endif
-
-    return true;
 }
 
+/*!
+ * \brief DConfig::backendName
+ * \return 配置策略后端名称
+ * \note 调用者只能用DConfig访问DConfigBackend对象，所以不返回DConfigBackend对象。
+ */
+QString DConfig::backendName() const
+{
+    D_DC(DConfig);
+    return d->backend->name();
+}
+
+/*!
+ * \brief 获得所有可用的配置项名称
+ * \return 配置项名称集合
+ */
 QStringList DConfig::keyList() const
 {
     D_DC(DConfig);
-    return d->keyList();
+    return d->backend->keyList();
 }
 
+/*!
+ * \brief 判断此后端是否可用
+ * \return
+ */
 bool DConfig::isValid() const
 {
     D_DC(DConfig);
-#ifndef D_DISABLE_DCONFIG
-    if (d->configFile)
-        return true;
-
-#ifndef D_DISABLE_DBUS_CONFIG
-    return d->config;
-#endif
-#else
-    return d->settings;
-#endif
+    return d->backend->isValid();
 }
 
+/*!
+ * \brief 根据配置项名称获得对应值
+ * \param key 配置项名称
+ * \param fallback 没有获取到配置项值后提供的默认值
+ * \return
+ */
 QVariant DConfig::value(const QString &key, const QVariant &fallback) const
 {
     D_DC(DConfig);
-    return d->value(key, fallback);
+    return d->backend->value(key, fallback);
 }
 
+/*!
+ * \brief 根据配置项名称设置其值
+ * \param 配置项名称
+ * \param 需要更新的值
+ */
 void DConfig::setValue(const QString &key, const QVariant &value)
 {
     D_D(DConfig);
-    d->setValue(key, value);
+    d->backend->setValue(key, value);
+}
+
+/*!
+ * \brief 返回配置文件名称
+ * \return
+ */
+QString DConfig::name() const
+{
+    D_DC(DConfig);
+    return d->name;
+}
+
+/*!
+ * \brief 返回配置文件对应的子目录
+ * \return
+ */
+QString DConfig::subpath() const
+{
+    D_DC(DConfig);
+    return d->subpath;
 }
 
 DCORE_END_NAMESPACE

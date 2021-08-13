@@ -36,9 +36,10 @@ QT_END_NAMESPACE
 
 DCORE_BEGIN_NAMESPACE
 
+class DConfigMeta;
+class DConfigCache;
 class DConfigFilePrivate;
-class LIBDTKCORESHARED_EXPORT DConfigFile : public DObject
-{
+class LIBDTKCORESHARED_EXPORT DConfigFile : public DObject{
     D_DECLARE_PRIVATE(DConfigFile)
 public:
     enum Flag {
@@ -52,6 +53,11 @@ public:
         ReadWrite
     };
 
+    enum Visibility {
+        Private,
+        Public
+    };
+
     struct Version {
         quint16 major;
         quint16 minor;
@@ -59,35 +65,77 @@ public:
 
     static constexpr Version supportedVersion();
 
+    static bool isGlobalCacheService(const uint uid);
+
     explicit DConfigFile(const QString &appId, const QString &name,
                          const QString &subpath = QString());
 
     bool load(const QString &localPrefix = QString());
-    bool load(QIODevice *meta, QIODevice *userCache,
-              QIODevice *globalCache, QList<QIODevice*> overrides);
-    bool save(QJsonDocument::JsonFormat format = QJsonDocument::Indented,
+    bool load(QIODevice *meta, const QList<QIODevice*> &overrides);
+
+    bool save(const QString &localPrefix = QString(), QJsonDocument::JsonFormat format = QJsonDocument::Indented,
               bool sync = false) const;
-    bool save(QIODevice *cache, bool global,
-              QJsonDocument::JsonFormat format = QJsonDocument::Indented) const;
 
     bool isValid() const;
+    QVariant value(const QString &key, const uint uid) const;
+    bool setValue(const QString &key, const QVariant &value,
+                  const uint uid, const QString &appid = QString());
 
-    Version version() const;
-    void setVersion(quint16 major, quint16 minor);
+    DConfigCache *addCacheService(const uint uid);
+    DConfigCache *cacheService(const uint uid) const;
+    void removeCacheService(const uint uid);
+    QList<DConfigCache*> cacheServices() const;
+    QList<DConfigCache*> userCacheServices() const;
+    DConfigCache *globalCacheService() const;
 
-    QStringList keyList() const;
-    Flags flags(const QString &key) const;
-    Permissions permissions(const QString &key) const;
-
-    QVariant value(const QString &key, const QVariant &fallback = QVariant()) const;
-    void setValue(const QString &key, const QVariant &value,
-                  const QString &userName, const QString &appid);
-
-    QString displayName(const QString &key, QLocale::Language lang);
-    QString description(const QString &key, QLocale::Language lang);
+    DConfigMeta* metaService();
+    DConfigMeta* buildMetaService();
+    void resetMetaService(DConfigMeta* meta);
 
 protected:
     friend QDebug operator<<(QDebug, const DConfigFile &);
+};
+
+class LIBDTKCORESHARED_EXPORT DConfigMeta {
+public:
+    virtual ~DConfigMeta();
+    virtual DConfigFile::Version version() const = 0;
+    virtual void setVersion(quint16 major, quint16 minor) = 0;
+
+    virtual bool load(const QString &localPrefix = QString()) = 0;
+
+    virtual bool load(QIODevice *meta, const QList<QIODevice*> &overrides) = 0;
+
+    virtual QStringList keyList() const = 0;
+    virtual DConfigFile::Flags flags(const QString &key) const = 0;
+    virtual DConfigFile::Permissions permissions(const QString &key) const = 0;
+    virtual DConfigFile::Visibility visibility(const QString &key) const = 0;
+    virtual int serial(const QString &key) const = 0;
+
+    virtual QString displayName(const QString &key, const QLocale &locale) = 0;
+    virtual QString description(const QString &key, const QLocale &locale) = 0;
+
+    virtual QString metaPath(const QString &localPrefix = QString(), bool *useAppId = nullptr) const = 0;
+    virtual QStringList allOverrideDirs(const bool useAppId, const QString &prefix = QString()) const = 0;
+
+    virtual QVariant value(const QString &key) const = 0;
+};
+
+class LIBDTKCORESHARED_EXPORT DConfigCache {
+public:
+    virtual ~DConfigCache();
+
+    virtual bool load(const QString &localPrefix = QString()) = 0;
+    virtual bool save(const QString &localPrefix = QString(), QJsonDocument::JsonFormat format = QJsonDocument::Indented,
+                      bool sync = false) = 0;
+    virtual void resetMeta(DConfigMeta *meta) = 0;
+
+    virtual void remove(const QString &key) = 0;
+    virtual QStringList keyList() const = 0;
+    virtual bool setValue(const QString &key, const QVariant &value, const uint uid, const QString &appid) = 0;
+    virtual QVariant value(const QString &key) const = 0;
+    virtual int serial(const QString &key) const = 0;
+    virtual uint uid() const = 0;
 };
 
 #ifndef QT_NO_DEBUG_STREAM

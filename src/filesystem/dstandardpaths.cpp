@@ -201,4 +201,11 @@ QString DStandardPaths::filePath(DStandardPaths::DSG type, const QString fileNam
     return dir + QLatin1Char('/') + fileName;
 }
 
+QString DStandardPaths::homePath(const uint uid)
+{
+    struct passwd *pw = getpwuid(uid);
+    const char *homedir = pw->pw_dir;
+    return QString::fromLocal8Bit(homedir);
+}
+
 DCORE_END_NAMESPACE
