@@ -30,7 +30,7 @@ class Singleton : public QObject
 public:
     explicit Singleton(QObject *parent = nullptr);
 
-    void test();
+    QAtomicInt count;
 };
 
 class MultiSingletonTester : public QObject
@@ -39,5 +39,8 @@ class MultiSingletonTester : public QObject
 public:
     explicit MultiSingletonTester(QObject *parent = nullptr);
 
+    int count() const;
+
+public Q_SLOTS:
     void run();
 };

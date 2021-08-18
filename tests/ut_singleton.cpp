@@ -17,20 +17,10 @@
 
 #include "ut_singleton.h"
 
-#include <QDebug>
-#include <QThread>
-
 Singleton::Singleton(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      count(0)
 {
-    qDebug() << "Singleton Init Begin" << this;
-    QThread::sleep(3);
-    qDebug() << "Singleton Init End" << this;
-}
-
-void Singleton::test()
-{
-    qDebug() << "test" << this;
 }
 
 MultiSingletonTester::MultiSingletonTester(QObject *parent)
@@ -40,5 +30,10 @@ MultiSingletonTester::MultiSingletonTester(QObject *parent)
 
 void MultiSingletonTester::run()
 {
-    Singleton::instance()->test();
+    Singleton::instance()->count.ref();
+}
+
+int MultiSingletonTester::count() const
+{
+    return Singleton::instance()->count.load();
 }

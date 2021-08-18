@@ -23,6 +23,7 @@
 #include <QDBusReply>
 #include <QDir>
 #include <DDesktopEntry>
+#include <QTest>
 
 #include "log/LogManager.h"
 #include "filesystem/dpathbuf.h"
@@ -111,28 +112,41 @@ TEST_F(ut_DUtil, testPathChange)
 
 TEST_F(ut_DUtil, testDSingleton)
 {
-    auto threadA = new QThread;
-    auto testerA = new MultiSingletonTester;
-    QObject::connect(threadA, &QThread::started, testerA, &MultiSingletonTester::run);
-    QObject::connect(threadA, &QThread::finished, testerA, [=]() {
-        threadA->deleteLater();
-        testerA->deleteLater();
-    });
-    testerA->moveToThread(threadA);
+    const int exampleCount = 5;
+    QVector<QThread*> threads;
+    QVector<MultiSingletonTester*> testers;
+    threads.reserve(exampleCount);
+    testers.reserve(exampleCount);
+    for (int i = 0; i < exampleCount; i++) {
+        auto thread = new QThread();
+        auto tester = new MultiSingletonTester;
+        tester->moveToThread(thread);
+        QObject::connect(thread, &QThread::started, tester, &MultiSingletonTester::run);
 
-    auto threadB = new QThread;
-    auto testerB = new MultiSingletonTester;
-    testerB->moveToThread(threadB);
-    QObject::connect(threadB, &QThread::started, testerB, &MultiSingletonTester::run);
-    QObject::connect(threadB, &QThread::finished, testerB, [=]() {
-        threadB->deleteLater();
-        testerB->deleteLater();
-    });
+        threads.push_back(thread);
+        testers.push_back(tester);
+        thread->start();
+    }
 
-    threadA->start();
-    threadB->start();
+    for (auto thread : threads) {
+        thread->quit();
+    }
 
-    QThread::sleep(5);
+    ASSERT_TRUE(QTest::qWaitFor([threads] {
+        for (auto thread : threads) {
+            if (!thread->isFinished()) {
+                return false;
+            }
+        }
+        return true;
+    }));
+
+    for (auto tester : testers) {
+        ASSERT_EQ(tester->count(), exampleCount);
+    }
+
+    qDeleteAll(threads);
+    qDeleteAll(testers);
 }
 
 TEST_F(ut_DUtil, testTimeFormatter)
