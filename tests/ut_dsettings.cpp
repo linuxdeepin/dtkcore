@@ -26,6 +26,8 @@
 #include "settings/dsettings.h"
 #include "settings/dsettingsoption.h"
 #include "settings/dsettingsgroup.h"
+#include "settings/backend/gsettingsbackend.h"
+#include "settings/backend/qsettingbackend.h"
 
 DCORE_USE_NAMESPACE
 
@@ -72,6 +74,16 @@ void ut_DSettings::TearDown()
     QFile file("/tmp/test.json");
     if (file.exists())
         file.remove();
+}
+
+TEST_F(ut_DSettings, testDSettingSetBackend)
+{
+    QPointer<DSettings> tmpSetting = DSettings::fromJson(jsonContent.toLatin1());
+    QScopedPointer<DSettings> scopeSettings(tmpSetting.data());
+    QSettingBackend qBackend("/tmp/test.json");
+    scopeSettings->setBackend(&qBackend);
+    QStringList qKeys = qBackend.keys();
+    ASSERT_TRUE(qKeys.isEmpty());
 }
 
 TEST_F(ut_DSettings, testDSettingFromJson)
@@ -163,6 +175,25 @@ TEST_F(ut_DSettings, testDSettingGetOption)
 {
     QPointer<DSettings> tmpSetting = DSettings::fromJsonFile("/tmp/test.json");
     QScopedPointer<DSettings> scopeSettings(tmpSetting.data());
+    QStringList keys = scopeSettings->keys();
+    QVariant option = scopeSettings->getOption(keys[0]);
+    ASSERT_TRUE(option.toBool());
+}
+
+TEST_F(ut_DSettings, testDSettingSync)
+{
+    QPointer<DSettings> tmpSetting = DSettings::fromJson(jsonContent.toLatin1());
+    QScopedPointer<DSettings> scopeSettings(tmpSetting.data());
+    scopeSettings->sync();
+    QStringList keys = scopeSettings->keys();
+    ASSERT_TRUE(!keys.isEmpty());
+}
+
+TEST_F(ut_DSettings, testDSettingReset)
+{
+    QPointer<DSettings> tmpSetting = DSettings::fromJson(jsonContent.toLatin1());
+    QScopedPointer<DSettings> scopeSettings(tmpSetting.data());
+    scopeSettings->reset();
     QStringList keys = scopeSettings->keys();
     QVariant option = scopeSettings->getOption(keys[0]);
     ASSERT_TRUE(option.toBool());
