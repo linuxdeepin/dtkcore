@@ -38,13 +38,15 @@ INCLUDEPATH += \
     $$PWD/../src/filesystem \
     $$PWD/../src/log \
     $$PWD/../src/settings \
-    $$PWD/../src/util
+    $$PWD/../src/util \
+    $$PWD/../src/dci
 
 include($$PWD/../src/base/base.pri)
 include($$PWD/../src/filesystem/filesystem.pri)
 include($$PWD/../src/log/log.pri)
 include($$PWD/../src/settings/settings.pri)
 include($$PWD/../src/util/util.pri)
+include($$PWD/../src/dci/dci.pri)
 
 HEADERS += $$PWD/ut_*.h \
     $$PWD/../src/dtkcore_global.h \

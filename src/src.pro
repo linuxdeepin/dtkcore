@@ -21,12 +21,6 @@ SOURCES += \
     ddesktopentry.cpp \
     dtkcore_global.cpp
 
-include($$PWD/base/base.pri)
-include($$PWD/util/util.pri)
-include($$PWD/log/log.pri)
-include($$PWD/filesystem/filesystem.pri)
-include($$PWD/settings/settings.pri)
-
 DTK_MODULE_NAME = $$TARGET
 load(dtk_build)
 
@@ -39,6 +33,13 @@ includes.files += \
     $$PWD/DSysInfo \
     $$PWD/DSecureString \
     $$PWD/DDesktopEntry
+
+include($$PWD/base/base.pri)
+include($$PWD/util/util.pri)
+include($$PWD/log/log.pri)
+include($$PWD/filesystem/filesystem.pri)
+include($$PWD/settings/settings.pri)
+include($$PWD/dci/dci.pri)
 
 INSTALLS += includes target
 
