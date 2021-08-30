@@ -25,6 +25,7 @@
 #include "log/Logger.h"
 #include "log/FileAppender.h"
 #include "log/ConsoleAppender.h"
+#include "log/RollingFileAppender.h"
 
 DCORE_USE_NAMESPACE
 
@@ -43,6 +44,10 @@ void ut_Logger::SetUp()
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
     file.close();
+    QFile rollFile("/tmp/rollLog");
+    if (!rollFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+    rollFile.close();
 }
 
 void ut_Logger::TearDown()
@@ -54,6 +59,9 @@ void ut_Logger::TearDown()
     QFile file("/tmp/log");
     if (file.exists())
         file.remove();
+    QFile rollFile("/tmp/rollLog");
+    if (rollFile.exists())
+        rollFile.remove();
 }
 
 TEST_F(ut_Logger, testLevelToString)
@@ -96,6 +104,7 @@ TEST_F(ut_Logger, testGlobalInstance)
 TEST_F(ut_Logger, testRegisterAppender)
 {
     Logger* gLogger = Logger::globalInstance();
+
     FileAppender *fileAppener = new FileAppender("/tmp/log");
     if (fileAppener->detailsLevel() > Logger::Trace)
         fileAppener->setDetailsLevel(Logger::Trace);
@@ -103,6 +112,33 @@ TEST_F(ut_Logger, testRegisterAppender)
     ASSERT_TRUE(fileAppener->size() == 0);
     dTrace("testRegisterAppender");
     ASSERT_TRUE(fileAppener->size() != 0);
+
+    ConsoleAppender *consoleAppener = new ConsoleAppender();
+    if (consoleAppener->detailsLevel() > Logger::Trace)
+        consoleAppener->setDetailsLevel(Logger::Trace);
+    gLogger->registerAppender(consoleAppener);
+    consoleAppener->ignoreEnvironmentPattern(false);
+    QString format = consoleAppener->format();
+    consoleAppener->setFormat("[%{file}: %{line} %{type:-7}] <%{function}> %{message}\n");
+    dTrace("testRegisterAppender");
+
+    RollingFileAppender *rollingFileAppender = new RollingFileAppender("/tmp/rollLog");
+    if (rollingFileAppender->detailsLevel() > Logger::Trace)
+        rollingFileAppender->setDetailsLevel(Logger::Trace);
+    gLogger->registerAppender(rollingFileAppender);
+    rollingFileAppender->setDatePattern("'.'yyyy-MM-dd-hh-mm");
+    ASSERT_TRUE(rollingFileAppender->datePatternString() == "'.'yyyy-MM-dd-hh-mm");
+    rollingFileAppender->setLogFilesLimit(2);
+    ASSERT_TRUE(rollingFileAppender->logFilesLimit() == 2);
+    rollingFileAppender->setDatePattern(RollingFileAppender::MinutelyRollover);
+    ASSERT_TRUE(rollingFileAppender->datePattern() == RollingFileAppender::MinutelyRollover);
+    dTrace("testRegisterAppender");
+    rollingFileAppender->setDatePattern(RollingFileAppender::HourlyRollover);
+    ASSERT_TRUE(rollingFileAppender->datePattern() == RollingFileAppender::HourlyRollover);
+    dTrace("testRegisterAppender");
+    rollingFileAppender->setDatePattern(RollingFileAppender::HalfDailyRollover);
+    ASSERT_TRUE(rollingFileAppender->datePattern() == RollingFileAppender::HalfDailyRollover);
+    dTrace("testRegisterAppender");
 }
 
 TEST_F(ut_Logger, testRegisterCategoryAppender)

@@ -73,3 +73,12 @@ TEST_F(ut_DDiskSizeFormatter, testDDiskSizeFormatterFormatAsUnitList)
     ASSERT_TRUE(qFuzzyCompare(result[1].first, 1));
     ASSERT_EQ(result[1].second, DDiskSizeFormatter::K);
 }
+
+TEST_F(ut_DDiskSizeFormatter, testDDiskSizeFormatterUnitStr)
+{
+    ASSERT_EQ(diskSizeFormatter->unitStr(DDiskSizeFormatter::B), "B");
+    ASSERT_EQ(diskSizeFormatter->unitStr(DDiskSizeFormatter::K), "KB");
+    ASSERT_EQ(diskSizeFormatter->unitStr(DDiskSizeFormatter::M), "MB");
+    ASSERT_EQ(diskSizeFormatter->unitStr(DDiskSizeFormatter::G), "GB");
+    ASSERT_EQ(diskSizeFormatter->unitStr(DDiskSizeFormatter::T), "TB");
+}

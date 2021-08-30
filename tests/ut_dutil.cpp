@@ -35,6 +35,7 @@
 #include "settings/dsettingsgroup.h"
 #include "settings/dsettingsoption.h"
 #include "dsysinfo.h"
+#include "base/dsingleton.h"
 
 DCORE_USE_NAMESPACE
 
@@ -72,7 +73,7 @@ TEST_F(ut_DUtil, testDefaultLogPath)
     qputenv("HOME", home);
 }
 
-TEST_F(ut_DUtil, testLogPath)
+TEST_F(ut_DUtil, testDLogManager)
 {
     qApp->setOrganizationName("deepin");
     qApp->setApplicationName("deepin-test-dtk");
@@ -86,6 +87,9 @@ TEST_F(ut_DUtil, testLogPath)
 #endif
 
     ASSERT_EQ(DLogManager::getlogFilePath(), logPath.toString());
+    DLogManager::registerFileAppender();
+    DLogManager::registerConsoleAppender();
+    DLogManager::setlogFilePath("%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n");
 }
 
 TEST_F(ut_DUtil, testSetInvalidLogPath)
@@ -147,6 +151,7 @@ TEST_F(ut_DUtil, testDSingleton)
 
     qDeleteAll(threads);
     qDeleteAll(testers);
+    delete DSingleton<int>::instance();
 }
 
 TEST_F(ut_DUtil, testTimeFormatter)
@@ -474,4 +479,59 @@ TEST_F(ut_DUtil, testOsVersion)
     ASSERT_TRUE(DSysInfo::udpateVersion() == QStringLiteral(""));
 
     QFile::remove("/tmp/etc/os-version");
+}
+
+TEST_F(ut_DUtil, testDDesktopEntry)
+{
+    DDesktopEntry entry("/tmp/etc/os-version");
+    entry.setStringValue("UnionTech OS Desktop", "SystemName", "Version");
+    entry.setStringValue("统信桌面操作系统", "SystemName[zh_CN]", "Version");
+    entry.setStringValue("Desktop", "ProductType", "Version");
+    entry.setStringValue("桌面", "ProductType[zh_CN]", "Version");
+    entry.setStringValue("Professional", "EditionName", "Version");
+    entry.setStringValue("专业版", "EditionName[zh_CN]", "Version");
+    entry.setStringValue("20", "MajorVersion", "Version");
+    entry.setStringValue("100A", "MinorVersion", "Version");
+    entry.setStringValue("11018.107", "OsBuild", "Version");
+    ASSERT_TRUE(entry.save());
+    ASSERT_TRUE(entry.name().isEmpty());
+    ASSERT_TRUE(entry.genericName().isEmpty());
+    ASSERT_TRUE(entry.ddeDisplayName().isEmpty());
+    ASSERT_TRUE(entry.comment().isEmpty());
+    QString slash("\\\\");
+    ASSERT_TRUE(entry.escapeExec(slash) == slash);
+    ASSERT_TRUE(entry.unescapeExec(slash) == slash);
+}
+
+TEST_F(ut_DUtil, testDSysInfo)
+{
+    DSysInfo::distributionOrgWebsite();
+    DSysInfo::deepinDistributorWebsite();
+    DSysInfo::distributionOrgLogo(DSysInfo::Distribution, DSysInfo::Normal);
+    DSysInfo::distributionOrgLogo(DSysInfo::Distribution, DSysInfo::Light);
+    DSysInfo::distributionOrgLogo(DSysInfo::Distribution, DSysInfo::Symbolic);
+    DSysInfo::distributionOrgLogo(DSysInfo::Distribution, DSysInfo::Transparent);
+    ASSERT_TRUE(!DSysInfo::distributionOrgName(DSysInfo::Distribution).isEmpty());
+    ASSERT_TRUE(DSysInfo::distributionOrgName(DSysInfo::Distributor).isEmpty());
+    ASSERT_TRUE(DSysInfo::distributionOrgName(DSysInfo::Manufacturer).isEmpty());
+    ASSERT_TRUE((DSysInfo::isDeepin() == true) || (DSysInfo::isDeepin() == false));
+    ASSERT_TRUE(DSysInfo::isDDE());
+    ASSERT_TRUE(DSysInfo::productType() >= 0);
+    ASSERT_TRUE(!DSysInfo::productTypeString().isEmpty());
+    ASSERT_TRUE(!DSysInfo::productVersion().isEmpty());
+    ASSERT_TRUE(!DSysInfo::cpuModelName().isEmpty());
+    ASSERT_TRUE(!DSysInfo::operatingSystemName().isEmpty());
+    ASSERT_TRUE(DSysInfo::deepinType() >= 0);
+    ASSERT_TRUE(!DSysInfo::deepinTypeDisplayName().isEmpty());
+    ASSERT_TRUE(!DSysInfo::deepinVersion().isEmpty());
+    ASSERT_TRUE(!DSysInfo::deepinEdition().isEmpty());
+    ASSERT_TRUE(!DSysInfo::deepinCopyright().isEmpty());
+    ASSERT_TRUE(DSysInfo::deepinDistributionInfoPath().size() >= 0);
+    ASSERT_TRUE(DSysInfo::deepinDistributorName().size() >= 0);
+    ASSERT_TRUE(DSysInfo::deepinDistributorLogo().size() >= 0);
+    ASSERT_TRUE(DSysInfo::isCommunityEdition() == true || DSysInfo::isCommunityEdition() == false);
+    ASSERT_TRUE(!DSysInfo::computerName().isEmpty());
+    ASSERT_TRUE(DSysInfo::memoryInstalledSize() >= -1);
+    ASSERT_TRUE(DSysInfo::memoryTotalSize() >= -1);
+    ASSERT_TRUE(DSysInfo::systemDiskSize() >= -1);
 }
