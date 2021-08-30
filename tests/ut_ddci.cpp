@@ -148,6 +148,25 @@ TEST_F(ut_DCI, DDciFile) {
         ASSERT_EQ(dciFile.childrenCount("/"), 0);
         ASSERT_EQ(dciFile.toData(), QByteArrayLiteral("DCI\0\1\0\0\0"));
     }
+
+    // DDciFile::copy
+    {
+        DDciFile dciFile;
+        // 文件复制
+        ASSERT_TRUE(dciFile.writeFile("/test.txt", "test"));
+        ASSERT_TRUE(dciFile.copy("/test.txt", "/test.txt.new"));
+        ASSERT_TRUE(dciFile.exists("/test.txt.new"));
+        ASSERT_EQ(dciFile.list("/", true), (QStringList{"test.txt", "test.txt.new"}));
+        ASSERT_EQ(dciFile.dataRef("/test.txt"), dciFile.dataRef("/test.txt.new"));
+
+        // 目录复制
+        ASSERT_TRUE(dciFile.mkdir("/test"));
+        ASSERT_TRUE(dciFile.rename("/test.txt", "/test/test.txt"));
+        ASSERT_TRUE(dciFile.copy("/test", "/test.new"));
+        ASSERT_TRUE(dciFile.exists("/test.new/test.txt"));
+        ASSERT_EQ(dciFile.list("/test.new", true), (QStringList{"test.txt"}));
+        ASSERT_EQ(dciFile.dataRef("/test/test.txt"), dciFile.dataRef("/test.new/test.txt"));
+    }
 }
 
 class TestDCIFileHelper {
@@ -282,13 +301,17 @@ TEST_F(ut_DCI, DFileEngine) {
         // 复制
         ASSERT_TRUE(QFile::copy(helper.dciFormatFilePath("/1.new/test.txt"),
                                 helper.dciFormatFilePath("/test.txt")));
-        // 目录禁止复制
-        ASSERT_FALSE(QFile::copy(helper.dciFormatFilePath("/3"),
-                                 helper.dciFormatFilePath("/3.new")));
-        // [/1.new, /1.new/test.txt, /2.new, /3, /test.txt]
+        // 复制目录
+        ASSERT_TRUE(QFile::copy(helper.dciFormatFilePath("/1.new"),
+                                 helper.dciFormatFilePath("/1")));
+        ASSERT_EQ(QDir(helper.dciFormatFilePath("/1")).entryList(),
+                  QDir(helper.dciFormatFilePath("/1.new")).entryList());
+        // [/1.new, /1.new/test.txt, /2.new, /3, /test.txt, "/1"]
 
         // 目录遍历
         QStringList list {
+            helper.dciFormatFilePath("/1"),
+            helper.dciFormatFilePath("/1/test.txt"),
             helper.dciFormatFilePath("/1.new"),
             helper.dciFormatFilePath("/1.new/test.txt"),
             helper.dciFormatFilePath("/2.new"),
@@ -308,6 +331,6 @@ TEST_F(ut_DCI, DFileEngine) {
         ASSERT_TRUE(QFile::remove(helper.dciFormatFilePath("/1.new")));
         // [/3]
         ASSERT_EQ(QDir(helper.dciFormatFilePath()).entryList(),
-                  QStringList {"3"});
+                  (QStringList {"1", "3"}));
     }
 }

@@ -294,14 +294,12 @@ bool DDciFileEngine::copy(const QString &newName)
 {
     if (!file->isValid())
         return false;
-    if (file->type(subfilePath) != DDciFile::File)
-        return false;
     // 解析出新的 dci 内部文件路径
     const auto paths = resolvePath(newName, dciFilePath);
     if (paths.second.isEmpty())
         return false;
 
-    return file->writeFile(paths.second, file->dataRef(subfilePath)) && forceSave();
+    return file->copy(subfilePath, paths.second) && forceSave();
 }
 
 bool DDciFileEngine::rename(const QString &newName)

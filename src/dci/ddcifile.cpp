@@ -96,8 +96,10 @@ public:
     qint64 writeDataForNode(QIODevice *device, Node *node) const;
     qint64 writeNode(QIODevice *device, Node *node) const;
 
-    Node *mkNode(const QString &filePath, qint8 type);
+    Node *mkNode(const QString &filePath);
     void removeNode(Node *node);
+    void copyNode(const Node *from, Node *to);
+
     bool loadDirectory(Node *directory,
                        const QByteArray &data, qint64 &begin, qint64 end,
                        QHash<QString, Node *> &pathToNode);
@@ -224,9 +226,9 @@ qint64 DDciFilePrivate::writeNode(QIODevice *device, DDciFilePrivate::Node *node
     return metaDataSize + dataSize;
 }
 
-DDciFilePrivate::Node *DDciFilePrivate::mkNode(const QString &filePath, qint8 type)
+DDciFilePrivate::Node *DDciFilePrivate::mkNode(const QString &filePath)
 {
-    qCDebug(logDF, "Request create a node, type is %i", type);
+    qCDebug(logDF, "Request create a node");
 
     if (pathToNode.contains(filePath)) {
         setErrorString(QString("The \"%1\" is existed").arg(filePath));
@@ -249,7 +251,6 @@ DDciFilePrivate::Node *DDciFilePrivate::mkNode(const QString &filePath, qint8 ty
         }
 
         Node *newNode = new Node;
-        newNode->type = type;
         newNode->name = info.fileName();
         newNode->parent = parentNode;
 
@@ -278,6 +279,32 @@ void DDciFilePrivate::removeNode(DDciFilePrivate::Node *node)
     }
 
     delete node;
+}
+
+void DDciFilePrivate::copyNode(const DDciFilePrivate::Node *from, DDciFilePrivate::Node *to)
+{
+    QList<QPair<const Node*, Node*>> copyPendingList;
+    copyPendingList << qMakePair(from, to);
+
+    for (int i = 0; i < copyPendingList.size(); ++i) {
+        auto f = copyPendingList.at(i).first;
+        auto t = copyPendingList.at(i).second;
+
+        t->type = f->type;
+        t->data = f->data;
+
+        for (const auto child : f->children) {
+            if (child == to)
+                continue;
+
+            Node *newChild = new Node;
+            newChild->parent = t;
+            newChild->name = child->name;
+            pathToNode[newChild->path()] = newChild;
+            t->children << newChild;
+            copyPendingList << qMakePair(child, newChild);
+        }
+    }
 }
 
 bool DDciFilePrivate::loadDirectory(DDciFilePrivate::Node *directory,
@@ -516,7 +543,11 @@ bool DDciFile::mkdir(const QString &filePath)
     D_D(DDciFile);
 
     qCDebug(logDF, "Request create the \"%s\" directory", qPrintable(filePath));
-    return d->mkNode(filePath, FILE_TYPE_DIR);
+    auto node = d->mkNode(filePath);
+    if (!node)
+        return false;
+    node->type = FILE_TYPE_DIR;
+    return true;
 }
 
 bool DDciFile::writeFile(const QString &filePath, const QByteArray &data, bool override)
@@ -542,10 +573,11 @@ bool DDciFile::writeFile(const QString &filePath, const QByteArray &data, bool o
         }
     }
 
-    auto node = d->mkNode(filePath, FILE_TYPE_FILE);
+    auto node = d->mkNode(filePath);
     if (!node)
         return false;
 
+    node->type = FILE_TYPE_FILE;
     node->data = data;
     return true;
 }
@@ -622,6 +654,25 @@ bool DDciFile::rename(const QString &filePath, const QString &newFilePath, bool 
         d->setErrorString("The file is not exists");
         return false;
     }
+}
+
+bool DDciFile::copy(const QString &from, const QString &to)
+{
+    D_D(DDciFile);
+
+    const auto fromNode = d->pathToNode.value(from);
+    if (!fromNode) {
+        d->setErrorString(QString("The \"%1\" is not exists").arg(from));
+        return false;
+    }
+
+    auto toNode = d->mkNode(to);
+    if (!toNode) {
+        return false;
+    }
+
+    d->copyNode(fromNode, toNode);
+    return true;
 }
 
 DCORE_END_NAMESPACE

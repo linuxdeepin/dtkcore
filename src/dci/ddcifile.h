@@ -67,6 +67,7 @@ public:
     bool writeFile(const QString &filePath, const QByteArray &data, bool override = false);
     bool remove(const QString &filePath);
     bool rename(const QString &filePath, const QString &newFilePath, bool override = false);
+    bool copy(const QString &from, const QString &to);
 };
 
 DCORE_END_NAMESPACE
