@@ -69,3 +69,11 @@ TEST_F(ut_DTimeUnitFormatter, testDTimeUnitFormatterFormatAsUnitList)
     ASSERT_TRUE(qFuzzyCompare(result[0].first, 121));
     ASSERT_EQ(result[0].second, DTimeUnitFormatter::Seconds);
 }
+
+TEST_F(ut_DTimeUnitFormatter, testDTimeUnitFormatterUnitStr)
+{
+    ASSERT_EQ(timeUnitFormatter->unitStr(DTimeUnitFormatter::Seconds), "s");
+    ASSERT_EQ(timeUnitFormatter->unitStr(DTimeUnitFormatter::Minute), "m");
+    ASSERT_EQ(timeUnitFormatter->unitStr(DTimeUnitFormatter::Hour), "h");
+    ASSERT_EQ(timeUnitFormatter->unitStr(DTimeUnitFormatter::Day), "d");
+}

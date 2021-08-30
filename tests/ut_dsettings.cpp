@@ -134,6 +134,11 @@ TEST_F(ut_DSettings, testDSettingOption)
     QPointer<DSettingsOption> option = scopeSettings->option(keys[0]);
     QString optionKey = option->key();
     ASSERT_TRUE(!optionKey.isEmpty());
+    QString optionName = option->name();
+    ASSERT_TRUE(optionName.isEmpty());
+    ASSERT_TRUE(option->canReset());
+    ASSERT_TRUE(option->defaultValue().toBool());
+    ASSERT_TRUE(option->viewType() == "checkbox");
 }
 
 TEST_F(ut_DSettings, testDSettingValue)

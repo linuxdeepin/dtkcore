@@ -24,6 +24,8 @@
 #include <QDir>
 #include <QFile>
 #include <QUrl>
+#include <QSignalSpy>
+#include <QTest>
 #include "filesystem/dfilewatcher.h"
 #include "filesystem/dfilewatchermanager.h"
 
@@ -58,25 +60,29 @@ void ut_DFileWatcherManager::TearDown()
     QFile file("/tmp/test");
     if (file.exists())
         file.remove();
+    QFile file1("/tmp/test1");
+    if (file1.exists())
+        file1.remove();
 }
 
-TEST_F(ut_DFileWatcherManager, testDFileSystemWatcherAdd)
+TEST_F(ut_DFileWatcherManager, testDFileWatcherManagerAdd)
 {
     auto watcher = fileWatcherManager->add("/tmp/test");
-    bool isChanged = false;
-    QObject::connect(watcher, &DFileWatcher::fileDeleted, watcher, [&isChanged](const QUrl & ) {
-        isChanged = true;
-    });
+
+    // test fileDeleted signal
+    QSignalSpy spy(watcher, &DBaseFileWatcher::fileDeleted);
     QFile file("/tmp/test");
-    file.remove("/tmp/test");
-    if (!file.exists())
-        emit watcher->fileDeleted(QUrl("tmp/test"));
-    ASSERT_TRUE(isChanged);
+    if (file.exists())
+        file.remove();
+    QTest::qWaitFor([&spy](){
+        return spy.count() >= 1;
+    }, 1000);
+    ASSERT_TRUE(spy.count() >= 1);
 }
 
 TEST_F(ut_DFileWatcherManager, testDFileSystemWatcherRemove)
 {
+    fileWatcherManager->add("/tmp/test");
     fileWatcherManager->remove("/tmp/test");
-    // TODO:待接口变化再补充
 }
 
