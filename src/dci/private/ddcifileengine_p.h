@@ -80,6 +80,7 @@ public:
     bool copy(const QString &newName) override;
     bool rename(const QString &newName) override;
     bool renameOverwrite(const QString &newName) override;
+    bool link(const QString &newName) override;
     bool mkdir(const QString &dirName, bool createParentDirectories) const override;
     bool rmdir(const QString &dirName, bool recurseParentDirectories) const override;
     bool setSize(qint64 size) override;

@@ -97,14 +97,72 @@ TEST_F(ut_DCI, DDciFile) {
         ASSERT_EQ(dciFile.type("/test/test.txt"), DDciFile::File);
         ASSERT_EQ(dciFile.dataRef("/test/test.txt"), QByteArray("test\n"));
 
+        // 软链接
+        // 链接一个不存在的文件
+        ASSERT_TRUE(dciFile.link("/no", "/1.link"));
+        ASSERT_TRUE(dciFile.exists("/1.link"));
+        ASSERT_EQ(dciFile.type("/1.link"), DDciFile::Symlink);
+        ASSERT_EQ(dciFile.symlinkTarget("/1.link"), "/no");
+        // 当链接目标无效时，无论如何都不允许写入数据
+        ASSERT_FALSE(dciFile.writeFile("/1.link", "", false));
+        ASSERT_FALSE(dciFile.writeFile("/1.link", "", true));
+        // 链接一个目录
+        ASSERT_TRUE(dciFile.link("/test", "/2.link"));
+        ASSERT_TRUE(dciFile.symlinkTarget("/2.link").isEmpty());
+        ASSERT_FALSE(dciFile.mkdir("/2.link/test"));
+        // 链接一个存在的文件
+        ASSERT_TRUE(dciFile.link("/test/test.txt", "/3.link"));
+        ASSERT_EQ(dciFile.symlinkTarget("/3.link"), "/test/test.txt");
+        ASSERT_EQ(dciFile.dataRef("/3.link"), QByteArray("test\n"));
+        ASSERT_TRUE(dciFile.writeFile("/3.link", "TEST", true));
+        ASSERT_EQ(dciFile.dataRef("/test/test.txt"), QByteArray("TEST"));
+        // 相对路径链接
+        ASSERT_TRUE(dciFile.link("./test/test.txt", "/4.link"));
+        ASSERT_EQ(dciFile.symlinkTarget("/4.link"), "/test/test.txt");
+        ASSERT_EQ(dciFile.dataRef("/4.link"), QByteArray("TEST"));
+        // 链接一个软链接，测试 ".." 类型的相对路径
+        ASSERT_TRUE(dciFile.link("../4.link", "/test/5.link"));
+        ASSERT_EQ(dciFile.symlinkTarget("/test/5.link"), "/4.link");
+        ASSERT_EQ(dciFile.dataRef("/test/5.link"), QByteArray("TEST"));
+        ASSERT_TRUE(dciFile.writeFile("/test/5.link", "test\n", true));
+        ASSERT_EQ(dciFile.dataRef("/test/test.txt"), QByteArray("test\n"));
+        // 链接同目录文件
+        ASSERT_TRUE(dciFile.link("test.txt", "/test/6.link"));
+        ASSERT_EQ(dciFile.dataRef("/test/6.link"), QByteArray("test\n"));
+        // 链接对象删除
+        ASSERT_TRUE(dciFile.remove("/4.link"));
+        ASSERT_TRUE(dciFile.exists("/test/5.link"));
+        ASSERT_EQ(dciFile.symlinkTarget("/test/5.link"), "/4.link");
+        ASSERT_TRUE(dciFile.dataRef("/test/5.link").isEmpty());
+        ASSERT_FALSE(dciFile.writeFile("/test/5.link", "", true));
+        // 链接对象改名
+        ASSERT_TRUE(dciFile.rename("/test/6.link", "/test/7.link"));
+        ASSERT_EQ(dciFile.dataRef("/test/7.link"), QByteArray("test\n"));
+        // 链接对象更换目录
+        ASSERT_TRUE(dciFile.rename("/test/7.link", "/7.link"));
+        ASSERT_EQ(dciFile.symlinkTarget("/7.link"), "/test.txt");
+        ASSERT_TRUE(dciFile.dataRef("/7.link").isEmpty());
+
         {
             // 复制数据
             DDciFile dciFile2(dciFile.toData());
             ASSERT_TRUE(dciFile2.isValid());
-            ASSERT_EQ(dciFile2.list("/"), QStringList{"/test"});
-            ASSERT_EQ(dciFile2.list("/test"), QStringList{"/test/test.txt"});
+            ASSERT_EQ(dciFile2.list("/"), dciFile.list("/"));
+            ASSERT_EQ(dciFile2.list("/test"), dciFile.list("/test"));
             ASSERT_EQ(dciFile2.dataRef("/test/test.txt"), QByteArray("test\n"));
+            ASSERT_EQ(dciFile2.dataRef("/test/3.link"),
+                      dciFile2.dataRef("/test/text.txt"));
             ASSERT_EQ(dciFile.toData(), dciFile2.toData());
+        }
+
+        // 清理链接文件
+        for (const QString &file : dciFile.list("/", false)) {
+            if (dciFile.type(file) == DDciFile::Symlink)
+                dciFile.remove(file);
+        }
+        for (const QString &file : dciFile.list("/test", false)) {
+            if (dciFile.type(file) == DDciFile::Symlink)
+                dciFile.remove(file);
         }
 
         // 改写文件数据
@@ -193,6 +251,13 @@ private:
     QString fileName;
 };
 
+static QByteArray readAll(const QString &file) {
+    QFile f(file);
+    if (!f.open(QIODevice::ReadOnly))
+        return {};
+    return f.readAll();
+}
+
 TEST_F(ut_DCI, DFileEngine) {
     {
         TestDCIFileHelper helper(QDir::temp().absoluteFilePath("test.dci"));
@@ -221,6 +286,17 @@ TEST_F(ut_DCI, DFileEngine) {
             ASSERT_TRUE(file.seek(0));
             ASSERT_EQ(file.readAll(), "Hello");
             ASSERT_TRUE(file.flush());
+            // 链接文件创建，绝对路径链接
+            ASSERT_TRUE(file.link(helper.dciFormatFilePath("/test.txt.link")));
+            {
+                QFile linkFile(helper.dciFormatFilePath("/test.txt.link"));
+                ASSERT_TRUE(QFileInfo(linkFile).isSymLink());
+                ASSERT_EQ(linkFile.symLinkTarget(), "/test.txt");
+                ASSERT_TRUE(linkFile.open(QIODevice::ReadOnly));
+                ASSERT_EQ(linkFile.readAll(), "Hello");
+                ASSERT_EQ(linkFile.size(), file.size());
+            }
+
             file.close();
 
             // 文件信息
@@ -242,12 +318,13 @@ TEST_F(ut_DCI, DFileEngine) {
 
             // 目录遍历
             QDir dir(helper.dciFormatFilePath());
-            ASSERT_EQ(dir.entryList(), QStringList{"test.txt"});
+            ASSERT_EQ(dir.entryList(), (QStringList{"test.txt", "test.txt.link"}));
 
             // 文件大小
             ASSERT_EQ(file.size(), 5);
             ASSERT_TRUE(file.resize(10));
             ASSERT_EQ(file.size(), 10);
+            ASSERT_EQ(QFile(helper.dciFormatFilePath("/test.txt.link")).size(), 10);
         }
 
         {
@@ -257,7 +334,7 @@ TEST_F(ut_DCI, DFileEngine) {
             ASSERT_TRUE(file.open(QIODevice::ReadOnly));
             ASSERT_EQ(file.readAll(), QByteArrayLiteral("Hello\0\0\0\0\0"));
             file.close();
-            // [/test.txt]
+            // [/test.txt, /test.txt.link]
         }
 
         {
@@ -272,6 +349,8 @@ TEST_F(ut_DCI, DFileEngine) {
             ASSERT_EQ(file.readAll(), QByteArrayLiteral("lo\0\0\0\0\0"));
             ASSERT_TRUE(file.seek(0));
             ASSERT_EQ(file.readAll(), QByteArrayLiteral("HEllo\0\0\0\0\0"));
+            ASSERT_EQ(readAll(helper.dciFormatFilePath("/test.txt.link")),
+                      QByteArrayLiteral("HEllo\0\0\0\0\0"));
         }
 
         // 目录创建
@@ -279,7 +358,7 @@ TEST_F(ut_DCI, DFileEngine) {
         ASSERT_FALSE(QDir(helper.dciFormatFilePath()).mkdir("2/3"));
         ASSERT_TRUE(QDir(helper.dciFormatFilePath()).mkpath("2/3"));
         ASSERT_TRUE(QFileInfo(helper.dciFormatFilePath("/1")).isDir());
-        // [/test.txt, /1, /2, /2/3]
+        // [/test.txt, /test.txt.link, /1, /2, /2/3]
 
         // 目录 rename
         ASSERT_FALSE(QFile::rename(helper.dciFormatFilePath("/1"), "/1"));
@@ -289,34 +368,54 @@ TEST_F(ut_DCI, DFileEngine) {
                                   helper.dciFormatFilePath("/2.new")));
         ASSERT_TRUE(QFile::rename(helper.dciFormatFilePath("/2.new/3"),
                                   helper.dciFormatFilePath("/3")));
-        // [/test.txt, /1.new, /2.new, /3]
+        // [/test.txt, /test.txt.link, /1.new, /2.new, /3]
 
         // 文件 rename
         ASSERT_TRUE(QFile::rename(helper.dciFormatFilePath("/test.txt"),
                                   helper.dciFormatFilePath("/test.txt.new")));
         ASSERT_TRUE(QFile::rename(helper.dciFormatFilePath("/test.txt.new"),
                                   helper.dciFormatFilePath("/1.new/test.txt")));
-        // [/1.new, /1.new/test.txt.new, /2.new, /3]
+        // [/1.new, /1.new/test.txt.new, /test.txt.link, /2.new, /3]
+        // 此时的 link file 应该无效
+        ASSERT_TRUE(readAll(helper.dciFormatFilePath("/test.txt.link")).isEmpty());
+        // 链接文件 rename
+        ASSERT_TRUE(QFile::rename(helper.dciFormatFilePath("/test.txt.link"),
+                                  helper.dciFormatFilePath("/1.new/test.txt.link")));
 
         // 复制
         ASSERT_TRUE(QFile::copy(helper.dciFormatFilePath("/1.new/test.txt"),
                                 helper.dciFormatFilePath("/test.txt")));
+        // 链接文件复制
+        ASSERT_TRUE(QFile::copy(helper.dciFormatFilePath("/1.new/test.txt.link"),
+                                helper.dciFormatFilePath("/test.txt.link")));
+        // 检查复制/rename后的链接文件
+        ASSERT_EQ(QFile(helper.dciFormatFilePath("/test.txt.link")).symLinkTarget(),
+                  QStringLiteral("/test.txt"));
+        ASSERT_EQ(readAll(helper.dciFormatFilePath("/test.txt.link")),
+                  readAll(helper.dciFormatFilePath("/test.txt")));
+        ASSERT_EQ(QFile(helper.dciFormatFilePath("/1.new/test.txt.link")).symLinkTarget(),
+                  QStringLiteral("/test.txt"));
+        ASSERT_EQ(readAll(helper.dciFormatFilePath("/1.new/test.txt.link")),
+                  readAll(helper.dciFormatFilePath("/test.txt")));
         // 复制目录
         ASSERT_TRUE(QFile::copy(helper.dciFormatFilePath("/1.new"),
                                  helper.dciFormatFilePath("/1")));
         ASSERT_EQ(QDir(helper.dciFormatFilePath("/1")).entryList(),
                   QDir(helper.dciFormatFilePath("/1.new")).entryList());
-        // [/1.new, /1.new/test.txt, /2.new, /3, /test.txt, "/1"]
+        // [/1.new, /1.new/test.txt, /1.new/test.txt.link, /2.new, /3, /test.txt, /test.txt.link, /1]
 
         // 目录遍历
         QStringList list {
             helper.dciFormatFilePath("/1"),
+            helper.dciFormatFilePath("/1/test.txt.link"),
             helper.dciFormatFilePath("/1/test.txt"),
             helper.dciFormatFilePath("/1.new"),
             helper.dciFormatFilePath("/1.new/test.txt"),
+            helper.dciFormatFilePath("/1.new/test.txt.link"),
             helper.dciFormatFilePath("/2.new"),
             helper.dciFormatFilePath("/3"),
-            helper.dciFormatFilePath("/test.txt")
+            helper.dciFormatFilePath("/test.txt"),
+            helper.dciFormatFilePath("/test.txt.link")
         };
         QDirIterator di(helper.dciFormatFilePath(), QDirIterator::Subdirectories);
         while (di.hasNext()) {
@@ -327,6 +426,7 @@ TEST_F(ut_DCI, DFileEngine) {
 
         // 删除
         ASSERT_TRUE(QFile::remove(helper.dciFormatFilePath("/test.txt")));
+        ASSERT_TRUE(QFile::remove(helper.dciFormatFilePath("/test.txt.link")));
         ASSERT_TRUE(QFile::remove(helper.dciFormatFilePath("/2.new")));
         ASSERT_TRUE(QFile::remove(helper.dciFormatFilePath("/1.new")));
         // [/3]

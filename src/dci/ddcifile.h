@@ -39,7 +39,8 @@ public:
     enum FileType {
         UnknowFile,
         File = 1,
-        Directory = 2
+        Directory = 2,
+        Symlink = 3
     };
 
     DDciFile();
@@ -61,6 +62,8 @@ public:
     bool exists(const QString &filePath) const;
     FileType type(const QString &filePath) const;
     QByteArray dataRef(const QString &filePath) const;
+    QString name(const QString &filePath) const;
+    QString symlinkTarget(const QString &filePath) const;
 
     // for writer
     bool mkdir(const QString &filePath);
@@ -68,6 +71,7 @@ public:
     bool remove(const QString &filePath);
     bool rename(const QString &filePath, const QString &newFilePath, bool override = false);
     bool copy(const QString &from, const QString &to);
+    bool link(const QString &source, const QString &to);
 };
 
 DCORE_END_NAMESPACE

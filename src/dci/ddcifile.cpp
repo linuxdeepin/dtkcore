@@ -44,6 +44,7 @@ DCORE_BEGIN_NAMESPACE
 
 #define FILE_TYPE_FILE DDciFile::FileType::File
 #define FILE_TYPE_DIR DDciFile::FileType::Directory
+#define FILE_TYPE_SYMLINK DDciFile::FileType::Symlink
 
 #ifdef QT_DEBUG
 Q_LOGGING_CATEGORY(logDF, "dtk.dci.file")
@@ -89,6 +90,29 @@ public:
             }
 
             return p;
+        }
+
+        QString linkPath() const {
+            const QString &path = QString::fromUtf8(data);
+            if (path.startsWith('/'))
+                return path;
+            // 转为绝对路径
+            auto pNode = parent;
+            int pathStart = 0;
+            while (pathStart < path.size()) {
+                if (path.midRef(pathStart, 3) == QLatin1String("../")) {
+                    pathStart += 3;
+                    pNode = pNode->parent;
+                    if (!pNode)
+                        return QString();
+                } else if (path.midRef(pathStart, 2) == QLatin1String("./")) {
+                    pathStart += 2;
+                } else {
+                    break;
+                }
+            }
+            Q_ASSERT(pNode);
+            return pNode->path() + QLatin1Char('/') + path.midRef(pathStart);
         }
     };
 
@@ -202,7 +226,8 @@ qint64 DDciFilePrivate::writeMetaDataForNode(QIODevice *device, DDciFilePrivate:
 
 qint64 DDciFilePrivate::writeDataForNode(QIODevice *device, DDciFilePrivate::Node *node) const
 {
-    if (node->type == FILE_TYPE_FILE) {
+    if (node->type == FILE_TYPE_FILE
+            ||  node->type == FILE_TYPE_SYMLINK) {
         return device->write(node->data);
     } else if (node->type == FILE_TYPE_DIR) {
         qint64 dataSize = 0;
@@ -240,7 +265,7 @@ DDciFilePrivate::Node *DDciFilePrivate::mkNode(const QString &filePath)
 
     if (Node *parentNode = pathToNode.value(info.path())) {
         if (parentNode->type != FILE_TYPE_DIR) {
-            setErrorString(QString("The \"%s\" is not a directory").arg(info.path()));
+            setErrorString(QString("The \"%1\" is not a directory").arg(info.path()));
             return nullptr;
         }
 
@@ -337,7 +362,8 @@ bool DDciFilePrivate::loadDirectory(DDciFilePrivate::Node *directory,
                 if (loadDirectory(node, data, offset, offset + dataSize - 1, pathToNode)) {
                     break;
                 }
-            } else if (node->type == FILE_TYPE_FILE) {
+            } else if (node->type == FILE_TYPE_FILE
+                       || node->type == FILE_TYPE_SYMLINK) {
                 // 跳过文件内容
                 node->data = QByteArray::fromRawData(data.constData() + offset, dataSize);
 
@@ -439,7 +465,8 @@ QByteArray DDciFile::toData() const
 
     qint64 allFilesContentSize = 0;
     for (auto node : d->pathToNode) {
-        if (node->type == FILE_TYPE_FILE)
+        if (node->type == FILE_TYPE_FILE
+                || node->type == FILE_TYPE_SYMLINK)
             allFilesContentSize += node->data.size();
     }
 
@@ -462,7 +489,9 @@ constexpr int DDciFile::metadataSizeV1()
 
 QStringList DDciFile::list(const QString &dir, bool onlyFileName) const
 {
-    Q_ASSERT(isValid());
+    if (!isValid())
+        return {};
+
     D_DC(DDciFile);
 
     auto dirNode = d->pathToNode.value(dir);
@@ -486,7 +515,9 @@ QStringList DDciFile::list(const QString &dir, bool onlyFileName) const
 
 int DDciFile::childrenCount(const QString &dir) const
 {
-    Q_ASSERT(isValid());
+    if (!isValid())
+        return 0;
+
     D_DC(DDciFile);
 
     auto dirNode = d->pathToNode.value(dir);
@@ -499,14 +530,18 @@ int DDciFile::childrenCount(const QString &dir) const
 
 bool DDciFile::exists(const QString &filePath) const
 {
-    Q_ASSERT(isValid());
+    if (!isValid())
+        return false;
+
     D_DC(DDciFile);
     return d->pathToNode.contains(filePath);
 }
 
 DDciFile::FileType DDciFile::type(const QString &filePath) const
 {
-    Q_ASSERT(isValid());
+    if (!isValid())
+        return UnknowFile;
+
     D_DC(DDciFile);
 
     auto node = d->pathToNode.value(filePath);
@@ -520,7 +555,9 @@ DDciFile::FileType DDciFile::type(const QString &filePath) const
 
 QByteArray DDciFile::dataRef(const QString &filePath) const
 {
-    Q_ASSERT(isValid());
+    if (!isValid())
+        return QByteArray();
+
     D_DC(DDciFile);
 
     auto node = d->pathToNode.value(filePath);
@@ -529,12 +566,46 @@ QByteArray DDciFile::dataRef(const QString &filePath) const
         return QByteArray();
     }
 
-    if (node->type != FILE_TYPE_FILE) {
-        qCWarning(logDF, "The \"%s\" is not a file", qPrintable(filePath));
-        return QByteArray();
+    if (node->type == FILE_TYPE_SYMLINK) {
+        return dataRef(node->linkPath());
     }
 
     return node->data;
+}
+
+QString DDciFile::name(const QString &filePath) const
+{
+    if (!isValid())
+        return QString();
+
+    D_DC(DDciFile);
+    if (auto node = d->pathToNode.value(filePath)) {
+        return node->name;
+    }
+
+    return QString();
+}
+
+QString DDciFile::symlinkTarget(const QString &filePath) const
+{
+    if (!isValid())
+        return QString();
+
+    D_DC(DDciFile);
+    if (auto node = d->pathToNode.value(filePath)) {
+        if (node->type != FILE_TYPE_SYMLINK)
+            return QString();
+
+        const QString &linkPath = node->linkPath();
+        const auto targetNode = d->pathToNode.value(linkPath);
+
+        // 链接的目标只能是“不存在的路径”、“文件”、“链接”，不可是目录
+        if (!targetNode || targetNode->type == FILE_TYPE_FILE
+                || targetNode->type == FILE_TYPE_SYMLINK)
+            return linkPath;
+    }
+
+    return QString();
 }
 
 bool DDciFile::mkdir(const QString &filePath)
@@ -559,6 +630,18 @@ bool DDciFile::writeFile(const QString &filePath, const QByteArray &data, bool o
     // 先删除旧的数据
     if (auto node = d->pathToNode.value(filePath)) {
         if (override) {
+            if (node->type == FILE_TYPE_SYMLINK) {
+                const QString &linkPath = node->linkPath();
+                qCDebug(logDF(), "Follow the symlink to \"%s\"", qPrintable(linkPath));
+
+                if (!d->pathToNode.contains(linkPath)) {
+                    qCDebug(logDF(), "Can't write to a symlink target file if it is not existed");
+                    return false;
+                }
+
+                return writeFile(linkPath, data, override);
+            }
+
             qCDebug(logDF, "Try override the file");
             if (node->type != FILE_TYPE_FILE) {
                 qCWarning(logDF, "The \"%s\" is existed and it is not a file", qPrintable(filePath));
@@ -658,6 +741,7 @@ bool DDciFile::rename(const QString &filePath, const QString &newFilePath, bool 
 
 bool DDciFile::copy(const QString &from, const QString &to)
 {
+    Q_ASSERT(isValid());
     D_D(DDciFile);
 
     const auto fromNode = d->pathToNode.value(from);
@@ -672,6 +756,23 @@ bool DDciFile::copy(const QString &from, const QString &to)
     }
 
     d->copyNode(fromNode, toNode);
+    return true;
+}
+
+bool DDciFile::link(const QString &source, const QString &to)
+{
+    Q_ASSERT(isValid());
+    D_D(DDciFile);
+
+    if (source == to || source.isEmpty())
+        return false;
+
+    auto toNode = d->mkNode(to);
+    if (!toNode)
+        return false;
+    toNode->type = FILE_TYPE_SYMLINK;
+    toNode->data = source.toUtf8();
+
     return true;
 }
 

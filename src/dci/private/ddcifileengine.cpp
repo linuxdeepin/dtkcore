@@ -89,7 +89,7 @@ DDciFileEngineIterator::DDciFileEngineIterator(QDir::Filters filters, const QStr
 QString DDciFileEngineIterator::next()
 {
     current = nextValid;
-    return list.at(current);
+    return DDciFileEngineIterator::currentFileName();
 }
 
 bool DDciFileEngineIterator::hasNext() const
@@ -101,27 +101,29 @@ bool DDciFileEngineIterator::hasNext() const
             return false;
 
         file = getDciFile(paths.first);
-        list = file->list(paths.second, true);
+        list = file->list(paths.second);
     }
 
     for (int i = current + 1; i < list.count(); ++i) {
-        // 先按名称进行过滤
-        if (!nameFilters().isEmpty() && !QDir::match(nameFilters(), list.at(i)))
-            continue;
+        // 先检查文件类型
         const auto filters = this->filters();
-        if (!filters.testFlag(QDir::Dirs)) {
+        const auto fileType = file->type(list.at(i));
+        if (fileType == DDciFile::Directory) {
             if (!filters.testFlag(QDir::Files))
                 continue;
-            // 只要文件
-            if (file->type(list.at(i)) != DDciFile::File)
+        } else if (fileType == DDciFile::File) {
+            if (!filters.testFlag(QDir::Files))
                 continue;
-        } else if (!filters.testFlag(QDir::Files)) {
-            // 只要文件夹
-            if (file->type(list.at(i)) != DDciFile::Directory)
+        } else if (fileType == DDciFile::Symlink) {
+            if (filters.testFlag(QDir::NoSymLinks))
                 continue;
-        } else {
-            // 全都符合条件
+        } else { // DDciFile::UnknowFile
+            continue;
         }
+
+        // 按名称进行过滤
+        if (!nameFilters().isEmpty() && !QDir::match(nameFilters(), list.at(i)))
+            continue;
 
         nextValid = i;
         return true;
@@ -132,7 +134,7 @@ bool DDciFileEngineIterator::hasNext() const
 
 QString DDciFileEngineIterator::currentFileName() const
 {
-    return list.at(current);
+    return file->name(list.at(current));
 }
 
 DDciFileEngine::DDciFileEngine(const QString &fullPath)
@@ -165,6 +167,13 @@ bool DDciFileEngine::open(QIODevice::OpenMode openMode)
     if (file->type(subfilePath) == DDciFile::Directory) {
         setError(QFile::OpenError, "Can't open a directory");
         return false;
+    }
+
+    if (file->type(subfilePath) == DDciFile::Symlink) {
+        if (!file->exists(file->symlinkTarget(subfilePath))) {
+            setError(QFile::OpenError, "The symlink target is not existed");
+            return false;
+        }
     }
 
     if (openMode & QIODevice::Text) {
@@ -326,6 +335,18 @@ bool DDciFileEngine::renameOverwrite(const QString &newName)
     return file->rename(subfilePath, paths.second, true) && forceSave();
 }
 
+bool DDciFileEngine::link(const QString &newName)
+{
+    if (!file->isValid())
+        return false;
+
+    // 解析出新的 dci 内部文件路径
+    const auto paths = resolvePath(newName, dciFilePath);
+    const QString &linkPath = paths.second.isEmpty() ? newName : paths.second;
+
+    return file->link(subfilePath, linkPath) && forceSave();
+}
+
 bool DDciFileEngine::mkdir(const QString &dirName, bool createParentDirectories) const
 {
     if (!file->isValid())
@@ -443,6 +464,8 @@ QAbstractFileEngine::FileFlags DDciFileEngine::fileFlags(QAbstractFileEngine::Fi
             flags |= DirectoryType;
         } else if (fileType == DDciFile::File) {
             flags |= FileType;
+        } else if (fileType == DDciFile::Symlink) {
+            flags |= LinkType;
         }
     }
 
@@ -469,6 +492,10 @@ QString DDciFileEngine::fileName(QAbstractFileEngine::FileName file) const
         return QDir::cleanPath(DCI_FILE_SCHEME + dciFilePath);
     case BaseName:
         return QFileInfo(subfilePath).baseName();
+    case LinkName:
+        return this->file->type(subfilePath) == DDciFile::Symlink
+                ? this->file->symlinkTarget(subfilePath)
+                : QString();
     default:
         break;
     }
