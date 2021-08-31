@@ -472,6 +472,9 @@ QAbstractFileEngine::FileFlags DDciFileEngine::fileFlags(QAbstractFileEngine::Fi
     if ((type & FlagsMask)) {
         if (file->exists(subfilePath))
             flags |= ExistsFlag;
+
+        if (subfilePath == QLatin1Char('/'))
+            flags |= RootFlag;
     }
 
     if ((type & PermsMask) && file->exists(subfilePath)) {

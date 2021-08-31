@@ -266,6 +266,7 @@ TEST_F(ut_DCI, DFileEngine) {
         ASSERT_TRUE(file.exists());
         QFileInfo info(file);
         ASSERT_TRUE(info.isDir());
+        ASSERT_TRUE(info.isRoot());
         // 文件夹不可写入
         ASSERT_FALSE(file.open(QIODevice::WriteOnly));
         // 空文件遍历
@@ -302,6 +303,7 @@ TEST_F(ut_DCI, DFileEngine) {
             // 文件信息
             QFileInfo info1(file);
             QFileInfo info2(helper.sourceFileName());
+            ASSERT_FALSE(info1.isRoot());
             ASSERT_EQ(info1.permissions(), info2.permissions());
             ASSERT_EQ(info1.fileTime(QFile::FileAccessTime),
                       info2.fileTime(QFile::FileAccessTime));
