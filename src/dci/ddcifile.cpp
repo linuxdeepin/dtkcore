@@ -141,7 +141,7 @@ DDciFilePrivate::~DDciFilePrivate()
 
 void DDciFilePrivate::setErrorString(const QString &message)
 {
-    qCDebug(logDF, qPrintable(message));
+    qCDebug(logDF, "%s", qPrintable(message));
     errorMessage = message;
 }
 
