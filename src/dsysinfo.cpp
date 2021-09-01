@@ -710,6 +710,7 @@ QString DSysInfo::spVersion()
         qWarning() << "Getting the SP version in this mode is not supported.";
         return {};
     }
+    return QString();
 }
 
 /*!

@@ -100,9 +100,9 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileDeleted)
     QFile file("/tmp/etc/test");
     if (file.exists())
         file.remove();
-    QTest::qWaitFor([&spy](){
+    ASSERT_TRUE(QTest::qWaitFor([&spy](){
         return spy.count() >= 1;
-    }, 1000);
+    }, 1000));
     ASSERT_TRUE(spy.count() >= 1);
 }
 
@@ -118,9 +118,9 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileAttributeChanged)
         return;
     file.close();
 
-    QTest::qWaitFor([&spy](){
+    ASSERT_TRUE(QTest::qWaitFor([&spy](){
         return spy.count() >= 1;
-    }, 1000);
+    }, 1000));
     ASSERT_TRUE(spy.count() >= 1);
 }
 
@@ -133,9 +133,9 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileMoved)
     QString newFile("/tmp/etc/test1");
     QFile::rename(oldFile, newFile);
 
-    QTest::qWaitFor([&spy](){
+    ASSERT_TRUE(QTest::qWaitFor([&spy](){
         return spy.count() >= 1;
-    }, 1000);
+    }, 1000));
     ASSERT_TRUE(spy.count() >= 1);
 }
 
@@ -150,9 +150,9 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherSubfileCreated)
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
-    QTest::qWaitFor([&spy](){
+    ASSERT_TRUE(QTest::qWaitFor([&spy](){
         return spy.count() >= 1;
-    }, 1000);
+    }, 1000));
     ASSERT_TRUE(spy.count() >= 1);
 }
 
@@ -167,9 +167,9 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileModified)
     QTextStream out(&file);
     out << "hello";
     file.close();
-    QTest::qWaitFor([&spy](){
+    ASSERT_TRUE(QTest::qWaitFor([&spy](){
         return spy.count() >= 1;
-    }, 1000);
+    }, 1000));
     ASSERT_TRUE(spy.count() >= 1);
 }
 
@@ -182,8 +182,8 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileClosed)
         return;
     }
     file.close();
-    QTest::qWaitFor([&spy](){
+    ASSERT_TRUE(QTest::qWaitFor([&spy](){
         return spy.count() >= 1;
-    }, 1000);
+    }, 1000));
     ASSERT_TRUE(spy.count() >= 1);
 }

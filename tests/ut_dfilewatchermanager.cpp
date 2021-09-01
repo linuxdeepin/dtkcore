@@ -74,9 +74,9 @@ TEST_F(ut_DFileWatcherManager, testDFileWatcherManagerAdd)
     QFile file("/tmp/test");
     if (file.exists())
         file.remove();
-    QTest::qWaitFor([&spy](){
+    ASSERT_TRUE(QTest::qWaitFor([&spy](){
         return spy.count() >= 1;
-    }, 1000);
+    }, 1000));
     ASSERT_TRUE(spy.count() >= 1);
 }
 

@@ -506,7 +506,6 @@ TEST_F(ut_DUtil, testDDesktopEntry)
 TEST_F(ut_DUtil, testDSysInfo)
 {
     DSysInfo::distributionOrgWebsite();
-    DSysInfo::deepinDistributorWebsite();
     DSysInfo::distributionOrgLogo(DSysInfo::Distribution, DSysInfo::Normal);
     DSysInfo::distributionOrgLogo(DSysInfo::Distribution, DSysInfo::Light);
     DSysInfo::distributionOrgLogo(DSysInfo::Distribution, DSysInfo::Symbolic);
@@ -526,9 +525,7 @@ TEST_F(ut_DUtil, testDSysInfo)
     ASSERT_TRUE(!DSysInfo::deepinVersion().isEmpty());
     ASSERT_TRUE(!DSysInfo::deepinEdition().isEmpty());
     ASSERT_TRUE(!DSysInfo::deepinCopyright().isEmpty());
-    ASSERT_TRUE(DSysInfo::deepinDistributionInfoPath().size() >= 0);
-    ASSERT_TRUE(DSysInfo::deepinDistributorName().size() >= 0);
-    ASSERT_TRUE(DSysInfo::deepinDistributorLogo().size() >= 0);
+    ASSERT_TRUE(DSysInfo::distributionInfoPath().size() >= 0);
     ASSERT_TRUE(DSysInfo::isCommunityEdition() == true || DSysInfo::isCommunityEdition() == false);
     ASSERT_TRUE(!DSysInfo::computerName().isEmpty());
     ASSERT_TRUE(DSysInfo::memoryInstalledSize() >= -1);
