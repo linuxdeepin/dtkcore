@@ -29,45 +29,40 @@ class ut_DDiskSizeFormatter : public testing::Test
 protected:
     void SetUp() override;
     void TearDown() override;
-    DDiskSizeFormatter *diskSizeFormatter;
+    DDiskSizeFormatter diskSizeFormatter;
 };
 
 void ut_DDiskSizeFormatter::SetUp()
 {
-    diskSizeFormatter = new DDiskSizeFormatter;
 }
 
 void ut_DDiskSizeFormatter::TearDown()
 {
-    if (diskSizeFormatter) {
-        delete diskSizeFormatter;
-        diskSizeFormatter = nullptr;
-    }
 }
 
 TEST_F(ut_DDiskSizeFormatter, testDDiskSizeFormatterFormatAs)
 {
-    diskSizeFormatter->rate(1024);
-    qreal result0 = diskSizeFormatter->formatAs(2048, DDiskSizeFormatter::B, DDiskSizeFormatter::K);
+    diskSizeFormatter.rate(1024);
+    qreal result0 = diskSizeFormatter.formatAs(2048, DDiskSizeFormatter::B, DDiskSizeFormatter::K);
     ASSERT_TRUE(qFuzzyCompare(result0, 2));
-    qreal result1 = diskSizeFormatter->formatAs(2, DDiskSizeFormatter::K, DDiskSizeFormatter::B);
+    qreal result1 = diskSizeFormatter.formatAs(2, DDiskSizeFormatter::K, DDiskSizeFormatter::B);
     ASSERT_TRUE(qFuzzyCompare(result1, 2048));
-    qreal result2 = diskSizeFormatter->formatAs(2, DDiskSizeFormatter::K, DDiskSizeFormatter::K);
+    qreal result2 = diskSizeFormatter.formatAs(2, DDiskSizeFormatter::K, DDiskSizeFormatter::K);
     ASSERT_TRUE(qFuzzyCompare(result2, 2));
 }
 
 TEST_F(ut_DDiskSizeFormatter, testDDiskSizeFormatterFormat)
 {
-    diskSizeFormatter->rate(1024);
-    QPair<double, int> result = diskSizeFormatter->format(2048, DDiskSizeFormatter::B);
+    diskSizeFormatter.rate(1024);
+    QPair<double, int> result = diskSizeFormatter.format(2048, DDiskSizeFormatter::B);
     ASSERT_TRUE(qFuzzyCompare(result.first, 2));
     ASSERT_EQ(result.second, DDiskSizeFormatter::K);
 }
 
 TEST_F(ut_DDiskSizeFormatter, testDDiskSizeFormatterFormatAsUnitList)
 {
-    diskSizeFormatter->rate(1024);
-    QList<QPair<double, int>> result = diskSizeFormatter->formatAsUnitList(2049, DDiskSizeFormatter::K);
+    diskSizeFormatter.rate(1024);
+    QList<QPair<double, int>> result = diskSizeFormatter.formatAsUnitList(2049, DDiskSizeFormatter::K);
     ASSERT_TRUE(qFuzzyCompare(result[0].first, 2));
     ASSERT_EQ(result[0].second, DDiskSizeFormatter::M);
     ASSERT_TRUE(qFuzzyCompare(result[1].first, 1));
@@ -76,9 +71,9 @@ TEST_F(ut_DDiskSizeFormatter, testDDiskSizeFormatterFormatAsUnitList)
 
 TEST_F(ut_DDiskSizeFormatter, testDDiskSizeFormatterUnitStr)
 {
-    ASSERT_EQ(diskSizeFormatter->unitStr(DDiskSizeFormatter::B), "B");
-    ASSERT_EQ(diskSizeFormatter->unitStr(DDiskSizeFormatter::K), "KB");
-    ASSERT_EQ(diskSizeFormatter->unitStr(DDiskSizeFormatter::M), "MB");
-    ASSERT_EQ(diskSizeFormatter->unitStr(DDiskSizeFormatter::G), "GB");
-    ASSERT_EQ(diskSizeFormatter->unitStr(DDiskSizeFormatter::T), "TB");
+    ASSERT_EQ(diskSizeFormatter.unitStr(DDiskSizeFormatter::B), "B");
+    ASSERT_EQ(diskSizeFormatter.unitStr(DDiskSizeFormatter::K), "KB");
+    ASSERT_EQ(diskSizeFormatter.unitStr(DDiskSizeFormatter::M), "MB");
+    ASSERT_EQ(diskSizeFormatter.unitStr(DDiskSizeFormatter::G), "GB");
+    ASSERT_EQ(diskSizeFormatter.unitStr(DDiskSizeFormatter::T), "TB");
 }
