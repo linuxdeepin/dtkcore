@@ -1,7 +1,7 @@
 #ifndef DDBUSSENDER_H
 #define DDBUSSENDER_H
 
-#include "dtkcore_global.h"
+#include <dtkcore_global.h>
 
 #include <QObject>
 #include <QDBusConnection>

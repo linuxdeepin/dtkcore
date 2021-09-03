@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QScopedPointer>
 
-#include "dsettingsbackend.h"
+#include <dsettingsbackend.h>
 
 DCORE_BEGIN_NAMESPACE
 

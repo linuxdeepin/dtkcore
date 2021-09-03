@@ -18,7 +18,7 @@
 #ifndef CUTELOGGER_GLOBAL_H
 #define CUTELOGGER_GLOBAL_H
 
-#include "dtkcore_global.h"
+#include <dtkcore_global.h>
 
 #if defined(CUTELOGGER_LIBRARY)
 #  define CUTELOGGERSHARED_EXPORT Q_DECL_EXPORT

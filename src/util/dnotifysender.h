@@ -1,7 +1,7 @@
 #ifndef DNOTIFYSENDER_H
 #define DNOTIFYSENDER_H
 
-#include "dtkcore_global.h"
+#include <dtkcore_global.h>
 
 #include <QDBusPendingCall>
 #include <memory>

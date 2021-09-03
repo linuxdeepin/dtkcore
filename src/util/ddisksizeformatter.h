@@ -18,7 +18,7 @@
 #ifndef DISKSIZEFORMATTER_H
 #define DISKSIZEFORMATTER_H
 
-#include "dabstractunitformatter.h"
+#include <dabstractunitformatter.h>
 
 DCORE_BEGIN_NAMESPACE
 

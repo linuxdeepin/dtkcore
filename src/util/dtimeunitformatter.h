@@ -18,8 +18,8 @@
 #ifndef DTIMEUNITFORMATTER_H
 #define DTIMEUNITFORMATTER_H
 
-#include "dtkcore_global.h"
-#include "dabstractunitformatter.h"
+#include <dtkcore_global.h>
+#include <dabstractunitformatter.h>
 
 DCORE_BEGIN_NAMESPACE
 

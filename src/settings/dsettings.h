@@ -21,7 +21,7 @@
 #include <QPointer>
 #include <QScopedPointer>
 
-#include "dtkcore_global.h"
+#include <dtkcore_global.h>
 
 DCORE_BEGIN_NAMESPACE
 

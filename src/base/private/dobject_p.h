@@ -18,7 +18,7 @@
 #ifndef DOBJECT_P_H
 #define DOBJECT_P_H
 
-#include "dtkcore_global.h"
+#include <dtkcore_global.h>
 
 DCORE_BEGIN_NAMESPACE
 

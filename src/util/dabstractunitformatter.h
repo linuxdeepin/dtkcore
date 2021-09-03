@@ -18,7 +18,7 @@
 #ifndef DABSTRACTUNITFORMATTER_H
 #define DABSTRACTUNITFORMATTER_H
 
-#include "dtkcore_global.h"
+#include <dtkcore_global.h>
 
 #include <QPair>
 #include <QList>

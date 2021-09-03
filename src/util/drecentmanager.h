@@ -22,7 +22,7 @@
 #ifndef DRECENTMANAGER_H
 #define DRECENTMANAGER_H
 
-#include "dtkcore_global.h"
+#include <dtkcore_global.h>
 #include <QString>
 
 DCORE_BEGIN_NAMESPACE

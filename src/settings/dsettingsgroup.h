@@ -20,9 +20,9 @@
 #include <QObject>
 #include <QPointer>
 
-#include "dsettingsoption.h"
+#include <DSettingsOption>
 
-#include "dtkcore_global.h"
+#include <dtkcore_global.h>
 
 DCORE_BEGIN_NAMESPACE
 

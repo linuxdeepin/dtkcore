@@ -18,8 +18,8 @@
 #ifndef DFILESYSTEMWATCHER_H
 #define DFILESYSTEMWATCHER_H
 
-#include "dtkcore_global.h"
-#include "dobject.h"
+#include <dtkcore_global.h>
+#include <DObject>
 
 #include <QObject>
 
