@@ -41,10 +41,6 @@ Q_LOGGING_CATEGORY(logFE, "dtk.dci.fileengine", QtInfoMsg)
 #define DCI_FILE_SCHEME "dci:"
 #define DCI_FILE_SUFFIX ".dci"
 
-// 在 QAbstractFileEngineHandler 的构造函数中会注册自己，后续
-// 在使用 QFile 时会调用 DDciFileEngineHandler::create
-static DDciFileEngineHandler globalHandler;
-
 QAbstractFileEngine *DDciFileEngineHandler::create(const QString &fileName) const
 {
     if (!fileName.startsWith(QStringLiteral(DCI_FILE_SCHEME)))

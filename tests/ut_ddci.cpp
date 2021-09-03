@@ -259,6 +259,8 @@ static QByteArray readAll(const QString &file) {
 }
 
 TEST_F(ut_DCI, DFileEngine) {
+    DDciFile::registerFileEngine();
+
     {
         TestDCIFileHelper helper(QDir::temp().absoluteFilePath("test.dci"));
         // 空 dci 文件创建

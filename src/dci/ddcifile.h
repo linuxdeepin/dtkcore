@@ -43,6 +43,8 @@ public:
         Symlink = 3
     };
 
+    static void registerFileEngine();
+
     DDciFile();
     explicit DDciFile(const QString &fileName);
     explicit DDciFile(const QByteArray &data);

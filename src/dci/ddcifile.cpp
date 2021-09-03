@@ -19,6 +19,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ddcifile.h"
+#include "private/ddcifileengine_p.h"
 
 #include <DObjectPrivate>
 #include <QDataStream>
@@ -386,6 +387,14 @@ bool DDciFilePrivate::loadDirectory(DDciFilePrivate::Node *directory,
     }
 
     return true;
+}
+
+void DDciFile::registerFileEngine()
+{
+    // 在 QAbstractFileEngineHandler 的构造函数中会注册自己，后续
+    // 在使用 QFile 时会调用 DDciFileEngineHandler::create
+    static DDciFileEngineHandler globalHandler;
+    Q_UNUSED(globalHandler);
 }
 
 DDciFile::DDciFile()
