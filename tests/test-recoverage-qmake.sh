@@ -7,14 +7,13 @@ cd ../
 rm -rf $BUILD_DIR
 mkdir $BUILD_DIR
 cd $BUILD_DIR
-qmake ..
-make
+qmake .. CONFIG+=debug
+make -j$(nproc)
 cd ../tests/
 
 rm -rf $BUILD_DIR
 mkdir $BUILD_DIR
 cd $BUILD_DIR
-
 qmake ../ CONFIG+=debug
 export ASAN_OPTIONS=halt_on_error=0
 TESTARGS="--gtest_output=xml:dde_test_report_dtkcore.xml"  make check -j$(nproc)

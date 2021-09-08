@@ -5,6 +5,12 @@ CONFIG -= app_bundle
 
 QMAKE_LFLAGS += -Wl,--export-dynamic
 
+CONFIG(debug, debug|release) {
+QMAKE_CXXFLAGS += -g -Wall -fsanitize=address -fsanitize-recover=address -O2
+QMAKE_LFLAGS += -g -Wall -fsanitize=address -fsanitize-recover=address -O2
+QMAKE_CXX += -g -fsanitize=address -fsanitize-recover=address -O2
+}
+
 load(dtk_testcase)
 
 # 指定moc文件生成目录和src一样
