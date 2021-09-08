@@ -54,9 +54,18 @@ void ConsoleAppender::ignoreEnvironmentPattern(bool ignore)
   m_ignoreEnvPattern = ignore;
 }
 
-
-//! Writes the log record to the std::cerr stream.
 /*!
+  \brief Writes the log record to the std::cerr stream.
+  \reimp
+
+  The \a timeStamp parameter indicates the time stamp.
+  The \a logLevel parameter describes the LogLevel.
+  The \a file parameter is the current file name.
+  The \a line parameter indicates the number of lines to output.
+  The \a function parameter indicates the function name to output.
+  The \a category parameter indicates the log category.
+  The \a message parameter indicates the output message.
+
   \sa AbstractStringAppender::format()
  */
 void ConsoleAppender::append(const QDateTime& timeStamp, Logger::LogLevel logLevel, const char* file, int line,

@@ -43,6 +43,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::logger
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::logger
   
   \brief Macro returning the current instance of Logger object
   
@@ -62,6 +63,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dTrace
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dTrace
   
   \brief Writes the trace log record
   
@@ -74,7 +76,7 @@ DCORE_BEGIN_NAMESPACE
   instance). Not all compilers will support this. Please, consider reviewing your compiler documentation to ensure
   it support __VA_ARGS__ macro.
   
-  \sa Dtk::Core::dInfo Dtk::Core::dDebug Dtk::Core::dWarging Dtk::Core::dError
+  \sa Dtk::Core::dInfo Dtk::Core::dDebug Dtk::Core::dWarning Dtk::Core::dError
   \sa Dtk::Core::Logger::LogLevel
   \sa Dtk::Core::Logger::write()
  */
@@ -83,13 +85,14 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dDebug
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dDebug
   
   \brief Writes the debug log record
   
   This macro records the debug log record using the Logger::write() function. It works similar to the dTrace()
   macro.
   
-  \sa Dtk::Core::dTrace Dtk::Core::dInfo Dtk::Core::dWaring Dtk::Core::dError
+  \sa Dtk::Core::dTrace Dtk::Core::dInfo Dtk::Core::dWarning Dtk::Core::dError
   \sa Dtk::Core::Logger::LogLevel
   \sa Dtk::Core::Logger::write()
  */
@@ -98,13 +101,14 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dInfo
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dInfo
   
   \brief Writes the info log record
   
   This macro records the info log record using the Logger::write() function. It works similar to the dTrace()
   macro.
   
-  \sa Dtk::Core::dTrace Dtk::Core::dDebug Dtk::Core::dWaring Dtk::Core::dError
+  \sa Dtk::Core::dTrace Dtk::Core::dDebug Dtk::Core::dWarning Dtk::Core::dError
   \sa Dtk::Core::Logger::LogLevel
   \sa Dtk::Core::Logger::write()
  */
@@ -113,6 +117,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dWarning
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dWarning
   
   \brief Write the warning log record
   
@@ -120,28 +125,30 @@ DCORE_BEGIN_NAMESPACE
   macro.
   
   \sa Dtk::Core::dTrace Dtk::Core::dInfo Dtk::Core::dDebug Dtk::Core::dError
-  \sa Dtk::Logger::LogLevel
-  \sa Dtk::Logger::write()
+  \sa Dtk::Core::Logger::LogLevel
+  \sa Dtk::Core::Logger::write()
  */
 
 
 /*!
   \macro Dtk::Core::dError
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dError
   
   \brief Write the error log record
   This macro records the error log record using the Logger::write() function. It works similar to the dTrace()
   macro.
   
   \sa Dtk::Core::dTrace
-  \sa Dtk::Logger::LogLevel
-  \sa Dtk::Logger::write()
+  \sa Dtk::Core::Logger::LogLevel
+  \sa Dtk::Core::Logger::write()
  */
 
 
 /*!
   \macro Dtk::Core::dFatal
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dFatal
   
   \brief Write the fatal log record
   
@@ -152,14 +159,15 @@ DCORE_BEGIN_NAMESPACE
         function, which will interrupt the running of your software and begin the writing of the core dump.
   
   \sa Dtk::Core::dTrace
-  \sa Dtk::Logger::LogLevel
-  \sa Dtk::Logger::write()
+  \sa Dtk::Core::Logger::LogLevel
+  \sa Dtk::Core::Logger::write()
  */
 
 
 /*!
   \macro Dtk::Core::dCTrace(category)
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dCTrace()
   
   \brief Writes the trace log record to the specific category
   
@@ -172,14 +180,15 @@ DCORE_BEGIN_NAMESPACE
   \sa Dtk::Core::Logger::LogLevel
   \sa Dtk::Core::Logger::registerCategoryAppender()
   \sa Dtk::Core::Logger::write()
-  \sa dCategory(), dGlobalCategory()
+  \sa Dtk::Core::dCategory(), Dtk::Core::dGlobalCategory()
  */
 
 
 /*!
   \macro Dtk::Core::dCDebug
   \relates Dtk::Core::Logger
-  
+  \keyword Dtk::Core::dCDebug
+
   \brief Writes the debug log record to the specific category
   
   This macro records the debug log record using the Logger::write() function. It works similar to the dCTrace()
@@ -192,6 +201,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dCInfo
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dCInfo
   
   \brief Writes the info log record to the specific category
   
@@ -205,6 +215,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dCWarning
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dCWarning
   
   \brief Writes the warning log record to the specific category
   
@@ -218,6 +229,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dCError
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dCError
   
   \brief Writes the error log record to the specific category
   
@@ -231,6 +243,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dCFatal
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dCFatal
   
   \brief Write the fatal log record to the specific category
   
@@ -247,6 +260,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dCategory(category)
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dCategory()
 
   \brief Create logger instance inside your custom class to log all messages to the specified \a category
 
@@ -287,7 +301,8 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dGlobalCategory(category)
   \relates Dtk::Core::Logger
-  
+  \keyword Dtk::Core::dGlobalCategory()
+
   \brief Create logger instance inside your custom class to log all messages both to the specified \a category and to
   the global logger instance.
   
@@ -297,7 +312,7 @@ DCORE_BEGIN_NAMESPACE
   logger->logToGlobalInstance(logger->defaultCategory(), true);
   \endcode
   
-  \sa dCategory
+  \sa Dtk::Core::dCategory
   \sa Dtk::Core::Logger::logToGlobalInstance()
   \sa Dtk::Core::Logger::defaultCategory()
   \sa Dtk::Core::Logger::registerCategoryAppender()
@@ -309,6 +324,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dAssert
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dAssert
   
   \brief Check the assertion
   
@@ -331,6 +347,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dTraceTime
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dTraceTime
   
   \brief Logs the processing time of current function / code block
   
@@ -374,6 +391,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dDebugTime
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dDebugTime
   
   \brief Logs the processing time of current function / code block
   
@@ -387,6 +405,7 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \macro Dtk::Core::dInfoTime
   \relates Dtk::Core::Logger
+  \keyword Dtk::Core::dInfoTime
   
   \brief Logs the processing time of current function / code block
   
@@ -575,9 +594,9 @@ static void qtLoggerMessageHandler(QtMsgType type, const char* msg)
 }
 #endif
 
-
-//! Construct the instance of Logger
 /*!
+  \brief Construct the instance of Logger.
+
   If you're only using one global instance of logger you wouldn't probably need to use this constructor manually.
   Consider using [logger](@ref logger) macro instead to access the logger instance
  */
@@ -589,9 +608,9 @@ Logger::Logger()
   d->logDevice = new LogDevice(this);
 }
 
-
-//! Construct the instance of Logger and set logger default category
 /*!
+  \brief Construct the instance of Logger and set logger default category.
+
   If you're only using one global instance of logger you wouldn't probably need to use this constructor manually.
   Consider using logger macro instead to access the logger instance and call setDefaultCategory method.
   
@@ -607,9 +626,9 @@ Logger::Logger(const QString& defaultCategory)
   setDefaultCategory(defaultCategory);
 }
 
-
-//! Destroy the instance of Logger
 /*!
+  \brief Destroy the instance of Logger.
+
   You probably wouldn't need to use this function directly. Global instance of logger will be destroyed automatically
   at the end of your QCoreApplication execution
  */
@@ -631,9 +650,9 @@ Logger::~Logger()
   delete d_ptr;
 }
 
-
-//! Converts the LogLevel enum value to its string representation
 /*!
+  \brief Converts the LogLevel enum value to its string representation.
+
   \a logLevel Log level to convert
   
   \sa LogLevel
@@ -660,9 +679,9 @@ QString Logger::levelToString(Logger::LogLevel logLevel)
   return QString();
 }
 
-
-//! Converts the LogLevel string representation to enum value
 /*!
+  \brief Converts the LogLevel string representation to enum value.
+
   Comparation of the strings is case independent. If the log level string provided cannot be understood
   Logger::Debug is returned.
   
@@ -693,9 +712,9 @@ Logger::LogLevel Logger::levelFromString(const QString& s)
   return result;
 }
 
-
-//! Returns the global instance of Logger
 /*!
+  \brief Returns the global instance of Logger.
+
   In a most cases you shouldn't use this function directly. Consider using [logger](@ref logger) macro instead.
   
   \sa Dtk::Core::logger
@@ -725,9 +744,9 @@ Logger* Logger::globalInstance()
   return result;
 }
 
-
-//! Registers the appender to write the log records to
 /*!
+  \brief Registers the appender to write the log records to.
+
   On the log writing call (using one of the macros or the write() function) Logger traverses through the list of
   the appenders and writes a log records to the each of them. Please, look through the AbstractAppender
   documentation to understand the concept of appenders.
@@ -754,8 +773,9 @@ void Logger::registerAppender(AbstractAppender* appender)
     std::cerr << "Trying to register appender that was already registered" << std::endl;
 }
 
-//! Registers the appender to write the log records to the specific category
 /*!
+  \brief Registers the appender to write the log records to the specific category.
+
   Calling this method, you can link some appender with the named category.
   On the log writing call to the specific category (calling write() with category parameter directly,
   writing to the default category, or using special dCDebug(), dCWarning() etc. macros),
@@ -790,8 +810,9 @@ void Logger::registerCategoryAppender(const QString& category, AbstractAppender*
     std::cerr << "Trying to register appender that was already registered" << std::endl;
 }
 
-//! Sets default logging category
 /*!
+  \brief Sets default logging category.
+
   All log messages to this category appenders will also be written to general logger instance appenders (registered
   using [registerAppender](@ref registerAppender) method), and vice versa.
   In particular, any calls to the dDebug() macro will be treated as category logging,
@@ -827,8 +848,9 @@ QString Logger::defaultCategory() const
   return d->defaultCategory;
 }
 
-//! Links some logging category with the global logger instance appenders.
 /*!
+  \brief Links some logging category with the global logger instance appenders.
+
   If set to true, all log messages to the specified category appenders will also be written to the global logger instance appenders,
   registered using registerAppender().
   
@@ -935,9 +957,9 @@ void Logger::write(const QDateTime& timeStamp, LogLevel logLevel, const char* fi
     abort();
 }
 
-
-//! Writes the log record
 /*!
+  \brief Writes the log record.
+
   Writes the log records with the supplied arguments to all the registered appenders.
   
   \note It is not recommended to call this function directly. Instead of this you can just call one of the macros
@@ -978,7 +1000,6 @@ void Logger::write(LogLevel logLevel, const char* file, int line, const char* fu
   write(QDateTime::currentDateTime(), logLevel, file, line, function, category, message);
 }
 
-
 /*!
   This is the overloaded function provided for the convenience. It behaves similar to the above function.
   
@@ -1008,16 +1029,20 @@ QDebug Logger::write(LogLevel logLevel, const char* file, int line, const char* 
   return QDebug(d->logDevice);
 }
 
-
-//! Writes the assertion
 /*!
+  \brief Writes the assertion.
+
   This function writes the assertion record using the write() function.
   
   The assertion record is always written using the Logger::Fatal log level which leads to the abortation of the
   program and generation of the core dump (if supported).
   
-  The message written to the appenders will be identical to the \c condition argument prefixed with the
+  The message written to the appenders will be identical to the \a condition argument prefixed with the
   <tt>ASSERT:</tt> notification.
+
+  The \a file parameter is the current file name.
+  The \a line parameter indicates the number of lines to output.
+  The \a function parameter indicates the function name to output.
   
   \note It is not recommended to call this function directly. Instead of this you can just call the LOG_ASSERT
         macro that will supply all the needed information to this function.

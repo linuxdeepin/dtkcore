@@ -86,7 +86,7 @@ GSettingsBackend::~GSettingsBackend()
 
 /*!
   \brief List all gsettings keys.
-  \return
+  \return Return all gsettings keys.
  */
 QStringList GSettingsBackend::keys() const
 {
@@ -96,7 +96,7 @@ QStringList GSettingsBackend::keys() const
 
 /*!
   \brief Get value of key.
-  \return
+  \return Return the value of the given \a key.
  */
 QVariant GSettingsBackend::getOption(const QString &key) const
 {
@@ -106,7 +106,7 @@ QVariant GSettingsBackend::getOption(const QString &key) const
 
 /*!
   \brief Set value to gsettings
-  \return
+  Use the \a key to save the \a value.
  */
 void GSettingsBackend::doSetOption(const QString &key, const QVariant &value)
 {

@@ -52,16 +52,18 @@ void DLogManager::initRollingFileAppender(){
     logger->registerAppender(m_rollingFileAppender);
 }
 
-//! Registers the appender to write the log records to the Console
 /*!
+  \brief Registers the appender to write the log records to the Console.
+
   \sa registerFileAppender
  */
 void DLogManager::registerConsoleAppender(){
     DLogManager::instance()->initConsoleAppender();
 }
 
-//! Registers the appender to write the log records to the file
 /*!
+  \brief Registers the appender to write the log records to the file.
+
   \sa getlogFilePath
   \sa registerConsoleAppender
  */
@@ -69,8 +71,9 @@ void DLogManager::registerFileAppender() {
     DLogManager::instance()->initRollingFileAppender();
 }
 
-//! Return the path file log storage
 /*!
+  \brief Return the path file log storage.
+
   \brief DLogManager::getlogFilePath 获取日志文件路径
   \brief 默认日志路径是 ~/.cache/organizationName/applicationName.log
   \brief 如果获取 HOME 环境变量失败将不写日志

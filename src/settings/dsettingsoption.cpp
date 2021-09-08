@@ -55,13 +55,17 @@ public:
 /*!
   \fn void DSettingsOption::valueChanged(QVariant value);
   \brief Emit when option value change.
-  \brief 选项的数据变化时发出改信息
+  \brief 选项的数据变化时发出改信息.
+
+  \a value 发生改变的数据.
  */
 
 /*!
   \fn void DSettingsOption::dataChanged(const QString &dataType, QVariant value);
   \brief Emit when option data change.
-  \brief 选项的附件的额外数据变化时发出改信息，可以看作这个值的属性发生变化。
+  \brief 选项的附件的额外数据变化时发出改信息，可以看作这个值的属性发生变化.
+
+  \a dataType 改变的数据类型, \a value 改变的数据.
  */
 
 /*!
@@ -82,7 +86,7 @@ DSettingsOption::~DSettingsOption()
 /*!
   \brief Get direct parent group of this option.
   \brief 当前选项的直接上级组。
-  \return
+  \return 返回当前选项的直接上级组.
  */
 QPointer<DSettingsGroup> DSettingsOption::parentGroup() const
 {
@@ -92,9 +96,9 @@ QPointer<DSettingsGroup> DSettingsOption::parentGroup() const
 
 /*!
   \brief Change the direct parent group of this option.
-  \brief 修改但前选项的上级组。
-  \a parentGroup
-  \return
+  \brief 修改但前选项的上级组.
+
+  \a parentGroup 上级组.
  */
 void DSettingsOption::setParentGroup(QPointer<DSettingsGroup> parentGroup)
 {
@@ -104,8 +108,8 @@ void DSettingsOption::setParentGroup(QPointer<DSettingsGroup> parentGroup)
 
 /*!
   \brief Return the full key of this option, include all parent.
-  \brief 但前选项的键值。
-  \return
+  \brief 当前选项的键值.
+  \return 返回当前选项的键值.
  */
 QString DSettingsOption::key() const
 {
@@ -115,8 +119,8 @@ QString DSettingsOption::key() const
 
 /*!
   \brief Get display name of the option, it may be translated.
-  \brief 但前选项的名称。
-  \return
+  \brief 当前选项的名称.
+  \return 返回当前选项的名称.
  */
 QString DSettingsOption::name() const
 {
@@ -129,7 +133,6 @@ QString DSettingsOption::name() const
   \brief 选项是否可以重置，如果可以重置，在调用reset方法后，选项的值会变成初始值.
 
   \return true if can be reset.
-  \sa Dtk::Core::DSettings::reset()
  */
 bool DSettingsOption::canReset() const
 {
@@ -139,8 +142,9 @@ bool DSettingsOption::canReset() const
 
 /*!
   \brief Default value of this option, must config in this json desciption file.
-  \brief 选项的默认值。
-  \return
+  \brief 选项的默认值.
+
+  \return 返回选项的默认值.
  */
 QVariant DSettingsOption::defaultValue() const
 {
@@ -150,8 +154,9 @@ QVariant DSettingsOption::defaultValue() const
 
 /*!
   \brief Get current value of option.
-  \brief 选项的当前值。
-  \return
+  \brief 选项的当前值.
+
+  \return 返回选项的当前值.
  */
 QVariant DSettingsOption::value() const
 {
@@ -161,9 +166,10 @@ QVariant DSettingsOption::value() const
 
 /*!
   \brief Custom data of option, like QObject::property.
-  \a dataType
-  \brief 选项的附件data，用于未选项设置一些额外的辅助属性。
-  \return
+  \a dataType 数据类型.
+  \brief 选项的附件data，用于未选项设置一些额外的辅助属性.
+
+  \return 数据类型对应的数据.
   \sa QObject::property
   \sa Dtk::Core::DSettingsOption::setData
  */
@@ -174,9 +180,10 @@ QVariant DSettingsOption::data(const QString &dataType) const
 }
 
 /*!
-  \brief UI widget type of this option
-  \brief 选项的控件类型。
-  \return
+  \brief UI widget type of this option.
+  \brief 选项的控件类型.
+
+  \return 返回选项的控件类型.
   \sa Dtk::Widget::DSettingsWidgetFactory
  */
 QString DSettingsOption::viewType() const
@@ -187,7 +194,8 @@ QString DSettingsOption::viewType() const
 
 /*!
   \brief Check this option will show on DSettings dialog.
-  \brief 检查选项是否会在界面上显示。
+  \brief 检查选项是否会在界面上显示.
+
   \return true if option not bind to ui element.
   \return 如果显示则返回true，否则返回false。
  */
@@ -199,12 +207,14 @@ bool DSettingsOption::isHidden() const
 
 /*!
   \brief Convert QJsonObject to DSettingsOption.
-  \brief 从json对象中反序列化出一个选项对象。
+  \brief 从json对象中反序列化出一个选项对象.
+
   \a prefixKey instead parse prefix key from parent.
   \a prefixKey 选项的前缀
   \a json is an QJsonObejct instance.
   \a json 待反序列化的json对象
-  \return
+
+  \return 返回解析完成后的 option 数据.
  */
 QPointer<DSettingsOption> DSettingsOption::fromJson(const QString &prefixKey, const QJsonObject &json)
 {
@@ -215,8 +225,9 @@ QPointer<DSettingsOption> DSettingsOption::fromJson(const QString &prefixKey, co
 
 /*!
   \brief Set current value of option.
-  \brief 设置选项的当前值。
-  \a value
+  \brief 设置选项的当前值.
+
+  \a value 选项的当前值.
  */
 void DSettingsOption::setValue(QVariant value)
 {
@@ -242,8 +253,8 @@ void DSettingsOption::setValue(QVariant value)
 //}
 
 /*!
-  \brief Set custom data
-  \brief 为选项添加自定义属性。
+  \brief Set custom data.
+  \brief 为选项添加自定义属性.
   \a dataType is data id, just a unique string.
   \a value of the data id.
   \a dataType 选项的扎属性数据id，对每个选项必须唯一

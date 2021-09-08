@@ -571,7 +571,7 @@ bool DDesktopEntry::save() const
 /*!
   \brief Get data parse status
   
-  Returns a status code indicating the first error that was met by DDesktopEntry, or QSettings::NoError if no error occurred.
+  \return Returns a status code indicating the first error that was met by DDesktopEntry, or QSettings::NoError if no error occurred.
   
   Be aware that DDesktopEntry delays performing some operations.
  */
@@ -656,6 +656,8 @@ bool DDesktopEntry::contains(const QString &key, const QString &section) const
   \brief Returns the localized string value of the "Name" key under "Desktop Entry" section.
   
   It's equivalent to calling localizedValue("Name").
+
+  \return Returns the localized string value of the "Name" key under "Desktop Entry" section.
   
   \sa localizedValue(), genericName(), ddeDisplayName()
  */
@@ -670,6 +672,8 @@ QString DDesktopEntry::name() const
   It's equivalent to calling localizedValue("GenericName"). It will NOT fallback to "Name" if "GenericName"
   is not existed.
   
+  \return Returns the localized string value of the "GenericName" key under "Desktop Entry" section.
+
   \sa localizedValue(), name(), ddeDisplayName()
  */
 QString DDesktopEntry::genericName() const
@@ -682,6 +686,8 @@ QString DDesktopEntry::genericName() const
   
   This will check "X-Deepin-Vendor" and will return the localized string value of "GenericName" if
   "X-Deepin-Vendor" is "deepin", or it will return the localized string value of "Name".
+
+  \return Returns the display name specially for DDE applications.
   
   \sa localizedValue(), name(), genericName()
  */
@@ -700,6 +706,8 @@ QString DDesktopEntry::ddeDisplayName() const
   \brief Returns the localized string value of the "Comment" key under "Desktop Entry" section.
   
   It's equivalent to calling localizedValue("Comment").
+
+  \return Returns the localized string value of the "Comment" key under "Desktop Entry" section.
   
   \sa localizedValue()
  */
@@ -711,9 +719,11 @@ QString DDesktopEntry::comment() const
 /*!
   \brief Returns the raw string value associated with the given \a key in \a section.
   
-  If the entry contains no item with the key, the function returns a default-constructed value.
+  If the entry contains no item with the key, the function returns a constructed \a defaultValue.
+
+  \return Returns the raw string value associated with the given \a key in \a section.
   
-  \sa setRawValue() stringValue() localizedValue() stringListValue()
+  \sa stringValue() localizedValue() stringListValue()
  */
 QString DDesktopEntry::rawValue(const QString &key, const QString &section, const QString &defaultValue) const
 {
@@ -730,9 +740,11 @@ QString DDesktopEntry::rawValue(const QString &key, const QString &section, cons
 /*!
   \brief Returns the unescaped string value associated with the given \a key in \a section.
   
-  If the entry contains no item with the key, the function returns a default-constructed value.
+  If the entry contains no item with the key, the function returns a constructed \a defaultValue.
   
-  \sa setStringValue() rawValue() localizedValue() stringListValue()
+  \return Returns the unescaped string value associated with the given \a key in \a section.
+
+  \sa rawValue() localizedValue() stringListValue()
  */
 QString DDesktopEntry::stringValue(const QString &key, const QString &section, const QString &defaultValue) const
 {
@@ -747,9 +759,11 @@ QString DDesktopEntry::stringValue(const QString &key, const QString &section, c
   If the given \a localeKey can't be found, it will fallback to "C", if still cannot found, will fallback to the
   key without localeKey.
   
-  If the entry contains no item with the key, the function returns a default-constructed value.
+  If the entry contains no item with the key, the function returns a constructed \a defaultValue.
+
+  \return Returns the localized string value associated with the given \a key and \a localeKey in \a section.
   
-  \sa setLocalizedValue() rawValue() stringValue() stringListValue()
+  \sa rawValue() stringValue() stringListValue()
  */
 QString DDesktopEntry::localizedValue(const QString &key, const QString &localeKey, const QString &section, const QString &defaultValue) const
 {
@@ -802,8 +816,10 @@ QString DDesktopEntry::localizedValue(const QString &key, const QString &localeK
   key without a locale key.
   
   If the entry contains no item with the key, the function returns a default-constructed value.
+
+  \return Returns the localized string value associated with the given \a key and \a locale in \a section.
   
-  \sa setLocalizedValue() rawValue() stringValue() stringListValue()
+  \sa rawValue() stringValue() stringListValue()
  */
 QString DDesktopEntry::localizedValue(const QString &key, const QLocale &locale, const QString &section, const QString &defaultValue) const
 {
@@ -815,7 +831,9 @@ QString DDesktopEntry::localizedValue(const QString &key, const QLocale &locale,
   
   If the entry contains no item with the key, the function returns a empty string list.
   
-  \sa setRawValue() rawValue() stringValue() localizedValue()
+  \return Returns a list of strings associated with the given \a key in the given \a section.
+
+  \sa rawValue() stringValue() localizedValue()
  */
 QStringList DDesktopEntry::stringListValue(const QString &key, const QString &section) const
 {

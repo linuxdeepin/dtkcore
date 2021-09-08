@@ -401,13 +401,6 @@ void DFileSystemWatcherPrivate::onDirectoryChanged(const QString &path, bool rem
     been added to the DFileSystemWatcher can be accessed using the
     files() function, and directories using the directories() function.
 
-    The fileChanged() signal is emitted when a file has been modified,
-    renamed or removed from disk. Similarly, the directoryChanged()
-    signal is emitted when a directory or its contents is modified or
-    removed.  Note that DFileSystemWatcher stops monitoring files once
-    they have been renamed or removed from disk, and directories once
-    they have been removed from disk.
-
     \note On systems running a Linux kernel without inotify support,
     file systems that contain watched paths cannot be unmounted.
 
@@ -601,28 +594,6 @@ QStringList DFileSystemWatcher::removePaths(const QStringList &paths)
 
     return p;
 }
-
-/*!
-    \fn void DFileSystemWatcher::fileChanged(const QString &path)
-
-    This signal is emitted when the file at the specified \a path is
-    modified, renamed or removed from disk.
-
-    \sa directoryChanged()
-*/
-
-/*!
-    \fn void DFileSystemWatcher::directoryChanged(const QString &path)
-
-    This signal is emitted when the directory at a specified \a path
-    is modified (e.g., when a file is added or deleted) or removed
-    from disk. Note that if there are several changes during a short
-    period of time, some of the changes might not Q_EMIT this signal.
-    However, the last change in the sequence of changes will always
-    generate this signal.
-
-    \sa fileChanged()
-*/
 
 /*!
     \fn QStringList DFileSystemWatcher::directories() const

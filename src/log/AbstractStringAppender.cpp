@@ -49,14 +49,16 @@ DCORE_BEGIN_NAMESPACE
 const char formattingMarker = '%';
 
 
-//! Constructs a new string appender object
+/*!
+    \brief Constructs a new string appender object.
+ */
 AbstractStringAppender::AbstractStringAppender()
   : m_format(QLatin1String("%{time}{yyyy-MM-ddTHH:mm:ss.zzz} [%{type:-7}] <%{function}> %{message}\n"))
 {}
 
-
-//! Returns the current log format string.
 /*!
+  \brief Returns the current log format string.
+
   The default format is set to "%{time}{yyyy-MM-ddTHH:mm:ss.zzz} [%{type:-7}] <%{function}> %{message}\n". You can set a different log record
   format using the setFormat() function.
   
@@ -68,9 +70,9 @@ QString AbstractStringAppender::format() const
   return m_format;
 }
 
-
-//! Sets the logging format for writing strings to the log target with this appender.
 /*!
+  \brief Sets the logging format for writing strings to the log target with this appender.
+
   The string format seems to be very common to those developers who have used a standard sprintf function.
   
   Log output format is a simple QString with the special markers (starting with % sign) which will be replaced with
@@ -124,10 +126,14 @@ void AbstractStringAppender::setFormat(const QString& format)
 }
 
 
-//! Strips the long function signature (as added by Q_FUNC_INFO macro)
 /*!
+  \brief Strips the long function signature (as added by Q_FUNC_INFO macro).
+
   The string processing drops the returning type, arguments and template parameters of function. It is definitely
   useful for enchancing the log output readability.
+
+  The \a name parameter is the function name.
+
   \return stripped function name
  */
 QString AbstractStringAppender::stripFunctionName(const char* name)
@@ -302,9 +308,16 @@ QByteArray AbstractStringAppender::qCleanupFuncinfo(const char* name)
   return info;
 }
 
-
-//! Returns the string to record to the logging target, formatted according to the format().
 /*!
+  \brief Returns the string to record to the logging target, formatted according to the format().
+
+  \a timeStamp The time stamp.
+  The \a logLevel parameter describes the LogLevel, and the \a file parameter is the current file name,
+  and the \a line parameter indicates the number of lines to output.
+  The \a function parameter indicates the function name to output.
+  The \a category parameter indicates the log category.
+  The \a message parameter indicates the output message.
+
   \sa format()
   \sa setFormat(const QString&)
  */

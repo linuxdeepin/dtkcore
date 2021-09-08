@@ -26,11 +26,20 @@ DCORE_BEGIN_NAMESPACE
   \brief Appender that writes the log records to the Microsoft Debug Log.
  */
 
-
-//! Writes the log record to the windows debug log.
 /*!
-  \reimp
   \brief Writes the log record to the windows debug log.
+  \reimp
+
+  \brief Writes the log record to the windows debug log.
+
+  The \a timeStamp parameter indicates the time stamp.
+  The \a logLevel parameter describes the LogLevel.
+  The \a file parameter is the current file name.
+  The \a line parameter indicates the number of lines to output.
+  The \a function parameter indicates the function name to output.
+  The \a category parameter indicates the log category.
+  The \a message parameter indicates the output message.
+
   \sa AbstractStringAppender::format()
  */
 void OutputDebugAppender::append(const QDateTime& timeStamp,

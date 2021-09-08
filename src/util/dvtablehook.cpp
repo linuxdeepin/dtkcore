@@ -89,7 +89,7 @@ bool DVtableHook::clearGhostVtable(const void *obj)
     return false;
 }
 
-/*!
+/**
   \brief 通过遍历尝试找到析构函数在虚表中的位置
   \a obj
   \a destoryObjFun
@@ -379,7 +379,7 @@ bool DVtableHook::forceWriteMemory(void *adr, const void *data, size_t length)
 QFunctionPointer DVtableHook::resolve(const char *symbol)
 {
 #ifdef Q_OS_LINUX
-  /*!
+  /**
   ！！不要使用qt_linux_find_symbol_sys函数去获取符号
   
   在龙芯平台上，qt_linux_find_symbol_sys 无法获取部分已加载动态库的符号，

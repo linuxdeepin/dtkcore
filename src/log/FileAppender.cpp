@@ -27,7 +27,9 @@ DCORE_BEGIN_NAMESPACE
  */
 
 
-//! Constructs the new file appender assigned to file with the given name.
+/*!
+    \brief Constructs the new file appender assigned to file with the given \a fileName.
+ */
 FileAppender::FileAppender(const QString& fileName)
 {
   setFileName(fileName);
@@ -39,9 +41,9 @@ FileAppender::~FileAppender()
   closeFile();
 }
 
-
-//! Returns the name set by setFileName() or to the FileAppender constructor.
 /*!
+  \brief Returns the name set by setFileName() or to the FileAppender constructor.
+
   \sa setFileName()
  */
 QString FileAppender::fileName() const
@@ -50,9 +52,9 @@ QString FileAppender::fileName() const
   return m_logFile.fileName();
 }
 
-
-//! Sets the name of the file. The name can have no path, a relative path, or an absolute path.
 /*!
+  \brief Sets the \a s name of the file. The name can have no path, a relative path, or an absolute path.
+
   \sa fileName()
  */
 void FileAppender::setFileName(const QString& s)
@@ -84,9 +86,18 @@ bool FileAppender::openFile()
   return isOpen;
 }
 
-
-//! Write the log record to the file.
 /*!
+  \brief Write the log record to the file.
+  \reimp
+
+  The \a timeStamp parameter indicates the time stamp.
+  The \a logLevel parameter describes the LogLevel.
+  The \a file parameter is the current file name.
+  The \a line parameter indicates the number of lines to output.
+  The \a function parameter indicates the function name to output.
+  The \a category parameter indicates the log category.
+  The \a message parameter indicates the output message.
+
   \sa fileName()
   \sa AbstractStringAppender::format()
  */

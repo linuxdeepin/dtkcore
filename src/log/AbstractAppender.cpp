@@ -52,19 +52,22 @@ DCORE_BEGIN_NAMESPACE
  */
 
 
-//! Constructs a AbstractAppender object.
+/*!
+    \brief Constructs a AbstractAppender object.
+ */
 AbstractAppender::AbstractAppender()
   : m_detailsLevel(Logger::Debug)
 {}
 
-
-//! Destructs the AbstractAppender object.
+/*!
+    \brief Destructs the AbstractAppender object.
+ */
 AbstractAppender::~AbstractAppender()
 {}
 
-
-//! Returns the current details level of appender.
 /*!
+  \brief Returns the current details level of appender.
+
   Log records with a log level lower than a current detailsLevel() will be silently ignored by appender and would not
   be sent to its append() function.
   
@@ -72,6 +75,8 @@ AbstractAppender::~AbstractAppender()
   of logs.
   
   \note This function is thread safe.
+
+  \return The log level.
   
   \sa setDetailsLevel()
   \sa Logger::LogLevel
@@ -82,9 +87,9 @@ Logger::LogLevel AbstractAppender::detailsLevel() const
   return m_detailsLevel;
 }
 
-
-//! Sets the current details level of appender.
 /*!
+  \brief Sets the current details level of appender.
+
   Default details \a level is Logger::Debug
   
   \note This function is thread safe.
@@ -98,10 +103,9 @@ void AbstractAppender::setDetailsLevel(Logger::LogLevel level)
   m_detailsLevel = level;
 }
 
-
-
-//! Sets the current details level of appender
 /*!
+  \brief Sets the current details \a level of appender.
+
   This function is provided for convenience, it behaves like an above function.
   
   \sa detailsLevel()
@@ -112,10 +116,18 @@ void AbstractAppender::setDetailsLevel(const QString& level)
   setDetailsLevel(Logger::levelFromString(level));
 }
 
-
-//! Tries to write the log record to this logger
 /*!
+  \brief Tries to write the log record to this logger.
+
   This is the function called by Logger object to write a log \a message to the appender.
+
+  The \a timeStamp parameter indicates the time stamp.
+  The \a logLevel parameter describes the LogLevel.
+  The \a file parameter is the current file name.
+  The \a line parameter indicates the number of lines to output.
+  The \a function parameter indicates the function name to output.
+  The \a category parameter indicates the log category.
+  The \a message parameter indicates the output message.
   
   \note This function is thread safe.
   
@@ -144,6 +156,14 @@ void AbstractAppender::write(const QDateTime& timeStamp, Logger::LogLevel logLev
   to the current logLevel().
   
   Overload this function when you are implementing a custom appender.
+
+  The \a timeStamp parameter indicates the time stamp.
+  The \a logLevel parameter describes the LogLevel.
+  The \a file parameter is the current file name.
+  The \a line parameter indicates the number of lines to output.
+  The \a function parameter indicates the function name to output.
+  The \a category parameter indicates the log category.
+  The \a message parameter indicates the output message.
   
   \note This function is not needed to be thread safe because it is never called directly by Logger object. The
   write() function works as a proxy and protects this function from concurrent access.

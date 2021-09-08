@@ -37,7 +37,6 @@ DCORE_BEGIN_NAMESPACE
 
   The logFilesLimit parameter is used to automatically delete the oldest log files in the directory during rollover
   (so no more than logFilesLimit recent log files exist in the directory at any moment).
-  \sa setDatePattern(), setLogFilesLimit()
  */
 
 RollingFileAppender::RollingFileAppender(const QString& fileName)

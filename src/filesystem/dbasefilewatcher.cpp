@@ -54,6 +54,7 @@ QUrl DBaseFileWatcher::fileUrl() const
 /*!
   \brief 开始文件变动监视
   \brief Let file watcher start watching file changes.
+  \return 成功开始返回 true ，否则返回 false.
   
   \sa stopWatcher(), restartWatcher()
  */
@@ -74,9 +75,10 @@ bool DBaseFileWatcher::startWatcher()
 }
 
 /*!
-  \brief 停止文件变动监视
+  \brief 停止文件变动监视.
   \brief Stop watching file changes.
-  
+  \return 成功停止返回 true ，否则返回 false.
+
   \sa startWatcher(), restartWatcher()
  */
 bool DBaseFileWatcher::stopWatcher()
@@ -96,8 +98,9 @@ bool DBaseFileWatcher::stopWatcher()
 }
 
 /*!
-  \brief 重新开始文件变动监视
+  \brief 重新开始文件变动监视.
   \brief Stop file watcher and then restart it to watching file changes.
+  \return 成功开启返回 true，否则返回 false.
   
   \sa startWatcher(), stopWatcher()
  */
@@ -133,6 +136,8 @@ void DBaseFileWatcher::setEnabledSubfileWatcher(const QUrl &subfileUrl, bool ena
   \code
   DBaseFileWatcher::ghostSignal(QUrl("bookmark:///"), &DBaseFileWatcher::fileDeleted, QUrl("bookmark:///bookmarkFile1"));
   \endcode
+
+  \return 成功发送返回 true,否则返回 false.
  */
 bool DBaseFileWatcher::ghostSignal(const QUrl &targetUrl, DBaseFileWatcher::SignalType1 signal, const QUrl &arg1)
 {

@@ -34,7 +34,8 @@ DObjectPrivate::~DObjectPrivate()
 /*!
   \headerfile <dobject.h>
   \inmodule dtkcore
-  \brief 一些宏的定义
+
+  \brief 一些宏的定义.
 */
 
 /*!

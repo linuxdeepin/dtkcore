@@ -38,18 +38,22 @@ DCORE_BEGIN_NAMESPACE
 /*!
   \fn uint DAbstractUnitFormatter::unitConvertRate(int unitId) const = 0
   \brief 返回当前设置的转换单位.
+  \a unitId 单元ID.
  */
 /*!
   \fn qreal DAbstractUnitFormatter::unitValueMax(int unitId) const
   \brief 返回列表中根据当前设置的转换单位的最大值.
+  \a unitId 单元ID.
  */
 /*!
   \fn qreal DAbstractUnitFormatter::unitValueMin(int unitId) const
   \brief 返回列表中根据当前设置的转换单位的最小值.
+  \a unitId 单元ID.
  */
 /*!
   \fn QString DAbstractUnitFormatter::unitStr(int unitId) const = 0
   \brief 传入id，返回列表中对应的字符串.
+  \a unitId 单元ID.
  */
 
 /*!

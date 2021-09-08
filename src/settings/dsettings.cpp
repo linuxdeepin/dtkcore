@@ -133,8 +133,8 @@ public:
  */
 /*!
   \fn virtual QVariant DSettingsBackend::getOption(const QString &key) const = 0;
-  \brief get value by key.
-  \brief 获取key对应的值。
+  \brief get value by \a key.
+  \brief 获取 \a key 对应的值。
  */
 /*!
   \fn virtual void DSettingsBackend::doSync() = 0;
@@ -143,13 +143,15 @@ public:
  */
 /*!
   \fn virtual void DSettingsBackend::doSetOption(const QString &key, const QVariant &value) = 0;
-  \brief write key/value to storage.
+  \brief write \a key / \a value to storage.
   \brief 设置key对应的值，并使用存储后端进行存储。
  */
 /*!
   \fn void DSettingsBackend::optionChanged(const QString &key, const QVariant &value);
   \brief emitted when option \a value changed.
-  \brief DSettingsOption的值发生变化时发出的信号。
+  \brief DSettingsOption的值发生变化时发出的信号.
+
+  \a key 发生改变的 option 键，\a value 对应键的值.
  */
 /*!
   \fn void DSettingsBackend::sync();
@@ -159,7 +161,10 @@ public:
 /*!
   \fn void DSettingsBackend::setOption(const QString &key, const QVariant &value);
   \brief private signal, please do not use it.
-  \brief 私有信号，请勿使用。
+  \brief 私有信号，请勿使用.
+
+  \internal
+  \a key \a value
  */
 
 /*!
