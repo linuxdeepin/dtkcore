@@ -26,12 +26,14 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
+    DTimedLoop loop;
+
     testing::InitGoogleTest(&argc, argv);
-    int ret = RUN_ALL_TESTS();
+    int retVal = RUN_ALL_TESTS();
 
 #ifdef QT_DEBUG
     __sanitizer_set_report_path("asan.log");
 #endif
 
-    return ret;
+    return loop.exec(0, "main execution") + retVal;
 }

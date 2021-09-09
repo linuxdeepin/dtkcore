@@ -10,7 +10,9 @@ HEADERS += \
     $$PWD/dexportedinterface.h \
     $$PWD/dvtablehook.h \
     $$PWD/dfileservices.h \
-    $$PWD/dthreadutils.h
+    $$PWD/dthreadutils.h \
+    $$PWD/dasync.h \
+    $$PWD/dtimedloop.h
 
 INCLUDEPATH += $$PWD
 
@@ -39,7 +41,8 @@ SOURCES += \
     $$PWD/dpinyin.cpp \
     $$PWD/dexportedinterface.cpp \
     $$PWD/dvtablehook.cpp \
-    $$PWD/dthreadutils.cpp
+    $$PWD/dthreadutils.cpp \
+    $$PWD/dtimedloop.cpp
 
 linux {
     QT += dbus
