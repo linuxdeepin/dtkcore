@@ -21,7 +21,12 @@
 #include "ddcifile.h"
 #include "private/ddcifileengine_p.h"
 
+#ifndef DTK_NO_PROJECT
 #include <DObjectPrivate>
+#else
+#define D_D(class)
+#define D_DC(class)
+#endif
 #include <QDataStream>
 #include <QFile>
 #include <QLoggingCategory>
@@ -54,11 +59,16 @@ Q_LOGGING_CATEGORY(logDF, "dtk.dci.file")
 Q_LOGGING_CATEGORY(logDF, "dtk.dci.file", QtInfoMsg)
 #endif
 
-class DDciFilePrivate : public DObjectPrivate
+class DDciFilePrivate
+#ifndef DTK_NO_PROJECT
+    : public DObjectPrivate
+#endif
 {
 public:
     DDciFilePrivate(DDciFile *qq)
+#ifndef DTK_NO_PROJECT
         : DObjectPrivate(qq)
+#endif
     {
 
     }
@@ -69,7 +79,6 @@ public:
     void load(const QString &fileName);
     void load(const QByteArray &data);
 
-    D_DECLARE_PUBLIC(DDciFile)
     QString errorMessage;
     struct Node {
         qint8 type = DDciFile::UnknowFile;
@@ -417,6 +426,7 @@ void DDciFile::registerFileEngine()
     Q_UNUSED(globalHandler);
 }
 
+#ifndef DTK_NO_PROJECT
 DDciFile::DDciFile()
     : DObject(*new DDciFilePrivate(this))
 {
@@ -434,6 +444,25 @@ DDciFile::DDciFile(const QByteArray &data)
 {
     d_func()->load(data);
 }
+#else
+DDciFile::DDciFile()
+    : d(new DDciFilePrivate(this))
+{
+    d->load(QByteArrayLiteral("DCI\0\1\0\0\0"));
+}
+
+DDciFile::DDciFile(const QString &fileName)
+    : d(new DDciFilePrivate(this))
+{
+    d->load(fileName);
+}
+
+DDciFile::DDciFile(const QByteArray &data)
+    : d(new DDciFilePrivate(this))
+{
+    d->load(data);
+}
+#endif
 
 bool DDciFile::isValid() const
 {

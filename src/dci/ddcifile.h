@@ -20,8 +20,15 @@
  */
 #pragma once
 
+#ifndef DTK_NO_PROJECT
 #include <DObject>
 #include <dtkcore_global.h>
+#else
+#define DCORE_BEGIN_NAMESPACE
+#define DCORE_END_NAMESPACE
+#define LIBDTKCORESHARED_EXPORT
+#define D_DECLARE_PRIVATE(Class) Class##Private *d;
+#endif
 
 #include <QStringList>
 
@@ -32,7 +39,10 @@ QT_END_NAMESPACE
 DCORE_BEGIN_NAMESPACE
 
 class DDciFilePrivate;
-class LIBDTKCORESHARED_EXPORT DDciFile : public DObject
+class LIBDTKCORESHARED_EXPORT DDciFile
+#ifndef DTK_NO_PROJECT
+        : public DObject
+#endif
 {
     D_DECLARE_PRIVATE(DDciFile)
 public:

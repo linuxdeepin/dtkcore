@@ -20,7 +20,12 @@
  */
 #pragma once
 
+#ifndef DTK_NO_PROJECT
 #include <dtkcore_global.h>
+#else
+#define DCORE_BEGIN_NAMESPACE
+#define DCORE_END_NAMESPACE
+#endif
 #include <private/qabstractfileengine_p.h>
 
 #include <QSharedPointer>
