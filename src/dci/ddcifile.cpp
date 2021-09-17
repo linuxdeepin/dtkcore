@@ -29,6 +29,7 @@
 #include <QSaveFile>
 #include <QDir>
 #include <QBuffer>
+#include <QCollator>
 
 DCORE_BEGIN_NAMESPACE
 
@@ -128,6 +129,9 @@ public:
     bool loadDirectory(Node *directory,
                        const QByteArray &data, qint64 &begin, qint64 end,
                        QHash<QString, Node *> &pathToNode);
+
+    // 按标准中规定的文件排序计算此 name 在这个列表中的位置
+    static int getOrderedIndexOfNodeName(const decltype(Node::children) &list, const QString &name);
 
     qint8 version = 0;
     QScopedPointer<Node> root;
@@ -280,7 +284,8 @@ DDciFilePrivate::Node *DDciFilePrivate::mkNode(const QString &filePath)
         newNode->name = info.fileName();
         newNode->parent = parentNode;
 
-        parentNode->children.append(newNode);
+        const int index = getOrderedIndexOfNodeName(parentNode->children, newNode->name);
+        parentNode->children.insert(index, newNode);
         pathToNode[newNode->path()] = newNode;
 
         return newNode;
@@ -327,7 +332,9 @@ void DDciFilePrivate::copyNode(const DDciFilePrivate::Node *from, DDciFilePrivat
             newChild->parent = t;
             newChild->name = child->name;
             pathToNode[newChild->path()] = newChild;
-            t->children << newChild;
+
+            const int index = getOrderedIndexOfNodeName(t->children, newChild->name);
+            t->children.insert(index, newChild);
             copyPendingList << qMakePair(child, newChild);
         }
     }
@@ -387,6 +394,19 @@ bool DDciFilePrivate::loadDirectory(DDciFilePrivate::Node *directory,
     }
 
     return true;
+}
+
+int DDciFilePrivate::getOrderedIndexOfNodeName(const decltype(Node::children) &list, const QString &name)
+{
+    QCollator collator(QLocale::English);
+    collator.setNumericMode(true);
+    for (int i = 0; i < list.count(); ++i) {
+        const Node *node = list.at(i);
+        if (collator.compare(name, node->name) < 0)
+            return i;
+    }
+
+    return list.count();
 }
 
 void DDciFile::registerFileEngine()
@@ -723,7 +743,8 @@ bool DDciFile::rename(const QString &filePath, const QString &newFilePath, bool 
             if (node->parent != parent) {
                 bool ok = node->parent->children.removeOne(node);
                 Q_ASSERT(ok);
-                parent->children << node;
+                const int index = d->getOrderedIndexOfNodeName(parent->children, node->name);
+                parent->children.insert(index, node);
                 node->parent = parent;
             }
 
