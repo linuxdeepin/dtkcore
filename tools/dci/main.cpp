@@ -27,7 +27,17 @@
 #include <QFile>
 #include <QDebug>
 
+#include <unistd.h>
+
 #include "dci/ddcifile.h"
+
+static QByteArray getSymLinkTarget(const QByteArray &file) {
+    char target[512] = {0};
+    const auto ret = readlink(file.constData(), target, 511);
+    if (ret <= 0)
+        return QByteArray();
+    return QByteArray(target, ret);
+}
 
 static bool copyFilesToDci(DDciFile *dci, const QString &targetDir, const QString &sourceDir) {
     QDir dir(sourceDir);
@@ -39,7 +49,7 @@ static bool copyFilesToDci(DDciFile *dci, const QString &targetDir, const QStrin
             if (!copyFilesToDci(dci, newFile, info.absoluteFilePath()))
                 return false;
         } else if (info.isSymLink()) {
-            if (!dci->link(info.symLinkTarget(), newFile))
+            if (!dci->link(QString::fromLocal8Bit(getSymLinkTarget(info.absoluteFilePath().toLocal8Bit())), newFile))
                 return false;
         } else if (info.isFile()) {
             QFile file(info.absoluteFilePath());
@@ -88,7 +98,7 @@ static bool copyFilesFromDci(const DDciFile *dci, const QString &targetDir, cons
             if (newFile.write(data) != data.size())
                 return false;
         } else if (type == DDciFile::Symlink) {
-            if (!QFile::link(dci->symlinkTarget(file), newFilePath))
+            if (!QFile::link(dci->symlinkTarget(file, true), newFilePath))
                 return false;
         } else {
             return false;

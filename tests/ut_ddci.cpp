@@ -103,6 +103,7 @@ TEST_F(ut_DCI, DDciFile) {
         ASSERT_TRUE(dciFile.exists("/1.link"));
         ASSERT_EQ(dciFile.type("/1.link"), DDciFile::Symlink);
         ASSERT_EQ(dciFile.symlinkTarget("/1.link"), "/no");
+        ASSERT_EQ(dciFile.symlinkTarget("/1.link", true), "/no");
         // 当链接目标无效时，无论如何都不允许写入数据
         ASSERT_FALSE(dciFile.writeFile("/1.link", "", false));
         ASSERT_FALSE(dciFile.writeFile("/1.link", "", true));
@@ -119,10 +120,12 @@ TEST_F(ut_DCI, DDciFile) {
         // 相对路径链接
         ASSERT_TRUE(dciFile.link("./test/test.txt", "/4.link"));
         ASSERT_EQ(dciFile.symlinkTarget("/4.link"), "/test/test.txt");
+        ASSERT_EQ(dciFile.symlinkTarget("/4.link", true), "./test/test.txt");
         ASSERT_EQ(dciFile.dataRef("/4.link"), QByteArray("TEST"));
         // 链接一个软链接，测试 ".." 类型的相对路径
         ASSERT_TRUE(dciFile.link("../4.link", "/test/5.link"));
         ASSERT_EQ(dciFile.symlinkTarget("/test/5.link"), "/4.link");
+        ASSERT_EQ(dciFile.symlinkTarget("/test/5.link", true), "../4.link");
         ASSERT_EQ(dciFile.dataRef("/test/5.link"), QByteArray("TEST"));
         ASSERT_TRUE(dciFile.writeFile("/test/5.link", "test\n", true));
         ASSERT_EQ(dciFile.dataRef("/test/test.txt"), QByteArray("test\n"));

@@ -644,7 +644,7 @@ QString DDciFile::name(const QString &filePath) const
     return QString();
 }
 
-QString DDciFile::symlinkTarget(const QString &filePath) const
+QString DDciFile::symlinkTarget(const QString &filePath, bool originData) const
 {
     if (!isValid())
         return QString();
@@ -653,6 +653,10 @@ QString DDciFile::symlinkTarget(const QString &filePath) const
     if (auto node = d->pathToNode.value(filePath)) {
         if (node->type != FILE_TYPE_SYMLINK)
             return QString();
+
+        if (originData) {
+            return QString::fromUtf8(node->data);
+        }
 
         const QString &linkPath = node->linkPath();
         const auto targetNode = d->pathToNode.value(linkPath);

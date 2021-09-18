@@ -75,7 +75,7 @@ public:
     FileType type(const QString &filePath) const;
     QByteArray dataRef(const QString &filePath) const;
     QString name(const QString &filePath) const;
-    QString symlinkTarget(const QString &filePath) const;
+    QString symlinkTarget(const QString &filePath, bool originData = false) const;
 
     // for writer
     bool mkdir(const QString &filePath);
