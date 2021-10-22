@@ -50,5 +50,6 @@ int dtkVersion()
 
 const char *dtkVersionString()
 {
-    return DTK_VERSION_STR;
+    qWarning() << "Use DTK_VERSION_STR instead.";
+    return "";//DTK_VERSION_STR;
 }
