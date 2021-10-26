@@ -11,15 +11,44 @@ QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
 
 INCLUDEPATH += $$PWD
 HEADERS += $$PWD/dtkcore_global.h \
+    dconfig.h \
     dsysinfo.h \
     dsecurestring.h \
     ddesktopentry.h
 
 SOURCES += \
+    dconfig.cpp \
     dsysinfo.cpp \
     dsecurestring.cpp \
     ddesktopentry.cpp \
     dtkcore_global.cpp
+
+linux: {
+    HEADERS += \
+        $$PWD/dconfigfile.h
+
+    SOURCES += \
+        $$PWD/dconfigfile.cpp
+
+    # generic dbus interfaces
+    isEmpty(DTK_DISABLE_DBUS_CONFIG) {
+        QT += dbus
+
+        config.files = $$PWD/dbus/org.desktopspec.ConfigManager.xml
+        config.header_flags += -c DSGConfig -N
+        config.source_flags += -c DSGConfig -N
+
+        manager.files = $$PWD/dbus/org.desktopspec.ConfigManager.Manager.xml
+        manager.header_flags += -c DSGConfigManager -N
+        manager.source_flags += -c DSGConfigManager -N
+
+        DBUS_INTERFACES += config manager
+    } else {
+        DEFINES += D_DISABLE_DBUS_CONFIG
+    }
+} else {
+    DEFINES += D_DISABLE_DCONFIG
+}
 
 include($$PWD/base/base.pri)
 include($$PWD/util/util.pri)
@@ -38,7 +67,9 @@ includes.files += \
     $$PWD/DtkCores \
     $$PWD/DSysInfo \
     $$PWD/DSecureString \
-    $$PWD/DDesktopEntry
+    $$PWD/DDesktopEntry \
+    $$PWD/DConfigFile \
+    $$PWD/DConfig
 
 INSTALLS += includes target
 

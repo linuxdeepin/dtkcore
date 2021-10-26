@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 ~ 2017 Deepin Technology Co., Ltd.
+ * Copyright (C) 2017 ~ 2021 Deepin Technology Co., Ltd.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -41,6 +41,25 @@ public:
     static QStringList locateAll(QStandardPaths::StandardLocation type, const QString &fileName, QStandardPaths::LocateOptions options = QStandardPaths::LocateFile);
     static QString findExecutable(const QString &executableName, const QStringList &paths = QStringList());
     static void setMode(Mode mode);
+
+    enum class XDG {
+        DataHome,
+        ConfigHome,
+        CacheHome,
+        RuntimeTime
+    };
+
+    enum class DSG {
+        AppData,
+        DataDir
+    };
+
+    static QString homePath();
+    static QString homePath(const uint uid);
+    static QString path(XDG type);
+    static QString path(DSG type);
+    static QString filePath(XDG type, QString fileName);
+    static QString filePath(DSG type, QString fileName);
 
 private:
     DStandardPaths();
