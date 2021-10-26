@@ -5,13 +5,10 @@
       <arg type='s' name='subpath' direction='in'/>
       <arg type='o' name='path' direction='out'/>
     </method>
-    <method name='list'>
-      <arg type='as' name='paths' direction='out'/>
-    </method>
     <method name='update'>
-      <arg type='s' name='name' direction='in'/>
+      <arg type='s' name='path' direction='in'/>
     </method>
-    <method name='save'>
-      <arg type='s' name='name' direction='in'/>
+    <method name='sync'>
+      <arg type='s' name='path' direction='in'/>
     </method>
 </interface>

@@ -88,7 +88,8 @@ TEST_F(ut_DConfigFile, testLoad) {
     ASSERT_TRUE(config.load(&buffer, {}));
     ASSERT_EQ(config.metaService()->keyList(), QStringList{QLatin1String("canExit")});
 
-    ASSERT_EQ(config.value("canExit", uid).toBool(), false);
+    QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+    ASSERT_EQ(config.value("canExit", userCache.get()).toBool(), false);
 
     ASSERT_EQ(config.metaService()->version().major, 1);
     ASSERT_EQ(config.metaService()->version().minor, 0);
@@ -110,23 +111,28 @@ TEST_F(ut_DConfigFile, fileIODevice) {
     {
         DConfigFile config(APP_ID, FILE_NAME);
         ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+        ASSERT_TRUE(userCache->load(LocalPrefix));
     }
     {
         DConfigFile config(APP_ID, FILE_NAME);
-        config.addCacheService(uid);
         config.load(LocalPrefix);
+        QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+        userCache->load(LocalPrefix);
 
-        config.setValue("canExit", false, uid, "appid");
-        config.setValue("key2", QString("128"), uid);
+        config.setValue("canExit", false, userCache.get(), "appid");
+        config.setValue("key2", QString("128"), userCache.get());
 
         ASSERT_TRUE(config.save(LocalPrefix));
+        ASSERT_TRUE(userCache->save(LocalPrefix));
     }
     {
         DConfigFile config(APP_ID, FILE_NAME);
-        config.addCacheService(uid);
         ASSERT_TRUE(config.load(LocalPrefix));
-        ASSERT_EQ(config.value("canExit", uid), false);
-        ASSERT_EQ(config.value("key2", uid).toString(), QString("128"));
+        QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+        ASSERT_TRUE(userCache->load(LocalPrefix));
+        ASSERT_EQ(config.value("canExit", userCache.get()), false);
+        ASSERT_EQ(config.value("key2", userCache.get()).toString(), QString("128"));
     }
 }
 
@@ -137,7 +143,10 @@ TEST_F(ut_DConfigFile, appmeta) {
         DConfigFile config(APP_ID, FILE_NAME);
 
         config.load(LocalPrefix);
-        ASSERT_EQ(config.value("key3", uid).toString(), QString("application"));
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+        ASSERT_TRUE(userCache->load(LocalPrefix));
+        ASSERT_EQ(config.value("key3", userCache.get()).toString(), QString("application"));
     }
 }
 
@@ -146,7 +155,9 @@ TEST_F(ut_DConfigFile, globalmeta) {
     FileCopyGuard gurad(":/data/dconf-global.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
     DConfigFile config(APP_ID, FILE_NAME);
     ASSERT_TRUE(config.load(LocalPrefix));
-    ASSERT_EQ(config.value("key3", uid), QString("global"));
+    QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+    ASSERT_TRUE(userCache->load(LocalPrefix));
+    ASSERT_EQ(config.value("key3", userCache.get()), QString("global"));
 }
 
 TEST_F(ut_DConfigFile, meta) {
@@ -155,7 +166,9 @@ TEST_F(ut_DConfigFile, meta) {
     FileCopyGuard gurad2(":/data/dconf-global.meta.json", QString("%1/%2.json").arg(metaGlobalPath, FILE_NAME));
     DConfigFile config(APP_ID, FILE_NAME);
     ASSERT_TRUE(config.load(LocalPrefix));
-    ASSERT_EQ(config.value("key3", uid), QString("application"));
+    QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+    ASSERT_TRUE(userCache->load(LocalPrefix));
+    ASSERT_EQ(config.value("key3", userCache.get()), QString("application"));
 }
 
 TEST_F(ut_DConfigFile, fileOverride) {
@@ -164,14 +177,18 @@ TEST_F(ut_DConfigFile, fileOverride) {
     {
         DConfigFile config(APP_ID, FILE_NAME);
         config.load(LocalPrefix);
-        ASSERT_EQ(config.value("key3", uid), QString("application"));
+        QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+        ASSERT_TRUE(userCache->load(LocalPrefix));
+        ASSERT_EQ(config.value("key3", userCache.get()), QString("application"));
     }
 
     FileCopyGuard gurad1(":/data/dconf-example.override.json", QString("%1/%2.json").arg(overridePath, FILE_NAME));
     {
         DConfigFile config(APP_ID, FILE_NAME);
         config.load(LocalPrefix);
-        ASSERT_EQ(config.value("key3", uid), QString("override"));
+        QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+        ASSERT_TRUE(userCache->load(LocalPrefix));
+        ASSERT_EQ(config.value("key3", userCache.get()), QString("override"));
     }
 
     FileCopyGuard gurad2(":/data/dconf-override/dconf-example.override.a.json", QString("%1/a/%2.json").arg(overridePath, FILE_NAME));
@@ -179,7 +196,9 @@ TEST_F(ut_DConfigFile, fileOverride) {
         {
             DConfigFile config(APP_ID, FILE_NAME, "/a");
             config.load(LocalPrefix);
-            ASSERT_EQ(config.value("key3", uid).toString(), QString("override /a"));
+            QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+            ASSERT_TRUE(userCache->load(LocalPrefix));
+            ASSERT_EQ(config.value("key3", userCache.get()).toString(), QString("override /a"));
         }
     }
 
@@ -188,7 +207,9 @@ TEST_F(ut_DConfigFile, fileOverride) {
         {
             DConfigFile config(APP_ID, FILE_NAME, "/a/b");
             config.load(LocalPrefix);
-            ASSERT_EQ(config.value("key3", uid).toString(), QString("override /a/b"));
+            QScopedPointer<DConfigCache> userCache(config.createUserCacheService(uid));
+            ASSERT_TRUE(userCache->load(LocalPrefix));
+            ASSERT_EQ(config.value("key3", userCache.get()).toString(), QString("override /a/b"));
         }
     }
 }

@@ -1,11 +1,6 @@
 <interface name='org.desktopspec.ConfigManager.Manager'>
     <property access="read" type="s" name="version"/>
     <property access="read" type="as" name="keyList"/>
-    <!--为每个 key 提供一个只读属性，如：
-    <property access="read" type="v" name="key1"/>
-    ...
-    <property access="read" type="v" name="key2"/>
-    -->
     <method name='value'>
       <arg type='s' name='key' direction='in'/>
       <arg type='v' name='value' direction='out'/>

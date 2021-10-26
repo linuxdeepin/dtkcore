@@ -836,6 +836,12 @@ DConfigMetaImpl::~DConfigMetaImpl()
 */
 
 /*
+    \fn bool DConfigCache::isGlobal() const = 0;
+    \brief 是否是全局缓存
+    \return
+*/
+
+/*
     \fn void DConfigCache::resetMeta(DConfigMeta *meta) = 0;
     \breaf 重置配置描述对象
     \a meta 描述对象
@@ -887,7 +893,7 @@ DConfigMetaImpl::~DConfigMetaImpl()
 
 class Q_DECL_HIDDEN DConfigCacheImpl : public DConfigCache {
 public:
-    DConfigCacheImpl(const DConfigKey &configKey, DConfigMeta *configMeta, const uint uid);
+    DConfigCacheImpl(const DConfigKey &configKey, DConfigMeta *configMeta, const uint uid, bool global);
     virtual ~DConfigCacheImpl() override;
 
     // DConfigCache interface
@@ -925,7 +931,7 @@ public:
 
     QString getCacheDir(const QString &localPrefix = QString())
     {
-        if (DConfigFile::isGlobalCacheService(userid)) {
+        if (isGlobal()) {
             return globalCacheDir(localPrefix);
         } else {
             return applicationCacheDir(localPrefix);
@@ -933,6 +939,11 @@ public:
     }
 
     bool load(const QString &localPrefix = QString()) override;
+
+    bool isGlobal() const override
+    {
+        return global;
+    }
 
     inline void remove(const QString &key) override
     {
@@ -962,14 +973,16 @@ public:
     DConfigInfo values;
     DConfigMeta *configMeta;
     uint userid;
-    char padding [4] = {};
+    bool global;
+    char padding [3] = {};
 };
 
-DConfigCacheImpl::DConfigCacheImpl(const DConfigKey &configKey, DConfigMeta *configMeta, const uint uid)
+DConfigCacheImpl::DConfigCacheImpl(const DConfigKey &configKey, DConfigMeta *configMeta, const uint uid, bool global)
     : DConfigCache(),
       configKey(configKey),
       configMeta(configMeta),
-      userid(uid)
+      userid(uid),
+      global(global)
 {
 }
 
@@ -1065,38 +1078,36 @@ public:
         bool status = configMeta->load(localPrefix);
         if (status) {
             // for cache
-            for (auto cache : caches) {
-                status &= cache->load(localPrefix);
-            }
+            status &= globalCache->load(localPrefix);
         }
         return status;
     }
     bool setValue(const QString &key, const QVariant &value,
-                  const uint uid, const QString &appid)
+                  DConfigCache *userCache, const QString &appid)
     {
         // 此处不要检查权限，在获取 value 时会检查
-        if (auto cache = getCache(key, uid)) {
+        if (auto cache = getCache(key, userCache)) {
             if (!value.isValid()) {
                 cache->remove(key);
                 return true;
             } else {
-                return cache->setValue(key, value, uid, appid);
+                return cache->setValue(key, value, cache->uid(), appid);
             }
         }
         return false;
     }
-    DConfigCache* getCache(const QString &key, const uint uid) const
+    DConfigCache* getCache(const QString &key, DConfigCache *userCache) const
     {
         if(configMeta->flags(key).testFlag(DConfigFile::Global)) {
-            return caches[GlobalUID];
+            return globalCache;
         }
-        return caches.value(uid, nullptr);
+        return userCache;
     }
-    QVariant value(const QString &key, const uint uid) const
+    QVariant value(const QString &key, DConfigCache *userCache) const
     {
         // 检查权限
         if (configMeta->permissions(key) != DConfigFile::ReadOnly) {
-            if (auto cache = getCache(key, uid)) {
+            if (auto cache = getCache(key, userCache)) {
                 if (DConfigInfo::checkSerial(configMeta->serial(key), cache->serial(key))) {
                     const QVariant &tmp = cache->value(key);
                     if (tmp.isValid())
@@ -1111,7 +1122,7 @@ public:
     D_DECLARE_PUBLIC(DConfigFile)
 
 private:
-    QMap<uint, DConfigCache*> caches;
+    DConfigCache* globalCache;
     DConfigKey configKey;
     DConfigMeta *configMeta;
 };
@@ -1151,7 +1162,9 @@ DConfigFile::DConfigFile(const QString &appId, const QString &name, const QStrin
     : DObject(*new DConfigFilePrivate(this, appId, name, subpath))
 {
     Q_ASSERT(!name.isEmpty());
-    addCacheService(GlobalUID);
+
+    D_D(DConfigFile);
+    d->globalCache = new DConfigCacheImpl(d->configKey, d->configMeta, GlobalUID, false);
 }
 
 /*
@@ -1186,10 +1199,7 @@ bool DConfigFile::save(const QString &localPrefix, QJsonDocument::JsonFormat for
 {
     D_DC(DConfigFile);
 
-    bool ok = true;
-    for (auto cache : d->caches) {
-        ok &= cache->save(localPrefix, format, sync);
-    }
+    bool ok = d->globalCache->save(localPrefix, format, sync);
 
     return ok;
 }
@@ -1200,10 +1210,10 @@ bool DConfigFile::save(const QString &localPrefix, QJsonDocument::JsonFormat for
  * \param uid 用户id，当key为全局项时，uid无效
  * \return
  */
-QVariant DConfigFile::value(const QString &key, const uint uid) const
+QVariant DConfigFile::value(const QString &key, DConfigCache *userCache) const
 {
     D_DC(DConfigFile);
-    return d->value(key, uid);
+    return d->value(key, userCache);
 }
 
 /*!
@@ -1214,51 +1224,18 @@ QVariant DConfigFile::value(const QString &key, const uint uid) const
     \a appid 设置时的应用id
     \return 为true时表示重新设置了新值，false表示没有设置
  */
-bool DConfigFile::setValue(const QString &key, const QVariant &value, const uint uid, const QString &appid)
+bool DConfigFile::setValue(const QString &key, const QVariant &value, DConfigCache *userCache, const QString &appid)
 {
     D_D(DConfigFile);
-    return d->setValue(key, value, uid, appid);
+    return d->setValue(key, value, userCache, appid);
 }
 
-DConfigCache *DConfigFile::addCacheService(const uint uid)
+DConfigCache *DConfigFile::createUserCacheService(const uint uid)
 {
     D_D(DConfigFile);
-    auto cache = new DConfigCacheImpl(d->configKey, d->configMeta, uid);
-    d->caches.insert(uid, cache);
-    return cache;
+    return new DConfigCacheImpl(d->configKey, d->configMeta, uid, false);
 }
 
-DConfigCache *DConfigFile::cacheService(const uint uid) const
-{
-    D_DC(DConfigFile);
-    return d->caches[uid];
-}
-
-void DConfigFile::removeCacheService(const uint uid)
-{
-    D_D(DConfigFile);
-    d->caches.remove(uid);
-}
-
-QList<DConfigCache *> DConfigFile::cacheServices() const
-{
-    D_DC(DConfigFile);
-    return d->caches.values();
-}
-
-QList<DConfigCache *> DConfigFile::userCacheServices() const
-{
-    D_DC(DConfigFile);
-    QList<DConfigCache *> caches;
-    caches.reserve(d->caches.size());
-    for (auto cache : d->caches) {
-        if (DConfigFile::isGlobalCacheService(cache->uid())) {
-            continue;
-        }
-        caches.push_back(cache);
-    }
-    return caches;
-}
 
 /*!
     \brief 返回全局缓存
@@ -1266,17 +1243,8 @@ QList<DConfigCache *> DConfigFile::userCacheServices() const
  */
 DConfigCache *DConfigFile::globalCacheService() const
 {
-    return cacheService(GlobalUID);
-}
-
-/*!
-    \brief 是否是全局缓存
-    \a uid
-    \return
- */
-bool DConfigFile::isGlobalCacheService(const uint uid)
-{
-    return uid == GlobalUID;
+    D_DC(DConfigFile);
+    return d->globalCache;
 }
 
 /*!
@@ -1287,33 +1255,6 @@ DConfigMeta *DConfigFile::metaService()
 {
     D_D(DConfigFile);
     return d->configMeta;
-}
-
-/*!
-    \brief 构造一个新的原型对象
-    \return
- */
-DConfigMeta *DConfigFile::buildMetaService()
-{
-    D_D(DConfigFile);
-    return new DConfigMetaImpl(d->configKey);
-}
-
-/*!
-    \brief 重置原型对象，原来的原型对象会被释放，新原型对象生命周期被接管
-    \a meta 新原型对象
-    \return
- */
-void DConfigFile::resetMetaService(DConfigMeta *meta)
-{
-    D_D(DConfigFile);
-    if (d->configMeta) {
-        delete d->configMeta;
-    }
-    d->configMeta = meta;
-    for (auto cache : cacheServices()) {
-        cache->resetMeta(meta);
-    }
 }
 
 /*!

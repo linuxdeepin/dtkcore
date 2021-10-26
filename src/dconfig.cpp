@@ -143,11 +143,11 @@ public:
             return true;
 
         configFile.reset(new DConfigFile(appid,owner->name, owner->subpath));
-        configFile->addCacheService(getuid());
-        if (envLocalPrefix.isEmpty()) {
-            return configFile->load();
-        }
-        return configFile->load(QString::fromLocal8Bit(envLocalPrefix));
+        configCache.reset(configFile->createUserCacheService(getuid()));
+        const QString &prefix = localPrefix();
+
+        return configFile->load(prefix) &&
+               configCache->load(prefix);
     }
 
     virtual QStringList keyList() const override
@@ -157,13 +157,13 @@ public:
 
     virtual QVariant value(const QString &key, const QVariant &fallback) const override
     {
-        const QVariant &v = configFile->value(key, getuid());
+        const QVariant &v = configFile->value(key, configCache.get());
         return v.isValid() ? v : fallback;
     }
 
     virtual void setValue(const QString &key, const QVariant &value) override
     {
-        if (configFile->setValue(key, value, getuid(), getAppId())) {
+        if (configFile->setValue(key, value, configCache.get(), getAppId())) {
             Q_EMIT owner->q_func()->valueChanged(key);
         }
     }
@@ -174,19 +174,32 @@ public:
     }
 
 private:
+    QString localPrefix() const
+    {
+        if (!envLocalPrefix.isEmpty()) {
+            return QString::fromLocal8Bit(envLocalPrefix);
+        }
+        return QString();
+    }
+
+private:
     QScopedPointer<DConfigFile> configFile;
+    QScopedPointer<DConfigCache> configCache;
     DConfigPrivate* owner;
     const QByteArray envLocalPrefix = qgetenv("DSG_DCONFIG_FILE_BACKEND_LOCAL_PREFIX");
 };
 
 FileBackend::~FileBackend()
 {
-    if (envLocalPrefix.isEmpty()) {
-        configFile->save();
-    } else {
-        configFile->save(QString::fromLocal8Bit(envLocalPrefix));
+    const QString &prefix = localPrefix();
+    if (configCache) {
+        configCache->save(prefix);
+        configCache.reset();
     }
-    configFile.reset();
+    if (configFile) {
+        configFile->save(prefix);
+        configFile.reset();
+    }
 }
 
 #ifndef D_DISABLE_DBUS_CONFIG

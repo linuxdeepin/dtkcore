@@ -204,6 +204,10 @@ QString DStandardPaths::filePath(DStandardPaths::DSG type, const QString fileNam
 QString DStandardPaths::homePath(const uint uid)
 {
     struct passwd *pw = getpwuid(uid);
+
+    if (!pw)
+        return QString();
+
     const char *homedir = pw->pw_dir;
     return QString::fromLocal8Bit(homedir);
 }

@@ -65,8 +65,6 @@ public:
 
     static constexpr Version supportedVersion();
 
-    static bool isGlobalCacheService(const uint uid);
-
     explicit DConfigFile(const QString &appId, const QString &name,
                          const QString &subpath = QString());
 
@@ -77,20 +75,14 @@ public:
               bool sync = false) const;
 
     bool isValid() const;
-    QVariant value(const QString &key, const uint uid) const;
+    QVariant value(const QString &key, DConfigCache *userCache = nullptr) const;
     bool setValue(const QString &key, const QVariant &value,
-                  const uint uid, const QString &appid = QString());
+                  DConfigCache *userCache = nullptr, const QString &appid = QString());
 
-    DConfigCache *addCacheService(const uint uid);
-    DConfigCache *cacheService(const uint uid) const;
-    void removeCacheService(const uint uid);
-    QList<DConfigCache*> cacheServices() const;
-    QList<DConfigCache*> userCacheServices() const;
+    DConfigCache *createUserCacheService(const uint uid);
     DConfigCache *globalCacheService() const;
 
-    DConfigMeta* metaService();
-    DConfigMeta* buildMetaService();
-    void resetMetaService(DConfigMeta* meta);
+    DConfigMeta *metaService();
 
 protected:
     friend QDebug operator<<(QDebug, const DConfigFile &);
@@ -128,6 +120,7 @@ public:
     virtual bool load(const QString &localPrefix = QString()) = 0;
     virtual bool save(const QString &localPrefix = QString(), QJsonDocument::JsonFormat format = QJsonDocument::Indented,
                       bool sync = false) = 0;
+    virtual bool isGlobal() const = 0;
     virtual void resetMeta(DConfigMeta *meta) = 0;
 
     virtual void remove(const QString &key) = 0;
