@@ -582,9 +582,12 @@ public:
         return values.value(key);
     }
 
-    inline QString applicationMetaDir(const QString &prefix) const
+    inline QString applicationMetaDir(const QString &prefix, const bool useOptDir = false) const
     {
-        return QString("%1/opt/apps/%2/files/schemas/configs").arg(prefix, configKey.appId);
+        if (useOptDir)
+            return QString("%1/opt/apps/%2/files/schemas/configs").arg(prefix, configKey.appId);
+
+        return QString("%1/usr/share/dsg/apps/%2/configs").arg(prefix, configKey.appId);
     }
 
     inline static QString genericMetaDir(const QString &prefix) {
@@ -597,6 +600,9 @@ public:
         bool useAppIdForOverride = true;
 
         QString path = getFile(applicationMetaDir(localPrefix), configKey.subpath, configKey.fileName + FILE_SUFFIX);
+        if (path.isEmpty())
+            path = getFile(applicationMetaDir(localPrefix, true), configKey.subpath, configKey.fileName + FILE_SUFFIX);
+
         if (path.isEmpty()) {
             useAppIdForOverride = false;
             path = getFile(genericMetaDir(localPrefix), configKey.subpath, configKey.fileName + FILE_SUFFIX);
