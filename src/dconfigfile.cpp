@@ -1129,6 +1129,10 @@ private:
 
 DConfigFilePrivate::~DConfigFilePrivate()
 {
+    if (globalCache) {
+        delete globalCache;
+        globalCache = nullptr;
+    }
     if (configMeta) {
         delete configMeta;
         configMeta = nullptr;
