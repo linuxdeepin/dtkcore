@@ -143,7 +143,7 @@ public:
             return true;
 
         configFile.reset(new DConfigFile(appid,owner->name, owner->subpath));
-        configCache.reset(configFile->createUserCacheService(getuid()));
+        configCache.reset(configFile->createUserCache(getuid()));
         const QString &prefix = localPrefix();
 
         return configFile->load(prefix) &&
@@ -152,7 +152,7 @@ public:
 
     virtual QStringList keyList() const override
     {
-        return configFile->metaService()->keyList();
+        return configFile->meta()->keyList();
     }
 
     virtual QVariant value(const QString &key, const QVariant &fallback) const override
@@ -163,7 +163,7 @@ public:
 
     virtual void setValue(const QString &key, const QVariant &value) override
     {
-        if (configFile->setValue(key, value, configCache.get(), getAppId())) {
+        if (configFile->setValue(key, value, getAppId(), configCache.get())) {
             Q_EMIT owner->q_func()->valueChanged(key);
         }
     }

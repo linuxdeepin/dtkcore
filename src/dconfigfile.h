@@ -67,6 +67,7 @@ public:
 
     explicit DConfigFile(const QString &appId, const QString &name,
                          const QString &subpath = QString());
+    explicit DConfigFile(const DConfigFile &other);
 
     bool load(const QString &localPrefix = QString());
     bool load(QIODevice *meta, const QList<QIODevice*> &overrides);
@@ -76,13 +77,13 @@ public:
 
     bool isValid() const;
     QVariant value(const QString &key, DConfigCache *userCache = nullptr) const;
-    bool setValue(const QString &key, const QVariant &value,
-                  DConfigCache *userCache = nullptr, const QString &appid = QString());
+    bool setValue(const QString &key, const QVariant &value, const QString &callerAppid,
+                  DConfigCache *userCache = nullptr);
 
-    DConfigCache *createUserCacheService(const uint uid);
-    DConfigCache *globalCacheService() const;
+    DConfigCache *createUserCache(const uint uid);
+    DConfigCache *globalCache() const;
 
-    DConfigMeta *metaService();
+    DConfigMeta *meta();
 
 protected:
     friend QDebug operator<<(QDebug, const DConfigFile &);
@@ -118,14 +119,14 @@ public:
     virtual ~DConfigCache();
 
     virtual bool load(const QString &localPrefix = QString()) = 0;
-    virtual bool save(const QString &localPrefix = QString(), QJsonDocument::JsonFormat format = QJsonDocument::Indented,
-                      bool sync = false) = 0;
+    virtual bool save(const QString &localPrefix = QString(),
+                      QJsonDocument::JsonFormat format = QJsonDocument::Indented, bool sync = false) = 0;
     virtual bool isGlobal() const = 0;
-    virtual void resetMeta(DConfigMeta *meta) = 0;
 
     virtual void remove(const QString &key) = 0;
     virtual QStringList keyList() const = 0;
-    virtual bool setValue(const QString &key, const QVariant &value, const uint uid, const QString &appid) = 0;
+    virtual bool setValue(const QString &key, const QVariant &value, const int serial,
+                          const uint uid, const QString &callerAppid) = 0;
     virtual QVariant value(const QString &key) const = 0;
     virtual int serial(const QString &key) const = 0;
     virtual uint uid() const = 0;

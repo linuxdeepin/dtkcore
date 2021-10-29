@@ -258,6 +258,19 @@ struct DConfigKey {
 
 class Q_DECL_HIDDEN DConfigInfo {
 public:
+    DConfigInfo()
+    {
+
+    }
+    DConfigInfo(const DConfigInfo &other)
+    {
+        this->values = other.values;
+    }
+    DConfigInfo operator = (const DConfigInfo &other)
+    {
+        this->values = other.values;
+        return *this;
+    }
     inline static bool checkSerial(const int metaSerial, const int cacheSerial)
     {
         if (cacheSerial < 0)
@@ -899,7 +912,7 @@ DConfigMetaImpl::~DConfigMetaImpl()
 
 class Q_DECL_HIDDEN DConfigCacheImpl : public DConfigCache {
 public:
-    DConfigCacheImpl(const DConfigKey &configKey, DConfigMeta *configMeta, const uint uid, bool global);
+    DConfigCacheImpl(const DConfigKey &configKey, const uint uid, bool global);
     virtual ~DConfigCacheImpl() override;
 
     // DConfigCache interface
@@ -919,7 +932,6 @@ public:
         return values.keyList();
     }
 
-    virtual void resetMeta(DConfigMeta *meta) override;
     inline QString applicationCacheDir(const QString &prefix) const {
         const QString userHomeConfigDir = DStandardPaths::homePath(userid) + QStringLiteral("/.config");
         return prefix + userHomeConfigDir + "/" + configKey.appId;
@@ -955,13 +967,13 @@ public:
     {
         values.remove(key);
     }
-    bool setValue(const QString &key, const QVariant &value, const uint uid, const QString &appid) override
+    bool setValue(const QString &key, const QVariant &value, const int serial, const uint uid, const QString &appid) override
     {
         if (values.value(key) == value) {
             return false;
         }
         values.setValue(key, value);
-        values.setSerial(key, configMeta->serial(key));
+        values.setSerial(key, serial);
         values.setTime(key, QDateTime::currentDateTime().toString(Qt::ISODate));
         values.setUser(key, uid);
         values.setAppId(key, appid.isEmpty() ? configKey.appId : appid);
@@ -977,16 +989,14 @@ public:
 
     DConfigKey configKey;
     DConfigInfo values;
-    DConfigMeta *configMeta;
     uint userid;
     bool global;
     char padding [3] = {};
 };
 
-DConfigCacheImpl::DConfigCacheImpl(const DConfigKey &configKey, DConfigMeta *configMeta, const uint uid, bool global)
+DConfigCacheImpl::DConfigCacheImpl(const DConfigKey &configKey, const uint uid, bool global)
     : DConfigCache(),
       configKey(configKey),
-      configMeta(configMeta),
       userid(uid),
       global(global)
 {
@@ -994,11 +1004,6 @@ DConfigCacheImpl::DConfigCacheImpl(const DConfigKey &configKey, DConfigMeta *con
 
 DConfigCacheImpl::~DConfigCacheImpl()
 {
-}
-
-void DConfigCacheImpl::resetMeta(DConfigMeta *meta)
-{
-    configMeta = meta;
 }
 
 bool DConfigCacheImpl::load(const QString &localPrefix)
@@ -1018,7 +1023,7 @@ bool DConfigCacheImpl::load(const QString &localPrefix)
         const QJsonObject &root = doc.object();
         if (!checkMagic(root, MAGIC_CACHE))
             return false;
-        if (!checkVersion(root, configMeta->version()))
+        if (!checkVersion(root, DConfigFile::supportedVersion()))
             return false;
 
         auto &&contents = root[QLatin1String("contents")].toObject();
@@ -1052,8 +1057,9 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
     QJsonObject root;
 
     root[QLatin1String("magic")] = MAGIC_CACHE;
-    root[QLatin1String("version")] = QString("%1.%2").arg(configMeta->version().major)
-            .arg(configMeta->version().minor);
+    const DConfigFile::Version version = DConfigFile::supportedVersion();
+    root[QLatin1String("version")] = QString("%1.%2").arg(version.major)
+            .arg(version.minor);
 
     root[QLatin1String("contents")] = values.content();
     QJsonDocument doc;
@@ -1073,6 +1079,12 @@ public:
                        const QString &name, const QString &subpath)
         : DObjectPrivate(qq),
           configKey(appId, name ,subpath),
+          configMeta(new DConfigMetaImpl(configKey))
+    {
+    }
+    DConfigFilePrivate(DConfigFile *qq, const DConfigKey &configKey)
+        : DObjectPrivate(qq),
+          configKey(configKey),
           configMeta(new DConfigMetaImpl(configKey))
     {
     }
@@ -1097,7 +1109,7 @@ public:
                 cache->remove(key);
                 return true;
             } else {
-                return cache->setValue(key, value, cache->uid(), appid);
+                return cache->setValue(key, value, configMeta->serial(key), cache->uid(), appid);
             }
         }
         return false;
@@ -1128,7 +1140,7 @@ public:
     D_DECLARE_PUBLIC(DConfigFile)
 
 private:
-    DConfigCache* globalCache;
+    DConfigCacheImpl* globalCache;
     DConfigKey configKey;
     DConfigMeta *configMeta;
 };
@@ -1174,7 +1186,16 @@ DConfigFile::DConfigFile(const QString &appId, const QString &name, const QStrin
     Q_ASSERT(!name.isEmpty());
 
     D_D(DConfigFile);
-    d->globalCache = new DConfigCacheImpl(d->configKey, d->configMeta, GlobalUID, false);
+    d->globalCache = new DConfigCacheImpl(d->configKey, GlobalUID, true);
+}
+
+DConfigFile::DConfigFile(const DConfigFile &other)
+    : DObject(*new DConfigFilePrivate(this, other.d_func()->configKey))
+{
+    D_D(DConfigFile);
+    auto cache = new DConfigCacheImpl(d->configKey, GlobalUID, true);
+    cache->values = other.d_func()->globalCache->values;
+    d->globalCache = cache;
 }
 
 /*
@@ -1196,7 +1217,7 @@ bool DConfigFile::load(const QString &localPrefix)
 */
 bool DConfigFile::load(QIODevice *meta, const QList<QIODevice *> &overrides)
 {
-    return metaService()->load(meta, overrides);
+    return this->meta()->load(meta, overrides);
 }
 
 /*
@@ -1234,16 +1255,16 @@ QVariant DConfigFile::value(const QString &key, DConfigCache *userCache) const
     \a appid 设置时的应用id
     \return 为true时表示重新设置了新值，false表示没有设置
  */
-bool DConfigFile::setValue(const QString &key, const QVariant &value, DConfigCache *userCache, const QString &appid)
+bool DConfigFile::setValue(const QString &key, const QVariant &value, const QString &callerAppid, DConfigCache *userCache)
 {
     D_D(DConfigFile);
-    return d->setValue(key, value, userCache, appid);
+    return d->setValue(key, value, userCache, callerAppid);
 }
 
-DConfigCache *DConfigFile::createUserCacheService(const uint uid)
+DConfigCache *DConfigFile::createUserCache(const uint uid)
 {
     D_D(DConfigFile);
-    return new DConfigCacheImpl(d->configKey, d->configMeta, uid, false);
+    return new DConfigCacheImpl(d->configKey, uid, false);
 }
 
 
@@ -1251,7 +1272,7 @@ DConfigCache *DConfigFile::createUserCacheService(const uint uid)
     \brief 返回全局缓存
     \return
  */
-DConfigCache *DConfigFile::globalCacheService() const
+DConfigCache *DConfigFile::globalCache() const
 {
     D_DC(DConfigFile);
     return d->globalCache;
@@ -1261,7 +1282,7 @@ DConfigCache *DConfigFile::globalCacheService() const
     \brief 返回原型对象
     \return
  */
-DConfigMeta *DConfigFile::metaService()
+DConfigMeta *DConfigFile::meta()
 {
     D_D(DConfigFile);
     return d->configMeta;
