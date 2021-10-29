@@ -1,5 +1,5 @@
 Name:           dtkcore
-Version:        5.4.3
+Version:        5.5.18
 Release:        1%{?dist}
 Summary:        Deepin tool kit core modules
 License:        LGPLv3+
@@ -7,8 +7,9 @@ URL:            https://github.com/linuxdeepin/dtkcore
 %if 0%{?fedora}
 Source0:        %{url}/archive/%{version}/%{name}-%{version}.tar.gz
 %else
-Source0:        %{name}_%{version}.orig.tar.xz
+Source0:        %{name}-%{version}.orig.tar.xz
 %endif
+BuildRequires:  dtkcommon-devel
 BuildRequires:  gcc-c++
 BuildRequires:  annobin
 BuildRequires:  pkgconfig(Qt5Core)
@@ -27,6 +28,7 @@ Deepin tool kit core modules.
 %package devel
 Summary:        Development package for %{name}
 Requires:       %{name}%{?_isa} = %{version}-%{release}
+Requires:       dtkcommon-devel
 Requires:       qt5-qtbase-devel%{?_isa}
 
 %description devel
@@ -58,14 +60,11 @@ export PATH=%{_qt5_bindir}:$PATH
 %{_libexecdir}/dtk5/dtk-translate.py
 %{_libexecdir}/dtk5/deepin-os-release
 %{_prefix}/bin/qdbusxml2cpp-fix
-%{_datadir}/glib-2.0/schemas/*
 
 %files devel
 %doc doc/Specification.md
 %{_includedir}/libdtk-*/
-%{_qt5_archdatadir}/mkspecs/features/*.prf
 %{_qt5_archdatadir}/mkspecs/modules/*.pri
-%{_libdir}/cmake/Dtk/
 %{_libdir}/cmake/DtkCore/
 %{_libdir}/cmake/DtkCMake/
 %{_libdir}/cmake/DtkTools/
