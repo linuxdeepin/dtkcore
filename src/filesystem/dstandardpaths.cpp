@@ -172,6 +172,7 @@ QString DStandardPaths::path(DStandardPaths::DSG type)
     switch (type) {
     case DSG::AppData: {
         const QByteArray &path = qgetenv("DSG_APP_DATA");
+        //TODO 应用数据目录规范:`/deepin/appdata/{appid}`, now `appid` is not captured.
         return QString::fromLocal8Bit(path);
     }
     case DSG::DataDir: {

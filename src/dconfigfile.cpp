@@ -943,6 +943,10 @@ public:
     }
 
     inline QString globalCacheDir(const QString &prefix) const {
+        // TODO `DSG_APP_DATA` is not set and `appid` is not captured in `DStandardPaths::path`.
+        if (DStandardPaths::path(DStandardPaths::DSG::AppData).isEmpty())
+            return prefix + QString("/deepin/appdata/%1/configs").arg(configKey.appId);
+
         return prefix + DStandardPaths::filePath(DStandardPaths::DSG::AppData,
                                                  QString("configs"));
     }
