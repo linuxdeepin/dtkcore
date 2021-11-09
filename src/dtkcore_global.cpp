@@ -50,6 +50,8 @@ int dtkVersion()
 
 const char *dtkVersionString()
 {
+#ifdef QT_DEBUG
     qWarning() << "Use DTK_VERSION_STR instead.";
+#endif
     return "";//DTK_VERSION_STR;
 }
