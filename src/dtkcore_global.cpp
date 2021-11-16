@@ -23,7 +23,7 @@ void doubleLoadCheck()
 
         QFileInfo info(maps.value(5));
         const QString &infoAbPath = info.absoluteFilePath();
-        if (modulePath == infoAbPath || !info.fileName().contains("dtkcore"))
+        if (modulePath == infoAbPath || !info.fileName().contains("dtkcore") || info.fileName().contains("dtkcore.so.2"))
             continue;
 
         if (modulePath.isEmpty()) {
