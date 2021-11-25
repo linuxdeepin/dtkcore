@@ -56,6 +56,8 @@ protected:
 EnvGuard ut_DConfig::fileBackendLocalPerfix;
 EnvGuard ut_DConfig::backendType;
 FileCopyGuard *ut_DConfig::metaGuard = nullptr;
+constexpr char const *ut_DConfig::APP_ID;
+constexpr char const *ut_DConfig::FILE_NAME;
 
 TEST_F(ut_DConfig, backend) {
 

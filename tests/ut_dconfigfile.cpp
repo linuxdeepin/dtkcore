@@ -55,6 +55,7 @@ protected:
 };
 EnvGuard ut_DConfigFile::dsgDataDir;
 EnvGuard ut_DConfigFile::home;
+constexpr char const *ut_DConfigFile::LocalPrefix;
 
 
 void ut_DConfigFile::TearDown() {
