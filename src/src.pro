@@ -55,6 +55,7 @@ include($$PWD/util/util.pri)
 include($$PWD/log/log.pri)
 include($$PWD/filesystem/filesystem.pri)
 include($$PWD/settings/settings.pri)
+include($$PWD/dci/dci.pri)
 
 DTK_MODULE_NAME = $$TARGET
 load(dtk_build)
