@@ -30,6 +30,9 @@
 DCORE_USE_NAMESPACE
 
 static EnvGuard dsgDataDir;
+static constexpr char const *APP_ID = "tests";
+static constexpr char const *FILE_NAME = "example";
+
 class ut_DConfig : public testing::Test
 {
 protected:
@@ -53,14 +56,10 @@ protected:
     static EnvGuard backendType;
     static EnvGuard fileBackendLocalPerfix;
     static FileCopyGuard *metaGuard;
-    static constexpr char const *APP_ID = "tests";
-    static constexpr char const *FILE_NAME = "example";
 };
 EnvGuard ut_DConfig::fileBackendLocalPerfix;
 EnvGuard ut_DConfig::backendType;
 FileCopyGuard *ut_DConfig::metaGuard = nullptr;
-constexpr char const *ut_DConfig::APP_ID;
-constexpr char const *ut_DConfig::FILE_NAME;
 
 TEST_F(ut_DConfig, backend) {
 
