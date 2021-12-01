@@ -29,6 +29,8 @@
 
 DCORE_USE_NAMESPACE
 
+static constexpr char const *LocalPrefix = "/tmp/example";
+
 class ut_DConfigFile : public testing::Test
 {
 protected:
@@ -41,8 +43,6 @@ protected:
         home.restore();
     }
     virtual void TearDown() override;
-
-    static constexpr char const *LocalPrefix = "/tmp/example";
 
     const char *APP_ID = "org.foo.appid";
     const char *FILE_NAME = "org.foo.name";
