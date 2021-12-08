@@ -933,7 +933,11 @@ public:
     }
 
     inline QString applicationCacheDir(const QString &prefix) const {
-        const QString userHomeConfigDir = DStandardPaths::homePath(userid) + QStringLiteral("/.config");
+        const QString &homePath = DStandardPaths::homePath(userid);
+        if (homePath.isEmpty()) {
+            return QString();
+        }
+        const QString userHomeConfigDir = homePath + QStringLiteral("/.config");
         return prefix + userHomeConfigDir + "/" + configKey.appId;
     }
 
@@ -945,7 +949,7 @@ public:
     inline QString globalCacheDir(const QString &prefix) const {
         // TODO `DSG_APP_DATA` is not set and `appid` is not captured in `DStandardPaths::path`.
         if (DStandardPaths::path(DStandardPaths::DSG::AppData).isEmpty())
-            return prefix + QString("/deepin/appdata/%1/configs").arg(configKey.appId);
+            return prefix + QString("/var/dsg/appdata/%1/configs").arg(configKey.appId);
 
         return prefix + DStandardPaths::filePath(DStandardPaths::DSG::AppData,
                                                  QString("configs"));
@@ -1013,7 +1017,11 @@ DConfigCacheImpl::~DConfigCacheImpl()
 bool DConfigCacheImpl::load(const QString &localPrefix)
 {
     // cache 文件要严格匹配 subpath
-    QScopedPointer<QFile> cache(loadFile(getCacheDir(localPrefix),
+    const QString &dir = getCacheDir(localPrefix);
+    if (dir.isEmpty()) {
+        return true;
+    }
+    QScopedPointer<QFile> cache(loadFile(dir,
                                          configKey.subpath,
                                          configKey.fileName + FILE_SUFFIX,
                                          false));
@@ -1043,7 +1051,12 @@ bool DConfigCacheImpl::load(const QString &localPrefix)
 
 bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonFormat format, bool sync)
 {
-    QString path = cacheDir(getCacheDir(localPrefix));
+    const QString &dir = getCacheDir(localPrefix);
+    if (dir.isEmpty()) {
+        qCWarning(cfLog, "save Falied because home directory is not exist for the user[%d].", userid);
+        return false;
+    }
+    QString path = cacheDir(dir);
 
     QFile cache(path);
     if (!QFile::exists(QFileInfo(cache.fileName()).path())) {
