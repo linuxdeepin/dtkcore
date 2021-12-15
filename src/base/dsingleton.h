@@ -58,17 +58,26 @@ template <class T>
 class LIBDTKCORESHARED_EXPORT DSingleton
 {
 public:
+    QT_DEPRECATED_X("Use ref")
     static inline T *instance()
     {
         static T  *_instance = new T;
         return _instance;
     }
 
+    static T& ref()
+    {
+        static T instance;
+        return instance;
+    }
+
+    DSingleton(T&&) = delete;
+    DSingleton(const T&) = delete;
+    void operator= (const T&) = delete;
+
 protected:
-    DSingleton(void) {}
-    ~DSingleton(void) {}
-    DSingleton(const DSingleton &) {}
-    DSingleton &operator= (const DSingleton &) {}
+    DSingleton() = default;
+    virtual ~DSingleton() = default;
 };
 
 DCORE_END_NAMESPACE
