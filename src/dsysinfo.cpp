@@ -245,19 +245,20 @@ bool DSysInfoPrivate::ensureOsVersion()
     QString osb = entry.stringValue("OsBuild", "Version");
     QStringList osbs = osb.split(".");
     Q_ASSERT(osbs.size() == 2 && osbs.value(0).size() == 5);
-    uint left = osbs.value(0).trimmed().toUInt(&ok);
+    const QStringList &left = osbs.value(0).split(QString(), QString::SkipEmptyParts);
+    Q_ASSERT(left.size() == 5);
+    int idx = 0;
+    osBuild.A = left.value(idx++, "0").toUInt(&ok);
     Q_ASSERT(ok);
-    if (ok) {
-        osBuild.E = left % 10;
-        left /= 10;
-        osBuild.D = left % 10;
-        left /= 10;
-        osBuild.C = left % 10; // default C is 0
-        left /= 10;
-        osBuild.B = left % 10;
-        left /= 10;
-        osBuild.A = left % 10;
-    }
+    osBuild.B = left.value(idx++, "0").toUInt(&ok);
+    Q_ASSERT(ok);
+    osBuild.C = left.value(idx++, "0").toUInt(&ok);
+    if (!ok)
+         osBuild.C = uint(left.value(idx-1, "0").toLatin1().at(0));
+    osBuild.D = left.value(idx++, "0").toUInt(&ok);
+    Q_ASSERT(ok);
+    osBuild.E = left.value(idx++, "0").toUInt(&ok);
+    Q_ASSERT(ok);
 
     // xyz
     osBuild.xyz = osbs.value(1).trimmed().toUInt(&ok);
