@@ -309,7 +309,7 @@ TEST_F(ut_DUtil, testOsVersion)
     entry.setStringValue("专业版", "EditionName[zh_CN]", "Version");
     entry.setStringValue("20", "MajorVersion", "Version");
     entry.setStringValue("100A", "MinorVersion", "Version");
-    entry.setStringValue("11018.107", "OsBuild", "Version");
+    entry.setStringValue("11Z18.107", "OsBuild", "Version");
     ASSERT_TRUE(entry.save());
 
     ASSERT_TRUE(DSysInfo::uosSystemName(QLocale("C")) == "UnionTech OS Desktop");
