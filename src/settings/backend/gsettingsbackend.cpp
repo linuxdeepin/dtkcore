@@ -5,7 +5,12 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QVariant>
+
+#if QT_HAS_INCLUDE(<QGSettings/QGSettings>)
 #include <QGSettings/QGSettings>
+#else
+#include <QGSettings>
+#endif
 
 #include <DSettings>
 
