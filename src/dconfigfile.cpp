@@ -57,8 +57,8 @@ Q_LOGGING_CATEGORY(cfLog, "dtk.dsg.config");
 
     \brief 按子目录查找机制查找配置文件
 
-    在\a baseDir目录下,查找名称为\a name的文件,
-    若存在 \a subpath,则从\a subpath叶子目录逐级向上查找名称为\a name的文件,
+    在 \a baseDir目录下,查找名称为 \a name的文件,
+    若存在 \a subpath,则从 \a subpath叶子目录逐级向上查找名称为 \a name的文件,
     若不存在此文件,则返回无效路径.
  */
 inline QString getFile(const QString &baseDir, const QString &subpath, const QString &name,
@@ -180,8 +180,14 @@ inline static QString getUserName(const uint uid) {
 }
 
 /*!
-    \enum DConfigFile::Flag
+    \class Dtk::Core::DConfigFile
     \inmodule dtkcore
+
+    \brief 规范配置文件读写的相关接口的配置文件实现.
+ */
+
+/*!
+    \enum DConfigFile::Flag
 
     \value NoOverride  存在此标记时，将表明则此配置项不可被覆盖（详见下述 override 机制）。
     反之，不存在此标记时表明此配置项允许被覆盖，对于此类配置项，
@@ -192,7 +198,6 @@ inline static QString getUserName(const uint uid) {
 
 /*!
     \enum DConfigFile::Permissions
-    \inmodule dtkcore
 
     \value ReadOnly 将配置项覆盖为只读，
     \value ReadWrite 将配置项覆盖为可读可写.
@@ -200,7 +205,6 @@ inline static QString getUserName(const uint uid) {
 
 /*!
     \enum DConfigFile::Visibility
-    \inmodule dtkcore
 
     \value Private 仅限程序内部使用，
     对外不可见。此类配置项完全由程序自己读写，可随意增删改写其含义，无需做兼容性考虑，
@@ -212,9 +216,8 @@ inline static QString getUserName(const uint uid) {
 */
 
 /*!
-    \class DConfigFile::Version
+    \struct Dtk::Core::DConfigFile::Version
     \inmodule dtkcore
-
     \brief 版本信息
 
     此文件的内容格式的版本。版本号使用两位数字描述，
@@ -424,17 +427,17 @@ private:
 
 
 /*!
-    \class DConfigMeta
+    \class Dtk::Core::DConfigMeta
     \inmodule dtkcore
 
-    \brief 提供配置文件的原型和覆盖机制的访问接口
+    \brief 提供配置文件的原型和覆盖机制的访问接口.
 
 */
 
 /*!
     \fn DConfigFile::Version DConfigMeta::version() const = 0;
 
-    \breaf 返回配置版本信息
+    \brief 返回配置版本信息.
     \return
 */
 
@@ -449,7 +452,7 @@ private:
 /*!
     \fn bool DConfigMeta::load(const QString &localPrefix = QString()) = 0;
 
-    \breaf 解析配置文件
+    \brief 解析配置文件
     \a localPrefix 为目录前缀
     \return
 */
@@ -457,7 +460,7 @@ private:
 /*!
     \fn bool DConfigMeta::load(QIODevice *meta, const QList<QIODevice*> &overrides) = 0;
 
-    \breaf 解析配置文件流
+    \brief 解析配置文件流
     \a meta 为原型流
     \a overrides 为覆盖机制查找的文件流
     \return
@@ -466,14 +469,14 @@ private:
 /*!
     \fn QStringList DConfigMeta::keyList() const = 0;
 
-    \breaf 返回配置内容的所有配置项
+    \brief 返回配置内容的所有配置项
     \return
 */
 
 /*!
     \fn DConfigFile::Flags DConfigMeta::flags(const QString &key) const = 0;
 
-    \breaf 返回指定配置项的特性
+    \brief 返回指定配置项的特性
     \a key 配置项名称, NoOverride为此配置项不可被覆盖, Global为忽略用户身份
     \return
 */
@@ -481,7 +484,7 @@ private:
 /*!
     \fn DConfigFile::Permissions DConfigMeta::permissions(const QString &key) const = 0;
 
-    \breaf 返回指定配置项的权限
+    \brief 返回指定配置项的权限
     \a key 配置项名称
     \return
 
@@ -490,7 +493,7 @@ private:
 /*!
     \fn DConfigFile::Visibility DConfigMeta::visibility(const QString &key) const = 0;
 
-    \breaf 返回指定配置项的可见性
+    \brief 返回指定配置项的可见性
     \a key 配置项名称
     \return
 
@@ -499,7 +502,7 @@ private:
 /*!
     \fn int DConfigMeta::serial(const QString &key) const = 0;
 
-    \breaf 返回配置项的单调递增值
+    \brief 返回配置项的单调递增值
     \a key 配置项名称
     \return -1为无效值，表明没有配置此项
 */
@@ -507,7 +510,7 @@ private:
 /*!
     \fn QString DConfigMeta::displayName(const QString &key, const QLocale &locale) = 0;
 
-    \breaf 返回指定配置项的显示名
+    \brief 返回指定配置项的显示名
     \a key 配置项名称
     \a locale 为语言版本
     \return
@@ -516,7 +519,7 @@ private:
 /*!
     \fn QString DConfigMeta::description(const QString &key, const QLocale &locale) = 0;
 
-    \breaf 返回指定配置项的描述信息
+    \brief 返回指定配置项的描述信息
     \a key 配置项名称
     \a locale 为语言版本
     \return
@@ -526,7 +529,7 @@ private:
 /*!
     \fn QString DConfigMeta::metaPath(const QString &localPrefix = QString(), bool *useAppId = nullptr) const = 0;
 
-    \breaf 返回描述文件的路径
+    \brief 返回描述文件的路径
     \a localPrefix 目录的所有需要查找的覆盖机制目录
     \return
 */
@@ -534,7 +537,7 @@ private:
 /*!
     \fn QStringList DConfigMeta::allOverrideDirs(const bool useAppId, const QString &prefix = QString()) const = 0;
 
-    \breaf 获得前缀为\a prefix目录的所有需要查找的覆盖机制目录
+    \brief 获得前缀为 \a prefix 目录的所有需要查找的覆盖机制目录
     \a userAppId 是否不使用通用目录
     \return
 */
@@ -542,7 +545,7 @@ private:
 /*!
     \fn QVariant DConfigMeta::value(const QString &key) const = 0;
 
-    \breaf meta初始值经过覆盖机制覆盖后的原始值
+    \brief meta初始值经过覆盖机制覆盖后的原始值
     \a key 配置项名称
     \return
 */
@@ -853,81 +856,74 @@ DConfigMetaImpl::~DConfigMetaImpl()
 }
 
 /*!
-    \class DConfigCache
+    \class Dtk::Core::DConfigCache
     \inmodule dtkcore
 
-    \brief 提供配置文件的用户和全局运行缓存访问接口
+    \brief 提供配置文件的用户和全局运行缓存访问接口.
 
 */
 
-/*
+/*!
     \fn bool DConfigCache::load(const QString &localPrefix = QString()) = 0;
-    \breaf 解析缓存配置文件
+    \brief 解析缓存配置文件
     \return
 */
 
-/*
+/*!
     \fn bool DConfigCache::save(const QString &localPrefix = QString(), QJsonDocument::JsonFormat format = QJsonDocument::Indented, bool sync = false) = 0;
-    \breaf 保存缓存的值到磁盘中
+    \brief 保存缓存的值到磁盘中
     \a localPrefix 为目录前缀
     \a format 保存格式
     \a sync 是否立即刷新
     \return
 */
 
-/*
+/*!
     \fn bool DConfigCache::isGlobal() const = 0;
     \brief 是否是全局缓存
     \return
 */
 
-/*
-    \fn void DConfigCache::resetMeta(DConfigMeta *meta) = 0;
-    \breaf 重置配置描述对象
-    \a meta 描述对象
-    \return
-*/
-
-/*
+/*!
     \fn void DConfigCache::remove(const QString &key) = 0;
-    \breaf 删除缓存中的配置项
+    \brief 删除缓存中的配置项
     \a key 配置项名称
     \return
 */
 
-/*
+/*!
     \fn QStringList DConfigCache::keyList() const = 0;
-    \breaf 返回配置内容的所有配置项
+    \brief 返回配置内容的所有配置项
     \return
 */
 
-/*
-    \fn bool DConfigCache::setValue(const QString &key, const QVariant &value, const uint uid, const QString &appid) = 0;
-    \breaf 设置缓存中的值
+/*!
+    \fn bool DConfigCache::setValue(const QString &key, const QVariant &value, const int serial, const uint uid, const QString &callerAppid) = 0;
+    \brief 设置缓存中的值
     \a key 配置项名称
     \a value 需要设置的值
     \a uid 设置时的用户id
-    \a appid 设置时的应用id
+    \a callerAppid 设置时的应用id
     \return 为true时表示重新设置了新值，false表示没有设置
 */
 
-/*
-    \fn QVariant DConfigCache::value(const QString &key) = 0;
-    \breaf 获取缓存中的值
+/*!
+    \fn QVariant DConfigCache::value(const QString &key) const = 0;
+    \brief 获取缓存中的值
     \a key 配置项名称
     \return
 */
 
-/*
+/*!
     \fn int DConfigCache::serial(const QString &key) const = 0;
-    \breaf 返回配置项的单调递增值
+    \brief 返回配置项的单调递增值
     \a key 配置项名称
     \return -1为无效值，表明没有配置此项
 */
 
-/*
+/*!
     \fn uint DConfigCache::uid() const = 0;
-    \breaf 用户标识，为全局缓存时，uid为非用户标识的特定值
+    \brief 用户标识，为全局缓存时，uid为非用户标识的特定值
     \return
 */
 
@@ -1196,14 +1192,6 @@ DConfigFilePrivate::~DConfigFilePrivate()
 }
 
 /*!
-    \class DTK::Core::DConfigFile
-    \inmodule dtkcore
-
-    \brief 规范配置文件读写的相关接口的配置文件实现
-
- */
-
-/*!
     \brief 支持的版本
     \return
  */
@@ -1236,8 +1224,8 @@ DConfigFile::DConfigFile(const DConfigFile &other)
     d->globalCache = cache;
 }
 
-/*
-    \breaf 解析配置文件
+/*!
+    \brief 解析配置文件
     \a localPrefix 为目录前缀
     \return
 */
@@ -1247,8 +1235,8 @@ bool DConfigFile::load(const QString &localPrefix)
     return d->load(localPrefix);
 }
 
-/*
-    \breaf 解析配置文件流
+/*!
+    \brief 解析配置文件流
     \a meta 为原型流
     \a overrides 为覆盖机制查找的文件流
     \return
@@ -1258,8 +1246,8 @@ bool DConfigFile::load(QIODevice *meta, const QList<QIODevice *> &overrides)
     return this->meta()->load(meta, overrides);
 }
 
-/*
-    \breaf 保存缓存的值到磁盘中
+/*!
+    \brief 保存缓存的值到磁盘中
     \a format 保存格式
     \a sync 是否立即刷新
     \return
@@ -1286,7 +1274,7 @@ QVariant DConfigFile::value(const QString &key, DConfigCache *userCache) const
 }
 
 /*!
-    \breaf 设置缓存中的值
+    \brief 设置缓存中的值
     \a key 配置项名称
     \a value 需要设置的值
     \a uid 设置时的用户id

@@ -42,7 +42,7 @@ DCORE_BEGIN_NAMESPACE
 Q_DECLARE_LOGGING_CATEGORY(cfLog)
 
 /*!
-    \class DTK::Core::DConfigBackend
+    \class Dtk::Core::DConfigBackend
     \inmodule dtkcore
 
     \brief 配置后端的抽象接口.
@@ -51,7 +51,7 @@ Q_DECLARE_LOGGING_CATEGORY(cfLog)
  */
 
 /*!
-    \fn bool load(const QString &/appid/) = 0
+    \fn bool DConfigBackend::load(const QString &) = 0
 
     \brief 初始化后端
 
@@ -59,35 +59,35 @@ Q_DECLARE_LOGGING_CATEGORY(cfLog)
   */
 
 /*!
-    \fn bool isValid() const = 0
+    \fn bool DConfigBackend::isValid() const = 0
 
     \sa DConfig::isValid().
 
  */
 
 /*!
-    \fn QStringList keyList() const = 0
+    \fn QStringList DConfigBackend::keyList() const = 0
 
     \sa DConfig::keyList()
 
  */
 
 /*!
-    \fn QVariant value(const QString &key, const QVariant &fallback = QVariant()) const = 0
+    \fn QVariant DConfigBackend::value(const QString &key, const QVariant &fallback = QVariant()) const = 0
 
     \sa DConfig::value()
  */
 
 /*!
-    \fn void setValue(const QString &key, const QVariant &value) = 0
+    \fn void DConfigBackend::setValue(const QString &key, const QVariant &value) = 0
 
     \sa DConfig::setValue()
  */
 
 /*!
-    \fn QString name() const = 0
+    \fn QString DConfigBackend::name() const = 0
 
-    \breaf 后端配置的唯一标识
+    \brief 后端配置的唯一标识
 
  */
 
@@ -432,7 +432,7 @@ DConfigBackend *DConfigPrivate::createBackendByEnv()
 }
 
 /*!
-    \class DTK::Core::DConfig
+    \class Dtk::Core::DConfig
     \inmodule dtkcore
 
     \brief 配置策略提供的接口类
