@@ -222,6 +222,17 @@ public:
         return QDBusConnection::systemBus().interface()->isServiceRegistered(DSG_CONFIG);
     }
 
+    static bool isServiceActivatable()
+    {
+         const QDBusReply<QStringList> activatableNames = QDBusConnection::systemBus().interface()->
+                 callWithArgumentList(QDBus::AutoDetect,
+                 QLatin1String("ListActivatableNames"),
+                 QList<QVariant>());
+//         qInfo() << activatableNames.value() << activatableNames.value().contains(DSG_CONFIG);
+
+         return activatableNames.value().contains(DSG_CONFIG);
+    }
+
     virtual bool isValid() const override
     {
         return config && config->isValid();
@@ -379,7 +390,7 @@ DConfigBackend *DConfigPrivate::getOrCreateBackend()
     }
 #ifndef D_DISABLE_DCONFIG
 #ifndef D_DISABLE_DBUS_CONFIG
-    if (DBusBackend::isServiceRegistered()) {
+    if (DBusBackend::isServiceRegistered() || DBusBackend::isServiceActivatable()) {
         qCDebug(cfLog, "Fallback to DBus mode");
         backend.reset(new DBusBackend(this));
     } else {
@@ -411,7 +422,7 @@ DConfigBackend *DConfigPrivate::createBackendByEnv()
 
 #ifndef D_DISABLE_DCONFIG
 #ifndef D_DISABLE_DBUS_CONFIG
-            if (DBusBackend::isServiceRegistered()) {
+            if (DBusBackend::isServiceRegistered() || DBusBackend::isServiceActivatable()) {
                 qCDebug(cfLog, "Fallback to DBus mode");
                 return new DBusBackend(this);
             }
