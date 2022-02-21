@@ -31,25 +31,32 @@
 
 #include "dci/ddcifile.h"
 
-static QByteArray getSymLinkTarget(const QByteArray &file) {
+static QString getSymLinkTarget(const QString &file, const QString &originPath) {
     char target[512] = {0};
-    const auto ret = readlink(file.constData(), target, 511);
+    const auto ret = readlink(file.toLocal8Bit().constData(), target, 511);
     if (ret <= 0)
-        return QByteArray();
-    return QByteArray(target, ret);
+        return QString();
+    QString tar = QByteArray(target, ret);
+    QString path = originPath;
+    if (originPath.endsWith('/'))
+        path = path.left(path.length() - 1);
+    if (tar.startsWith(path)) {
+        tar = tar.remove(0, path.length());
+    }
+    return tar;
 }
 
-static bool copyFilesToDci(DDciFile *dci, const QString &targetDir, const QString &sourceDir) {
+static bool copyFilesToDci(DDciFile *dci, const QString &targetDir, const QString &sourceDir, const QString &originPath) {
     QDir dir(sourceDir);
     for (const auto &info : dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot)) {
         const QString &newFile = QDir(targetDir).filePath(info.fileName());
         if (info.isDir()) {
             if (!dci->mkdir(newFile))
                 return false;
-            if (!copyFilesToDci(dci, newFile, info.absoluteFilePath()))
+            if (!copyFilesToDci(dci, newFile, info.absoluteFilePath(), originPath))
                 return false;
         } else if (info.isSymLink()) {
-            if (!dci->link(QString::fromLocal8Bit(getSymLinkTarget(info.absoluteFilePath().toLocal8Bit())), newFile))
+            if (!dci->link(getSymLinkTarget(info.absoluteFilePath(), originPath), newFile))
                 return false;
         } else if (info.isFile()) {
             QFile file(info.absoluteFilePath());
@@ -73,7 +80,7 @@ bool createTo(const QString &sourceDir, const QString &targetDir) {
     }
 
     DDciFile dci;
-    if (!copyFilesToDci(&dci, "/", sourceDir))
+    if (!copyFilesToDci(&dci, "/", sourceDir, sourceDir))
         return false;
 
     return dci.writeToFile(newFile);
