@@ -276,6 +276,27 @@ public:
     {
         const QDBusVariant &dv = config->value(key);
         const QVariant &v = dv.variant();
+        if (v.canConvert<QDBusArgument>()) {
+            // we use QJsonValue to resolve all data type in DConfigInfo class, so it's type is equal QJsonValue::Type,
+            // now we parse Map and Array type to QVariant explicitly.
+            const QDBusArgument &complexType = v.value<QDBusArgument>();
+            switch (complexType.currentType()) {
+            case QDBusArgument::MapType: {
+                QVariantMap list;
+                complexType >> list;
+                return list;
+            }
+            case QDBusArgument::ArrayType: {
+                QVariantList list;
+                complexType >> list;
+                return list;
+            }
+            default:
+                qCWarning(cfLog, "Can't parse the type, it maybe need user to do it, "
+                                 "key: %s, and QDBusArgument::ElementType: %d.", qPrintable(key), complexType.currentType());
+            }
+        }
+
         return v.isValid() ? v : fallback;
     }
 

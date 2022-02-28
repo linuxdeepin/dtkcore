@@ -74,14 +74,26 @@ TEST_F(ut_DConfig, isValid) {
 }
 
 TEST_F(ut_DConfig, value) {
+    const QStringList array{"1", "2"};
+    QVariantMap map;
+    map.insert("key1", "value1");
+    map.insert("key2", "value2");
     {
         DConfig config(FILE_NAME);
         config.setValue("key2", "126");
         ASSERT_EQ(config.value("key2").toString(), QString("126"));
+
+        config.setValue("array", array);
+        ASSERT_EQ(config.value("array").toStringList(), array);
+
+        config.setValue("map", map);
+        ASSERT_EQ(config.value("map").toMap(), map);
     }
     {
         DConfig config(FILE_NAME);
         ASSERT_EQ(config.value("key2").toString(), QString("126"));
+        ASSERT_EQ(config.value("array").toStringList(), array);
+        ASSERT_EQ(config.value("map").toMap(), map);
     }
 }
 

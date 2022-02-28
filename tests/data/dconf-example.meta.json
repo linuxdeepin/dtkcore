@@ -31,6 +31,22 @@
       "description": "I am description",
       "permissions": "readwrite",
       "visibility": "public"
+    },
+    "array": {
+      "value": ["value1", "value2"],
+      "serial": 0,
+      "flags": ["global"],
+      "name": "array value type",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "map": {
+      "value": {"key1": "value1", "key2": "value2"},
+      "serial": 0,
+      "flags": ["global"],
+      "name": "array value type",
+      "permissions": "readwrite",
+      "visibility": "public"
     }
   }
 }

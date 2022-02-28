@@ -170,6 +170,12 @@ TEST_F(ut_DConfigFile, meta) {
     QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
     ASSERT_TRUE(userCache->load(LocalPrefix));
     ASSERT_EQ(config.value("key3", userCache.get()), QString("application"));
+    const QStringList array{"value1", "value2"};
+    ASSERT_EQ(config.value("array", userCache.get()), array);
+    QVariantMap map;
+    map.insert("key1", "value1");
+    map.insert("key2", "value2");
+    ASSERT_EQ(config.value("map", userCache.get()).toMap(), map);
 }
 
 TEST_F(ut_DConfigFile, fileOverride) {
