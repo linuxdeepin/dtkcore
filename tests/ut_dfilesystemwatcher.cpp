@@ -88,6 +88,7 @@ TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherAddPath)
         return;
 
     fileSystemWatcher->addPath("/tmp/etc0");
+
     QStringList dirs = fileSystemWatcher->directories();
     ASSERT_TRUE(dirs.contains("/tmp/etc0"));
 }

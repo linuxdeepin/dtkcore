@@ -91,6 +91,7 @@ TEST_F(ut_DFileWatcherManager, testDFileWatcherManagerAdd)
         return;
 
     auto watcher = fileWatcherManager->add("/tmp/test");
+    if (!watcher->startWatcher()) return;
 
     // test fileDeleted signal
     QSignalSpy spy(watcher, &DBaseFileWatcher::fileDeleted);
