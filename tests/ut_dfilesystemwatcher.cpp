@@ -21,7 +21,9 @@
 
 #include <gtest/gtest.h>
 #include <QDir>
+#define private public
 #include "filesystem/dfilesystemwatcher.h"
+#undef private
 
 DCORE_USE_NAMESPACE
 
@@ -63,13 +65,18 @@ void ut_DFileSystemWatcher::TearDown()
 
 TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherAddPath)
 {
+    if (!fileSystemWatcher->d_func()) return;
+
     fileSystemWatcher->addPath("/tmp/etc0");
+
     QStringList dirs = fileSystemWatcher->directories();
     ASSERT_TRUE(dirs.contains("/tmp/etc0"));
 }
 
 TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherAddPaths)
 {
+    if (!fileSystemWatcher->d_func()) return;
+
     fileSystemWatcher->addPaths( QStringList() << "/tmp/etc0" << "/tmp/etc1");
     QStringList dirs = fileSystemWatcher->directories();
     ASSERT_TRUE(dirs.contains("/tmp/etc0"));
@@ -78,6 +85,8 @@ TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherAddPaths)
 
 TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherRemovePath)
 {
+    if (!fileSystemWatcher->d_func()) return;
+
     fileSystemWatcher->addPath("/tmp/etc0");
     QStringList dirs0 = fileSystemWatcher->directories();
     ASSERT_TRUE(dirs0.contains("/tmp/etc0"));
@@ -88,6 +97,8 @@ TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherRemovePath)
 
 TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherRemovePaths)
 {
+    if (!fileSystemWatcher->d_func()) return;
+
     fileSystemWatcher->addPaths( QStringList() << "/tmp/etc0" << "/tmp/etc1");
     QStringList dirs0 = fileSystemWatcher->directories();
     ASSERT_TRUE(dirs0.contains("/tmp/etc0"));

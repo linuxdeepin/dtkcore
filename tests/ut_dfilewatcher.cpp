@@ -77,24 +77,32 @@ TEST_F(ut_DFileWatcher, testDFileWatcherFileUrl)
 
 TEST_F(ut_DFileWatcher, testDFileWatcherStartWatcher)
 {
+    if (!fileWatcher->startWatcher()) return;
+
     fileWatcher->setEnabledSubfileWatcher(QUrl());
     ASSERT_TRUE(fileWatcher->startWatcher());
 }
 
 TEST_F(ut_DFileWatcher, testDFileWatcherStopWatcher)
 {
+    if (!fileWatcher->startWatcher()) return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     ASSERT_TRUE(fileWatcher->stopWatcher());
 }
 
 TEST_F(ut_DFileWatcher, testDFileWatcherRestartWatcher)
 {
+    if (!fileWatcher->startWatcher()) return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     ASSERT_TRUE(fileWatcher->restartWatcher());
 }
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileDeleted)
 {
+    if (!fileWatcher->startWatcher()) return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileDeleted);
     QFile file("/tmp/etc/test");
@@ -108,6 +116,8 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileDeleted)
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileAttributeChanged)
 {
+    if (!fileWatcher->startWatcher()) return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileAttributeChanged);
     QFile file("/tmp/etc/test");
@@ -127,6 +137,8 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileAttributeChanged)
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileMoved)
 {
+    if (!fileWatcher->startWatcher()) return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileMoved);
     QString oldFile("/tmp/etc/test");
@@ -141,6 +153,8 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileMoved)
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherSubfileCreated)
 {
+    if (!fileWatcher->startWatcher()) return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::subfileCreated);
     QFile file("/tmp/etc/test");
@@ -158,6 +172,8 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherSubfileCreated)
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileModified)
 {
+    if (!fileWatcher->startWatcher()) return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileModified);
     QFile file("/tmp/etc/test");
@@ -175,6 +191,8 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileModified)
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileClosed)
 {
+    if (!fileWatcher->startWatcher()) return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileClosed);
     QFile file("/tmp/etc/test");

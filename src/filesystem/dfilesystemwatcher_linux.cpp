@@ -438,8 +438,11 @@ DFileSystemWatcher::DFileSystemWatcher(QObject *parent)
         fd = inotify_init1(O_NONBLOCK);
     }
 
-    if (fd != -1)
+    if (fd != -1) {
         d_d_ptr.reset(new DFileSystemWatcherPrivate(fd, this));
+    } else {
+        qCritical() << "inotify_init1 failed, and the DFileSystemWatcher is invalid." << strerror(errno);
+    }
 }
 
 /*!
