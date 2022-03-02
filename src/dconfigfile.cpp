@@ -1122,7 +1122,20 @@ public:
                 cache->remove(key);
                 return true;
             } else {
-                return cache->setValue(key, value, configMeta->serial(key), cache->uid(), appid);
+                const auto &metaValue = configMeta->value(key);
+                // sample judgement to reduce a copy of convert.
+                if (metaValue.type() == value.type())
+                    return cache->setValue(key, value, configMeta->serial(key), cache->uid(), appid);
+
+                // convert copy to meta's type, it promises `setValue` don't change meta's type.
+                auto copy = value;
+                if (!copy.convert(metaValue.userType())) {
+                    qCWarning(cfLog) << "check type error, meta type is " << metaValue.type()
+                                     << ", and now type is " << value.type();
+                    return false;
+                }
+
+                return cache->setValue(key, copy, configMeta->serial(key), cache->uid(), appid);
             }
         }
         return false;
