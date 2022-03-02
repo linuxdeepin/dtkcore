@@ -106,6 +106,58 @@ TEST_F(ut_DConfigFile, testLoad) {
     ASSERT_EQ(config.meta()->permissions("canExit"), DConfigFile::ReadWrite);
 }
 
+TEST_F(ut_DConfigFile, setValueTypeCheck) {
+
+    FileCopyGuard gurad(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
+    DConfigFile config(APP_ID, FILE_NAME);
+    config.load(LocalPrefix);
+    QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+    userCache->load(LocalPrefix);
+    {
+        const auto type = config.value("canExit", userCache.get()).type();
+        ASSERT_TRUE(config.setValue("canExit", false, "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("canExit", "true", "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("canExit", "true2", "test", userCache.get()));
+        ASSERT_EQ(config.value("canExit", userCache.get()).type(), type);
+    }
+    {
+        const auto type = config.value("key2", userCache.get()).type();
+        ASSERT_TRUE(config.setValue("key2", "121", "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("key2", 121, "test", userCache.get()));
+        ASSERT_EQ(config.value("key2", userCache.get()).type(), type);
+    }
+    {
+        const auto type = config.value("number", userCache.get()).type();
+        ASSERT_TRUE(config.setValue("number", 1, "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("number", 2.0, "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("number", "3", "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("number", "1ab", "test", userCache.get()));
+        ASSERT_EQ(config.value("number", userCache.get()).type(), type);
+    }
+    {
+        const auto type = config.value("array", userCache.get()).type();
+        const QStringList array{"value1", "value2"};
+        ASSERT_TRUE(config.setValue("array", QStringList(), "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("array", array, "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("array", QJsonDocument::fromJson("[]").toVariant(), "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("array", "", "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("array", "value1", "test", userCache.get()));
+        ASSERT_EQ(config.value("array", userCache.get()).type(), type);
+    }
+    {
+        const auto type = config.value("map", userCache.get()).type();
+        QVariantMap map;
+        map.insert("key1", "value1");
+        map.insert("key2", "value2");
+        ASSERT_TRUE(config.setValue("map", QVariantMap(), "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("map", map, "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("map", QJsonDocument::fromJson("{}").toVariant(), "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("map", QJsonDocument::fromJson("[]").toVariant(), "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("map", "key1", "test", userCache.get()));
+        ASSERT_EQ(config.value("map", userCache.get()).type(), type);
+    }
+}
+
 TEST_F(ut_DConfigFile, fileIODevice) {
 
     FileCopyGuard gurad(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
