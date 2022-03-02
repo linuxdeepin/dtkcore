@@ -169,20 +169,30 @@ QString DStandardPaths::path(DStandardPaths::XDG type)
 
 QString DStandardPaths::path(DStandardPaths::DSG type)
 {
-    switch (type) {
-    case DSG::AppData: {
+    const auto list = paths(type);
+    return list.isEmpty() ? nullptr : list.first();
+}
+
+QStringList DStandardPaths::paths(DSG type)
+{
+    QStringList paths;
+
+    if (type == DSG::DataDir) {
+        const QByteArray &path = qgetenv("DSG_DATA_DIRS");
+        if (path.isEmpty()) {
+            return {QStringLiteral("/usr/share/dsg")};
+        }
+        const auto list = path.split(':');
+        paths.reserve(list.size());
+        for (const auto &i : list)
+            paths.push_back(QString::fromLocal8Bit(i));
+    } else if (type == DSG::AppData) {
         const QByteArray &path = qgetenv("DSG_APP_DATA");
-        //TODO 应用数据目录规范:`/deepin/appdata/{appid}`, now `appid` is not captured.
-        return QString::fromLocal8Bit(path);
+        //TODO 应用数据目录规范:`/persistent/appdata/{appid}`, now `appid` is not captured.
+        paths.push_back(QString::fromLocal8Bit(path));
     }
-    case DSG::DataDir: {
-        const QByteArray &path = qgetenv("DSG_DATA_DIR");
-        if (!path.isEmpty())
-            return QString::fromLocal8Bit(path);
-        return QStringLiteral("/usr/share/dsg");
-    }
-    }
-    return QString();
+
+    return paths;
 }
 
 QString DStandardPaths::filePath(DStandardPaths::XDG type, QString fileName)
