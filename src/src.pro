@@ -12,12 +12,14 @@ QMAKE_CXXFLAGS_RELEASE += -fvisibility=hidden
 INCLUDEPATH += $$PWD
 HEADERS += $$PWD/dtkcore_global.h \
     dconfig.h \
+    dsgapplication.h \
     dsysinfo.h \
     dsecurestring.h \
     ddesktopentry.h
 
 SOURCES += \
     dconfig.cpp \
+    dsgapplication.cpp \
     dsysinfo.cpp \
     dsecurestring.cpp \
     ddesktopentry.cpp \
@@ -70,7 +72,8 @@ includes.files += \
     $$PWD/DSecureString \
     $$PWD/DDesktopEntry \
     $$PWD/DConfigFile \
-    $$PWD/DConfig
+    $$PWD/DConfig \
+    $$PWD/DSGApplication
 
 INSTALLS += includes target
 
