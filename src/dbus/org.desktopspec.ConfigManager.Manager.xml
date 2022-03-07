@@ -9,6 +9,9 @@
       <arg type='s' name='key' direction='in'/>
       <arg type='v' name='value' direction='in'/>
     </method>
+    <method name='reset'>
+      <arg type='s' name='key' direction='in'/>
+    </method>
     <method name='name'>
       <arg type='s' name='key' direction='in'/>
       <arg type='s' name='language' direction='in'/>
