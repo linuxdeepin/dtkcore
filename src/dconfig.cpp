@@ -41,7 +41,7 @@ DCORE_BEGIN_NAMESPACE
 Q_DECLARE_LOGGING_CATEGORY(cfLog)
 
 inline static QString getAppId() {
-    // TODO: 应该使用更可靠的接口获取 appid
+    // TODO: 应该使用更可靠的接口获取 appId
     return QCoreApplication::applicationName();
 }
 
@@ -59,7 +59,7 @@ inline static QString getAppId() {
 
     \brief 初始化后端
 
-    \a appid 管理的配置信息key值，默认为应用程序名称
+    \a appId 管理的配置信息key值，默认为应用程序名称
   */
 
 /*!
@@ -89,6 +89,12 @@ inline static QString getAppId() {
  */
 
 /*!
+    \fn void DConfigBackend::reset(const QString &key)
+
+    \sa DConfig::reset()
+ */
+
+/*!
     \fn QString DConfigBackend::name() const = 0
 
     \brief 后端配置的唯一标识
@@ -102,8 +108,14 @@ DConfigBackend::~DConfigBackend()
 class Q_DECL_HIDDEN DConfigPrivate : public DObjectPrivate
 {
 public:
-    explicit DConfigPrivate(DConfig *qq)
+    explicit DConfigPrivate(DConfig *qq,
+                            const QString &appId,
+                            const QString &name,
+                            const QString &subpath)
         : DObjectPrivate(qq)
+        , appId(appId.isEmpty() ? getAppId() : appId)
+        , name(name)
+        , subpath(subpath)
     {
     }
 
@@ -112,6 +124,7 @@ public:
     DConfigBackend *getOrCreateBackend();
     DConfigBackend *createBackendByEnv();
 
+    QString appId;
     QString name;
     QString subpath;
     QScopedPointer<DConfigBackend> backend;
@@ -137,12 +150,12 @@ public:
         return configFile && configFile->isValid();
     }
 
-    virtual bool load(const QString &appid) override
+    virtual bool load(const QString &appId) override
     {
         if (configFile)
             return true;
 
-        configFile.reset(new DConfigFile(appid,owner->name, owner->subpath));
+        configFile.reset(new DConfigFile(appId,owner->name, owner->subpath));
         configCache.reset(configFile->createUserCache(getuid()));
         const QString &prefix = localPrefix();
 
@@ -166,6 +179,12 @@ public:
         if (configFile->setValue(key, value, getAppId(), configCache.get())) {
             Q_EMIT owner->q_func()->valueChanged(key);
         }
+    }
+
+    virtual void reset(const QString &key) override
+    {
+        const auto &originValue = configFile->meta()->value(key);
+        setValue(key, originValue);
     }
 
     virtual QString name() const override
@@ -307,6 +326,11 @@ public:
     virtual void setValue(const QString &key, const QVariant &value) override
     {
         config->setValue(key, QDBusVariant(value));
+    }
+
+    virtual void reset(const QString &key) override
+    {
+        config->reset(key);
     }
 
     virtual QString name() const override
@@ -489,34 +513,55 @@ DConfig::DConfig(const QString &name, const QString &subpath, QObject *parent)
 {
 }
 
+DConfig::DConfig(DConfigBackend *backend, const QString &name, const QString &subpath, QObject *parent)
+    : DConfig(backend, QString(), name, subpath, parent)
+{
+
+}
+/*!
+ * \brief 构造配置策略提供的对象, 指定配置所属的应用Id
+ * \a appId
+ * \a name
+ * \a subpath
+ * \a parent
+ * \return 构造的配置策略对象，由调用者释放
+ */
+DConfig *DConfig::create(const QString &appId, const QString &name, const QString &subpath, QObject *parent)
+{
+    return new DConfig(nullptr, appId, name, subpath, parent);
+}
+
+DConfig *DConfig::create(DConfigBackend *backend, const QString &appId, const QString &name, const QString &subpath, QObject *parent)
+{
+    return new DConfig(backend, appId, name, subpath, parent);
+}
+
 /*!
  * \brief 使用自定义的配置策略后端构造对象
- * \a name 配置文件名
  * \a backend 调用者继承于DConfigBackend的配置策略后端
+ * \a appId 配置文件所属的应用Id，为空时默认为本应用Id
+ * \a name 配置文件名
  * \a subpath 配置文件对应的子目录
  * \a parent 父对象
  * \note 调用者只构造backend，由DConfig释放。
  */
-DConfig::DConfig(DConfigBackend *backend, const QString &name, const QString &subpath, QObject *parent)
+DConfig::DConfig(DConfigBackend *backend, const QString &appId, const QString &name, const QString &subpath, QObject *parent)
     : QObject(parent)
-    , DObject(*new DConfigPrivate(this))
+    , DObject(*new DConfigPrivate(this, appId, name, subpath))
 {
     D_D(DConfig);
-    d->name = name;
-    d->subpath = subpath;
 
-    const auto &appid = getAppId();
-    Q_ASSERT(!appid.isEmpty());
+    Q_ASSERT(!d->appId.isEmpty());
 
     qCDebug(cfLog, "Load config of appid=%s name=%s, subpath=%s",
-            qPrintable(appid), qPrintable(d->name), qPrintable(d->subpath));
+            qPrintable(d->appId), qPrintable(d->name), qPrintable(d->subpath));
 
     if (backend) {
         d->backend.reset(backend);
     }
 
     if (auto backend = d->getOrCreateBackend()) {
-        backend->load(appid);
+        backend->load(d->appId);
     }
 }
 
@@ -572,6 +617,16 @@ void DConfig::setValue(const QString &key, const QVariant &value)
 {
     D_D(DConfig);
     d->backend->setValue(key, value);
+}
+
+/*!
+ * \brief 设置其配置项对应的默认值，此值为经过override机制覆盖后的值，不一定为此配置文件中meta中定义的值
+ * \param 配置项名称
+ */
+void DConfig::reset(const QString &key)
+{
+    D_D(DConfig);
+    d->backend->reset(key);
 }
 
 /*!

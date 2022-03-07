@@ -92,6 +92,27 @@ TEST_F(ut_DConfig, value) {
         ASSERT_EQ(config.value("array").toStringList(), array);
         ASSERT_EQ(config.value("map").toMap(), map);
     }
+    {
+        DConfig config(FILE_NAME);
+        config.reset("canExit");
+        ASSERT_EQ(config.value("canExit").toBool(), true);
+
+        config.reset("key2");
+        ASSERT_EQ(config.value("key2").toString(), QString("125"));
+
+        config.reset("number");
+        ASSERT_EQ(config.value("number").toInt(), 1);
+
+        config.reset("array");
+        const QStringList &originArray {"value1", "value2"};
+        ASSERT_EQ(config.value("array").toStringList(), originArray);
+
+        config.reset("map");
+        QVariantMap originMap;
+        originMap.insert("key1", "value1");
+        originMap.insert("key2", "value2");
+        ASSERT_EQ(config.value("map").toMap(), originMap);
+    }
 }
 
 TEST_F(ut_DConfig, keyList) {
@@ -101,6 +122,16 @@ TEST_F(ut_DConfig, keyList) {
     for (auto item : keyList) {
         ASSERT_TRUE(config.keyList().contains(item));
     }
+}
+
+TEST_F(ut_DConfig, OtherAppConfigfile) {
+
+    constexpr char const *APP_OTHER = "tests_other";
+    FileCopyGuard gurand(":/data/dconf-example_other_app_configure.meta.json", QString("%1/opt/apps/%2/files/schemas/configs/%3.json").arg(fileBackendLocalPerfix.value(), APP_OTHER, FILE_NAME));
+
+    QScopedPointer<DConfig> config(DConfig::create(APP_OTHER, FILE_NAME));
+    ASSERT_TRUE(config->isValid());
+    ASSERT_EQ(config->value("appPublic").toString(), QString("publicValue"));
 }
 
 void ut_DConfig::SetUp() {}
