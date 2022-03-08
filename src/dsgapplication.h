@@ -25,7 +25,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
-class DSGApplication
+class LIBDTKCORESHARED_EXPORT DSGApplication
 {
 public:
     static QByteArray id();

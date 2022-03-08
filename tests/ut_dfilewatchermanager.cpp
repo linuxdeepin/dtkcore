@@ -26,11 +26,28 @@
 #include <QUrl>
 #include <QSignalSpy>
 #include <QTest>
+#include <QTemporaryDir>
 #include "filesystem/dfilewatcher.h"
 #include "filesystem/dfilewatchermanager.h"
+#include "filesystem/dfilesystemwatcher.h"
 
 DCORE_USE_NAMESPACE
 
+#ifndef GTEST_SKIP
+#define SKIP return GTEST_SUCCEED() << "Skip all tests"
+#else
+#define SKIP GTEST_SKIP() << "Skip all tests"
+#endif
+
+static bool inline supportedFileWatcher() {
+    QTemporaryDir dir("/tmp");
+    dir.setAutoRemove(true);
+    if (!dir.isValid())
+        return false;
+    DFileSystemWatcher w;
+    w.addPath(dir.path());
+    return w.directories().contains(dir.path());
+}
 
 class ut_DFileWatcherManager : public testing::Test
 {
@@ -44,10 +61,13 @@ protected:
 
 void ut_DFileWatcherManager::SetUp()
 {
+    if (!supportedFileWatcher())
+        SKIP;
+
     fileWatcherManager = new DFileWatcherManager(nullptr);
     QFile file("/tmp/test");
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
+        SKIP;
     file.close();
 }
 
@@ -67,6 +87,9 @@ void ut_DFileWatcherManager::TearDown()
 
 TEST_F(ut_DFileWatcherManager, testDFileWatcherManagerAdd)
 {
+    if (!fileWatcherManager)
+        return;
+
     auto watcher = fileWatcherManager->add("/tmp/test");
 
     // test fileDeleted signal
@@ -82,6 +105,9 @@ TEST_F(ut_DFileWatcherManager, testDFileWatcherManagerAdd)
 
 TEST_F(ut_DFileWatcherManager, testDFileSystemWatcherRemove)
 {
+    if (!fileWatcherManager)
+        return;
+
     fileWatcherManager->add("/tmp/test");
     fileWatcherManager->remove("/tmp/test");
 }

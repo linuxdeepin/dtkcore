@@ -24,10 +24,27 @@
 #include <QSignalSpy>
 #include <QTest>
 #include <QUrl>
+#include <QTemporaryDir>
 #include "filesystem/dfilewatcher.h"
+#include "filesystem/dfilesystemwatcher.h"
 
 DCORE_USE_NAMESPACE
 
+#ifndef GTEST_SKIP
+#define SKIP return GTEST_SUCCEED() << "Skip all tests"
+#else
+#define SKIP GTEST_SKIP() << "Skip all tests"
+#endif
+
+static bool inline supportedFileWatcher() {
+    QTemporaryDir dir("/tmp");
+    dir.setAutoRemove(true);
+    if (!dir.isValid())
+        return false;
+    DFileSystemWatcher w;
+    w.addPath(dir.path());
+    return w.directories().contains(dir.path());
+}
 
 class ut_DFileWatcher : public testing::Test
 {
@@ -41,15 +58,18 @@ protected:
 
 void ut_DFileWatcher::SetUp()
 {
+    if (!supportedFileWatcher())
+        SKIP;
+
     QDir dir("/tmp/etc/");
     if (!dir.exists())
-        dir.mkdir("/tmp/etc/");
+        if (!dir.mkdir("/tmp/etc/"))
+            SKIP;
     QFile file("/tmp/etc/test");
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
+        SKIP;
     file.close();
     fileWatcher = new DFileWatcher("/tmp/etc/test");
-
 }
 
 void ut_DFileWatcher::TearDown()
@@ -71,30 +91,45 @@ void ut_DFileWatcher::TearDown()
 
 TEST_F(ut_DFileWatcher, testDFileWatcherFileUrl)
 {
+    if (!fileWatcher)
+        return;
+
     QUrl url = fileWatcher->fileUrl();
     ASSERT_TRUE(url.toString() == "file:///tmp/etc/test");
 }
 
 TEST_F(ut_DFileWatcher, testDFileWatcherStartWatcher)
 {
+    if (!fileWatcher)
+        return;
+
     fileWatcher->setEnabledSubfileWatcher(QUrl());
     ASSERT_TRUE(fileWatcher->startWatcher());
 }
 
 TEST_F(ut_DFileWatcher, testDFileWatcherStopWatcher)
 {
+    if (!fileWatcher)
+        return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     ASSERT_TRUE(fileWatcher->stopWatcher());
 }
 
 TEST_F(ut_DFileWatcher, testDFileWatcherRestartWatcher)
 {
+    if (!fileWatcher)
+        return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     ASSERT_TRUE(fileWatcher->restartWatcher());
 }
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileDeleted)
 {
+    if (!fileWatcher)
+        return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileDeleted);
     QFile file("/tmp/etc/test");
@@ -108,6 +143,9 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileDeleted)
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileAttributeChanged)
 {
+    if (!fileWatcher)
+        return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileAttributeChanged);
     QFile file("/tmp/etc/test");
@@ -127,6 +165,9 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileAttributeChanged)
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileMoved)
 {
+    if (!fileWatcher)
+        return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileMoved);
     QString oldFile("/tmp/etc/test");
@@ -141,6 +182,9 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileMoved)
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherSubfileCreated)
 {
+    if (!fileWatcher)
+        return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::subfileCreated);
     QFile file("/tmp/etc/test");
@@ -158,6 +202,9 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherSubfileCreated)
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileModified)
 {
+    if (!fileWatcher)
+        return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileModified);
     QFile file("/tmp/etc/test");
@@ -175,6 +222,9 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileModified)
 
 TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileClosed)
 {
+    if (!fileWatcher)
+        return;
+
     ASSERT_TRUE(fileWatcher->startWatcher());
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileClosed);
     QFile file("/tmp/etc/test");

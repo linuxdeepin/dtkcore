@@ -21,10 +21,26 @@
 
 #include <gtest/gtest.h>
 #include <QDir>
+#include <QTemporaryDir>
 #include "filesystem/dfilesystemwatcher.h"
 
 DCORE_USE_NAMESPACE
 
+#ifndef GTEST_SKIP
+#define SKIP return GTEST_SUCCEED() << "Skip all tests"
+#else
+#define SKIP GTEST_SKIP() << "Skip all tests"
+#endif
+
+static bool inline supportedFileWatcher() {
+    QTemporaryDir dir("/tmp");
+    dir.setAutoRemove(true);
+    if (!dir.isValid())
+        return false;
+    DFileSystemWatcher w;
+    w.addPath(dir.path());
+    return w.directories().contains(dir.path());
+}
 
 class ut_DFileSystemWatcher : public testing::Test
 {
@@ -38,13 +54,18 @@ protected:
 
 void ut_DFileSystemWatcher::SetUp()
 {
+    if (!supportedFileWatcher())
+        SKIP;
+
     fileSystemWatcher = new DFileSystemWatcher(nullptr);
     QDir dir0("/tmp/etc0/");
     if (!dir0.exists())
-        dir0.mkdir("/tmp/etc0/");
+        if (!dir0.mkdir("/tmp/etc0/"))
+            SKIP;
     QDir dir1("/tmp/etc1/");
     if (!dir1.exists())
-        dir1.mkdir("/tmp/etc1/");
+        if (!dir1.mkdir("/tmp/etc1/"))
+            SKIP;
 }
 
 void ut_DFileSystemWatcher::TearDown()
@@ -63,6 +84,9 @@ void ut_DFileSystemWatcher::TearDown()
 
 TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherAddPath)
 {
+    if (!fileSystemWatcher)
+        return;
+
     fileSystemWatcher->addPath("/tmp/etc0");
     QStringList dirs = fileSystemWatcher->directories();
     ASSERT_TRUE(dirs.contains("/tmp/etc0"));
@@ -70,6 +94,9 @@ TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherAddPath)
 
 TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherAddPaths)
 {
+    if (!fileSystemWatcher)
+        return;
+
     fileSystemWatcher->addPaths( QStringList() << "/tmp/etc0" << "/tmp/etc1");
     QStringList dirs = fileSystemWatcher->directories();
     ASSERT_TRUE(dirs.contains("/tmp/etc0"));
@@ -78,6 +105,9 @@ TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherAddPaths)
 
 TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherRemovePath)
 {
+    if (!fileSystemWatcher)
+        return;
+
     fileSystemWatcher->addPath("/tmp/etc0");
     QStringList dirs0 = fileSystemWatcher->directories();
     ASSERT_TRUE(dirs0.contains("/tmp/etc0"));
@@ -88,6 +118,9 @@ TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherRemovePath)
 
 TEST_F(ut_DFileSystemWatcher, testDFileSystemWatcherRemovePaths)
 {
+    if (!fileSystemWatcher)
+        return;
+
     fileSystemWatcher->addPaths( QStringList() << "/tmp/etc0" << "/tmp/etc1");
     QStringList dirs0 = fileSystemWatcher->directories();
     ASSERT_TRUE(dirs0.contains("/tmp/etc0"));
