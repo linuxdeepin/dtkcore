@@ -438,8 +438,11 @@ DFileSystemWatcher::DFileSystemWatcher(QObject *parent)
         fd = inotify_init1(O_NONBLOCK);
     }
 
-    if (fd != -1)
+    if (fd != -1) {
         d_d_ptr.reset(new DFileSystemWatcherPrivate(fd, this));
+    } else {
+        qCritical() << "inotify_init1 failed, and the DFileSystemWatcher is invalid." << strerror(errno);
+    }
 }
 
 /*!
@@ -483,12 +486,7 @@ DFileSystemWatcher::~DFileSystemWatcher()
 */
 bool DFileSystemWatcher::addPath(const QString &path)
 {
-    if (path.isEmpty()) {
-        qWarning("DFileSystemWatcher::addPath: path is empty");
-        return true;
-    }
-
-    QStringList paths = addPaths(QStringList(path));
+    const QStringList &paths = addPaths(QStringList(path));
     return paths.isEmpty();
 }
 
@@ -519,22 +517,26 @@ QStringList DFileSystemWatcher::addPaths(const QStringList &paths)
 {
     Q_D(DFileSystemWatcher);
 
+    if (!d)
+        return paths;
+
     QStringList p = paths;
     QMutableListIterator<QString> it(p);
 
     while (it.hasNext()) {
         const QString &path = it.next();
-        if (path.isEmpty())
+        if (path.isEmpty()) {
+            qWarning() << Q_FUNC_INFO << "the path is empty and it is not be watched";
             it.remove();
+        }
     }
 
     if (p.isEmpty()) {
-        qWarning("DFileSystemWatcher::addPaths: list is empty");
-        return QStringList();
+        qWarning() << Q_FUNC_INFO << "all path are filtered and they are not be watched, paths are " << paths;
+        return paths;
     }
 
-    if (d)
-        p = d->addPaths(p, &d->files, &d->directories);
+    p = d->addPaths(p, &d->files, &d->directories);
 
     return p;
 }
@@ -551,12 +553,7 @@ QStringList DFileSystemWatcher::addPaths(const QStringList &paths)
 */
 bool DFileSystemWatcher::removePath(const QString &path)
 {
-    if (path.isEmpty()) {
-        qWarning("DFileSystemWatcher::removePath: path is empty");
-        return true;
-    }
-
-    QStringList paths = removePaths(QStringList(path));
+    const QStringList &paths = removePaths(QStringList(path));
     return paths.isEmpty();
 }
 
@@ -575,22 +572,26 @@ QStringList DFileSystemWatcher::removePaths(const QStringList &paths)
 {
     Q_D(DFileSystemWatcher);
 
+    if (!d)
+        return paths;
+
     QStringList p = paths;
     QMutableListIterator<QString> it(p);
 
     while (it.hasNext()) {
         const QString &path = it.next();
-        if (path.isEmpty())
+        if (path.isEmpty()) {
+            qWarning() << Q_FUNC_INFO << "the path is empty and it is not be removed from watched list";
             it.remove();
+        }
     }
 
     if (p.isEmpty()) {
-        qWarning("DFileSystemWatcher::removePaths: list is empty");
-        return QStringList();
+        qWarning() << Q_FUNC_INFO << "all path are filtered and they are not be watched, paths are " << paths;
+        return paths;
     }
 
-    if (d)
-        p = d->removePaths(p, &d->files, &d->directories);
+    p = d->removePaths(p, &d->files, &d->directories);
 
     return p;
 }
