@@ -1,0 +1,11 @@
+name: check
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+jobs:
+  check_job:
+    uses: peeweep-test/.github/.github/workflows/jenkins-bridge.yml@main
+    secrets:
+      BridgeToken: ${{ secrets.BridgeToken }}
+
