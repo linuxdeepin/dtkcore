@@ -339,6 +339,7 @@ bool DDesktopEntryPrivate::fuzzyLoad()
         }
     }
 
+    setStatus(DDesktopEntry::NoError);
     return true;
 }
 
