@@ -29,6 +29,7 @@
 #include <QSettings>
 #endif
 #include "dobject_p.h"
+#include <DSGApplication>
 
 #include <QLoggingCategory>
 #include <QCoreApplication>
@@ -39,11 +40,6 @@
 DCORE_BEGIN_NAMESPACE
 
 Q_DECLARE_LOGGING_CATEGORY(cfLog)
-
-inline static QString getAppId() {
-    // TODO: 应该使用更可靠的接口获取 appid
-    return QCoreApplication::applicationName();
-}
 
 /*!
     \class DTK::Core::DConfigBackend
@@ -163,7 +159,7 @@ public:
 
     virtual void setValue(const QString &key, const QVariant &value) override
     {
-        if (configFile->setValue(key, value, getAppId(), configCache.get())) {
+        if (configFile->setValue(key, value, DSGApplication::id(), configCache.get())) {
             Q_EMIT owner->q_func()->valueChanged(key);
         }
     }
@@ -473,7 +469,7 @@ DConfig::DConfig(DConfigBackend *backend, const QString &name, const QString &su
     d->name = name;
     d->subpath = subpath;
 
-    const auto &appid = getAppId();
+    const auto &appid = DSGApplication::id();
     Q_ASSERT(!appid.isEmpty());
 
     qCDebug(cfLog, "Load config of appid=%s name=%s, subpath=%s",
