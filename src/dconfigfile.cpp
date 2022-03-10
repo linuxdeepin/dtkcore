@@ -954,7 +954,7 @@ public:
         if (homePath.isEmpty()) {
             return QString();
         }
-        const QString userHomeConfigDir = homePath + QStringLiteral("/.config");
+        const QString userHomeConfigDir = homePath + QStringLiteral("/.config/dsg/configs/");
         return prefix + userHomeConfigDir + "/" + configKey.appId;
     }
 
@@ -967,7 +967,7 @@ public:
         // TODO `DSG_APP_DATA` is not set and `appid` is not captured in `DStandardPaths::path`.
         QString appDataDir = DStandardPaths::path(DStandardPaths::DSG::AppData);
         if (appDataDir.isEmpty())
-            appDataDir = QString("/deepin/appdata");
+            appDataDir = QString("/var/dsg/appdata");
 
         return QString("%1/%2/configs/%3").arg(prefix, appDataDir, configKey.appId);
     }

@@ -32,13 +32,12 @@ DCORE_USE_NAMESPACE
 static EnvGuard dsgDataDir;
 static constexpr char const *APP_ID = "tests";
 static constexpr char const *FILE_NAME = "example";
-
 class ut_DConfig : public testing::Test
 {
 protected:
     static void SetUpTestCase() {
         fileBackendLocalPerfix.set("DSG_DCONFIG_FILE_BACKEND_LOCAL_PREFIX", "/tmp/example");
-        metaGuard = new FileCopyGuard(":/data/dconf-example.meta.json", QString("%1/usr/share/dsg/configs/%2/%3.json").arg(fileBackendLocalPerfix.value(), APP_ID, FILE_NAME));
+        metaGuard = new FileCopyGuard(":/data/dconf-example.meta.json", QString("%1" PREFIX"/share/dsg/configs/%2/%3.json").arg(fileBackendLocalPerfix.value(), APP_ID, FILE_NAME));
 
         backendType.set("DSG_DCONFIG_BACKEND_TYPE", "FileBackend");
         dsgDataDir.set("DSG_DATA_DIRS", "/usr/share/dsg");
@@ -130,7 +129,7 @@ TEST_F(ut_DConfig, keyList) {
 TEST_F(ut_DConfig, OtherAppConfigfile) {
 
     constexpr char const *APP_OTHER = "tests_other";
-    FileCopyGuard gurand(":/data/dconf-example_other_app_configure.meta.json", QString("%1/opt/apps/%2/files/schemas/configs/%3.json").arg(fileBackendLocalPerfix.value(), APP_OTHER, FILE_NAME));
+    FileCopyGuard gurand(":/data/dconf-example_other_app_configure.meta.json", QString("%1" PREFIX"/share/dsg/configs/%2/%3.json").arg(fileBackendLocalPerfix.value(), APP_OTHER, FILE_NAME));
 
     QScopedPointer<DConfig> config(DConfig::create(APP_OTHER, FILE_NAME));
     ASSERT_TRUE(config->isValid());
