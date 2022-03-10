@@ -39,7 +39,7 @@ public:
         switch (type) {
         case QStandardPaths::GenericDataLocation: {
             QString snapRoot = env.value("SNAP");
-            QString genericDataDir = snapRoot + "/usr/share/";
+            QString genericDataDir = snapRoot + PREFIX"/share/";
             return QStringList() << genericDataDir;
         }
         default:
@@ -180,7 +180,7 @@ QStringList DStandardPaths::paths(DSG type)
     if (type == DSG::DataDir) {
         const QByteArray &path = qgetenv("DSG_DATA_DIRS");
         if (path.isEmpty()) {
-            return {QStringLiteral("/usr/share/dsg")};
+            return {QLatin1String(PREFIX"/share/dsg")};
         }
         const auto list = path.split(':');
         paths.reserve(list.size());

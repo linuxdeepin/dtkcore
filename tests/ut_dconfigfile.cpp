@@ -35,7 +35,6 @@ class ut_DConfigFile : public testing::Test
 {
 protected:
     static void SetUpTestCase() {
-        dsgDataDir.set("DSG_DATA_DIR", "/tmp/dconfig/dsg_data");
         home.set("HOME", "/tmp/home");
     }
     static void TearDownTestCase() {
@@ -46,9 +45,9 @@ protected:
 
     const char *APP_ID = "org.foo.appid";
     const char *FILE_NAME = "org.foo.name";
-    QString metaPath = QString("%1/opt/apps/%2/files/schemas/configs").arg(LocalPrefix, APP_ID);
-    QString metaGlobalPath = QString("%1%2/configs").arg(LocalPrefix, DStandardPaths::path(DStandardPaths::DSG::DataDir));
-    QString overridePath = QString("%1%2/configs/overrides/%3/%4").arg(LocalPrefix, DStandardPaths::path(DStandardPaths::DSG::DataDir), APP_ID, FILE_NAME);
+    QString metaPath = QString("%1" PREFIX"/share/dsg/configs/%2").arg(LocalPrefix, APP_ID);
+    QString metaGlobalPath = QString("%1" PREFIX"/share/dsg/configs").arg(LocalPrefix);
+    QString overridePath = QString("%1" PREFIX"/share/dsg/configs/overrides/%2/%3").arg(LocalPrefix, APP_ID, FILE_NAME);
     uint uid = getuid();
     static EnvGuard dsgDataDir;
     static EnvGuard home;

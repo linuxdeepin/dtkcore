@@ -598,30 +598,46 @@ public:
         return values.value(key);
     }
 
-    inline QString applicationMetaDir(const QString &prefix, const bool useOptDir = false) const
+    inline QStringList applicationMetaDirs(const QString &prefix) const
     {
-        if (useOptDir)
-            return QString("%1/opt/apps/%2/files/schemas/configs").arg(prefix, configKey.appId);
-
-        return QString("%1/usr/share/dsg/apps/%2/configs").arg(prefix, configKey.appId);
+        QStringList paths;
+        // lower priority is higher.
+        const auto &dataPaths = DStandardPaths::paths(DStandardPaths::DSG::DataDir);
+        paths.reserve(dataPaths.size());
+        for (auto item : dataPaths) {
+            paths.prepend(QString("%1/%2/configs/%3").arg(prefix, item, configKey.appId));
+        }
+        return paths;
     }
 
-    inline static QString genericMetaDir(const QString &prefix) {
-        return prefix + DStandardPaths::filePath(DStandardPaths::DSG::DataDir,
-                                                 QString("configs"));
+    inline static QStringList genericMetaDirs(const QString &prefix) {
+        QStringList paths;
+        for (auto item: DStandardPaths::paths(DStandardPaths::DSG::DataDir)) {
+            paths.prepend(QString("%1/%2/configs").arg(prefix, item));
+        }
+        return paths;
     }
 
     QString metaPath(const QString &localPrefix, bool *useAppId) const override
     {
         bool useAppIdForOverride = true;
 
-        QString path = getFile(applicationMetaDir(localPrefix), configKey.subpath, configKey.fileName + FILE_SUFFIX);
-        if (path.isEmpty())
-            path = getFile(applicationMetaDir(localPrefix, true), configKey.subpath, configKey.fileName + FILE_SUFFIX);
+        QString path;
+        const QStringList &applicationMetas = applicationMetaDirs(localPrefix);
+        for (auto iter = applicationMetas.rbegin(); iter != applicationMetas.rend(); iter++) {
+            path = getFile(*iter, configKey.subpath, configKey.fileName + FILE_SUFFIX);
+            if (!path.isEmpty())
+                break;
+        }
 
         if (path.isEmpty()) {
             useAppIdForOverride = false;
-            path = getFile(genericMetaDir(localPrefix), configKey.subpath, configKey.fileName + FILE_SUFFIX);
+            const QStringList &genericnMetas = genericMetaDirs(localPrefix);
+            for (auto iter = genericnMetas.rbegin(); iter != genericnMetas.rend(); iter++) {
+                path = getFile(*iter, configKey.subpath, configKey.fileName + FILE_SUFFIX);
+                if (!path.isEmpty())
+                    break;
+            }
         }
         if (useAppId) {
             *useAppId = useAppIdForOverride;
@@ -736,12 +752,17 @@ public:
         const QString &path2 = QString("%1/etc/dsg/configs/overrides/%2/%3")
                 .arg(prefix, useAppId ? configKey.appId : QString(), configKey.fileName);
 
-        const QString &path1 = QString("%1%2/configs/overrides/%3/%4")
-                .arg(prefix, DStandardPaths::path(DStandardPaths::DSG::DataDir),
-                     useAppId ? configKey.appId : QString(), configKey.fileName);
-
+        QStringList paths;
+        const QStringList &dataPaths = DStandardPaths::paths(DStandardPaths::DSG::DataDir);
+        paths.reserve(dataPaths.size() + 1);
+        for (auto path: dataPaths) {
+            // reverse `DataDir`'s paths, previous `DataDir`'s value has high priority
+            paths.prepend(QString("%1%2/configs/overrides/%3/%4")
+                          .arg(prefix, path, useAppId ? configKey.appId : QString(), configKey.fileName));
+        }
         // 在后面的优先级更高
-        return {path1, path2};
+        paths.append(path2);
+        return paths;
     }
 
     inline QStringList allOverrideDirs(const bool useAppId, const QString &prefix) const override
@@ -933,7 +954,7 @@ public:
         if (homePath.isEmpty()) {
             return QString();
         }
-        const QString userHomeConfigDir = homePath + QStringLiteral("/.config");
+        const QString userHomeConfigDir = homePath + QStringLiteral("/.config/dsg/configs/");
         return prefix + userHomeConfigDir + "/" + configKey.appId;
     }
 
@@ -944,11 +965,11 @@ public:
 
     inline QString globalCacheDir(const QString &prefix) const {
         // TODO `DSG_APP_DATA` is not set and `appid` is not captured in `DStandardPaths::path`.
-        if (DStandardPaths::path(DStandardPaths::DSG::AppData).isEmpty())
-            return prefix + QString("/var/dsg/appdata/%1/configs").arg(configKey.appId);
+        QString appDataDir = DStandardPaths::path(DStandardPaths::DSG::AppData);
+        if (appDataDir.isEmpty())
+            appDataDir = QString("/var/dsg/appdata");
 
-        return prefix + DStandardPaths::filePath(DStandardPaths::DSG::AppData,
-                                                 QString("configs"));
+        return QString("%1/%2/configs/%3").arg(prefix, appDataDir, configKey.appId);
     }
 
     QString getCacheDir(const QString &localPrefix = QString())
