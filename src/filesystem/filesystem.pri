@@ -2,6 +2,8 @@ include($$PWD/private/private.pri)
 
 INCLUDEPATH += $$PWD/../base
 
+DEFINES += PREFIX=\\\"$$PREFIX\\\"
+
 HEADERS += \
     $$PWD/dbasefilewatcher.h \
     $$PWD/dfilesystemwatcher.h \
