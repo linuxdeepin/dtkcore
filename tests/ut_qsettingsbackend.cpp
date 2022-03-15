@@ -102,7 +102,7 @@ TEST_F(ut_QSettingsBackend, testQSettingsBackendDoOption)
     QScopedPointer<DSettings> scopeSettings(tmpSetting.data());
     QSettingBackend qBackend("/tmp/test.ini");
     scopeSettings->setBackend(&qBackend);
-    Q_EMIT qBackend.setOption("Test", true);
+//    Q_EMIT qBackend.setOption("Test", true);
 
 //    QStringList qKeys = qBackend.keys();
 //    ASSERT_TRUE(!qKeys.isEmpty());
