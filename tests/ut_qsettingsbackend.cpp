@@ -100,7 +100,7 @@ TEST_F(ut_QSettingsBackend, testQSettingsBackendDoOption)
 {
     QPointer<DSettings> tmpSetting = DSettings::fromJson(jsonContent.toLatin1());
     QScopedPointer<DSettings> scopeSettings(tmpSetting.data());
-    static QSettingBackend qBackend("/tmp/test.ini");
+    QSettingBackend qBackend("/tmp/test.ini");
     scopeSettings->setBackend(&qBackend);
     Q_EMIT qBackend.setOption("Test", true);
 
@@ -108,4 +108,7 @@ TEST_F(ut_QSettingsBackend, testQSettingsBackendDoOption)
     ASSERT_TRUE(!qKeys.isEmpty());
     QVariant value = qBackend.getOption("Test");
     ASSERT_TRUE(!value.toBool());
+
+    // ensure `DSettings` is released before `SettingBackend` if `doSetOption` maybe execute.
+    scopeSettings.reset();
 }

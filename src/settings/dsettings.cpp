@@ -281,6 +281,14 @@ void DSettings::setBackend(DSettingsBackend *backend)
     this, [ = ](const QString & key, const QVariant & value) {
         option(key)->setValue(value);
     });
+    // exit and delete thread
+    connect(this, &DSettings::destroyed, this, [backendWriteThread](){
+        if (backendWriteThread->isRunning()) {
+            backendWriteThread->quit();
+            backendWriteThread->wait();
+        }
+        backendWriteThread->deleteLater();
+    });
 
     backendWriteThread->start();
 
