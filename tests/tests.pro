@@ -24,7 +24,7 @@ DEPENDPATH += $$PWD/../src
 
 unix: {
 QMAKE_RPATHDIR += $$OUT_PWD/../src
-LIBS += -L$$OUT_PWD/../src/ -ldtkcore -lgtest
+LIBS += -lgtest
 # for dlsym
 LIBS += -ldl
 # TODO: vtabhook release test failed
