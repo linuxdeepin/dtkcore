@@ -121,6 +121,16 @@ public:
 
     virtual ~DConfigPrivate() override;
 
+    inline bool invalid() const
+    {
+        const bool valid = backend && backend->isValid();
+        if (!valid)
+            qCWarning(cfLog, "DConfig is invalid of appid=%s name=%s, subpath=%s",
+                                                               qPrintable(appId), qPrintable(name), qPrintable(subpath));
+
+        return !valid;
+    }
+
     DConfigBackend *getOrCreateBackend();
     DConfigBackend *createBackendByEnv();
 
@@ -165,26 +175,30 @@ public:
 
     virtual QStringList keyList() const override
     {
-        return configFile->meta()->keyList();
+        return configFile ? configFile->meta()->keyList() : QStringList();
     }
 
     virtual QVariant value(const QString &key, const QVariant &fallback) const override
     {
+        if (!configFile)
+            return fallback;
         const QVariant &v = configFile->value(key, configCache.get());
         return v.isValid() ? v : fallback;
     }
 
     virtual void setValue(const QString &key, const QVariant &value) override
     {
-        if (configFile->setValue(key, value, getAppId(), configCache.get())) {
+        if (configFile && configFile->setValue(key, value, getAppId(), configCache.get())) {
             Q_EMIT owner->q_func()->valueChanged(key);
         }
     }
 
     virtual void reset(const QString &key) override
     {
-        const auto &originValue = configFile->meta()->value(key);
-        setValue(key, originValue);
+        if (configFile) {
+            const auto &originValue = configFile->meta()->value(key);
+            setValue(key, originValue);
+        }
     }
 
     virtual QString name() const override
@@ -292,7 +306,7 @@ public:
 
     virtual QStringList keyList() const override
     {
-        return config->keyList();
+        return config ? config->keyList() : QStringList();
     }
 
     static QVariant decodeQDBusArgument(const QVariant &v)
@@ -331,6 +345,8 @@ public:
 
     virtual QVariant value(const QString &key, const QVariant &fallback) const override
     {
+        if (!config)
+            return fallback;
         const QDBusVariant &dv = config->value(key);
         const QVariant &v = dv.variant();
         return v.isValid() ? decodeQDBusArgument(v) : fallback;
@@ -338,12 +354,14 @@ public:
 
     virtual void setValue(const QString &key, const QVariant &value) override
     {
-        config->setValue(key, QDBusVariant(value));
+        if (config)
+            config->setValue(key, QDBusVariant(value));
     }
 
     virtual void reset(const QString &key) override
     {
-        config->reset(key);
+        if (config)
+            config->reset(key);
     }
 
     virtual QString name() const override
@@ -394,17 +412,18 @@ public:
 
     virtual QStringList keyList() const override
     {
-        return settings->childKeys();
+        return settings ? settings->childKeys() : QStringList();
     }
 
     virtual QVariant value(const QString &key, const QVariant &fallback) const override
     {
-        return settings->value(key, fallback);
+        return settings ? settings->value(key, fallback) : fallback;
     }
 
     virtual void setValue(const QString &key, const QVariant &value) override
     {
-        settings->setValue(key, value);
+        if (settings)
+            settings->setValue(key, value);
     }
 
     virtual QString name() const override
@@ -451,7 +470,8 @@ DConfigBackend *DConfigPrivate::getOrCreateBackend()
     if (DBusBackend::isServiceRegistered() || DBusBackend::isServiceActivatable()) {
         qCDebug(cfLog, "Fallback to DBus mode");
         backend.reset(new DBusBackend(this));
-    } else {
+    }
+    if (!backend) {
         qCDebug(cfLog, "Can't use DBus config service, fallback to DConfigFile mode");
         backend.reset(new FileBackend(this));
     }
@@ -586,6 +606,9 @@ DConfig::DConfig(DConfigBackend *backend, const QString &appId, const QString &n
 QString DConfig::backendName() const
 {
     D_DC(DConfig);
+    if (d->invalid())
+        return QString();
+
     return d->backend->name();
 }
 
@@ -596,6 +619,9 @@ QString DConfig::backendName() const
 QStringList DConfig::keyList() const
 {
     D_DC(DConfig);
+    if (d->invalid())
+        return QStringList();
+
     return d->backend->keyList();
 }
 
@@ -606,7 +632,7 @@ QStringList DConfig::keyList() const
 bool DConfig::isValid() const
 {
     D_DC(DConfig);
-    return d->backend->isValid();
+    return !d->invalid();
 }
 
 /*!
@@ -618,6 +644,9 @@ bool DConfig::isValid() const
 QVariant DConfig::value(const QString &key, const QVariant &fallback) const
 {
     D_DC(DConfig);
+    if (d->invalid())
+        return fallback;
+
     return d->backend->value(key, fallback);
 }
 
@@ -629,6 +658,9 @@ QVariant DConfig::value(const QString &key, const QVariant &fallback) const
 void DConfig::setValue(const QString &key, const QVariant &value)
 {
     D_D(DConfig);
+    if (d->invalid())
+        return;
+
     d->backend->setValue(key, value);
 }
 
@@ -639,6 +671,9 @@ void DConfig::setValue(const QString &key, const QVariant &value)
 void DConfig::reset(const QString &key)
 {
     D_D(DConfig);
+    if (d->invalid())
+        return;
+
     d->backend->reset(key);
 }
 
