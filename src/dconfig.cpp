@@ -291,10 +291,8 @@ public:
         return config->keyList();
     }
 
-    virtual QVariant value(const QString &key, const QVariant &fallback) const override
+    static QVariant decodeQDBusArgument(const QVariant &v)
     {
-        const QDBusVariant &dv = config->value(key);
-        const QVariant &v = dv.variant();
         if (v.canConvert<QDBusArgument>()) {
             // we use QJsonValue to resolve all data type in DConfigInfo class, so it's type is equal QJsonValue::Type,
             // now we parse Map and Array type to QVariant explicitly.
@@ -303,20 +301,35 @@ public:
             case QDBusArgument::MapType: {
                 QVariantMap list;
                 complexType >> list;
-                return list;
+                QVariantMap res;
+                for (auto iter = list.begin(); iter != list.end(); iter++) {
+                    res[iter.key()] = decodeQDBusArgument(iter.value());
+                }
+                return res;
             }
             case QDBusArgument::ArrayType: {
                 QVariantList list;
                 complexType >> list;
-                return list;
+                QVariantList res;
+                res.reserve(list.size());
+                for (const auto &item : qAsConst(list)) {
+                    res << decodeQDBusArgument(item);
+                }
+                return res;
             }
             default:
-                qCWarning(cfLog, "Can't parse the type, it maybe need user to do it, "
-                                 "key: %s, and QDBusArgument::ElementType: %d.", qPrintable(key), complexType.currentType());
+                qWarning("Can't parse the type, it maybe need user to do it, "
+                         "QDBusArgument::ElementType: %d.", complexType.currentType());
             }
         }
+        return v;
+    }
 
-        return v.isValid() ? v : fallback;
+    virtual QVariant value(const QString &key, const QVariant &fallback) const override
+    {
+        const QDBusVariant &dv = config->value(key);
+        const QVariant &v = dv.variant();
+        return v.isValid() ? decodeQDBusArgument(v) : fallback;
     }
 
     virtual void setValue(const QString &key, const QVariant &value) override

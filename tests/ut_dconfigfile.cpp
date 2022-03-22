@@ -143,6 +143,21 @@ TEST_F(ut_DConfigFile, setValueTypeCheck) {
         ASSERT_EQ(config.value("array", userCache.get()).type(), type);
     }
     {
+        const auto type = config.value("array_map", userCache.get()).type();
+        QVariantList array;
+        QVariantMap map1;
+        map1["key1"] = "value1";
+        map1["key2"] = "value2";
+        array.append(map1);
+        ASSERT_EQ(config.value("array_map", userCache.get()).toList(), array);
+        ASSERT_TRUE(config.setValue("array_map", QVariantList(), "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("array_map", array, "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("array_map", QJsonDocument::fromJson("[]").toVariant(), "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("array_map", "", "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("array_map", "value1", "test", userCache.get()));
+        ASSERT_EQ(config.value("array_map", userCache.get()).type(), type);
+    }
+    {
         const auto type = config.value("map", userCache.get()).type();
         QVariantMap map;
         map.insert("key1", "value1");
@@ -153,6 +168,19 @@ TEST_F(ut_DConfigFile, setValueTypeCheck) {
         ASSERT_FALSE(config.setValue("map", QJsonDocument::fromJson("[]").toVariant(), "test", userCache.get()));
         ASSERT_FALSE(config.setValue("map", "key1", "test", userCache.get()));
         ASSERT_EQ(config.value("map", userCache.get()).type(), type);
+    }
+    {
+        const auto type = config.value("map_array", userCache.get()).type();
+        QVariantMap map;
+        map.insert("key1", QStringList{"value1"});
+        map.insert("key2", QStringList{"value2"});
+        ASSERT_EQ(config.value("map_array", userCache.get()).toMap(), map);
+        ASSERT_TRUE(config.setValue("map_array", QVariantMap(), "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("map_array", map, "test", userCache.get()));
+        ASSERT_TRUE(config.setValue("map_array", QJsonDocument::fromJson("{}").toVariant(), "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("map_array", "", "test", userCache.get()));
+        ASSERT_FALSE(config.setValue("map_array", "value1", "test", userCache.get()));
+        ASSERT_EQ(config.value("map_array", userCache.get()).type(), type);
     }
 }
 
