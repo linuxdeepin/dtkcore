@@ -40,7 +40,7 @@ protected:
         metaGuard = new FileCopyGuard(":/data/dconf-example.meta.json", QString("%1" PREFIX"/share/dsg/configs/%2/%3.json").arg(fileBackendLocalPerfix.value(), APP_ID, FILE_NAME));
 
         backendType.set("DSG_DCONFIG_BACKEND_TYPE", "FileBackend");
-        dsgDataDir.set("DSG_DATA_DIRS", "/usr/share/dsg");
+        dsgDataDir.set("DSG_DATA_DIRS", PREFIX"/share/dsg");
     }
     static void TearDownTestCase() {
         QDir(fileBackendLocalPerfix.value()).removeRecursively();
