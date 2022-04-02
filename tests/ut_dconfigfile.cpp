@@ -36,6 +36,7 @@ class ut_DConfigFile : public testing::Test
 protected:
     static void SetUpTestCase() {
         home.set("HOME", "/tmp/home");
+        dsgDataDir.set("DSG_DATA_DIRS", PREFIX"/share/dsg");
     }
     static void TearDownTestCase() {
         dsgDataDir.restore();

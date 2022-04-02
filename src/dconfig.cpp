@@ -121,6 +121,16 @@ public:
 
     virtual ~DConfigPrivate() override;
 
+    inline bool invalid() const
+    {
+        const bool valid = backend && backend->isValid();
+        if (!valid)
+            qCWarning(cfLog, "DConfig is invalid of appid=%s name=%s, subpath=%s",
+                      qPrintable(appId), qPrintable(name), qPrintable(subpath));
+
+        return !valid;
+    }
+
     DConfigBackend *getOrCreateBackend();
     DConfigBackend *createBackendByEnv();
 
@@ -451,7 +461,8 @@ DConfigBackend *DConfigPrivate::getOrCreateBackend()
     if (DBusBackend::isServiceRegistered() || DBusBackend::isServiceActivatable()) {
         qCDebug(cfLog, "Fallback to DBus mode");
         backend.reset(new DBusBackend(this));
-    } else {
+    }
+    if (!backend) {
         qCDebug(cfLog, "Can't use DBus config service, fallback to DConfigFile mode");
         backend.reset(new FileBackend(this));
     }
@@ -586,6 +597,9 @@ DConfig::DConfig(DConfigBackend *backend, const QString &appId, const QString &n
 QString DConfig::backendName() const
 {
     D_DC(DConfig);
+    if (d->invalid())
+        return QString();
+
     return d->backend->name();
 }
 
@@ -596,6 +610,9 @@ QString DConfig::backendName() const
 QStringList DConfig::keyList() const
 {
     D_DC(DConfig);
+    if (d->invalid())
+        return QStringList();
+
     return d->backend->keyList();
 }
 
@@ -606,7 +623,7 @@ QStringList DConfig::keyList() const
 bool DConfig::isValid() const
 {
     D_DC(DConfig);
-    return d->backend->isValid();
+    return !d->invalid();
 }
 
 /*!
@@ -618,6 +635,9 @@ bool DConfig::isValid() const
 QVariant DConfig::value(const QString &key, const QVariant &fallback) const
 {
     D_DC(DConfig);
+    if (d->invalid())
+        return fallback;
+
     return d->backend->value(key, fallback);
 }
 
@@ -629,6 +649,9 @@ QVariant DConfig::value(const QString &key, const QVariant &fallback) const
 void DConfig::setValue(const QString &key, const QVariant &value)
 {
     D_D(DConfig);
+    if (d->invalid())
+        return;
+
     d->backend->setValue(key, value);
 }
 
@@ -639,6 +662,9 @@ void DConfig::setValue(const QString &key, const QVariant &value)
 void DConfig::reset(const QString &key)
 {
     D_D(DConfig);
+    if (d->invalid())
+        return;
+
     d->backend->reset(key);
 }
 
