@@ -53,13 +53,15 @@ HEADERS += $$PWD/ut_*.h \
     $$PWD/../src/dsysinfo.h \
     $$PWD/../src/dsecurestring.h \
     $$PWD/../src/ddesktopentry.h \
-    $$PWD/../src/dconfig.h
+    $$PWD/../src/dconfig.h \
+    $$PWD/../src/dsgapplication.h
 
 SOURCES += $$PWD/*.cpp \
     $$PWD/../src/dsysinfo.cpp \
     $$PWD/../src/dsecurestring.cpp \
     $$PWD/../src/ddesktopentry.cpp \
-    $$PWD/../src/dconfig.cpp
+    $$PWD/../src/dconfig.cpp \
+    $$PWD/../src/dsgapplication.cpp
 
 linux: {
     HEADERS += \
