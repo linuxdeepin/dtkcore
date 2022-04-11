@@ -8,7 +8,7 @@ You should read the [Deepin Application Specification](\ref doc/Specification) f
 
 ### Build dependencies
 
-* Qt >= 5.6
+* Qt >= 5.10
 
 ## Installation
 
