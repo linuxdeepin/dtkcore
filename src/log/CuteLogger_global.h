@@ -30,4 +30,8 @@
 #endif
 #endif
 
+#ifndef CUTELOGGER_DEFAULT_LOG_FORMAT
+#define CUTELOGGER_DEFAULT_LOG_FORMAT QLatin1String("%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n")
+#endif
+
 #endif // CUTELOGGER_GLOBAL_H

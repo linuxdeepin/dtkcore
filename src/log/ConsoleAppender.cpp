@@ -38,14 +38,35 @@ ConsoleAppender::ConsoleAppender()
   : AbstractStringAppender(),
     m_ignoreEnvPattern(false)
 {
-  setFormat("[%{type:-7}] <%{function}> %{message}\n");
+    setFormat(CUTELOGGER_DEFAULT_LOG_FORMAT);
 }
-
 
 QString ConsoleAppender::format() const
 {
-  const QString envPattern = QString::fromLocal8Bit(qgetenv("QT_MESSAGE_PATTERN"));
-  return (m_ignoreEnvPattern || envPattern.isEmpty()) ? AbstractStringAppender::format() : (envPattern + "\n");
+    //! 写的时候在 AbstractStringAppender::formattedString 里面再次被调用
+    static QString logFormat;
+    if (!logFormat.isEmpty()) {
+        return logFormat;
+    }
+    // 应用自己设置的优先级最高
+    QString fmt(AbstractStringAppender::format());
+    // 如果用户没设置 DLogManager::setLogFormat,
+    // 在 DLogManager::initRollingFileAppender 中
+    // AbstractStringAppender::m_format 就被覆写为默认值了
+    if (!fmt.isEmpty() && fmt != CUTELOGGER_DEFAULT_LOG_FORMAT) {
+        logFormat = fmt;
+        return fmt;
+    }
+    // 其次是环境变量里面的
+    if (!m_ignoreEnvPattern) {
+        fmt = QString::fromLocal8Bit(qgetenv("DTK_MESSAGE_PATTERN"));
+        if (!fmt.isEmpty()) {
+            logFormat = fmt;
+            return fmt;
+        }
+    }
+    logFormat = CUTELOGGER_DEFAULT_LOG_FORMAT;
+    return logFormat;
 }
 
 
