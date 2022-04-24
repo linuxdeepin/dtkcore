@@ -16,6 +16,7 @@
  */
 
 #include "LogManager.h"
+#include <DConfig>
 #include <Logger.h>
 #include <ConsoleAppender.h>
 #include <RollingFileAppender.h>
@@ -31,24 +32,85 @@ DCORE_BEGIN_NAMESPACE
 
 DLogManager::DLogManager()
 {
+    // 不加这两个宏中的任一个则无法打印文件名、行号、函数名，那就只打印时间、Log类型、内容
 #if !defined(QT_DEBUG) && !defined(QT_MESSAGELOGCONTEXT)
     m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] %{message}\n";
 #else
-    m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
+    m_format = CUTELOGGER_DEFAULT_LOG_FORMAT;
 #endif
 }
 
 void DLogManager::initConsoleAppender(){
+    QString logFormat = m_format;
+    DConfig config("org.deepin.dtkcore");
+    if (config.isValid()) {
+        QString fmt = config.value("logFormat").toString();
+        if (!fmt.isEmpty()) {
+            fmt.replace("\\n", "\n");
+            logFormat = fmt;
+        }
+    }
+
     m_consoleAppender = new ConsoleAppender;
-    m_consoleAppender->setFormat(m_format);
+    m_consoleAppender->setFormat(logFormat);
     logger->registerAppender(m_consoleAppender);
 }
 
 void DLogManager::initRollingFileAppender(){
-    m_rollingFileAppender = new RollingFileAppender(getlogFilePath());
-    m_rollingFileAppender->setFormat(m_format);
-    m_rollingFileAppender->setLogFilesLimit(5);
-    m_rollingFileAppender->setDatePattern(RollingFileAppender::DailyRollover);
+    int rollingNum = 5;
+    Logger::LogLevel level = Logger::LogLevel::Trace;
+    RollingFileAppender::DatePattern pattern = RollingFileAppender::DailyRollover;
+    QString logFilePath;
+    QString logFormat = m_format;
+
+    DConfig config("org.deepin.dtkcore");
+
+    if (!config.isValid()) {
+        qWarning() << QString("DConfig is invalide, name:[%1], subpath[%2].").arg(config.name(), config.subpath());
+    } else {
+        bool success;
+
+        // get rollingNumber, default is 5
+        int num = config.value("rollingNumber").toInt(&success);
+        if (success && num > 0)
+            rollingNum = num;
+
+        // get datePattern, default is DailyRollover
+        num = config.value("datePattern").toInt(&success);
+        if (success && num >= static_cast<RollingFileAppender::DatePattern>(RollingFileAppender::MinutelyRollover)
+                && num <= static_cast<RollingFileAppender::DatePattern>(RollingFileAppender::MonthlyRollover)) {
+            pattern = static_cast<RollingFileAppender::DatePattern>(num);
+        }
+        // get logLevel, default is Trace
+        num = config.value("logLevel").toInt(&success);
+        if (success && num >= static_cast<Logger::LogLevel>(Logger::LogLevel::Trace)
+                && num <= static_cast<Logger::LogLevel>(Logger::LogLevel::Fatal)) {
+            level = static_cast<Logger::LogLevel>(num);
+        }
+        // get logPath, default is ~/.cache/deepin/appname
+        if (DLogManager::instance()->m_logPath.isEmpty()) {
+            // 从 dconfig 获取配置的优先级更高
+            QString path = config.value("logPath").toString();
+            if (!path.isEmpty() && QFileInfo(path).exists()) {
+                m_logPath = DLogManager::instance()->joinPath(path, QString("%1.log").arg(qApp->applicationName()));
+                logFilePath = QDir::toNativeSeparators(m_logPath);
+            }
+        }
+        QString fmt = config.value("logFormat").toString();
+        if (!fmt.isEmpty()) {
+            fmt.replace("\\n", "\n");
+            logFormat = fmt;
+        }
+    }
+    if (logFilePath.isEmpty()) {
+        logFilePath = getlogFilePath();
+    }
+
+    m_rollingFileAppender = new RollingFileAppender(logFilePath);
+    m_rollingFileAppender->setFormat(logFormat);
+    m_rollingFileAppender->setLogFilesLimit(rollingNum);
+    m_rollingFileAppender->setDatePattern(pattern);
+    m_rollingFileAppender->setDetailsLevel(level);
     logger->registerAppender(m_rollingFileAppender);
 }
 

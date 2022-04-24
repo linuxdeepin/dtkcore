@@ -1,0 +1,56 @@
+{
+  "magic": "dsg.config.meta",
+  "version": "1.0",
+  "contents": {
+      "logLevel": {
+          "value": -1,
+          "serial": 0,
+          "flags": [""],
+          "name": "Configure the log level of the application",
+          "name[zh_CN]": "配置应用的日志等级",
+          "description": "Configure the log level of the application\nInteger value, 0~5:Trace,Debug,Info,Warning,Error,Fatal",
+          "permissions": "readwrite",
+          "visibility": "private"
+      },
+      "logPath": {
+          "value": "",
+          "serial": 0,
+          "flags": [""],
+          "name": "Configure the log path of the application",
+          "name[zh_CN]": "配置应用的日志路径",
+          "description": "Configure the log path of the application\nAbsolute path",
+          "permissions": "readwrite",
+          "visibility": "private"
+      },
+      "rollingNumber": {
+          "value": -1,
+          "serial": 0,
+          "flags": [""],
+          "name": "Rolling number of log files",
+          "name[zh_CN]": "日志文件的数量",
+          "description": "Control the number of log files within this range\nInteger value, minimum 1",
+          "permissions": "readwrite",
+          "visibility": "private"
+      },
+      "datePattern": {
+          "value": -1,
+          "serial": 0,
+          "flags": [""],
+          "name": "Log write policy",
+          "name[zh_CN]": "日志的写入策略",
+          "description": "Time period for creating log files\nInteger value, 0~5:Minutely,Hourly,HalfDaily,Daily,Weekly,Monthly",
+          "permissions": "readwrite",
+          "visibility": "private"
+      },
+      "logFormat": {
+          "value": "",
+          "serial": 0,
+          "flags": [""],
+          "name": "Display log according to format string",
+          "name[zh_CN]": "根据格式字符格式化日志输出",
+          "description": "Configure the display format of the log\nFor example:%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\\n",
+          "permissions": "readwrite",
+          "visibility": "private"
+      }
+  }
+}
