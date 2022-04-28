@@ -2,7 +2,9 @@ include($$PWD/private/private.pri)
 
 INCLUDEPATH += $$PWD/../base
 
-DEFINES += PREFIX=\\\"$$PREFIX\\\"
+INSTALL_PREFIX=$$QT_INSTALL_PREFIX
+isEmpty(INSTALL_PREFIX): INSTALL_PREFIX=$$[QT_INSTALL_PREFIX]
+DEFINES += PREFIX=\\\"$$INSTALL_PREFIX\\\"
 
 HEADERS += \
     $$PWD/dbasefilewatcher.h \
