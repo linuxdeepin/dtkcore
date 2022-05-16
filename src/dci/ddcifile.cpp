@@ -68,8 +68,11 @@ public:
     DDciFilePrivate(DDciFile *qq)
 #ifndef DTK_NO_PROJECT
         : DObjectPrivate(qq)
-#endif
     {
+#else
+    {
+    Q_UNUSED(qq)
+#endif
 
     }
     ~DDciFilePrivate();
