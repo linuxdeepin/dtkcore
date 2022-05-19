@@ -43,7 +43,8 @@ public:
         openSUSE,
         SailfishOS,
         Ubuntu,
-        Uos
+        Uos,
+        Gentoo
     };
 
     enum DeepinType {

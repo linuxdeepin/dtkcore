@@ -454,6 +454,11 @@ void DSysInfoPrivate::ensureReleaseInfo()
             if (productTypeString.compare("fedora", Qt::CaseInsensitive) == 0)
                 productType = DSysInfo::Fedora;
             break;
+        case 'g':
+        case 'G':
+            if (productTypeString.compare("gentoo", Qt::CaseInsensitive) == 0)
+                productType = DSysInfo::Gentoo;
+            break;
         case 'l':
         case 'L':
             if (productTypeString.compare("linuxmint", Qt::CaseInsensitive) == 0)
