@@ -1,3 +1,6 @@
+QT += core-private
+include($$PWD/private/private.pri)
+
 HEADERS += \
     $$PWD/dutil.h \
     $$PWD/dpinyin.h \
@@ -12,7 +15,9 @@ HEADERS += \
     $$PWD/dfileservices.h \
     $$PWD/dthreadutils.h \
     $$PWD/dasync.h \
-    $$PWD/dtimedloop.h
+    $$PWD/dtimedloop.h \
+    $$PWD/qeventdispatcher_epoll.h \
+    $$PWD/depolldispatcher.h
 
 INCLUDEPATH += $$PWD
 
@@ -42,7 +47,8 @@ SOURCES += \
     $$PWD/dexportedinterface.cpp \
     $$PWD/dvtablehook.cpp \
     $$PWD/dthreadutils.cpp \
-    $$PWD/dtimedloop.cpp
+    $$PWD/dtimedloop.cpp \
+    $$PWD/qeventdispatcher_epoll.cpp
 
 linux {
     QT += dbus
