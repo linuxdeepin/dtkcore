@@ -250,10 +250,10 @@ bool DSysInfoPrivate::ensureOsVersion()
     D_ASSET_EXIT(entry.status() == DDesktopEntry::NoError, entry.status());
 
     // 先获取版本信息
-    // ABCDE.xyz
+    // ABCDE.xyz.abc
     QString osb = entry.stringValue("OsBuild", "Version");
     QStringList osbs = osb.split(".");
-    ok = (osbs.size() == 2 && osbs.value(0).size() == 5);
+    ok = (osbs.size() >= 2 && osbs.value(0).size() == 5);
     D_ASSET_EXIT(ok, "OsBuild version invalid!");
 
     const QStringList &left = osbs.value(0).split(QString(), QString::SkipEmptyParts);
@@ -261,19 +261,19 @@ bool DSysInfoPrivate::ensureOsVersion()
 
     int idx = 0;
     osBuild.A = left.value(idx++, "0").toUInt(&ok);
-    D_ASSET_EXIT(ok, "OsBuild version(a) invalid!");
+    D_ASSET_EXIT(ok, "OsBuild version(A) invalid!");
     osBuild.B = left.value(idx++, "0").toUInt(&ok);
-    D_ASSET_EXIT(ok, "OsBuild version(b) invalid!");
+    D_ASSET_EXIT(ok, "OsBuild version(B) invalid!");
     osBuild.C = left.value(idx++, "0").toUInt(&ok);
     if (!ok) {
         auto c = left.value(idx-1, "0").toLatin1();
-        D_ASSET_EXIT(c.size()>0, "OsBuild version(c) invalid!");
+        D_ASSET_EXIT(c.size()>0, "OsBuild version(C) invalid!");
         osBuild.C = uint(c.at(0));
     }
     osBuild.D = left.value(idx++, "0").toUInt(&ok);
-    D_ASSET_EXIT(ok, "OsBuild version(d) invalid!");
+    D_ASSET_EXIT(ok, "OsBuild version(D) invalid!");
     osBuild.E = left.value(idx++, "0").toUInt(&ok);
-    D_ASSET_EXIT(ok, "OsBuild version(e) invalid!");
+    D_ASSET_EXIT(ok, "OsBuild version(E) invalid!");
 
     // xyz
     osBuild.xyz = osbs.value(1).trimmed().toUInt(&ok);
@@ -802,8 +802,9 @@ QString DSysInfo::minorVersion()
  */
 QString DSysInfo::buildVersion()
 {
-    siGlobal->ensureOsVersion();
-    return QString::number(siGlobal->osBuild.xyz);
+    DDesktopEntry entry(OS_VERSION_FILE);
+    QString osb = entry.stringValue("OsBuild", "Version");
+    return osb.mid(6).trimmed();
 }
 #endif
 

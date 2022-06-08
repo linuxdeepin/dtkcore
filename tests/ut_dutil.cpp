@@ -309,7 +309,7 @@ TEST_F(ut_DUtil, testOsVersion)
     entry.setStringValue("专业版", "EditionName[zh_CN]", "Version");
     entry.setStringValue("20", "MajorVersion", "Version");
     entry.setStringValue("100A", "MinorVersion", "Version");
-    entry.setStringValue("11Z18.107", "OsBuild", "Version");
+    entry.setStringValue("11Z18.107.109", "OsBuild", "Version");
     ASSERT_TRUE(entry.save());
 
     ASSERT_TRUE(DSysInfo::uosSystemName(QLocale("C")) == "UnionTech OS Desktop");
@@ -320,7 +320,7 @@ TEST_F(ut_DUtil, testOsVersion)
     ASSERT_TRUE(DSysInfo::uosEditionName(QLocale("C")) == "Professional");
     ASSERT_TRUE(DSysInfo::majorVersion() == "20");
     ASSERT_TRUE(DSysInfo::minorVersion() == "100A");
-    ASSERT_TRUE(DSysInfo::buildVersion() == "107");
+    ASSERT_TRUE(DSysInfo::buildVersion() == "107.109");
 
     // test minVersion.BC SP1….SP99
     for (int i = 0; i < 100; ++i) {
