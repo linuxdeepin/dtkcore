@@ -56,11 +56,6 @@ include($$PWD/log/log.pri)
 include($$PWD/filesystem/filesystem.pri)
 include($$PWD/settings/settings.pri)
 
-DTK_MODULE_NAME = $$TARGET
-load(dtk_build)
-
-# ----------------------------------------------
-# install config
 includes.files += \
     $$PWD/*.h \
     $$PWD/dtkcore_config.h \
@@ -70,6 +65,12 @@ includes.files += \
     $$PWD/DDesktopEntry \
     $$PWD/DConfigFile \
     $$PWD/DConfig
+
+# ----------------------------------------------
+# install config
+
+DTK_MODULE_NAME = $$TARGET
+load(dtk_build)
 
 INSTALLS += includes target
 
