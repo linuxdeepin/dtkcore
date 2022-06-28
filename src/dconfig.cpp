@@ -341,9 +341,13 @@ public:
 
     virtual QVariant value(const QString &key, const QVariant &fallback) const override
     {
-        const QDBusVariant &dv = config->value(key);
-        const QVariant &v = dv.variant();
-        return v.isValid() ? decodeQDBusArgument(v) : fallback;
+        auto reply = config->value(key);
+        reply.waitForFinished();
+        if (reply.isError()) {
+            qWarning() << "value error key:" << key << ", error message:" << reply.error().message();
+            return fallback;
+        }
+        return decodeQDBusArgument(reply.value().variant());
     }
 
     virtual void setValue(const QString &key, const QVariant &value) override
