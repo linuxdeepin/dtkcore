@@ -386,14 +386,18 @@ public:
         values.remove(key);
     }
 
-    inline void update(const QString &key, const QVariantHash &value)
+    inline bool update(const QString &key, const QVariantHash &value)
     {
+        if (!value.contains("value")) {
+            return false;
+        }
         values[key] = value;
+        return true;
     }
 
-    inline void updateValue(const QString &key, const QJsonValue &value)
+    inline bool updateValue(const QString &key, const QJsonValue &value)
     {
-        overrideValue(key, "value", value);
+        return overrideValue(key, "value", value);
     }
 
     inline void updateSerial(const QString &key, const QJsonValue &value)
@@ -415,11 +419,15 @@ public:
         return contents;
     }
 private:
-    void overrideValue(const QString &key, const QString &subkey, const QJsonValue &from) {
+    bool overrideValue(const QString &key, const QString &subkey, const QJsonValue &from) {
         const QJsonValue &v = from[subkey];
 
-        if (!v.isUndefined())
-            values[key][subkey] = v.toVariant();
+        if (v.isUndefined()) {
+            return false;
+        }
+
+        values[key][subkey] = v.toVariant();
+        return true;
     }
 
     QHash<QString, QVariantHash> values;
@@ -698,14 +706,15 @@ public:
 
             // 初始化原始值
             for (; i != contents.constEnd(); ++i) {
-                values.update(i.key(), i.value().toObject().toVariantHash());
+                if (!values.update(i.key(), i.value().toObject().toVariantHash())) {
+                    qWarning() << "key:" << i.key() << "has no value";
+                    return false;
+                }
             }
         }
-
         // for override
         Q_FOREACH(auto override, overrides) {
             const QJsonDocument &doc = loadJsonFile(override);
-
             if (doc.isObject()) {
                 const QJsonObject &root = doc.object();
                 if (!checkMagic(root, MAGIC_OVERRIDE)) {
@@ -734,7 +743,10 @@ public:
                     if (values.flags(i.key()) & DConfigFile::NoOverride)
                         continue;
 
-                    values.updateValue(i.key(), i.value());
+                    if (!values.updateValue(i.key(), i.value())) {
+                        qWarning() << "key (override):" << i.key() << "has no value";
+                        return false;
+                    }
                     values.updateSerial(i.key(), i.value());
                     values.updatePermissions(i.key(), i.value());
                 }
