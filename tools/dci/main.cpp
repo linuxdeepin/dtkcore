@@ -70,12 +70,24 @@ static bool copyFilesToDci(DDciFile *dci, const QString &targetDir, const QStrin
     return true;
 }
 
+QString cleanPath(const QString &path) {
+    return path.size() < 2 || !path.endsWith(QDir::separator()) ? path : path.chopped(1);
+}
+
 bool createTo(const QString &sourceDir, const QString &targetDir) {
-    QFileInfo info(sourceDir);
+    QFileInfo info(cleanPath(sourceDir));
     if (!info.isDir())
         return false;
-    const auto newFile = QDir(targetDir).filePath(info.fileName() + ".dci");
+
+    const QString &iconName = info.fileName();
+    if (iconName.isEmpty()) {
+        printf("The icon name is not correctly resolved in the source path: \"%s\".\n", qPrintable(sourceDir));
+        return false;
+    }
+
+    const auto newFile = QDir(targetDir).filePath(iconName + ".dci");
     if (QFile::exists(newFile)) {
+        printf("The path \"%s\" already exists.\n", qPrintable(newFile));
         return false;
     }
 
@@ -141,6 +153,15 @@ int main(int argc, char *argv[])
     a.setApplicationVersion("0.0.1");
 
     QCommandLineParser commandParser;
+    commandParser.setApplicationDescription("DCI tool is a command tool that automatically packs and unpacks DCI directories.\n"
+                                            "If you have created an icon directory according to the correct DCI directory specification,\n"
+                                            "you can easily make the DCI icons with this tool.\n"
+                                            "The commands of DCI tools can be expressed as follows:\n"
+                                            "\t dci --create [target file path] [source directory path]\n"
+                                            "\t dci --export [target directory path] [source file path]\n"
+                                            "For example, the tool is used in the following ways: \n"
+                                            "\t dci --create ~/Desktop ~/Desktop/action_add\n"
+                                            "\t dci --export ~/Desktop ~/Desktop/action_add.dci\n");
 
     auto options = QList<QCommandLineOption> {
         QCommandLineOption("create", "Create the new dci files by the directorys", "targetDirectiry"),
