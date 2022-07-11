@@ -113,6 +113,7 @@ target_link_libraries(
     ../include/settings/
     ../include/filesystem/
     ../include/
+    ../src/filesystem/private/
   )
 else()
   add_executable(${LIBNAME}
