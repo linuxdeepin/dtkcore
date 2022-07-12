@@ -31,7 +31,7 @@ static inline QByteArray getSelfAppId() {
     if (!selfId.isEmpty())
         return selfId;
     selfId = DSGApplication::getId(QCoreApplication::applicationPid());
-    if (!qEnvironmentVariableIsSet("DTK_DISABLED_FALLBACK_APPID")) {
+    if (selfId.isEmpty() && !qEnvironmentVariableIsSet("DTK_DISABLED_FALLBACK_APPID")) {
         selfId = QCoreApplication::applicationName().toLocal8Bit();
     }
     Q_ASSERT(!selfId.isEmpty());
