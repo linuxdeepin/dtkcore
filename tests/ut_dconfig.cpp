@@ -29,9 +29,9 @@
 
 DCORE_USE_NAMESPACE
 
+static EnvGuard dsgDataDir;
 static constexpr char const *APP_ID = "tests";
 static constexpr char const *FILE_NAME = "example";
-static EnvGuard dsgDataDir;
 class ut_DConfig : public testing::Test
 {
 protected:
