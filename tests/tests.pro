@@ -38,26 +38,30 @@ INCLUDEPATH += \
     $$PWD/../src/filesystem \
     $$PWD/../src/log \
     $$PWD/../src/settings \
-    $$PWD/../src/util
+    $$PWD/../src/util \
+    $$PWD/../src/dci
 
 include($$PWD/../src/base/base.pri)
 include($$PWD/../src/filesystem/filesystem.pri)
 include($$PWD/../src/log/log.pri)
 include($$PWD/../src/settings/settings.pri)
 include($$PWD/../src/util/util.pri)
+include($$PWD/../src/dci/dci.pri)
 
 HEADERS += $$PWD/ut_*.h \
     $$PWD/../src/dtkcore_global.h \
     $$PWD/../src/dsysinfo.h \
     $$PWD/../src/dsecurestring.h \
     $$PWD/../src/ddesktopentry.h \
-    $$PWD/../src/dconfig.h
+    $$PWD/../src/dconfig.h \
+    $$PWD/../src/dsgapplication.h
 
 SOURCES += $$PWD/*.cpp \
     $$PWD/../src/dsysinfo.cpp \
     $$PWD/../src/dsecurestring.cpp \
     $$PWD/../src/ddesktopentry.cpp \
-    $$PWD/../src/dconfig.cpp
+    $$PWD/../src/dconfig.cpp \
+    $$PWD/../src/dsgapplication.cpp
 
 linux: {
     HEADERS += \

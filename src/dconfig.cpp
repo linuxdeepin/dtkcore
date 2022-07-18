@@ -29,6 +29,7 @@
 #include <QSettings>
 #endif
 #include "dobject_p.h"
+#include <DSGApplication>
 
 #include <QLoggingCategory>
 #include <QCoreApplication>
@@ -39,11 +40,6 @@
 DCORE_BEGIN_NAMESPACE
 
 Q_DECLARE_LOGGING_CATEGORY(cfLog)
-
-inline static QString getAppId() {
-    // TODO: 应该使用更可靠的接口获取 appId
-    return QCoreApplication::applicationName();
-}
 
 /*!
     \class Dtk::Core::DConfigBackend
@@ -113,7 +109,7 @@ public:
                             const QString &name,
                             const QString &subpath)
         : DObjectPrivate(qq)
-        , appId(appId.isEmpty() ? getAppId() : appId)
+        , appId(appId.isEmpty() ? DSGApplication::id() : appId)
         , name(name)
         , subpath(subpath)
     {
@@ -160,12 +156,12 @@ public:
         return configFile && configFile->isValid();
     }
 
-    virtual bool load(const QString &appId) override
+    virtual bool load(const QString &/*appId*/) override
     {
         if (configFile)
             return true;
 
-        configFile.reset(new DConfigFile(appId,owner->name, owner->subpath));
+        configFile.reset(new DConfigFile(owner->appId,owner->name, owner->subpath));
         configCache.reset(configFile->createUserCache(getuid()));
         const QString &prefix = localPrefix();
 
@@ -186,7 +182,8 @@ public:
 
     virtual void setValue(const QString &key, const QVariant &value) override
     {
-        if (configFile->setValue(key, value, getAppId(), configCache.get())) {
+        // setValue's callerAppid is itself instead of config's appId.
+        if (configFile->setValue(key, value, DSGApplication::id(), configCache.get())) {
             Q_EMIT owner->q_func()->valueChanged(key);
         }
     }
@@ -273,14 +270,14 @@ public:
       初始化DBus连接,会先调用acquireManager动态获取一个配置连接,
       再通过这个配置连接进行配置文件的访问.
      */
-    virtual bool load(const QString &appid) override
+    virtual bool load(const QString &/*appId*/) override
     {
         if (config)
             return true;
 
         qCDebug(cfLog, "Try acquire config manager object form DBus");
         DSGConfig dsg_config(DSG_CONFIG, "/", QDBusConnection::systemBus());
-        QDBusPendingReply<QDBusObjectPath> dbus_reply = dsg_config.acquireManager(appid, owner->name, owner->subpath);
+        QDBusPendingReply<QDBusObjectPath> dbus_reply = dsg_config.acquireManager(owner->appId, owner->name, owner->subpath);
         const QDBusObjectPath dbus_path = dbus_reply.value();
         if (dbus_reply.isError() || dbus_path.path().isEmpty()) {
             qCWarning(cfLog, "Can't acquire config manager. error:\"%s\"", qPrintable(dbus_reply.error().message()));
