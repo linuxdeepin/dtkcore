@@ -44,7 +44,8 @@ public:
         SailfishOS,
         Ubuntu,
         Uos,
-        Gentoo
+        Gentoo,
+        NixOS
     };
 
     enum DeepinType {

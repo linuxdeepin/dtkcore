@@ -469,6 +469,11 @@ void DSysInfoPrivate::ensureReleaseInfo()
             if (productTypeString.compare("manjaro", Qt::CaseInsensitive) == 0)
                 productType = DSysInfo::Manjaro;
             break;
+        case 'n':
+        case 'N':
+            if (productTypeString.compare("nixos", Qt::CaseInsensitive) == 0)
+                productType = DSysInfo::NixOS;
+            break;
         case 'o':
         case 'O':
             if (productTypeString.compare("opensuse", Qt::CaseInsensitive) == 0)
