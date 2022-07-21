@@ -1,0 +1,44 @@
+name: doxygen-check
+on:
+  pull_request_target:
+    paths-ignore:
+      - ".github/workflows/**"
+
+concurrency:
+  group: ${{ github.workflow }}-pull/${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  DOXYGEN_CHECK:
+    container:
+      image: debian:9
+      options: --privileged
+      volumes:
+        - /sys/fs/cgroup:/sys/fs/cgroup
+        - /etc/machine-id:/etc/machine-id
+
+    runs-on: ubuntu-latest
+    env:
+      APP_ID: 215996
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+      PR_ID: ${{ github.event.number }}
+
+    steps:
+      - name: init base environment
+        run: |
+          echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+          apt-get update && apt-get install -y --force-yes ca-certificates apt-transport-https
+          echo 'deb [trusted=yes] http://community-packages.deepin.com/deepin/ apricot main contrib non-free' > /etc/apt/sources.list
+          apt-get update && apt-get dist-upgrade -y --force-yes
+
+      - uses: tsic404/action-doxygencheck@master
+        with:
+          repository: ${{ github.repository }}
+          pull_request_id: ${{ github.event.pull_request.number }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          allow_approve: false
+          install_depends: true
+          gen_doc_command: |
+            cmake -Bbuild -DDOXYGEN_GENERATE_XML=1 .
+            cmake --build build --target doxygen
+            python3 -m coverxygen --xml-dir=./build/docs/xml --src-dir . --format json --kind ${{inputs.check_kind}} --output checked.json
