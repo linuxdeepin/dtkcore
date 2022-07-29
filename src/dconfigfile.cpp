@@ -961,13 +961,20 @@ public:
         return values.keyList();
     }
 
-    inline QString applicationCacheDir(const QString &prefix) const {
-        const QString &homePath = DStandardPaths::homePath(userid);
+    inline static QString applicationCacheDir(const QString &prefix, const QString &suffix,
+                                              uint userid, const QString &appId) {
+        // If target user is current user, then get the home path by environment variable first.
+        const QString &homePath = (getuid() == userid) ? DStandardPaths::homePath()
+                                                       : DStandardPaths::homePath(userid);
         if (homePath.isEmpty()) {
             return QString();
         }
-        const QString userHomeConfigDir = homePath + QStringLiteral("/.config/dsg/configs/");
-        return prefix + userHomeConfigDir + "/" + configKey.appId;
+        const QString userHomeConfigDir = homePath + QStringLiteral("/.config/dsg/configs") + suffix;
+        return prefix + userHomeConfigDir + QDir::separator() + appId;
+    }
+
+    inline QString applicationCacheDir(const QString &prefix) const {
+        return applicationCacheDir(prefix, QString(), userid, configKey.appId);
     }
 
     inline QString cacheDir(const QString &basePath) {
@@ -978,8 +985,18 @@ public:
     inline QString globalCacheDir(const QString &prefix) const {
         // TODO `DSG_APP_DATA` is not set and `appid` is not captured in `DStandardPaths::path`.
         QString appDataDir = DStandardPaths::path(DStandardPaths::DSG::AppData);
-        if (appDataDir.isEmpty())
-            appDataDir = QString("/var/dsg/appdata");
+        if (appDataDir.isEmpty()) {
+#ifdef D_DSG_APP_DATA_FALLBACK
+            appDataDir = QStringLiteral(D_DSG_APP_DATA_FALLBACK);
+            QFileInfo tmp(appDataDir);
+            if (!tmp.exists() && !tmp.isSymLink() && !QDir::current().mkpath(appDataDir)) {
+                qCDebug(cfLog, "Not found a valid DSG_APP_DATA directory");
+                return QString();
+            }
+#else
+            return QString();
+#endif
+        }
 
         return QString("%1/%2/configs/%3").arg(prefix, appDataDir, configKey.appId);
     }
@@ -987,7 +1004,12 @@ public:
     QString getCacheDir(const QString &localPrefix = QString())
     {
         if (isGlobal()) {
-            return globalCacheDir(localPrefix);
+            const QString &dir = globalCacheDir(localPrefix);
+            if (!dir.isEmpty())
+                return dir;
+
+            // Not supported the global config, fallback the config cache data to user directory.
+            return applicationCacheDir(localPrefix, "-fake-global", getuid(), configKey.appId);
         } else {
             return applicationCacheDir(localPrefix);
         }
@@ -1082,7 +1104,8 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
 {
     const QString &dir = getCacheDir(localPrefix);
     if (dir.isEmpty()) {
-        qCWarning(cfLog, "save Falied because home directory is not exist for the user[%d].", userid);
+        qCWarning(cfLog, "Falied on saveing, the config cache directory is empty for the user[%d], "
+                         "the current user[%d].", userid, getuid());
         return false;
     }
     QString path = cacheDir(dir);
@@ -1093,7 +1116,7 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
     }
 
     if (!cache.open(QIODevice::WriteOnly)) {
-        qCWarning(cfLog, "save Falied on open file: \"%s\", error message: \"%s\"",
+        qCWarning(cfLog, "Falied on saveing data when open file: \"%s\", error message: \"%s\"",
                   qPrintable(cache.fileName()), qPrintable(cache.errorString()));
         return false;
     }
