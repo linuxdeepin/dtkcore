@@ -26,6 +26,8 @@ SOURCES += \
     dtkcore_global.cpp
 
 linux: {
+    !isEmpty(D_DSG_APP_DATA_FALLBACK): DEFINES += D_DSG_APP_DATA_FALLBACK=\\\"$$D_DSG_APP_DATA_FALLBACK\\\"
+
     HEADERS += \
         $$PWD/dconfigfile.h
 

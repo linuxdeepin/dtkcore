@@ -64,6 +64,8 @@ SOURCES += $$PWD/*.cpp \
     $$PWD/../src/dsgapplication.cpp
 
 linux: {
+    !isEmpty(D_DSG_APP_DATA_FALLBACK): DEFINES += D_DSG_APP_DATA_FALLBACK=\\\"$$D_DSG_APP_DATA_FALLBACK\\\"
+
     HEADERS += \
         $$PWD/../src/dconfigfile.h
 
