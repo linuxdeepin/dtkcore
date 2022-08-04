@@ -5,7 +5,7 @@
 #ifndef DFILESYSTEMWATCHER_P_H
 #define DFILESYSTEMWATCHER_P_H
 
-#include "base/private/dobject_p.h"
+#include "dobject_p.h"
 
 #include <QSocketNotifier>
 #include <QHash>

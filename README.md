@@ -18,18 +18,18 @@ You should read the [Deepin Application Specification](\ref doc/Specification) f
 
 2. Build:
 
-````
-$ mkdir build
-$ cd build
-$ qmake ..
-$ make
-````
+```bash
+mkdir build
+cd build
+qmake ..
+make
+```
 
 3. Install:
 
-````
-$ sudo make install
-````
+```bash
+sudo make install
+```
 
 ## Getting help
 

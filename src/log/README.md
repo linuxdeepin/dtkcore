@@ -19,16 +19,16 @@ Note
 
 Just add pkgconfig in .pro file
 
-````
+```
 unix {
     CONFIG+=link_pkgconfig
     PKGCONFIG+=dtkcore
 }
-````
+```
 
 ### Example
 
-````
+```cpp
 
 #include <QCoreApplication>
 #include <DLog>
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     dWarning() << "Something went wrong." << "Result code is" << result;
     return result;
 }
-````
+```
 
 \sa Dtk::Core::DLogManager
 

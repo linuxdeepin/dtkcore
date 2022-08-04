@@ -5,7 +5,7 @@
 #ifndef DSGAPPLICATION_H
 #define DSGAPPLICATION_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 
 DCORE_BEGIN_NAMESPACE
 

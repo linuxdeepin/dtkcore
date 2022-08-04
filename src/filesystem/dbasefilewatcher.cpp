@@ -184,4 +184,4 @@ DBaseFileWatcher::DBaseFileWatcher(DBaseFileWatcherPrivate &dd,
 
 DCORE_END_NAMESPACE
 
-#include "moc_dbasefilewatcher.cpp"
+//#include "moc_dbasefilewatcher.cpp"

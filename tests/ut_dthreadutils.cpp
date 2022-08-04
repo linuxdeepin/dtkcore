@@ -7,7 +7,7 @@
 #include <QTest>
 #include <QtConcurrent>
 
-#include <util/DThreadUtils>
+#include <DThreadUtils>
 
 DCORE_USE_NAMESPACE
 

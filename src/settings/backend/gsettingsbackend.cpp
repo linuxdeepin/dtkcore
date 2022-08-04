@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "gsettingsbackend.h"
+#include "settings/backend/gsettingsbackend.h"
 
 //#include <QDebug>
 #include <QFile>

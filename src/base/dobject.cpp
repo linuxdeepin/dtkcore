@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "dobject.h"
-#include "private/dobject_p.h"
+#include "base/private/dobject_p.h"
 
 DCORE_BEGIN_NAMESPACE
 
@@ -234,7 +234,7 @@ a.cpp
 
  }
 
- #include "moc_a.cpp"
+ \#include "moc_a.cpp"
  \endcode
  \a Func 槽函数的完整签名
  \note 添加或更新私有槽之后需要重新手动调用 qmake

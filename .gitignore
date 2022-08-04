@@ -3,6 +3,7 @@
 *.lo
 *.o
 
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
@@ -29,3 +30,9 @@ bin/
 Makefile
 
 cmake/DtkCore*
+.cache
+DtkCoreConfig.cmake
+dtkcore.pc
+qt_lib_dtkcore.pri
+dtkcore_config.h
+CMakeLists.txt.user
