@@ -4,7 +4,7 @@
 
 #include "dtrashmanager.h"
 #include "dstandardpaths.h"
-#include "private/dobject_p.h"
+#include "base/private/dobject_p.h"
 
 #include <QDirIterator>
 #include <QStorageInfo>

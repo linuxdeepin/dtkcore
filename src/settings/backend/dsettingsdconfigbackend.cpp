@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "dsettingsdconfigbackend.h"
+#include "settings/backend/dsettingsdconfigbackend.h"
 
 #include <QDebug>
 #include <QMutex>

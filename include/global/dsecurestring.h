@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 #include <QString>
 
 DCORE_BEGIN_NAMESPACE

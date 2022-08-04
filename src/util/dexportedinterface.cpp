@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "dexportedinterface.h"
-#include "private/dobject_p.h"
+#include "base/private/dobject_p.h"
 
 #include <QHash>
 #include <QPair>

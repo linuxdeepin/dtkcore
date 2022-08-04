@@ -1,1 +1,0 @@
-load(dtk_lib)

@@ -1118,3 +1118,4 @@ QDebug CuteMessageLogger::write() const
 }
 
 DCORE_END_NAMESPACE
+#include "Logger.moc"
