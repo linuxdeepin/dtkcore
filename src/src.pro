@@ -77,6 +77,7 @@ includes.files += \
 
 DTK_MODULE_NAME = $$TARGET
 load(dtk_build)
+LIBS += -ldl
 
 INSTALLS += includes target
 
