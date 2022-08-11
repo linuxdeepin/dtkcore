@@ -1,0 +1,70 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: dtkcore
+Upstream-Contact: UnionTech Software Technology Co., Ltd. <>
+Source: https://github.com/linuxdeepin/dtkcore
+
+# Sample paragraph, commented out:
+#
+# Files: src/*
+# Copyright: $YEAR $NAME <$CONTACT>
+# License: ...
+
+# ci
+Files: .github/* *.yml *.yaml
+Copyright: None
+License: CC0-1.0
+
+# git
+Files: .gitignore
+Copyright: None
+License: CC0-1.0
+
+# config
+Files: *.toml *.conf *.json
+Copyright: None
+License: CC0-1.0
+
+# qt
+Files: *.pro *.pri *.qrc
+Copyright: None
+License: CC0-1.0
+
+# cmake
+Files: *.cmake *CMakeLists.txt
+Copyright: None
+License: CC0-1.0
+
+# debian
+Files: debian/*
+Copyright: None
+License: CC0-1.0
+
+# Arch
+Files: archlinux/*
+Copyright: None
+License: CC0-1.0
+
+# rpm
+Files: rpm/*
+Copyright: None
+License: CC0-1.0
+
+# docs
+Files: *.md *README*
+Copyright: None
+License: CC0-1.0
+
+# interface
+Files: src/util/D* src/settings/D* src/filesystem/D* src/base/D* src/dci/D* src/D*
+Copyright: None
+License: CC0-1.0
+
+# others
+Files: src/util/resources/dpinyin.dict
+Copyright: None
+License: CC0-1.0
+
+
+Files: src/log/*
+Copyright: UnionTech Software Technology Co., Ltd.
+License: LGPL-3.0-or-later
