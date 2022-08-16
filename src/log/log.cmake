@@ -1,5 +1,5 @@
 file(GLOB LOG_HEADER
-  ${CMAKE_CURRENT_LIST_DIR}/../../include/log/*
+  ${CMAKE_CURRENT_LIST_DIR}/../../include/log/*.h
 )
 set(LOG_SOURCE 
   ${CMAKE_CURRENT_LIST_DIR}/RollingFileAppender.cpp 
@@ -10,7 +10,16 @@ set(LOG_SOURCE
   ${CMAKE_CURRENT_LIST_DIR}/AbstractAppender.cpp 
   ${CMAKE_CURRENT_LIST_DIR}/LogManager.cpp
 )
-set(log_SRCS 
-  ${LOG_HEADER}
-  ${LOG_SOURCE}
-)
+if(WIN32)
+  set(log_SRCS 
+    ${LOG_HEADER}
+    ${LOG_SOURCE}
+    ${CMAKE_CURRENT_LIST_DIR}/OutputDebugAppender.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/../../include/log/win32/OutputDebugAppender.h
+  )
+else()
+  set(log_SRCS 
+    ${LOG_HEADER}
+    ${LOG_SOURCE}
+  )
+endif()
