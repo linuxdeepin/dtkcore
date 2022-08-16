@@ -12,7 +12,7 @@
   GNU Lesser General Public License for more details.
 */
 // Local
-#include "OutputDebugAppender.h"
+#include "win32/OutputDebugAppender.h"
 
 // STL
 #include <windows.h>
