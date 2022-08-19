@@ -1,16 +1,8 @@
-/*
-  Copyright (c) 2010 Boris Moiseev (cyberbobs at gmail dot com)
+// SPDX-FileCopyrightText: 2010 Boris Moiseev (cyberbobs at gmail dot com)
+// SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
+//
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU Lesser General Public License version 2.1
-  as published by the Free Software Foundation and appearing in the file
-  LICENSE.LGPL included in the packaging of this file.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU Lesser General Public License for more details.
-*/
 #ifndef FILEAPPENDER_H
 #define FILEAPPENDER_H
 
