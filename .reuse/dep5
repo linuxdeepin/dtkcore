@@ -30,7 +30,7 @@ Copyright: None
 License: CC0-1.0
 
 # cmake
-Files: *.cmake *CMakeLists.txt
+Files: *.cmake *CMakeLists.txt *.pc.in
 Copyright: None
 License: CC0-1.0
 
@@ -55,7 +55,7 @@ Copyright: None
 License: CC0-1.0
 
 # interface
-Files: src/util/D* src/settings/D* src/filesystem/D* src/base/D* src/dci/D* src/D*
+Files: include/DtkCore/D*
 Copyright: None
 License: CC0-1.0
 
