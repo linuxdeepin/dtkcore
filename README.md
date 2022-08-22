@@ -1,8 +1,8 @@
 ## Deepin Tool Kit Core
 
-Deepint Tool Kit (Dtk) is the base development tool of all C++/Qt Developer work on Deepin.
+Deepin Tool Kit (DtkCore) is the base development tool of all C++/Qt Developer work on Deepin.
 
-You should read the [Deepin Application Specification](\ref doc/Specification) firstly.
+You should read the <a href=doc/Specification.md>Deepin Application Specification</a> firstly.
 
 ## Dependencies
 
@@ -21,7 +21,7 @@ You should read the [Deepin Application Specification](\ref doc/Specification) f
 ```bash
 mkdir build
 cd build
-qmake ..
+cmake ..
 make
 ```
 
@@ -35,8 +35,9 @@ sudo make install
 
 Any usage issues can ask for help via
 
-* [Gitter](https://gitter.im/orgs/linuxdeepin/rooms)
-* [IRC channel](https://webchat.freenode.net/?channels=deepin)
+* [Telegram group](https://t.me/deepin)
+* [Matrix](https://matrix.to/#/#deepin-community:matrix.org)
+* [IRC (libera.chat)](https://web.libera.chat/#deepin-community)
 * [Forum](https://bbs.deepin.org)
 * [WiKi](https://wiki.deepin.org/)
 
@@ -44,9 +45,8 @@ Any usage issues can ask for help via
 
 We encourage you to report issues and contribute changes
 
-* [Contribution guide for developers](https://github.com/linuxdeepin/developer-center/wiki/Contribution-Guidelines-for-Developers-en). (English)
-* [开发者代码贡献指南](https://github.com/linuxdeepin/developer-center/wiki/Contribution-Guidelines-for-Developers) (中文)
+* [Contribution guide for developers](https://github.com/linuxdeepin/developer-center/wiki/Contribution-Guidelines-for-Developers-en).
 
 ## License
 
-deepin-tool-kit is licensed under [GPLv3](LICENSE).
+deepin-tool-kit is licensed under [LGPLv3](LICENSE).
