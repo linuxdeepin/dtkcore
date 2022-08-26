@@ -41,7 +41,7 @@ else ()
 endif ()
 
 if (BUILD_DOCS)
-  add_subdirectory(doc)
+  add_subdirectory(docs)
 endif ()
 
 add_subdirectory(src)
