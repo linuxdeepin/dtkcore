@@ -1,4 +1,4 @@
-set(LIBNAME test)
+set(BIN_NAME "ut-${PROJECT_NAME}")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -15,9 +15,9 @@ add_definitions(-DOS_VERSION_TEST_FILE="/tmp/etc/os-version")
 find_package(Qt5 REQUIRED COMPONENTS Gui)
 find_package(Qt5 REQUIRED COMPONENTS Core)
 if(LINUX)
-find_package(Qt5 REQUIRED COMPONENTS DBus)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(QGSettings REQUIRED gsettings-qt)
+  find_package(Qt5 REQUIRED COMPONENTS DBus)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(QGSettings REQUIRED gsettings-qt)
 endif()
 find_package(Qt5 REQUIRED COMPONENTS Xml)
 find_package(Qt5 REQUIRED COMPONENTS Concurrent)
@@ -74,9 +74,12 @@ set(test_SRC
   ${TEST_HEADER}
   ${TEST_SOURCE}
 )
+
+
+
 # end test
 if(LINUX)
-  add_executable(${LIBNAME}
+  add_executable(${BIN_NAME}
     ${dbus_SRCS}
     ${base_SRCS}
     ${dci_SRCS}
@@ -88,8 +91,8 @@ if(LINUX)
     ${test_SRC}
     ./data.qrc
   )
-target_link_libraries(
-  ${LIBNAME} PRIVATE 
+  target_link_libraries(
+    ${BIN_NAME} PRIVATE 
     Qt5::Gui 
     Qt5::Core 
     Qt5::DBus
@@ -99,8 +102,16 @@ target_link_libraries(
     ${GTEST_LIBRARIES}
     ${QGSettings_LIBRARIES}
     -lpthread
+    -lm 
+    -lgcov
   )
-  target_include_directories( ${LIBNAME} PUBLIC
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(${BIN_NAME} PRIVATE -fprofile-instr-generate -ftest-coverage)
+  endif()
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(${BIN_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
+  endif()
+  target_include_directories( ${BIN_NAME} PUBLIC
     ${Qt5Core_PRIVATE_INCLUDE_DIRS}
     ${QGSettings_INCULDE_DIRS}
     ../include/util/
@@ -116,7 +127,7 @@ target_link_libraries(
     ../src/filesystem/private/
   )
 else()
-  add_executable(${LIBNAME}
+  add_executable(${BIN_NAME}
     ${base_SRCS}
     ${dci_SRCS}
     ${filesystem_SRCS}
@@ -128,7 +139,7 @@ else()
     ./data.qrc
   )
   target_link_libraries(
-    ${LIBNAME} PRIVATE 
+    ${BIN_NAME} PRIVATE 
     Qt5::Gui
     Qt5::Core
     Qt5::Xml
@@ -136,8 +147,16 @@ else()
     Qt5::Test
     ${GTEST_LIBRARIES}
     -lpthread
+    -lm 
+    -lgcov
   )
-  target_include_directories( ${LIBNAME} PUBLIC
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(${BIN_NAME} PRIVATE -fprofile-instr-generate -ftest-coverage)
+  endif()
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(${BIN_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
+  endif()
+  target_include_directories( ${BIN_NAME} PUBLIC
     ${Qt5Core_PRIVATE_INCLUDE_DIRS}
     ../include/util/
     ../include/dci/
@@ -152,3 +171,4 @@ else()
   )
 endif()
 
+add_test(NAME ${BIN_NAME} COMMAND ${BIN_NAME})
