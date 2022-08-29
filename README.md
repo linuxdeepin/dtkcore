@@ -2,7 +2,7 @@
 
 Deepin Tool Kit (DtkCore) is the base development tool of all C++/Qt Developer work on Deepin.
 
-You should read the <a href=doc/Specification.md>Deepin Application Specification</a> firstly.
+You should read the <a href=docs/Specification.md>Deepin Application Specification</a> firstly.
 
 ## Dependencies
 
