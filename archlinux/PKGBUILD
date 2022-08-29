@@ -17,9 +17,9 @@ sha512sums=('SKIP')
 build() {
   cd $deepin_source_name
   cmake -GNinja \
-      -DNOTPACKAGE=OFF \
       -DLINUXNAME="archlinux"\
       -DBUILD_DOCS=ON \
+      -DBUILD_EXAMPLES=OFF \
       -DQCH_INSTALL_DESTINATION=/usr/share/doc/qt \
       -DCMAKE_INSTALL_LIBDIR=/usr/lib \
       -DCMAKE_INSTALL_PREFIX=/usr \
