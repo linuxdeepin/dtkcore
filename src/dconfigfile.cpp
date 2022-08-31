@@ -152,7 +152,7 @@ static DConfigFile::Version parseVersion(const QJsonObject &obj) {
 #define MAGIC_OVERRIDE QLatin1String("dsg.config.override")
 #define MAGIC_CACHE QLatin1String("dsg.config.cache")
 
-static const uint GlobalUID = 0xFFFF;
+static const uint InvalidUID = 0xFFFF;
 
 inline static bool checkMagic(const QJsonObject &obj, QLatin1String request) {
     return obj[QLatin1String("magic")].toString() == request;
@@ -1014,6 +1014,7 @@ public:
         values.setTime(key, QDateTime::currentDateTime().toString(Qt::ISODate));
         values.setUser(key, uid);
         values.setAppId(key, appid.isEmpty() ? configKey.appId : appid);
+        cacheChanged = true;
         return true;
     }
 
@@ -1028,7 +1029,7 @@ public:
     DConfigInfo values;
     uint userid;
     bool global;
-    char padding [3] = {};
+    bool cacheChanged = false;
 };
 
 DConfigCacheImpl::DConfigCacheImpl(const DConfigKey &configKey, const uint uid, bool global)
@@ -1080,6 +1081,9 @@ bool DConfigCacheImpl::load(const QString &localPrefix)
 
 bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonFormat format, bool sync)
 {
+    if (!cacheChanged)
+        return true;
+
     const QString &dir = getCacheDir(localPrefix);
     if (dir.isEmpty()) {
         qCWarning(cfLog, "save Falied because home directory is not exist for the user[%d].", userid);
@@ -1237,14 +1241,14 @@ DConfigFile::DConfigFile(const QString &appId, const QString &name, const QStrin
     Q_ASSERT(!name.isEmpty());
 
     D_D(DConfigFile);
-    d->globalCache = new DConfigCacheImpl(d->configKey, GlobalUID, true);
+    d->globalCache = new DConfigCacheImpl(d->configKey, InvalidUID, true);
 }
 
 DConfigFile::DConfigFile(const DConfigFile &other)
     : DObject(*new DConfigFilePrivate(this, other.d_func()->configKey))
 {
     D_D(DConfigFile);
-    auto cache = new DConfigCacheImpl(d->configKey, GlobalUID, true);
+    auto cache = new DConfigCacheImpl(d->configKey, InvalidUID, true);
     cache->values = other.d_func()->globalCache->values;
     d->globalCache = cache;
 }
