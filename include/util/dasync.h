@@ -48,7 +48,7 @@ namespace DtkCorePrivate
             return QQueue<T>::head();
         }
     private:
-        QMutex m_mtx;
+        mutable QMutex m_mtx;
     };
 
     // 内部使用，不对外提供接口
