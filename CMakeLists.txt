@@ -1,22 +1,13 @@
 cmake_minimum_required (VERSION 3.10)
 
-option(DVERSION "define project version" "5.5.22")
-if(DVERSION)
-  project (DtkCore
-    VERSION ${DVERSION}
-    DESCRIPTION "DTK Core module"
-    HOMEPAGE_URL "https://github.com/linuxdeepin/dtkcore"
-    LANGUAGES CXX C
-  )
-else()
-  project (DtkCore
-    #VERSION "${DTK_REPO_MODULE_VERSION}"
-    VERSION "5.5.23"
-    DESCRIPTION "DTK Core module"
-    HOMEPAGE_URL "https://github.com/linuxdeepin/dtkcore"
-    LANGUAGES CXX C
-  )
-endif()
+set (DVERSION "5.6.0.2" CACHE STRING "define project version")
+
+project (DtkCore
+  VERSION ${DVERSION}
+  DESCRIPTION "DTK Core module"
+  HOMEPAGE_URL "https://github.com/linuxdeepin/dtkcore"
+  LANGUAGES CXX C
+)
 message(STATUS ${PROJECT_VERSION})
 include(GNUInstallDirs)
 set (BUILD_EXAMPLES ON CACHE BOOL "Build examples")
@@ -25,7 +16,6 @@ if(NOT BUILD_VERSION)
   set(BUILD_VERSION "0")
 endif()
 
-find_package (Qt5 CONFIG REQUIRED COMPONENTS DBus Xml)
 if(UNIX AND NOT APPLE)
   set(LINUX TRUE)
 endif()
