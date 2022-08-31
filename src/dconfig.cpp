@@ -267,7 +267,7 @@ public:
             qCWarning(cfLog, "Can't acquire config manager. error:\"%s\"", qPrintable(dbus_reply.error().message()));
             return false;
         } else {
-            qCWarning(cfLog(), "dbus path=\"%s\"", qPrintable(dbus_path.path()));
+            qCDebug(cfLog(), "dbus path=\"%s\"", qPrintable(dbus_path.path()));
             config.reset(new DSGConfigManager(DSG_CONFIG_MANAGER, dbus_path.path(),
                                                 QDBusConnection::systemBus(), owner->q_func()));
             if (!config->isValid()) {
