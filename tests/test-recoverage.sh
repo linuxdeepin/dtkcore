@@ -7,19 +7,6 @@
 BUILD_DIR=`pwd`/../build/tests/
 HTML_DIR=${BUILD_DIR}/html
 XML_DIR=${BUILD_DIR}/report
-#EXTRACT_ARGS="src"
-
-export ASAN_OPTIONS=halt_on_error=0
-TESTARGS="--gtest_output=xml:${XML_DIR}/report_dtkcore.xml"  make check -j$(nproc)
-#!/bin/bash
-
-# SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
-#
-# SPDX-License-Identifier: LGPL-3.0-or-later
-
-BUILD_DIR=`pwd`/../build/tests/
-HTML_DIR=${BUILD_DIR}/html
-XML_DIR=${BUILD_DIR}/report
 
 export ASAN_OPTIONS="halt_on_error=0"
 
@@ -28,11 +15,11 @@ cd ..
 
 cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug 
 
-cmake --build build --target test -j$(nproc)
+cmake --build build --target ut-DtkCore -j$(nproc)
 
 cd $BUILD_DIR
 
-./ut-DtkCore
+./ut-DtkCore --gtest_output=xml:${XML_DIR}/report_dtkcore.xml
 
 lcov -d ./ -c -o coverage_all.info
 #lcov --extract coverage_all.info $EXTRACT_ARGS --output-file coverage.info

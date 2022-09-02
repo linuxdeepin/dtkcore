@@ -131,7 +131,7 @@ else()
     ${base_SRCS}
     ${dci_SRCS}
     ${filesystem_SRCS}
-    ${log_SRCS}	
+    ${log_SRCS}
     ${settings_SRC}
     ${utils_SRC}
     ${glob_SRC}
