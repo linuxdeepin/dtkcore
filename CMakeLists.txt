@@ -57,23 +57,13 @@ install(FILES cmake/DtkTools/DtkSettingsToolsMacros.cmake DESTINATION "${CMAKE_I
 configure_file(misc/DtkConfig.cmake.in DtkCoreConfig.cmake @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfig.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkCore")
 
-#set(LINUXNAME "debian")
-option(LINUXNAME "linuxname" OFF)
-set(SPECPATH "qt5/mkspecs/")
-if(LINUXNAME)
-  if (${LINUXNAME} STREQUAL "archlinux")
-    set(SPECPATH "qt/mkspecs/")
-  endif()
-else()
-  set(LINUXNAME "debian")
-endif()
+set (MKSPECS_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/qt5/mkspecs/modules" CACHE STRING "INSTALL DIR FOR qt pri files")
 
-message(STATUS ${LINUXNAME})
 configure_file(misc/dtkcore.pc.in dtkcore.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dtkcore.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
 configure_file(misc/qt_lib_dtkcore.pri.in qt_lib_dtkcore.pri @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/qt_lib_dtkcore.pri DESTINATION "${CMAKE_INSTALL_LIBDIR}/${SPECPATH}/modules")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/qt_lib_dtkcore.pri DESTINATION "${MKSPECS_INSTALL_DIR}")
 set(CONFIGNAME include/global/dtkcore_config.h)
 file(WRITE ${CONFIGNAME} 
   "// it is auto make config\n"
