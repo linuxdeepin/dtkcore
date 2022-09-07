@@ -1,11 +1,10 @@
 prefix=@CMAKE_INSTALL_PREFIX@
 exec_prefix=${prefix}
-libdir=${prefix}/lib
-includedir=${prefix}/include/libdtk-@PROJECT_VERSION@/DCore
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+includedir=@INCLUDE_INSTALL_DIR@
 
-
-Name: DTKCORE
+Name: dtkcore
 Description: Deepin Tool Kit dtkcore header files
 Version: @CMAKE_PROJECT_VERSION@
-Libs: -ldtkcore 
+Libs: -L${libdir} -ldtkcore
 Cflags: -I${includedir}

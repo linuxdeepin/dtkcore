@@ -9,7 +9,17 @@ project (DtkCore
   LANGUAGES CXX C
 )
 message(STATUS ${PROJECT_VERSION})
+
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX /usr)
+endif ()
+set (INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/libdtk-${CMAKE_PROJECT_VERSION}/DCore")
+set (TOOL_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/libdtk-${PROJECT_VERSION}/DCore/bin")
+set (MKSPECS_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/qt5/mkspecs/modules" CACHE STRING "INSTALL DIR FOR qt pri files")
+
 set (BUILD_EXAMPLES ON CACHE BOOL "Build examples")
 option(BUILD_VERSION "buildversion" "0")
 if(NOT BUILD_VERSION)
@@ -54,10 +64,17 @@ install(FILES cmake/DtkCMake/DtkCMakeConfig.cmake DESTINATION "${CMAKE_INSTALL_L
 install(FILES cmake/DtkTools/DtkToolsConfig.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkTools")
 install(FILES cmake/DtkTools/DtkSettingsToolsMacros.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkTools")
 
-configure_file(misc/DtkConfig.cmake.in DtkCoreConfig.cmake @ONLY)
+configure_package_config_file(misc/DtkConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfig.cmake
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkCore"
+    PATH_VARS INCLUDE_INSTALL_DIR TOOL_INSTALL_DIR)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfigVersion.cmake"
+    VERSION ${DVERSION}
+    COMPATIBILITY AnyNewerVersion
+)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfig.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkCore")
-
-set (MKSPECS_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/qt5/mkspecs/modules" CACHE STRING "INSTALL DIR FOR qt pri files")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfigVersion.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkCore")
 
 configure_file(misc/dtkcore.pc.in dtkcore.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dtkcore.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")

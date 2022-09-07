@@ -25,6 +25,6 @@ target_include_directories(${BIN_NAME} PUBLIC
   ../../include/base/
   ../../include/global/
 )
-install(TARGETS ${BIN_NAME} DESTINATION "${CMAKE_INSTALL_LIBDIR}/libdtk-${PROJECT_VERSION}/DCore/bin/")
+install(TARGETS ${BIN_NAME} DESTINATION "${TOOL_INSTALL_DIR}")
 
 #end dci

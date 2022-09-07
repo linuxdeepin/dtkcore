@@ -1,4 +1,12 @@
-set(DTKCORE_INCLUDE_DIR @CMAKE_INSTALL_FULL_INCLUDEDIR@/libdtk-@CMAKE_PROJECT_VERSION@/DCore)
-set(DTKCORE_TOOL_DIR @CMAKE_INSTALL_FULL_LIBDIR@/libdtk-@PROJECT_VERSION@/DCore/bin)
+@PACKAGE_INIT@
+
+set_and_check(DtkCore_INCLUDE_DIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
+set_and_check(DtkCore_TOOL_DIR "@PACKAGE_TOOL_INSTALL_DIR@")
 set(DtkCore_LIBRARIES dtkcore)
-include_directories("${DTKCORE_INCLUDE_DIR}")
+include_directories("${DtkCore_INCLUDE_DIR}")
+
+check_required_components(DtkCore)
+
+# Keep deprecated variables for compatibility
+set(DTKCORE_INCLUDE_DIR ${DtkCore_INCLUDE_DIR})
+set(DTKCORE_TOOL_DIR ${DtkCore_TOOL_DIR})
