@@ -1,7 +1,7 @@
 @PACKAGE_INIT@
 
 set_and_check(DtkCore_INCLUDE_DIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
-set_and_check(DtkCore_TOOL_DIR "@PACKAGE_TOOL_INSTALL_DIR@")
+set(DtkCore_TOOL_DIR "@PACKAGE_TOOL_INSTALL_DIR@")
 set(DtkCore_LIBRARIES dtkcore)
 include_directories("${DtkCore_INCLUDE_DIR}")
 
