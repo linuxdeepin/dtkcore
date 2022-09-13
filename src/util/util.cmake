@@ -13,6 +13,7 @@ if(LINUX)
     ${CMAKE_CURRENT_LIST_DIR}/dtimedloop.cpp
     ${CMAKE_CURRENT_LIST_DIR}/dfileservices_linux.cpp
     ${CMAKE_CURRENT_LIST_DIR}/dexportedinterface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ddbusinterface.cpp
   )
 else()
   set(UTILS_SOURCE
@@ -29,10 +30,12 @@ else()
     ${CMAKE_CURRENT_LIST_DIR}/dtimedloop.cpp
     ${CMAKE_CURRENT_LIST_DIR}/dfileservices_dummy.cpp
   	${CMAKE_CURRENT_LIST_DIR}/dexportedinterface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ddbusinterface.cpp
   )
 endif()
 file(GLOB UTILS_HEADER
   ${CMAKE_CURRENT_LIST_DIR}/../../include/util/*
+  ${CMAKE_CURRENT_LIST_DIR}/ddbusinterface_p.h
 )
 set(utils_SRC 
   ${UTILS_HEADER}
