@@ -71,7 +71,7 @@ configure_package_config_file(misc/DtkConfig.cmake.in
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfigVersion.cmake"
     VERSION ${DVERSION}
-    COMPATIBILITY AnyNewerVersion
+    COMPATIBILITY SameMajorVersion
 )
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfig.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkCore")
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfigVersion.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkCore")
