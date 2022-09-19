@@ -7,6 +7,7 @@
 
 class QDBusPendingCallWatcher;
 
+DCORE_BEGIN_NAMESPACE
 class DDBusInterfacePrivate : public QObject
 {
     Q_OBJECT
@@ -32,4 +33,4 @@ public:
     DDBusInterface *q_ptr;
     Q_DECLARE_PUBLIC(DDBusInterface)
 };
-
+DCORE_END_NAMESPACE

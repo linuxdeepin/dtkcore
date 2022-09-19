@@ -13,14 +13,16 @@
 #include <QDBusPendingReply>
 #include <QDebug>
 
-const QString &FreedesktopService = QStringLiteral("org.freedesktop.DBus");
-const QString &FreedesktopPath = QStringLiteral("/org/freedesktop/DBus");
-const QString &FreedesktopInterface = QStringLiteral("org.freedesktop.DBus");
-const QString &NameOwnerChanged = QStringLiteral("NameOwnerChanged");
+DCORE_BEGIN_NAMESPACE
 
-const QString &PropertiesInterface = QStringLiteral("org.freedesktop.DBus.Properties");
-const QString &PropertiesChanged = QStringLiteral("PropertiesChanged");
-const char *PropertyName = "propname";
+static const QString &FreedesktopService = QStringLiteral("org.freedesktop.DBus");
+static const QString &FreedesktopPath = QStringLiteral("/org/freedesktop/DBus");
+static const QString &FreedesktopInterface = QStringLiteral("org.freedesktop.DBus");
+static const QString &NameOwnerChanged = QStringLiteral("NameOwnerChanged");
+
+static const QString &PropertiesInterface = QStringLiteral("org.freedesktop.DBus.Properties");
+static const QString &PropertiesChanged = QStringLiteral("PropertiesChanged");
+static const char *PropertyName = "propname";
 
 DDBusInterfacePrivate::DDBusInterfacePrivate(DDBusInterface *interface, QObject *parent)
     : QObject(interface)
@@ -39,6 +41,9 @@ DDBusInterfacePrivate::DDBusInterfacePrivate(DDBusInterface *interface, QObject 
 
 void DDBusInterfacePrivate::updateProp(const char *propname, const QVariant &value)
 {
+    if (!m_parent)
+        return;
+
     m_propertyMap.insert(propname, value);
     const QMetaObject *metaObj = m_parent->metaObject();
     const char *signalName = propname + QStringLiteral("Changed").toLatin1();
@@ -51,6 +56,9 @@ void DDBusInterfacePrivate::updateProp(const char *propname, const QVariant &val
 
 void DDBusInterfacePrivate::initDBusConnection()
 {
+    if (!m_parent)
+        return;
+
     Q_Q(DDBusInterface);
     QDBusConnection connection = q->connection();
     QStringList signalList;
@@ -185,3 +193,4 @@ void DDBusInterface::setProperty(const char *propname, const QVariant &value)
     msg << interface() << originalPropname(propname, d->m_suffix) << value;
     connection().asyncCall(msg);
 }
+DCORE_END_NAMESPACE

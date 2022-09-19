@@ -3,10 +3,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #pragma once
+#include "dtkcore_global.h"
 #include <QDBusAbstractInterface>
 
-class DDBusInterfacePrivate;
+DCORE_BEGIN_NAMESPACE
 
+class DDBusInterfacePrivate;
 class DDBusInterface : public QDBusAbstractInterface
 {
     Q_OBJECT
@@ -31,4 +33,4 @@ private:
     Q_DECLARE_PRIVATE(DDBusInterface)
     Q_DISABLE_COPY(DDBusInterface)
 };
-
+DCORE_END_NAMESPACE
