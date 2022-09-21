@@ -1,3 +1,9 @@
+dtkcore (5.6.2) unstable; urgency=medium
+
+  * snipe release 5.6.2
+
+ -- Deepin Packages Builder <packages@deepin.com>  Wed, 21 Sep 2022 13:57:29 +0800
+
 dtkcore (5.6.0) unstable; urgency=medium
 
   * snipe release 5.6.0
