@@ -1,6 +1,5 @@
 set(BIN_NAME qdbusxml2cpp-fix)
 
-set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt5 REQUIRED COMPONENTS DBus)

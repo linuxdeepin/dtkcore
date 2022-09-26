@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.10)
 
-set (DVERSION "5.6.0.2" CACHE STRING "define project version")
+set (DVERSION "5.6.2" CACHE STRING "define project version")
 
 project (DtkCore
   VERSION ${DVERSION}
@@ -33,14 +33,20 @@ endif()
 set (BUILD_DOCS ON CACHE BOOL "Generate doxygen-based documentation")
 
 # CXX FILAGS
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall -Wextra")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--as-needed")
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -fsanitize=address -fno-omit-frame-pointer")
-  set(BUILD_TESTING ON)
-else ()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
-endif ()
+set(CMAKE_CXX_STANDARD 11)
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+if(NOT MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall -Wextra")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--as-needed")
+  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+    set(BUILD_TESTING ON)
+  endif ()
+  string(REPLACE "-O3" "-Ofast" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+endif()
 
 if (BUILD_DOCS)
   add_subdirectory(docs)
