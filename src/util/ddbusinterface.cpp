@@ -34,24 +34,31 @@ DDBusInterfacePrivate::DDBusInterfacePrivate(DDBusInterface *interface, QObject 
     message << interface->service();
     interface->connection().callWithCallback(message, this, SLOT(onDBusNameHasOwner(bool)));
 
-    QStringList argumentMatch;
-    argumentMatch << interface->interface();
-    interface->connection().connect(interface->service(), interface->path(), PropertiesInterface, PropertiesChanged, argumentMatch, QString(), this, SLOT(onPropertiesChanged(QString, QVariantMap, QStringList)));
+    interface->connection().connect(interface->service(),
+                                    interface->path(),
+                                    PropertiesInterface,
+                                    PropertiesChanged,
+                                    {interface->interface()},
+                                    QString(),
+                                    this,
+                                    SLOT(onPropertiesChanged(QString, QVariantMap, QStringList)));
 }
 
-void DDBusInterfacePrivate::updateProp(const char *propname, const QVariant &value)
+void DDBusInterfacePrivate::updateProp(const char *propName, const QVariant &value)
 {
     if (!m_parent)
         return;
-
-    m_propertyMap.insert(propname, value);
+    m_propertyMap.insert(propName, value);
     const QMetaObject *metaObj = m_parent->metaObject();
-    const char *signalName = propname + QStringLiteral("Changed").toLatin1();
-    int i = metaObj->indexOfSignal(signalName);
+    QByteArray baSignal = QStringLiteral("%1Changed(%2)").arg(propName).arg(value.typeName()).toLatin1();
+    QByteArray baSignalName = QStringLiteral("%1Changed").arg(propName).toLatin1();
+    const char *signal = baSignal.data();
+    const char *signalName = baSignalName.data();
+    int i = metaObj->indexOfSignal(signal);
     if (i != -1) {
         QMetaObject::invokeMethod(m_parent, signalName, Qt::DirectConnection, QGenericArgument(value.typeName(), value.data()));
     } else
-        qWarning() << "invalid property changed:" << propname << value;
+        qWarning() << "invalid property changed:" << propName << value;
 }
 
 void DDBusInterfacePrivate::initDBusConnection()
@@ -75,12 +82,19 @@ void DDBusInterfacePrivate::initDBusConnection()
         int i = parentMeta->indexOfSignal(QMetaObject::normalizedSignature(signal.toLatin1()));
         if (i != -1) {
             const QMetaMethod &parentMethod = parentMeta->method(i);
-            connection.connect(q->service(), q->path(), q->interface(), parentMethod.name(), m_parent, QT_STRINGIFY(QSIGNAL_CODE) + parentMethod.methodSignature());
+            connection.connect(q->service(),
+                               q->path(),
+                               q->interface(),
+                               parentMethod.name(),
+                               m_parent,
+                               QT_STRINGIFY(QSIGNAL_CODE) + parentMethod.methodSignature());
         }
     }
 }
 
-void DDBusInterfacePrivate::onPropertiesChanged(const QString &interfaceName, const QVariantMap &changedProperties, const QStringList &invalidatedProperties)
+void DDBusInterfacePrivate::onPropertiesChanged(const QString &interfaceName,
+                                                const QVariantMap &changedProperties,
+                                                const QStringList &invalidatedProperties)
 {
     Q_UNUSED(interfaceName)
     Q_UNUSED(invalidatedProperties)
@@ -113,17 +127,27 @@ void DDBusInterfacePrivate::onDBusNameHasOwner(bool valid)
     if (valid)
         initDBusConnection();
     else
-        q->connection().connect(FreedesktopService, FreedesktopPath, FreedesktopInterface, NameOwnerChanged, this, SLOT(onDBusNameOwnerChanged(QString, QString, QString)));
+        q->connection().connect(FreedesktopService,
+                                FreedesktopPath,
+                                FreedesktopInterface,
+                                NameOwnerChanged,
+                                this,
+                                SLOT(onDBusNameOwnerChanged(QString, QString, QString)));
 }
 
-void DDBusInterfacePrivate::onDBusNameOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOWner)
+void DDBusInterfacePrivate::onDBusNameOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner)
 {
     Q_Q(DDBusInterface);
     if (name == q->service() && oldOwner.isEmpty()) {
         initDBusConnection();
-        q->connection().disconnect(FreedesktopService, FreedesktopPath, FreedesktopInterface, NameOwnerChanged, this, SLOT(onDBusNameOwnerChanged(QString, QString, QString)));
+        q->connection().disconnect(FreedesktopService,
+                                   FreedesktopPath,
+                                   FreedesktopInterface,
+                                   NameOwnerChanged,
+                                   this,
+                                   SLOT(onDBusNameOwnerChanged(QString, QString, QString)));
         setServiceValid(true);
-    } else if (name == q->service() && newOWner.isEmpty())
+    } else if (name == q->service() && newOwner.isEmpty())
         setServiceValid(false);
 }
 
@@ -137,9 +161,7 @@ DDBusInterface::DDBusInterface(const QString &service, const QString &path, cons
 {
 }
 
-DDBusInterface::~DDBusInterface()
-{
-}
+DDBusInterface::~DDBusInterface() {}
 
 bool DDBusInterface::serviceValid() const
 {
@@ -165,32 +187,37 @@ inline QString originalPropname(const char *propname, QString suffix)
     return propStr.left(propStr.length() - suffix.length());
 }
 
-QVariant DDBusInterface::property(const char *propname)
+QVariant DDBusInterface::property(const char *propName)
 {
     Q_D(DDBusInterface);
-    if (d->m_propertyMap.contains(propname))
-        return d->m_propertyMap.value(propname);
+    if (d->m_propertyMap.contains(propName))
+        return d->m_propertyMap.value(propName);
 
     QDBusMessage msg = QDBusMessage::createMethodCall(service(), path(), PropertiesInterface, QStringLiteral("Get"));
-    msg << interface() << originalPropname(propname, d->m_suffix);
+    msg << interface() << originalPropname(propName, d->m_suffix);
     QDBusPendingReply<QVariant> prop = connection().asyncCall(msg);
     if (prop.value().isValid())
         return prop.value();
 
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(prop, this);
-    watcher->setProperty(PropertyName, propname);
+    watcher->setProperty(PropertyName, propName);
     connect(watcher, &QDBusPendingCallWatcher::finished, d, &DDBusInterfacePrivate::onAsyncPropertyFinished);
-    if (d->m_propertyMap.contains(propname))
-        return d->m_propertyMap.value(propname);
+    if (d->m_propertyMap.contains(propName))
+        return d->m_propertyMap.value(propName);
 
     return QVariant();
 }
 
-void DDBusInterface::setProperty(const char *propname, const QVariant &value)
+void DDBusInterface::setProperty(const char *propName, const QVariant &value)
 {
     Q_D(const DDBusInterface);
     QDBusMessage msg = QDBusMessage::createMethodCall(service(), path(), PropertiesInterface, QStringLiteral("Set"));
-    msg << interface() << originalPropname(propname, d->m_suffix) << value;
-    connection().asyncCall(msg);
+    msg << interface() << originalPropname(propName, d->m_suffix) << QVariant::fromValue(QDBusVariant(value));
+
+    QDBusPendingReply<void> reply = connection().asyncCall(msg);
+    reply.waitForFinished();
+    if (!reply.isValid()) {
+        qWarning() << reply.error().message();
+    }
 }
 DCORE_END_NAMESPACE
