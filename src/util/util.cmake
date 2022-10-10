@@ -14,6 +14,8 @@ if(LINUX)
     ${CMAKE_CURRENT_LIST_DIR}/dfileservices_linux.cpp
     ${CMAKE_CURRENT_LIST_DIR}/dexportedinterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ddbusinterface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedabstractinterface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedpendingcallwatcher.cpp
   )
 else()
   set(UTILS_SOURCE
@@ -29,13 +31,16 @@ else()
     ${CMAKE_CURRENT_LIST_DIR}/dthreadutils.cpp 
     ${CMAKE_CURRENT_LIST_DIR}/dtimedloop.cpp
     ${CMAKE_CURRENT_LIST_DIR}/dfileservices_dummy.cpp
-  	${CMAKE_CURRENT_LIST_DIR}/dexportedinterface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/dexportedinterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ddbusinterface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedabstractinterface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedpendingcallwatcher.cpp
   )
 endif()
 file(GLOB UTILS_HEADER
   ${CMAKE_CURRENT_LIST_DIR}/../../include/util/*
   ${CMAKE_CURRENT_LIST_DIR}/ddbusinterface_p.h
+  ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedpendingcallwatcher_p.h
 )
 set(utils_SRC 
   ${UTILS_HEADER}
