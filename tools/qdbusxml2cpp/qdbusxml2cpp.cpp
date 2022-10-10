@@ -68,7 +68,7 @@ static const char includeList[] =
     "#include <QtCore/QStringList>\n"
     "#include <QtCore/QVariant>\n"
     "\n"
-    "#include <DBusExtendedAbstractInterface>\n";
+    "#include <DDBusExtendedAbstractInterface>\n";
 
 static const char forwardDeclarations[] =
     "QT_BEGIN_NAMESPACE\n"
