@@ -15,6 +15,8 @@
 #include <QJsonArray>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QDateTime>
+#include <qmath.h>
 
 #ifdef Q_OS_LINUX
 #include <sys/sysinfo.h>
@@ -1092,6 +1094,171 @@ qint64 DSysInfo::systemDiskSize()
 #endif
 
     return -1;
+}
+
+/*! @~english DSysInfo::bootTime
+ * @~english \sa DSysInfo::uptime
+ * @~english \return the boot time(currentDateTime - uptime)
+*/
+QDateTime DSysInfo::bootTime()
+{
+    qint64 ut = uptime();
+    return ut > 0 ? QDateTime::currentDateTime().addSecs(-ut) : QDateTime();
+}
+
+/*! @~english DSysInfo::shutdownTime
+ * @~english \return the last shutdown time
+*/
+QDateTime DSysInfo::shutdownTime()
+{
+    QDateTime dt;
+#if defined Q_OS_LINUX
+    QProcess lastx;
+    lastx.start("last", {"-x", "-F" }, QIODevice::ReadOnly);
+    if (!lastx.waitForFinished()) {
+        qWarning() << lastx.errorString();
+        return QDateTime();
+    }
+
+    while (lastx.canReadLine()) {
+        const QByteArray data = lastx.readLine(1024);
+        //shutdown system down  4.19.0-amd64-des Fri Sep 30 17:53:17 2022 - Sat Oct  8 08:32:47 2022 (7+14:39)
+        if (data.startsWith("shutdown")) {
+            QString timeFmt = QString(data).split(' ', QString::SkipEmptyParts).mid(4, 5).join(' ');
+            dt = QDateTime::fromString(timeFmt);
+            break;
+        }
+    }
+#else
+
+#endif
+    return dt;
+}
+
+/*! @~english DSysInfo::uptime
+ * @~english \return the up time (/proc/uptime)
+*/
+qint64 DSysInfo::uptime()
+{
+#if defined Q_OS_LINUX
+    QFile file("/proc/uptime");
+    if (!file.open(QFile::ReadOnly)) {
+        qWarning() << file.errorString();
+        return -1;
+    }
+
+    QByteArray upTime = file.readAll();
+    bool ok = false;
+    qint64 sec = qCeil(upTime.split(' ').value(0).toDouble(&ok)); // [0]: uptime [1]: idletime
+
+    return ok ? sec : -1;
+#elif defined Q_OS_WIN64
+     return GetTickCount64();
+#elif defined Q_OS_WIN32
+    return GetTickCount();
+#else
+    return -1;
+#endif
+}
+
+/*! @~english DSysInfo::arch
+ * @~english \return the architecture of processor
+*/
+DSysInfo::Arch DSysInfo::arch()
+{
+#if defined(__x86_64__)
+    return X86_64;
+#elif defined(__i386__)
+    return X86;
+#elif defined(__powerpc64__)
+#  if __BYTE_ORDER == __BIG_ENDIAN
+    return PPC64;
+#  else
+    return PPC64_LE;
+#  endif
+#elif defined(__powerpc__)
+#  if __BYTE_ORDER == __BIG_ENDIAN
+    return PPC;
+#  else
+    return PPC_LE;
+#  endif
+#elif defined(__ia64__)
+    return IA64;
+#elif defined(__hppa64__)
+    return PARISC64;
+#elif defined(__hppa__)
+    return PARISC;
+#elif defined(__s390x__)
+    return S390X;
+#elif defined(__s390__)
+    return S390;
+#elif defined(__sparc__) && defined (__arch64__)
+    return SPARC64;
+#elif defined(__sparc__)
+    return SPARC;
+#elif defined(__mips64) && defined(__LP64__)
+#  if __BYTE_ORDER == __BIG_ENDIAN
+    return MIPS64;
+#  else
+    return MIPS64_LE;
+#  endif
+#elif defined(__mips64)
+#  if __BYTE_ORDER == __BIG_ENDIAN
+    return MIPS64;
+#  else
+    return MIPS64_LE;
+#  endif
+#elif defined(__mips__)
+#  if __BYTE_ORDER == __BIG_ENDIAN
+    return MIPS;
+#  else
+    return MIPS_LE;
+#  endif
+#elif defined(__alpha__)
+    return ALPHA;
+#elif defined(__aarch64__)
+#  if __BYTE_ORDER == __BIG_ENDIAN
+    return ARM64_BE;
+#  else
+    return ARM64;
+#  endif
+#elif defined(__arm__)
+#  if __BYTE_ORDER == __BIG_ENDIAN
+    return ARM_BE;
+#  else
+    return ARM;
+#  endif
+#elif defined(__sh64__)
+    return SH64;
+#elif defined(__sh__)
+    return SH;
+#elif defined(__loongarch64)
+    return LOONGARCH64;
+#elif defined(__m68k__)
+    return M68K;
+#elif defined(__tilegx__)
+    return TILEGX;
+#elif defined(__cris__)
+    return CRIS;
+#elif defined(__nios2__)
+    return NIOS2;
+#elif defined(__riscv)
+#  if __SIZEOF_POINTER__ == 4
+    return RISCV32;
+#  elif __SIZEOF_POINTER__ == 8
+    return RISCV64;
+#  else
+#    error "Unrecognized riscv architecture variant"
+#  endif
+#elif defined(__arc__)
+#  if __BYTE_ORDER == __BIG_ENDIAN
+    return ARC_BE;
+#  else
+    return ARC;
+#  endif
+#else
+#  error "Please register your architecture here!"
+#endif
 }
 
 DCORE_END_NAMESPACE

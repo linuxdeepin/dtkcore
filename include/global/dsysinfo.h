@@ -14,6 +14,7 @@ DCORE_BEGIN_NAMESPACE
 class DSysInfoPrivate;
 class LIBDTKCORESHARED_EXPORT DSysInfo
 {
+    Q_GADGET
 public:
     enum ProductType {
         UnknownType = 0,
@@ -87,6 +88,46 @@ public:
         UosSW64 = 1 << 3
     };
 
+    //! @~english enum.Arch
+    enum Arch {
+        ARM64,      /*!< @~english arm64 */
+        ARM64_BE,   /*!< @~english arm64-be */
+        ARM,        /*!< @~english arm */
+        ARM_BE,     /*!< @~english arm-be */
+        ALPHA,      /*!< @~english alpha */
+        ARC,        /*!< @~english arc */
+        ARC_BE,     /*!< @~english arc-be */
+        CRIS,       /*!< @~english cris */
+        X86_64,     /*!< @~english x86-64 */
+        X86,        /*!< @~english x86 */
+        IA64,       /*!< @~english ia64 */
+        LOONGARCH64,/*!< @~english loongarch64 */
+        M68K,       /*!< @~english m68k */
+        MIPS64_LE,  /*!< @~english mips64-le */
+        MIPS64,     /*!< @~english mips64 */
+        MIPS_LE,    /*!< @~english mips-le */
+        MIPS,       /*!< @~english mips */
+        NIOS2,      /*!< @~english nios2 */
+        PARISC64,   /*!< @~english parisc64 */
+        PARISC,     /*!< @~english parisc */
+        PPC64_LE,   /*!< @~english ppc64-le */
+        PPC64,      /*!< @~english ppc64 */
+        PPC,        /*!< @~english ppc */
+        PPC_LE,     /*!< @~english ppc-le */
+        RISCV32,    /*!< @~english riscv32 */
+        RISCV64,    /*!< @~english riscv64 */
+        S390X,      /*!< @~english s390x */
+        S390,       /*!< @~english s390 */
+        SH64,       /*!< @~english sh64 */
+        SH,         /*!< @~english sh */
+        SPARC64,    /*!< @~english sparc64 */
+        SPARC,      /*!< @~english sparc */
+        TILEGX,     /*!< @~english tilegx */
+
+        NUM_ARCHES, /*!< @~english number of defined Arch types */
+    };
+    Q_ENUM(Arch) // Q_GADGET
+
 #ifdef Q_OS_LINUX
     static bool isDeepin();
     static bool isDDE();
@@ -97,7 +138,7 @@ public:
     static QString deepinCopyright();
 
     // uos version interface
-    static UosType uosType();
+    Q_DECL_DEPRECATED_X("Use arch() instead") static UosType uosType();
     static UosEdition uosEditionType();
     static UosArch uosArch();
     static QString uosProductTypeName(const QLocale &locale = QLocale::system());
@@ -133,6 +174,11 @@ public:
     static qint64 memoryInstalledSize();
     static qint64 memoryTotalSize();
     static qint64 systemDiskSize();
+
+    static QDateTime bootTime();
+    static QDateTime shutdownTime();
+    static qint64 uptime();
+    static Arch arch();
 };
 
 DCORE_END_NAMESPACE
