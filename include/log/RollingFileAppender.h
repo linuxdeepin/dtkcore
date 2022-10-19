@@ -12,7 +12,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
-class CUTELOGGERSHARED_EXPORT RollingFileAppender : public FileAppender
+class LIBDTKCORESHARED_EXPORT RollingFileAppender : public FileAppender
 {
   public:
     /*!
@@ -35,11 +35,11 @@ class CUTELOGGERSHARED_EXPORT RollingFileAppender : public FileAppender
       MonthlyRollover
     };
 
-    RollingFileAppender(const QString& fileName = QString());
+    RollingFileAppender(const QString &fileName = QString());
 
     DatePattern datePattern() const;
     void setDatePattern(DatePattern datePattern);
-    void setDatePattern(const QString& datePattern);
+    void setDatePattern(const QString &datePattern);
 
     QString datePatternString() const;
 
@@ -50,15 +50,15 @@ class CUTELOGGERSHARED_EXPORT RollingFileAppender : public FileAppender
     qint64 logSizeLimit() const;
 
   protected:
-    virtual void append(const QDateTime& timeStamp, Logger::LogLevel logLevel, const char* file, int line,
-                        const char* function, const QString& category, const QString& message);
+    virtual void append(const QDateTime &time, Logger::LogLevel level, const char *file, int line,
+                        const char *func, const QString &category, const QString &msg);
 
   private:
     void rollOver();
     void computeRollOverTime();
     void computeFrequency();
     void removeOldFiles();
-    void setDatePatternString(const QString& datePatternString);
+    void setDatePatternString(const QString &datePatternString);
 
     QString m_datePatternString;
     DatePattern m_frequency;

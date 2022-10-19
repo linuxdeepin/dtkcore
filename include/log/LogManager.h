@@ -8,7 +8,7 @@
 
 #include <QtCore>
 
-#include "CuteLogger_global.h"
+#include "dtkcore_global.h"
 
 DCORE_BEGIN_NAMESPACE
 
@@ -27,9 +27,9 @@ public:
      * \brief setlogFilePath will change log file path of registerFileAppender
      * \a logFilePath is the full path of file appender log
      */
-    static void setlogFilePath(const QString& logFilePath);
+    static void setlogFilePath(const QString &logFilePath);
 
-    static void setLogFormat(const QString& format);
+    static void setLogFormat(const QString &format);
 
 private:
     QString m_format;
@@ -39,7 +39,7 @@ private:
 
     void initConsoleAppender();
     void initRollingFileAppender();
-    QString joinPath(const QString& path, const QString& fileName);
+    QString joinPath(const QString &path, const QString &fileName);
 
     inline static DLogManager* instance(){
         static DLogManager instance;

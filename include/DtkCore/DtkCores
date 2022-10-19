@@ -21,7 +21,6 @@
 #include "RollingFileAppender.h"
 #include "Logger.h"
 #include "FileAppender.h"
-#include "CuteLogger_global.h"
 #include "ConsoleAppender.h"
 #include "AbstractStringAppender.h"
 #include "AbstractAppender.h"

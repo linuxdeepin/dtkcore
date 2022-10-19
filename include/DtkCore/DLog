@@ -1,4 +1,3 @@
-#include "CuteLogger_global.h"
 #include "RollingFileAppender.h"
 #include "Logger.h"
 #include "LogManager.h"
