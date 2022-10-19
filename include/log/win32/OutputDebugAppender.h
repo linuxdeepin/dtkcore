@@ -6,16 +6,16 @@
 #ifndef OUTPUTDEBUGAPPENDER_H
 #define OUTPUTDEBUGAPPENDER_H
 
-#include "CuteLogger_global.h"
+#include "dtkcore_global.h"
 #include <AbstractStringAppender.h>
 
 DCORE_BEGIN_NAMESPACE
 
-class CUTELOGGERSHARED_EXPORT OutputDebugAppender : public AbstractStringAppender
+class LIBDTKCORESHARED_EXPORT OutputDebugAppender : public AbstractStringAppender
 {
   protected:
-    virtual void append(const QDateTime& timeStamp, Logger::LogLevel logLevel, const char* file, int line,
-                        const char* function, const QString& category, const QString& message);
+    virtual void append(const QDateTime &time, Logger::LogLevel level, const char *file, int line,
+                        const char *func, const QString &category, const QString &msg);
 };
 
 DCORE_END_NAMESPACE

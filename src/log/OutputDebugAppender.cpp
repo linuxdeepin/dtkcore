@@ -1,16 +1,7 @@
-/*
-  Copyright (c) 2010 Karl-Heinz Reichel (khreichel at googlemail dot com)
+// SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
+//
+// SPDX-License-Identifier: LGPL-3.0-or-later
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU Lesser General Public License version 2.1
-  as published by the Free Software Foundation and appearing in the file
-  LICENSE.LGPL included in the packaging of this file.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU Lesser General Public License for more details.
-*/
 // Local
 #include "win32/OutputDebugAppender.h"
 
@@ -32,25 +23,25 @@ DCORE_BEGIN_NAMESPACE
 
   \brief Writes the log record to the windows debug log.
 
-  The \a timeStamp parameter indicates the time stamp.
-  The \a logLevel parameter describes the LogLevel.
+  The \a time parameter indicates the time stamp.
+  The \a level parameter describes the LogLevel.
   The \a file parameter is the current file name.
   The \a line parameter indicates the number of lines to output.
-  The \a function parameter indicates the function name to output.
+  The \a func parameter indicates the function name to output.
   The \a category parameter indicates the log category.
-  The \a message parameter indicates the output message.
+  The \a msg parameter indicates the output message.
 
   \sa AbstractStringAppender::format()
  */
-void OutputDebugAppender::append(const QDateTime& timeStamp,
-                                 Logger::LogLevel logLevel,
-                                 const char* file,
+void OutputDebugAppender::append(const QDateTime &time,
+                                 Logger::LogLevel level,
+                                 const char *file,
                                  int line,
-                                 const char* function,
-                                 const QString& category,
-                                 const QString& message)
+                                 const char *func,
+                                 const QString &category,
+                                 const QString &msg)
 {
-    QString s = formattedString(timeStamp, logLevel, file, line, function, category, message);
+    QString s = formattedString(time, level, file, line, function, category, msg);
     OutputDebugStringW((LPCWSTR) s.utf16());
 }
 

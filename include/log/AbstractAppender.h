@@ -1,4 +1,3 @@
-// SPDX-FileCopyrightText: 2010 Boris Moiseev (cyberbobs at gmail dot com)
 // SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
@@ -6,16 +5,14 @@
 #ifndef ABSTRACTAPPENDER_H
 #define ABSTRACTAPPENDER_H
 
-// Local
-#include "CuteLogger_global.h"
+#include "dtkcore_global.h"
 #include <Logger.h>
 
-// Qt
 #include <QMutex>
 
 DCORE_BEGIN_NAMESPACE
 
-class CUTELOGGERSHARED_EXPORT AbstractAppender
+class LIBDTKCORESHARED_EXPORT AbstractAppender
 {
 public:
     AbstractAppender();
@@ -25,12 +22,12 @@ public:
     void setDetailsLevel(Logger::LogLevel level);
     void setDetailsLevel(const QString &level);
 
-    void write(const QDateTime &timeStamp, Logger::LogLevel logLevel, const char *file, int line, const char *function,
-               const QString &category, const QString &message);
+    void write(const QDateTime &time, Logger::LogLevel level, const char *file, int line,
+               const char *func, const QString &category, const QString &msg);
 
 protected:
-    virtual void append(const QDateTime &timeStamp, Logger::LogLevel logLevel, const char *file, int line,
-                        const char *function, const QString &category, const QString &message) = 0;
+    virtual void append(const QDateTime &time, Logger::LogLevel level, const char *file, int line,
+                        const char *func, const QString &category, const QString &msg) = 0;
 
 private:
     QMutex m_writeMutex;
@@ -40,5 +37,4 @@ private:
 };
 
 DCORE_END_NAMESPACE
-
 #endif // ABSTRACTAPPENDER_H
