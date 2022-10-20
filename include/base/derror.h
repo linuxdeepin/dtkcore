@@ -12,14 +12,14 @@ DCORE_BEGIN_NAMESPACE
 /**
  * @brief 对于错误的包装类
  */
-class Derror
+class DError
 {
 public:
     /*!
      * @brief 默认构造函数
      * @attention 错误代码默认为-1，错误信息默认为空
      */
-    Derror() noexcept
+    DError() noexcept
         : m_code(-1)
         , m_msg()
     {
@@ -28,7 +28,7 @@ public:
     /*!
      * @brief 拷贝构造函数
      */
-    Derror(const Derror &e) noexcept
+    DError(const DError &e) noexcept
         : m_code(e.m_code)
         , m_msg(e.m_msg)
     {
@@ -38,7 +38,7 @@ public:
      * @brief 移动构造函数
      * @attention 移动后原对象不可用
      */
-    Derror(Derror &&e) noexcept
+    DError(DError &&e) noexcept
         : m_code(e.m_code)
         , m_msg(std::move(e).m_msg)
     {
@@ -49,7 +49,7 @@ public:
      * @param[in] code 错误代码
      * @param[in] msg  错误信息
      */
-    Derror(qint64 code, const QString &msg) noexcept
+    DError(qint64 code, const QString &msg) noexcept
         : m_code(code)
         , m_msg(msg)
     {
@@ -61,7 +61,7 @@ public:
      * @param[in] msg  错误信息
      * @attention 使用此构造函数后原错误信息不可用
      */
-    Derror(qint64 code, QString &&msg) noexcept
+    DError(qint64 code, QString &&msg) noexcept
         : m_code(code)
         , m_msg(std::move(msg))
     {
@@ -70,7 +70,7 @@ public:
     /*!
      * @brief 重载拷贝赋值运算符
      */
-    Derror &operator=(const Derror &e)
+    DError &operator=(const DError &e)
     {
         m_code = e.m_code;
         m_msg = e.m_msg;
@@ -81,7 +81,7 @@ public:
      * @brief 重载移动赋值运算符
      * @attention 赋值后原对象不可用
      */
-    Derror &operator=(Derror &&e)
+    DError &operator=(DError &&e)
     {
         m_code = e.m_code;
         m_msg = std::move(e).m_msg;
@@ -91,7 +91,7 @@ public:
     /*!
      * @brief 默认析构函数
      */
-    ~Derror() = default;
+    ~DError() = default;
 
     /*!
      * @brief 获取错误代码
@@ -127,17 +127,17 @@ public:
     /*!
      * @brief 重载相等运算符
      */
-    friend bool operator==(const Derror &x, const Derror &y) noexcept { return x.m_code == y.m_code and x.m_msg == y.m_msg; }
+    friend bool operator==(const DError &x, const DError &y) noexcept { return x.m_code == y.m_code and x.m_msg == y.m_msg; }
 
     /*!
      * @brief 重载不等运算符
      */
-    friend bool operator!=(const Derror &x, const Derror &y) noexcept { return !(x == y); }
+    friend bool operator!=(const DError &x, const DError &y) noexcept { return !(x == y); }
 
     /*!
      * @brief 重载输出运算符
      */
-    friend QDebug operator<<(QDebug debug, const Derror &e)
+    friend QDebug operator<<(QDebug debug, const DError &e)
     {
         debug << "Error Code:" << e.m_code << "Message:" << e.m_msg;
         return debug;
