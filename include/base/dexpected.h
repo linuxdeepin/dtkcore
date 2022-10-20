@@ -25,10 +25,10 @@ DCORE_BEGIN_NAMESPACE
 #endif
 
 template <typename T, typename E>
-class Dexpected;
+class DExpected;
 
 template <typename E>
-class Dunexpected;
+class DUnexpected;
 
 template <bool v>
 using _bool_constant = std::integral_constant<bool, v>;
@@ -39,9 +39,9 @@ using _bool_constant = std::integral_constant<bool, v>;
 enum class emplace_tag { USE_EMPLACE /**< 使用原位构造 */ };
 
 /*!
- * @brief 从Dunexpected构造标签
+ * @brief 从DUnexpected构造标签
  */
-enum class dunexpected_tag { DUNEXPECTED /**< 从Dunexpected构造 */ };
+enum class dunexpected_tag { DUNEXPECTED /**< 从DUnexpected构造 */ };
 
 template <typename Type>
 struct remove_cvref
@@ -64,7 +64,7 @@ protected:
     ~bad_result_access() = default;
 
 public:
-    const char *what() const noexcept override { return "bad access to Dexpected without value"; }
+    const char *what() const noexcept override { return "bad access to DExpected without value"; }
 };
 
 template <typename E>
@@ -157,7 +157,7 @@ struct _is_dexpected : public std::false_type
 };
 
 template <typename T, typename E>
-struct _is_dexpected<Dexpected<T, E>> : public std::true_type
+struct _is_dexpected<DExpected<T, E>> : public std::true_type
 {
 };
 
@@ -167,7 +167,7 @@ struct _is_dunexpected : public std::false_type
 };
 
 template <typename T>
-struct _is_dunexpected<Dunexpected<T>> : public std::true_type
+struct _is_dunexpected<DUnexpected<T>> : public std::true_type
 {
 };
 
@@ -217,109 +217,109 @@ void reinit(Tp *_newVal, Up *_oldVal, Vp &&_arg) noexcept(std::is_nothrow_constr
 }  // namespace __dexpected
 
 /*!
- * @brief 类模板Dtk::Core::Dunexpected代表一个Dtk::Core::Dexpected中存储的不期待的值
- * @tparam E 不期待的值的类型，该类型不能是非对象类型，数组类型，Dtk::Core::Dunexpected的特化类型或有cv限定符的类型
+ * @brief 类模板Dtk::Core::DUnexpected代表一个Dtk::Core::DExpected中存储的不期待的值
+ * @tparam E 不期待的值的类型，该类型不能是非对象类型，数组类型，Dtk::Core::DUnexpected的特化类型或有cv限定符的类型
  */
 template <typename E>
-class Dunexpected
+class DUnexpected
 {
     static_assert(__dexpected::_can_be_dunexpected<E>(), "can't be dunexpected");
 
 public:
     /*!
-     * @brief Dtk::Core::Dunexpected的默认拷贝构造函数
+     * @brief Dtk::Core::DUnexpected的默认拷贝构造函数
      */
-    constexpr Dunexpected(const Dunexpected &) = default;
+    constexpr DUnexpected(const DUnexpected &) = default;
 
     /*!
-     * @brief Dtk::Core::Dunexpected的默认移动构造函数
+     * @brief Dtk::Core::DUnexpected的默认移动构造函数
      */
-    constexpr Dunexpected(Dunexpected &&) = default;
+    constexpr DUnexpected(DUnexpected &&) = default;
 
     /*!
-     * @brief 使用类型E直接初始化一个Dtk::Core::Dunexpected对象
+     * @brief 使用类型E直接初始化一个Dtk::Core::DUnexpected对象
      * @tparam Er 错误类型，默认为E
      * @param[in] _e 一个类型为Er的值
      */
     template <typename Er = E,
-              typename std::enable_if<!std::is_same<typename remove_cvref<Er>::type, Dunexpected>::value and
+              typename std::enable_if<!std::is_same<typename remove_cvref<Er>::type, DUnexpected>::value and
                                           !std::is_same<typename remove_cvref<Er>::type, emplace_tag>::value and
                                           std::is_constructible<E, Er>::value,
                                       bool>::type = true>
-    constexpr explicit Dunexpected(Er &&_e) noexcept(std::is_nothrow_constructible<E, Er>::value)
+    constexpr explicit DUnexpected(Er &&_e) noexcept(std::is_nothrow_constructible<E, Er>::value)
         : m_error(std::forward<Er>(_e))
     {
     }
 
     /*!
-     * @brief 直接从参数构造出一个包含错误类型为E的对象的Dtk::Core::Dunexpected对象
+     * @brief 直接从参数构造出一个包含错误类型为E的对象的Dtk::Core::DUnexpected对象
      * @tparam Args 可变参数模板类型，这里是构造类型为E的对象所需要的参数的类型
      * @param[in] args 构造类型为E的对象用到的参数
-     * @attention 为了区分是构造E还是Dtk::Core::Dunexpected，需要在第一个参数使用emplace_tag进行标识
+     * @attention 为了区分是构造E还是Dtk::Core::DUnexpected，需要在第一个参数使用emplace_tag进行标识
      */
     template <typename... Args>
-    constexpr explicit Dunexpected(emplace_tag, Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
+    constexpr explicit DUnexpected(emplace_tag, Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
         : m_error(std::forward<Args>(args)...)
     {
         static_assert(std::is_constructible<E, Args...>::value, "can't construct E from args.");
     }
 
     /*!
-     * @brief 从参数和初始化列表构造出一个包含错误类型为E的对象的Dtk::Core::Dunexpected对象
+     * @brief 从参数和初始化列表构造出一个包含错误类型为E的对象的Dtk::Core::DUnexpected对象
      * @tparam U 初始化列表的模板类型
      * @tparam Args 可变参数模板类型，这里是构造类型为E的对象所需要的参数的类型
      * @param _li 模板类型为U的初始化列表
      * @param[in] args 构造类型为E的对象用到的参数
-     * @attention 为了区分是构造E还是Dtk::Core::Dunexpected，需要在第一个参数使用emplace_tag进行标识
+     * @attention 为了区分是构造E还是Dtk::Core::DUnexpected，需要在第一个参数使用emplace_tag进行标识
      */
     template <typename U, typename... Args>
-    constexpr explicit Dunexpected(emplace_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
+    constexpr explicit DUnexpected(emplace_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
         std::is_nothrow_constructible<E, std::initializer_list<U> &, Args...>::value)
         : m_error(_li, std::forward<Args>(args)...)
     {
     }
 
     /*!
-     * @brief Dtk::Core::Dunexpected的默认拷贝赋值运算符
+     * @brief Dtk::Core::DUnexpected的默认拷贝赋值运算符
      */
-    Dunexpected &operator=(const Dunexpected &) = default;
+    DUnexpected &operator=(const DUnexpected &) = default;
 
     /*!
-     * @brief Dtk::Core::Dunexpected的默认移动赋值运算符
+     * @brief Dtk::Core::DUnexpected的默认移动赋值运算符
      */
-    Dunexpected &operator=(Dunexpected &&) = default;
+    DUnexpected &operator=(DUnexpected &&) = default;
 
     /*!
-     * @brief 获取Dtk::Core::Dunexpected持有的不期待值
+     * @brief 获取Dtk::Core::DUnexpected持有的不期待值
      * @return 不期待值的const左值引用
      */
     constexpr const E &error() const &noexcept { return m_error; }
 
     /*!
-     * @brief 获取Dtk::Core::Dunexpected持有的不期待值
+     * @brief 获取Dtk::Core::DUnexpected持有的不期待值
      * @return 不期待值的左值引用
      */
     E &error() &noexcept { return m_error; }
 
     /*!
-     * @brief 获取Dtk::Core::Dunexpected持有的不期待值
-     * @attention 获取后原Dtk::Core::Dunexpected不可用
+     * @brief 获取Dtk::Core::DUnexpected持有的不期待值
+     * @attention 获取后原Dtk::Core::DUnexpected不可用
      * @return 不期待值的const右值引用
      */
     constexpr const E &&error() const &&noexcept { return std::move(m_error); }
 
     /*!
-     * @brief 获取Dtk::Core::Dunexpected持有的不期待值
-     * @attention 获取后原Dtk::Core::Dunexpected不可用
+     * @brief 获取Dtk::Core::DUnexpected持有的不期待值
+     * @attention 获取后原Dtk::Core::DUnexpected不可用
      * @return 不期待值的右值引用
      */
     E &&error() &&noexcept { return std::move(m_error); }
 
     /*!
-     * @brief 交换两个Dtk::Core::Dunexpected的值
-     * @param[in] _other 另一个模板参数为E的Dtk::Core::Dunexpected对象
+     * @brief 交换两个Dtk::Core::DUnexpected的值
+     * @param[in] _other 另一个模板参数为E的Dtk::Core::DUnexpected对象
      */
-    void swap(Dunexpected &_other)
+    void swap(DUnexpected &_other)
     {
         using std::swap;
         swap(m_error, _other.m_error);
@@ -327,20 +327,20 @@ public:
 
     /*!
      * @brief 重载相等运算符
-     * @tparam Er 另一个Dtk::Core::Dunexpected的模板类型
-     * @param[in] _x 模板参数为E的Dtk::Core::Dunexpected对象
-     * @param[in] _y 模板参数为Er的Dtk::Core::Dunexpected对象
+     * @tparam Er 另一个Dtk::Core::DUnexpected的模板类型
+     * @param[in] _x 模板参数为E的Dtk::Core::DUnexpected对象
+     * @param[in] _y 模板参数为Er的Dtk::Core::DUnexpected对象
      */
     template <typename Er>
-    friend constexpr bool operator==(const Dunexpected &_x, const Dunexpected<Er> _y)
+    friend constexpr bool operator==(const DUnexpected &_x, const DUnexpected<Er> _y)
     {
         return _x.m_error == _y.error();
     }
 
     /*!
-     * @brief 交换两个Dtk::Core::Dunexpected的值
+     * @brief 交换两个Dtk::Core::DUnexpected的值
      */
-    friend void swap(Dunexpected &_x, Dunexpected &_y) { _x.swap(_y); }
+    friend void swap(DUnexpected &_x, DUnexpected &_y) { _x.swap(_y); }
 
 private:
     E m_error;
@@ -348,33 +348,33 @@ private:
 
 /*!
  * @brief
- * 模板类Dtk::Core::Dexpected提供存储两个值之一的方式。Dtk::Core::Dexpected的对象要么保有一个期待的T类型值，要么保有一个不期待的E类型值，不会没有值。
+ * 模板类Dtk::Core::DExpected提供存储两个值之一的方式。Dtk::Core::DExpected的对象要么保有一个期待的T类型值，要么保有一个不期待的E类型值，不会没有值。
  * @tparam T 期待的类型
  * @tparam E 不期待的类型
  */
 template <typename T, typename E>
-class Dexpected
+class DExpected
 {
     template <typename, typename>
-    friend class Dexpected;
+    friend class DExpected;
     static_assert(!std::is_reference<T>::value, "type T can't be reference type");
     static_assert(!std::is_function<T>::value, "type T can't be function type");
     static_assert(!std::is_same<typename std::remove_cv<T>::type, dunexpected_tag>::value, "type T can't be dunexpected_tag");
     static_assert(!std::is_same<typename std::remove_cv<T>::type, emplace_tag>::value, "type T can't be emplace_tag");
-    static_assert(!__dexpected::_is_dunexpected<typename std::remove_cv<T>::type>::value, "type T can't be Dunexpected");
+    static_assert(!__dexpected::_is_dunexpected<typename std::remove_cv<T>::type>::value, "type T can't be DUnexpected");
     static_assert(__dexpected::_can_be_dunexpected<E>(), "type E can't be dunexpected");
 
-    template <typename U, typename G, typename Unex = Dunexpected<E>>
-    static constexpr bool __cons_from_Dexpected()
+    template <typename U, typename G, typename Unex = DUnexpected<E>>
+    static constexpr bool __cons_from_DExpected()
     {
-        return std::is_constructible<T, Dexpected<U, G> &>::value or std::is_constructible<T, Dexpected<U, G>>::value or
-               std::is_constructible<T, const Dexpected<U, G>>::value or
-               std::is_constructible<T, const Dexpected<U, G> &>::value or std::is_convertible<Dexpected<U, G> &, T>::value or
-               std::is_convertible<Dexpected<U, G>, T>::value or std::is_convertible<const Dexpected<U, G> &, T>::value or
-               std::is_convertible<const Dexpected<U, G>, T>::value or std::is_constructible<Unex, Dexpected<U, G> &>::value or
-               std::is_constructible<Unex, Dexpected<U, G>>::value or
-               std::is_constructible<Unex, const Dexpected<U, G> &>::value or
-               std::is_constructible<Unex, const Dexpected<U, G>>::value;
+        return std::is_constructible<T, DExpected<U, G> &>::value or std::is_constructible<T, DExpected<U, G>>::value or
+               std::is_constructible<T, const DExpected<U, G>>::value or
+               std::is_constructible<T, const DExpected<U, G> &>::value or std::is_convertible<DExpected<U, G> &, T>::value or
+               std::is_convertible<DExpected<U, G>, T>::value or std::is_convertible<const DExpected<U, G> &, T>::value or
+               std::is_convertible<const DExpected<U, G>, T>::value or std::is_constructible<Unex, DExpected<U, G> &>::value or
+               std::is_constructible<Unex, DExpected<U, G>>::value or
+               std::is_constructible<Unex, const DExpected<U, G> &>::value or
+               std::is_constructible<Unex, const DExpected<U, G>>::value;
     }
 
     template <typename U, typename G>
@@ -411,7 +411,7 @@ class Dexpected
     }
 
     template <typename Ep = E, typename std::enable_if<std::is_nothrow_move_constructible<Ep>::value, bool>::type = true>
-    void swap_val_err(Dexpected &_other) noexcept(
+    void swap_val_err(DExpected &_other) noexcept(
         std::is_nothrow_move_constructible<Ep>::value and std::is_nothrow_move_constructible<T>::value)
     {
         __dexpected::Guard<E> _guard(_other.m_error);
@@ -423,7 +423,7 @@ class Dexpected
     }
 
     template <typename Ep = E, typename std::enable_if<!std::is_nothrow_move_constructible<Ep>::value, bool>::type = true>
-    void swap_val_err(Dexpected &_other) noexcept(
+    void swap_val_err(DExpected &_other) noexcept(
         std::is_nothrow_move_constructible<Ep>::value and std::is_nothrow_move_constructible<T>::value)
     {
         __dexpected::Guard<T> _guard(_other.m_value);
@@ -437,33 +437,33 @@ class Dexpected
 public:
     using value_type = T;
     using error_type = E;
-    using dunexpected_type = Dunexpected<E>;
+    using dunexpected_type = DUnexpected<E>;
     template <typename U>
-    using rebind = Dexpected<U, error_type>;
+    using rebind = DExpected<U, error_type>;
 
     /*!
-     * @brief Dtk::Core::Dexpected的默认构造函数
+     * @brief Dtk::Core::DExpected的默认构造函数
      */
     template <typename std::enable_if<std::is_default_constructible<T>::value, bool>::type = true>
-    constexpr Dexpected() noexcept(std::is_nothrow_default_constructible<T>::value)
+    constexpr DExpected() noexcept(std::is_nothrow_default_constructible<T>::value)
         : m_has_value(true)
         , m_value()
     {
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的默认拷贝构造函数
+     * @brief Dtk::Core::DExpected的默认拷贝构造函数
      */
-    Dexpected(const Dexpected &) = default;
+    DExpected(const DExpected &) = default;
 
     /*!
-     * @brief Dtk::Core::Dexpected的拷贝构造函数
+     * @brief Dtk::Core::DExpected的拷贝构造函数
      */
     template <typename std::enable_if<std::is_copy_constructible<T>::value and std::is_copy_constructible<E>::value and
                                           (!std::is_trivially_copy_constructible<T>::value or
                                            !std::is_trivially_copy_constructible<E>::value),
                                       bool>::type = true>
-    Dexpected(const Dexpected &_x) noexcept(
+    DExpected(const DExpected &_x) noexcept(
         std::is_nothrow_copy_constructible<T>::value and std::is_nothrow_copy_constructible<E>::value)
         : m_has_value(_x.m_has_value)
         , m_invalid()
@@ -476,18 +476,18 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的默认移动构造函数
+     * @brief Dtk::Core::DExpected的默认移动构造函数
      */
-    Dexpected(Dexpected &&) = default;
+    DExpected(DExpected &&) = default;
 
     /*!
-     * @brief Dtk::Core::Dexpected的移动构造函数
+     * @brief Dtk::Core::DExpected的移动构造函数
      */
     template <typename std::enable_if<std::is_move_constructible<T>::value and std::is_move_constructible<E>::value and
                                           (!std::is_trivially_move_constructible<T>::value or
                                            !std::is_trivially_move_constructible<E>::value),
                                       bool>::type = true>
-    Dexpected(Dexpected &&_x) noexcept(
+    DExpected(DExpected &&_x) noexcept(
         std::is_nothrow_move_constructible<T>::value and std::is_nothrow_move_constructible<E>::value)
         : m_has_value(_x.m_has_value)
         , m_invalid()
@@ -499,18 +499,18 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的拷贝构造函数
-     * @tparam U 另一个Dtk::Core::Dexpected的期待类型
-     * @tparam G 另一个Dtk::Core::Dexpected的不期待类型
-     * @param[in] _x 模板类型分别为U和G的Dtk::Core::Dexpected对象
+     * @brief Dtk::Core::DExpected的拷贝构造函数
+     * @tparam U 另一个Dtk::Core::DExpected的期待类型
+     * @tparam G 另一个Dtk::Core::DExpected的不期待类型
+     * @param[in] _x 模板类型分别为U和G的Dtk::Core::DExpected对象
      */
     template <
         typename U,
         typename G,
         typename std::enable_if<std::is_constructible<T, const U &>::value and std::is_constructible<E, const G &>::value and
-                                    !__cons_from_Dexpected<U, G>() and !__explicit_conv<const U &, const G &>(),
+                                    !__cons_from_DExpected<U, G>() and !__explicit_conv<const U &, const G &>(),
                                 bool>::type = true>
-    Dexpected(const Dexpected<U, G> &_x) noexcept(
+    DExpected(const DExpected<U, G> &_x) noexcept(
         std::is_nothrow_constructible<T, const U &>::value and std::is_nothrow_constructible<E, const G &>::value)
         : m_has_value(_x.m_has_value)
         , m_invalid()
@@ -523,19 +523,19 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的拷贝构造函数
-     * @tparam U 另一个Dtk::Core::Dexpected的期待类型
-     * @tparam G 另一个Dtk::Core::Dexpected的不期待类型
-     * @param[in] _x 模板类型分别为U和G的Dtk::Core::Dexpected对象
+     * @brief Dtk::Core::DExpected的拷贝构造函数
+     * @tparam U 另一个Dtk::Core::DExpected的期待类型
+     * @tparam G 另一个Dtk::Core::DExpected的不期待类型
+     * @param[in] _x 模板类型分别为U和G的Dtk::Core::DExpected对象
      * @attention 该拷贝构造函数有explicit标识
      */
     template <
         typename U,
         typename G,
         typename std::enable_if<std::is_constructible<T, const U &>::value and std::is_constructible<E, const G &>::value and
-                                    !__cons_from_Dexpected<U, G>() and __explicit_conv<const U &, const G &>(),
+                                    !__cons_from_DExpected<U, G>() and __explicit_conv<const U &, const G &>(),
                                 bool>::type = true>
-    explicit Dexpected(const Dexpected<U, G> &_x) noexcept(
+    explicit DExpected(const DExpected<U, G> &_x) noexcept(
         std::is_nothrow_constructible<T, const U &>::value and std::is_nothrow_constructible<E, const G &>::value)
         : m_has_value(_x.m_has_value)
         , m_invalid()
@@ -547,18 +547,18 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的移动构造函数
-     * @tparam U 另一个Dtk::Core::Dexpected的期待类型
-     * @tparam G 另一个Dtk::Core::Dexpected的不期待类型
-     * @param[in] _x 模板类型分别为U和G的Dtk::Core::Dexpected对象
-     * @attention 构造后另一个Dtk::Core::Dexpected不可用
+     * @brief Dtk::Core::DExpected的移动构造函数
+     * @tparam U 另一个Dtk::Core::DExpected的期待类型
+     * @tparam G 另一个Dtk::Core::DExpected的不期待类型
+     * @param[in] _x 模板类型分别为U和G的Dtk::Core::DExpected对象
+     * @attention 构造后另一个Dtk::Core::DExpected不可用
      */
     template <typename U,
               typename G,
               typename std::enable_if<std::is_constructible<T, U>::value and std::is_constructible<E, G>::value and
-                                          !__cons_from_Dexpected<U, G>() and !__explicit_conv<U, G>(),
+                                          !__cons_from_DExpected<U, G>() and !__explicit_conv<U, G>(),
                                       bool>::type = true>
-    Dexpected(Dexpected<U, G> &&_x) noexcept(
+    DExpected(DExpected<U, G> &&_x) noexcept(
         std::is_nothrow_constructible<T, U>::value and std::is_nothrow_constructible<E, G>::value)
         : m_has_value(_x.m_has_value)
         , m_invalid()
@@ -570,18 +570,18 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的移动构造函数
-     * @tparam U 另一个Dtk::Core::Dexpected的期待类型
-     * @tparam G 另一个Dtk::Core::Dexpected的不期待类型
-     * @param[in] _x 模板类型分别为U和G的Dtk::Core::Dexpected对象
-     * @attention 构造后另一个Dtk::Core::Dexpected不可用，该函数有explicit标识
+     * @brief Dtk::Core::DExpected的移动构造函数
+     * @tparam U 另一个Dtk::Core::DExpected的期待类型
+     * @tparam G 另一个Dtk::Core::DExpected的不期待类型
+     * @param[in] _x 模板类型分别为U和G的Dtk::Core::DExpected对象
+     * @attention 构造后另一个Dtk::Core::DExpected不可用，该函数有explicit标识
      */
     template <typename U,
               typename G,
               typename std::enable_if<std::is_constructible<T, U>::value and std::is_constructible<E, G>::value and
-                                          !__cons_from_Dexpected<U, G>() and __explicit_conv<U, G>(),
+                                          !__cons_from_DExpected<U, G>() and __explicit_conv<U, G>(),
                                       bool>::type = true>
-    explicit Dexpected(Dexpected<U, G> &&_x) noexcept(
+    explicit DExpected(DExpected<U, G> &&_x) noexcept(
         std::is_nothrow_constructible<T, U>::value and std::is_nothrow_constructible<E, G>::value)
         : m_has_value(_x.m_has_value)
         , m_invalid()
@@ -593,18 +593,18 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的移动构造函数，直接从期待类型构造出Dtk::Core::Dexpected对象
-     * @tparam U Dtk::Core::Dexpected的期待类型，默认为类型T
+     * @brief Dtk::Core::DExpected的移动构造函数，直接从期待类型构造出Dtk::Core::DExpected对象
+     * @tparam U Dtk::Core::DExpected的期待类型，默认为类型T
      * @param[in] _v 期待类型为U的对象
      * @attention 构造后原对象不可用，该函数有explicit标识
      */
     template <typename U = T,
-              typename std::enable_if<!std::is_same<typename remove_cvref<U>::type, Dexpected>::value and
+              typename std::enable_if<!std::is_same<typename remove_cvref<U>::type, DExpected>::value and
                                           !std::is_same<typename remove_cvref<U>::type, emplace_tag>::value and
                                           !__dexpected::_is_dunexpected<typename remove_cvref<U>::type>::value and
                                           std::is_constructible<T, U>::value and !std::is_convertible<U, T>::value,
                                       bool>::type = true>
-    constexpr explicit Dexpected(U &&_v) noexcept(std::is_nothrow_constructible<T, U>::value)
+    constexpr explicit DExpected(U &&_v) noexcept(std::is_nothrow_constructible<T, U>::value)
         : m_has_value(true)
         , m_value(std::forward<U>(_v))
 
@@ -612,89 +612,89 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的移动构造函数，直接从期待类型构造出Dtk::Core::Dexpected对象
-     * @tparam U Dtk::Core::Dexpected的期待类型，默认为类型T
+     * @brief Dtk::Core::DExpected的移动构造函数，直接从期待类型构造出Dtk::Core::DExpected对象
+     * @tparam U Dtk::Core::DExpected的期待类型，默认为类型T
      * @param[in] _v 期待类型为U的对象
      * @attention 构造后原对象不可用
      */
     template <typename U = T,
-              typename std::enable_if<!std::is_same<typename remove_cvref<U>::type, Dexpected>::value and
+              typename std::enable_if<!std::is_same<typename remove_cvref<U>::type, DExpected>::value and
                                           !std::is_same<typename remove_cvref<U>::type, emplace_tag>::value and
                                           !__dexpected::_is_dunexpected<typename remove_cvref<U>::type>::value and
                                           std::is_constructible<T, U>::value and std::is_convertible<U, T>::value,
                                       bool>::type = true>
-    constexpr Dexpected(U &&_v) noexcept(std::is_nothrow_constructible<T, U>::value)
+    constexpr DExpected(U &&_v) noexcept(std::is_nothrow_constructible<T, U>::value)
         : m_has_value(true)
         , m_value(std::forward<U>(_v))
     {
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的拷贝构造函数，从Dtk::Core::Dunexpected构造出Dtk::Core::Dexpected对象
-     * @tparam G Dtk::Core::Dexpected的期待类型，默认为类型E
-     * @param[in] _u 期待类型为G的Dtk::Core::Dunexpected对象
+     * @brief Dtk::Core::DExpected的拷贝构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
+     * @tparam G Dtk::Core::DExpected的期待类型，默认为类型E
+     * @param[in] _u 期待类型为G的Dtk::Core::DUnexpected对象
      * @attention 该函数有explicit标识
      */
     template <typename G = E,
               typename std::enable_if<std::is_constructible<E, const G &>::value and !std::is_convertible<const G &, E>::value,
                                       bool>::type = true>
-    constexpr explicit Dexpected(const Dunexpected<G> &_u) noexcept(std::is_nothrow_constructible<E, const G &>::value)
+    constexpr explicit DExpected(const DUnexpected<G> &_u) noexcept(std::is_nothrow_constructible<E, const G &>::value)
         : m_has_value(false)
         , m_error(_u.error())
     {
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的拷贝构造函数，从Dtk::Core::Dunexpected构造出Dtk::Core::Dexpected对象
-     * @tparam G Dtk::Core::Dexpected的期待类型，默认为类型E
-     * @param[in] _u 期待类型为G的Dtk::Core::Dunexpected对象
+     * @brief Dtk::Core::DExpected的拷贝构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
+     * @tparam G Dtk::Core::DExpected的期待类型，默认为类型E
+     * @param[in] _u 期待类型为G的Dtk::Core::DUnexpected对象
      */
     template <typename G = E,
               typename std::enable_if<std::is_constructible<E, const G &>::value and std::is_convertible<const G &, E>::value,
                                       bool>::type = true>
-    constexpr Dexpected(const Dunexpected<G> &_u) noexcept(std::is_nothrow_constructible<E, const G &>::value)
+    constexpr DExpected(const DUnexpected<G> &_u) noexcept(std::is_nothrow_constructible<E, const G &>::value)
         : m_has_value(false)
         , m_error(_u.error())
     {
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的移动构造函数，从Dtk::Core::Dunexpected构造出Dtk::Core::Dexpected对象
-     * @tparam G Dtk::Core::Dexpected的期待类型，默认为类型E
-     * @param[in] _u 期待类型为G的Dtk::Core::Dunexpected对象
+     * @brief Dtk::Core::DExpected的移动构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
+     * @tparam G Dtk::Core::DExpected的期待类型，默认为类型E
+     * @param[in] _u 期待类型为G的Dtk::Core::DUnexpected对象
      * @attention 构造后原对象不可用，该函数有explicit标识
      */
     template <
         typename G = E,
         typename std::enable_if<std::is_constructible<E, G>::value and !std::is_convertible<G, E>::value, bool>::type = true>
-    constexpr explicit Dexpected(Dunexpected<G> &&_u) noexcept(std::is_nothrow_constructible<E, G>::value)
+    constexpr explicit DExpected(DUnexpected<G> &&_u) noexcept(std::is_nothrow_constructible<E, G>::value)
         : m_has_value(false)
         , m_error(std::move(_u).error())
     {
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的移动构造函数，从Dtk::Core::Dunexpected构造出Dtk::Core::Dexpected对象
-     * @tparam G Dtk::Core::Dexpected的期待类型，默认为类型E
-     * @param[in] _u 期待类型为G的Dtk::Core::Dunexpected对象
+     * @brief Dtk::Core::DExpected的移动构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
+     * @tparam G Dtk::Core::DExpected的期待类型，默认为类型E
+     * @param[in] _u 期待类型为G的Dtk::Core::DUnexpected对象
      * @attention 构造后原对象不可用
      */
     template <typename G = E,
               typename std::enable_if<std::is_constructible<E, G>::value and std::is_convertible<G, E>::value, bool>::type = true>
-    constexpr Dexpected(Dunexpected<G> &&_u) noexcept(std::is_nothrow_constructible<E, G>::value)
+    constexpr DExpected(DUnexpected<G> &&_u) noexcept(std::is_nothrow_constructible<E, G>::value)
         : m_has_value(false)
         , m_error(std::move(_u).error())
     {
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的转发构造函数，从参数直接构造出期待值
+     * @brief Dtk::Core::DExpected的转发构造函数，从参数直接构造出期待值
      * @tparam Args 构造期待类型T所用到的参数的类型
      * @param[in] args 构造期待类型T所用到的参数
-     * @attention 为了区分是构造T还是Dtk::Core::Dexpected，需要在第一个参数使用emplace_tag进行标识
+     * @attention 为了区分是构造T还是Dtk::Core::DExpected，需要在第一个参数使用emplace_tag进行标识
      */
     template <typename... Args>
-    constexpr explicit Dexpected(emplace_tag, Args &&...args) noexcept(std::is_nothrow_constructible<T, Args...>::value)
+    constexpr explicit DExpected(emplace_tag, Args &&...args) noexcept(std::is_nothrow_constructible<T, Args...>::value)
         : m_has_value(true)
         , m_value(std::forward<Args>(args)...)
 
@@ -703,15 +703,15 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的转发构造函数，从参数直接构造出期待值
+     * @brief Dtk::Core::DExpected的转发构造函数，从参数直接构造出期待值
      * @tparam U 初始化列表的模板参数
      * @tparam Args 构造期待类型T所用到的参数的类型
      * @param[in] _li  构造期待类型T所用到的初始化列表
      * @param[in] args 构造期待类型T所用到的参数
-     * @attention 为了区分是构造T还是Dtk::Core::Dexpected，需要在第一个参数使用emplace_tag进行标识
+     * @attention 为了区分是构造T还是Dtk::Core::DExpected，需要在第一个参数使用emplace_tag进行标识
      */
     template <typename U, typename... Args>
-    constexpr explicit Dexpected(emplace_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
+    constexpr explicit DExpected(emplace_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
         std::is_nothrow_constructible<T, std::initializer_list<U> &, Args...>::value)
         : m_has_value(true)
         , m_value(_li, std::forward<Args>(args)...)
@@ -720,13 +720,13 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的转发构造函数，从参数直接构造出不期待值
+     * @brief Dtk::Core::DExpected的转发构造函数，从参数直接构造出不期待值
      * @tparam Args 构造不期待类型E所用到的参数的类型
      * @param[in] args 构造不期待类型E所用到的参数
-     * @attention 为了区分是构造E还是Dtk::Core::Dexpected，需要在第一个参数使用dunexpected_tag进行标识
+     * @attention 为了区分是构造E还是Dtk::Core::DExpected，需要在第一个参数使用dunexpected_tag进行标识
      */
     template <typename... Args>
-    constexpr explicit Dexpected(dunexpected_tag, Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
+    constexpr explicit DExpected(dunexpected_tag, Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
         : m_has_value(false)
         , m_error(std::forward<Args>(args)...)
 
@@ -735,15 +735,15 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的转发构造函数，从参数直接构造出不期待值
+     * @brief Dtk::Core::DExpected的转发构造函数，从参数直接构造出不期待值
      * @tparam U 初始化列表的模板参数
      * @tparam Args 构造不期待类型E所用到的参数的类型
      * @param[in] _li  构造不期待类型E所用到的初始化列表
      * @param[in] args 构造不期待类型E所用到的参数
-     * @attention 为了区分是构造E还是Dtk::Core::Dexpected，需要在第一个参数使用dunexpected_tag进行标识
+     * @attention 为了区分是构造E还是Dtk::Core::DExpected，需要在第一个参数使用dunexpected_tag进行标识
      */
     template <typename U, typename... Args>
-    constexpr explicit Dexpected(dunexpected_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
+    constexpr explicit DExpected(dunexpected_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
         std::is_nothrow_constructible<E, std::initializer_list<U> &, Args...>::value)
         : m_has_value(false)
         , m_error(_li, std::forward<Args>(args)...)
@@ -752,9 +752,9 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的析构函数
+     * @brief Dtk::Core::DExpected的析构函数
      */
-    ~Dexpected()
+    ~DExpected()
     {
         if (des_value()) {
             if (m_has_value) {
@@ -766,20 +766,20 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的默认拷贝赋值运算符
+     * @brief Dtk::Core::DExpected的默认拷贝赋值运算符
      */
-    Dexpected &operator=(const Dexpected &) = delete;
+    DExpected &operator=(const DExpected &) = delete;
 
     /*!
-     * @brief Dtk::Core::Dexpected的拷贝赋值运算符
-     * @param[in] _x 同类型的Dtk::Core::Dexpected对象
+     * @brief Dtk::Core::DExpected的拷贝赋值运算符
+     * @param[in] _x 同类型的Dtk::Core::DExpected对象
      */
     template <typename std::enable_if<std::is_copy_assignable<T>::value and std::is_copy_constructible<T>::value and
                                           std::is_copy_assignable<E>::value and std::is_copy_constructible<E>::value and
                                           (std::is_nothrow_move_constructible<T>::value or
                                            std::is_nothrow_move_constructible<E>::value),
                                       bool>::type = true>
-    Dexpected &operator=(const Dexpected &_x) noexcept(
+    DExpected &operator=(const DExpected &_x) noexcept(
         std::is_nothrow_copy_constructible<T>::value and std::is_nothrow_copy_constructible<E>::value
             and std::is_nothrow_copy_assignable<T>::value and std::is_nothrow_copy_assignable<E>::value)
     {
@@ -791,8 +791,8 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的移动赋值运算符
-     * @param[in] _x 同类型的Dtk::Core::Dexpected对象
+     * @brief Dtk::Core::DExpected的移动赋值运算符
+     * @param[in] _x 同类型的Dtk::Core::DExpected对象
      * @attention 赋值后原对象不可用
      */
     template <typename std::enable_if<std::is_move_assignable<T>::value and std::is_move_constructible<T>::value and
@@ -800,7 +800,7 @@ public:
                                           (std::is_nothrow_move_constructible<T>::value or
                                            std::is_nothrow_move_constructible<E>::value),
                                       bool>::type = true>
-    Dexpected &operator=(Dexpected &&_x) noexcept(
+    DExpected &operator=(DExpected &&_x) noexcept(
         std::is_nothrow_move_constructible<T>::value and std::is_nothrow_move_constructible<E>::value
             and std::is_nothrow_move_assignable<T>::value and std::is_nothrow_move_assignable<E>::value)
     {
@@ -812,44 +812,44 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的转发赋值运算符
+     * @brief Dtk::Core::DExpected的转发赋值运算符
      * @tparam U 期待类型，默认为T
      * @param[in] _v 期待类型U的对象
      */
     template <
         typename U = T,
-        typename std::enable_if<!std::is_same<Dexpected, typename remove_cvref<U>::type>::value and
+        typename std::enable_if<!std::is_same<DExpected, typename remove_cvref<U>::type>::value and
                                     !__dexpected::_is_dunexpected<typename remove_cvref<U>::type>::value and
                                     std::is_constructible<T, U>::value and std::is_assignable<T &, U>::value and
                                     (std::is_nothrow_constructible<T, U>::value or std::is_nothrow_move_constructible<T>::value or
                                      std::is_nothrow_move_constructible<E>::value),
                                 bool>::type = true>
-    Dexpected &operator=(U &&_v)
+    DExpected &operator=(U &&_v)
     {
         assign_val(std::forward<U>(_v));
         return *this;
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的拷贝赋值运算符
+     * @brief Dtk::Core::DExpected的拷贝赋值运算符
      * @tparam G 不期待类型
-     * @param[in] _e 模板类型为G的Dtk::Core::Dunexpected对象
+     * @param[in] _e 模板类型为G的Dtk::Core::DUnexpected对象
      */
     template <typename G,
               typename std::enable_if<std::is_constructible<E, const G &>::value and std::is_assignable<E &, const G &>::value and
                                           (std::is_nothrow_constructible<E, const G &>::value or
                                            std::is_nothrow_move_constructible<T>::value or std::is_move_constructible<E>::value),
                                       bool>::type = true>
-    Dexpected &operator=(const Dunexpected<G> &_e)
+    DExpected &operator=(const DUnexpected<G> &_e)
     {
         assign_err(_e.error());
         return *this;
     }
 
     /*!
-     * @brief Dtk::Core::Dexpected的移动赋值运算符
+     * @brief Dtk::Core::DExpected的移动赋值运算符
      * @tparam G 不期待类型
-     * @param[in] _e 模板类型为G的Dtk::Core::Dunexpected对象
+     * @param[in] _e 模板类型为G的Dtk::Core::DUnexpected对象
      * @attention 赋值后原对象不可用
      */
     template <typename G,
@@ -857,7 +857,7 @@ public:
                                           (std::is_nothrow_constructible<E, G>::value or
                                            std::is_nothrow_move_constructible<T>::value or std::is_move_constructible<E>::value),
                                       bool>::type = true>
-    Dexpected &operator=(Dunexpected<G> &&_e)
+    DExpected &operator=(DUnexpected<G> &&_e)
     {
         assign_err(std::move(_e).error());
         return *this;
@@ -907,15 +907,15 @@ public:
 
     // TODO:需要swap吗？
     /*!
-     * @brief 交换两个Dtk::Core::Dexpected的值
-     * @param[in] _x 另一个Dtk::Core::Dexpected对象
+     * @brief 交换两个Dtk::Core::DExpected的值
+     * @param[in] _x 另一个Dtk::Core::DExpected对象
      */
     template <typename std::enable_if<std::is_move_constructible<T>::value and std::is_move_constructible<E>::value and
                                           (std::is_nothrow_move_constructible<T>::value or
                                            std::is_nothrow_move_constructible<E>::value),
                                       bool>::type = true>
     void
-    swap(Dexpected &_x) noexcept(std::is_nothrow_move_constructible<T>::value and std::is_nothrow_move_constructible<E>::value)
+    swap(DExpected &_x) noexcept(std::is_nothrow_move_constructible<T>::value and std::is_nothrow_move_constructible<E>::value)
     {
         if (m_has_value) {
             if (_x.m_has_value) {
@@ -996,18 +996,18 @@ public:
 
     /*!
      * @brief bool转换函数
-     * @return 表示Dtk::Core::Dexpected是否有值的bool值
+     * @return 表示Dtk::Core::DExpected是否有值的bool值
      */
     constexpr explicit operator bool() const noexcept { return m_has_value; }
 
     /*!
-     * @brief 判断Dtk::Core::Dexpected是否有值
+     * @brief 判断Dtk::Core::DExpected是否有值
      * @return 表示是否有值的bool值
      */
     constexpr bool has_value() const noexcept { return m_has_value; }
 
     /*!
-     * @brief 获取Dtk::Core::Dexpected的期待值
+     * @brief 获取Dtk::Core::DExpected的期待值
      * @return 期待值的const左值引用
      */
     const T &value() const &
@@ -1019,7 +1019,7 @@ public:
     }
 
     /*!
-     * @brief 获取Dtk::Core::Dexpected的期待值
+     * @brief 获取Dtk::Core::DExpected的期待值
      * @return 期待值的左值引用
      */
     T &value() &
@@ -1031,7 +1031,7 @@ public:
     }
 
     /*!
-     * @brief 获取Dtk::Core::Dexpected的期待值
+     * @brief 获取Dtk::Core::DExpected的期待值
      * @return 期待值的const右值引用
      * @attention 调用后期待值不可用
      */
@@ -1044,7 +1044,7 @@ public:
     }
 
     /*!
-     * @brief 获取Dtk::Core::Dexpected的期待值
+     * @brief 获取Dtk::Core::DExpected的期待值
      * @return 期待值的右值引用
      * @attention 调用后期待值不可用
      */
@@ -1057,7 +1057,7 @@ public:
     }
 
     /*!
-     * @brief 获取Dtk::Core::Dexpected的不期待值
+     * @brief 获取Dtk::Core::DExpected的不期待值
      * @return 不期待值的const左值引用
      */
     const E &error() const &noexcept
@@ -1067,7 +1067,7 @@ public:
     }
 
     /*!
-     * @brief 获取Dtk::Core::Dexpected的不期待值
+     * @brief 获取Dtk::Core::DExpected的不期待值
      * @return 不期待值的左值引用
      */
     E &error() &noexcept
@@ -1077,7 +1077,7 @@ public:
     }
 
     /*!
-     * @brief 获取Dtk::Core::Dexpected的不期待值
+     * @brief 获取Dtk::Core::DExpected的不期待值
      * @return 不期待值的const右值引用
      * @attention 调用后不期待值不可用
      */
@@ -1088,7 +1088,7 @@ public:
     }
 
     /*!
-     * @brief 获取Dtk::Core::Dexpected的不期待值
+     * @brief 获取Dtk::Core::DExpected的不期待值
      * @return 不期待值的右值引用
      * @attention 调用后不期待值不可用
      */
@@ -1137,8 +1137,8 @@ public:
      */
     template <typename U, typename E2, typename std::enable_if<!std::is_void<U>::value, bool>::type = true>
     friend bool
-    operator==(const Dexpected &_x,
-               const Dexpected<U, E2> &_y) noexcept(noexcept(bool(*_x == *_y)) and noexcept(bool(_x.error() == _y.error())))
+    operator==(const DExpected &_x,
+               const DExpected<U, E2> &_y) noexcept(noexcept(bool(*_x == *_y)) and noexcept(bool(_x.error() == _y.error())))
     {
         if (_x.has_value())
             return _y.has_value() and bool(*_x == *_y);
@@ -1150,7 +1150,7 @@ public:
      *@brief 重载相等运算符
      */
     template <typename U>
-    friend constexpr bool operator==(const Dexpected &_x, const U &_v) noexcept(noexcept(bool(*_x == _v)))
+    friend constexpr bool operator==(const DExpected &_x, const U &_v) noexcept(noexcept(bool(*_x == _v)))
     {
         return _x.has_value() && bool(*_x == _v);
     }
@@ -1159,16 +1159,16 @@ public:
      *@brief 重载相等运算符
      */
     template <typename E2>
-    friend constexpr bool operator==(const Dexpected &_x,
-                                     const Dunexpected<E2> &_e) noexcept(noexcept(bool(_x.error() == _e.error())))
+    friend constexpr bool operator==(const DExpected &_x,
+                                     const DUnexpected<E2> &_e) noexcept(noexcept(bool(_x.error() == _e.error())))
     {
         return !_x.has_value() && bool(_x.error() == _e.error());
     }
 
     /*!
-     *@brief 交换两个Dtk::Core::Dexpected中的值
+     *@brief 交换两个Dtk::Core::DExpected中的值
      */
-    friend void swap(Dexpected &_x, Dexpected &_y) noexcept(noexcept(_x.swap(_y))) { _x.swap(_y); }
+    friend void swap(DExpected &_x, DExpected &_y) noexcept(noexcept(_x.swap(_y))) { _x.swap(_y); }
 
 private:
     bool m_has_value;
@@ -1183,24 +1183,24 @@ private:
 };
 
 /*!
- * @brief 对于Dtk::Core::Dexpected的void偏特化，其他函数参考原模板类
+ * @brief 对于Dtk::Core::DExpected的void偏特化，其他函数参考原模板类
  * @tparam E 不期待值的类型
  */
 template <typename E>
-class Dexpected<void, E>
+class DExpected<void, E>
 {
-    static_assert(__dexpected::_can_be_dunexpected<E>(), "type E can't be Dunexpected.");
+    static_assert(__dexpected::_can_be_dunexpected<E>(), "type E can't be DUnexpected.");
     static constexpr bool des_value() { return !std::is_trivially_destructible<E>::value; }
 
     template <typename, typename>
-    friend class Dexpected;
+    friend class DExpected;
 
-    template <typename U, typename G, typename Unex = Dunexpected<E>>
-    static constexpr bool __cons_from_Dexpected()
+    template <typename U, typename G, typename Unex = DUnexpected<E>>
+    static constexpr bool __cons_from_DExpected()
     {
-        return std::is_constructible<Unex, Dexpected<U, G> &>::value and std::is_constructible<Unex, Dexpected<U, G>>::value and
-               std::is_constructible<Unex, const Dexpected<U, G> &>::value and
-               std::is_constructible<Unex, const Dexpected<U, G>>::value;
+        return std::is_constructible<Unex, DExpected<U, G> &>::value and std::is_constructible<Unex, DExpected<U, G>>::value and
+               std::is_constructible<Unex, const DExpected<U, G> &>::value and
+               std::is_constructible<Unex, const DExpected<U, G>>::value;
     }
 
     template <typename V>
@@ -1217,21 +1217,21 @@ class Dexpected<void, E>
 public:
     using value_type = void;
     using error_type = E;
-    using dunexpected_type = Dunexpected<E>;
+    using dunexpected_type = DUnexpected<E>;
     template <typename U>
-    using rebind = Dexpected<U, error_type>;
+    using rebind = DExpected<U, error_type>;
 
-    constexpr Dexpected() noexcept
+    constexpr DExpected() noexcept
         : m_has_value(true)
         , m_void()
     {
     }
 
-    Dexpected(const Dexpected &) = default;
+    DExpected(const DExpected &) = default;
 
     template <typename std::enable_if<std::is_copy_constructible<E>::value and !std::is_trivially_copy_constructible<E>::value,
                                       bool>::type = true>
-    Dexpected(const Dexpected &_x) noexcept(std::is_nothrow_copy_constructible<E>::value)
+    DExpected(const DExpected &_x) noexcept(std::is_nothrow_copy_constructible<E>::value)
         : m_has_value(_x.m_has_value)
         , m_void()
     {
@@ -1239,11 +1239,11 @@ public:
             construct_at(std::addressof(m_error), _x.m_error);
     }
 
-    Dexpected(Dexpected &&) = default;
+    DExpected(DExpected &&) = default;
 
     template <typename std::enable_if<std::is_move_constructible<E>::value and !std::is_trivially_move_constructible<E>::value,
                                       bool>::type = true>
-    Dexpected(Dexpected &&_x) noexcept(std::is_nothrow_move_constructible<E>::value)
+    DExpected(DExpected &&_x) noexcept(std::is_nothrow_move_constructible<E>::value)
         : m_has_value(_x.m_has_value)
         , m_void()
     {
@@ -1254,9 +1254,9 @@ public:
     template <typename U,
               typename G,
               typename std::enable_if<std::is_void<U>::value and std::is_constructible<E, const G &>::value and
-                                          !__cons_from_Dexpected<U, G>() and !std::is_convertible<const G &, E>::value,
+                                          !__cons_from_DExpected<U, G>() and !std::is_convertible<const G &, E>::value,
                                       bool>::type = true>
-    explicit Dexpected(const Dexpected<U, G> &_x) noexcept(std::is_nothrow_constructible<E, const G &>::value)
+    explicit DExpected(const DExpected<U, G> &_x) noexcept(std::is_nothrow_constructible<E, const G &>::value)
         : m_has_value(_x.m_has_value)
         , m_void()
     {
@@ -1267,9 +1267,9 @@ public:
     template <typename U,
               typename G,
               typename std::enable_if<std::is_void<U>::value and std::is_constructible<E, const G &>::value and
-                                          !__cons_from_Dexpected<U, G>() and std::is_convertible<const G &, E>::value,
+                                          !__cons_from_DExpected<U, G>() and std::is_convertible<const G &, E>::value,
                                       bool>::type = true>
-    Dexpected(const Dexpected<U, G> &_x) noexcept(std::is_nothrow_constructible<E, const G &>::value)
+    DExpected(const DExpected<U, G> &_x) noexcept(std::is_nothrow_constructible<E, const G &>::value)
         : m_has_value(_x.m_has_value)
         , m_void()
     {
@@ -1280,9 +1280,9 @@ public:
     template <typename U,
               typename G,
               typename std::enable_if<std::is_void<U>::value and std::is_constructible<E, G>::value and
-                                          __cons_from_Dexpected<U, G>() and !std::is_convertible<G, E>::value,
+                                          __cons_from_DExpected<U, G>() and !std::is_convertible<G, E>::value,
                                       bool>::type = true>
-    explicit Dexpected(Dexpected<U, G> &&_x) noexcept(std::is_nothrow_constructible<E, G>::value)
+    explicit DExpected(DExpected<U, G> &&_x) noexcept(std::is_nothrow_constructible<E, G>::value)
         : m_has_value(_x.m_has_value)
         , m_void()
     {
@@ -1293,9 +1293,9 @@ public:
     template <typename U,
               typename G,
               typename std::enable_if<std::is_void<U>::value and std::is_constructible<E, G>::value and
-                                          __cons_from_Dexpected<U, G>() and std::is_convertible<G, E>::value,
+                                          __cons_from_DExpected<U, G>() and std::is_convertible<G, E>::value,
                                       bool>::type = true>
-    Dexpected(Dexpected<U, G> &&_x) noexcept(std::is_nothrow_constructible<E, G>::value)
+    DExpected(DExpected<U, G> &&_x) noexcept(std::is_nothrow_constructible<E, G>::value)
         : m_has_value(_x.m_has_value)
         , m_void()
     {
@@ -1306,7 +1306,7 @@ public:
     template <typename G = E,
               typename std::enable_if<std::is_constructible<E, const G &>::value and !std::is_convertible<const G &, E>::value,
                                       bool>::type = true>
-    constexpr explicit Dexpected(const Dunexpected<G> &_u) noexcept(std::is_nothrow_constructible<E, const G &>::value)
+    constexpr explicit DExpected(const DUnexpected<G> &_u) noexcept(std::is_nothrow_constructible<E, const G &>::value)
         : m_has_value(false)
         , m_error(_u.error())
     {
@@ -1315,7 +1315,7 @@ public:
     template <typename G = E,
               typename std::enable_if<std::is_constructible<E, const G &>::value and std::is_convertible<const G &, E>::value,
                                       bool>::type = true>
-    constexpr Dexpected(const Dunexpected<G> &_u) noexcept(std::is_nothrow_constructible<E, const G &>::value)
+    constexpr DExpected(const DUnexpected<G> &_u) noexcept(std::is_nothrow_constructible<E, const G &>::value)
         : m_has_value(false)
         , m_error(_u.error())
     {
@@ -1324,7 +1324,7 @@ public:
     template <
         typename G = E,
         typename std::enable_if<std::is_constructible<E, G>::value and !std::is_convertible<G, E>::value, bool>::type = true>
-    constexpr explicit Dexpected(Dunexpected<G> &&_u) noexcept(std::is_nothrow_constructible<E, G>::value)
+    constexpr explicit DExpected(DUnexpected<G> &&_u) noexcept(std::is_nothrow_constructible<E, G>::value)
         : m_has_value(false)
         , m_error(std::move(_u).error())
     {
@@ -1332,20 +1332,20 @@ public:
 
     template <typename G = E,
               typename std::enable_if<std::is_constructible<E, G>::value and std::is_convertible<G, E>::value, bool>::type = true>
-    constexpr Dexpected(Dunexpected<G> &&_u) noexcept(std::is_nothrow_constructible<E, G>::value)
+    constexpr DExpected(DUnexpected<G> &&_u) noexcept(std::is_nothrow_constructible<E, G>::value)
         : m_has_value(false)
         , m_error(std::move(_u).error())
     {
     }
 
     template <typename... Args>
-    constexpr explicit Dexpected(emplace_tag) noexcept
-        : Dexpected()
+    constexpr explicit DExpected(emplace_tag) noexcept
+        : DExpected()
     {
     }
 
     template <typename... Args>
-    constexpr explicit Dexpected(dunexpected_tag, Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
+    constexpr explicit DExpected(dunexpected_tag, Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
         : m_has_value(false)
         , m_error(std::forward<Args>(args)...)
     {
@@ -1353,7 +1353,7 @@ public:
     }
 
     template <typename U, typename... Args>
-    constexpr explicit Dexpected(dunexpected_tag,
+    constexpr explicit DExpected(dunexpected_tag,
                                  std::initializer_list<U> _li,
                                  Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
         : m_has_value(false)
@@ -1362,18 +1362,18 @@ public:
         static_assert(std::is_constructible<E, std::initializer_list<U> &, Args...>::value, "type E can't construct from args");
     }
 
-    ~Dexpected()
+    ~DExpected()
     {
         if (des_value()) {
             destroy_at(std::addressof(m_error));
         }
     }
 
-    Dexpected &operator=(const Dexpected &) = delete;
+    DExpected &operator=(const DExpected &) = delete;
 
     template <
         typename std::enable_if<std::is_copy_constructible<E>::value and std::is_copy_assignable<E>::value, bool>::type = true>
-    Dexpected &operator=(const Dexpected &_x) noexcept(
+    DExpected &operator=(const DExpected &_x) noexcept(
         std::is_nothrow_copy_constructible<E>::value and std::is_nothrow_copy_assignable<E>::value)
     {
         if (_x.m_has_value)
@@ -1385,8 +1385,8 @@ public:
 
     template <
         typename std::enable_if<std::is_move_constructible<E>::value and std::is_move_assignable<E>::value, bool>::type = true>
-    Dexpected &
-    operator=(Dexpected &&_x) noexcept(std::is_nothrow_move_constructible<E>::value and std::is_nothrow_move_assignable<E>::value)
+    DExpected &
+    operator=(DExpected &&_x) noexcept(std::is_nothrow_move_constructible<E>::value and std::is_nothrow_move_assignable<E>::value)
     {
         if (_x.m_has_value)
             emplace();
@@ -1398,7 +1398,7 @@ public:
     template <typename G,
               typename std::enable_if<std::is_constructible<E, const G &>::value and std::is_assignable<E &, const G &>::value,
                                       bool>::type = true>
-    Dexpected &operator=(const Dunexpected<G> &_e)
+    DExpected &operator=(const DUnexpected<G> &_e)
     {
         assign_err(_e.error());
         return *this;
@@ -1407,7 +1407,7 @@ public:
     template <
         typename G,
         typename std::enable_if<std::is_constructible<E, G>::value and std::is_assignable<E &, G>::value, bool>::type = true>
-    Dexpected &operator=(Dunexpected<G> &&_e)
+    DExpected &operator=(DUnexpected<G> &&_e)
     {
         assign_err(std::move(_e.error()));
         return *this;
@@ -1422,7 +1422,7 @@ public:
     }
 
     template <typename std::enable_if<std::is_move_constructible<E>::value, bool>::type = true>
-    void swap(Dexpected &_x) noexcept(std::is_nothrow_move_constructible<E>::value)
+    void swap(DExpected &_x) noexcept(std::is_nothrow_move_constructible<E>::value)
     {
         if (m_has_value) {
             if (!_x.m_has_value) {
@@ -1489,7 +1489,7 @@ public:
     }
 
     template <typename U, typename E2, typename std::enable_if<std::is_void<U>::value, bool>::type = true>
-    friend bool operator==(const Dexpected &_x, const Dexpected<U, E2> &_y) noexcept(noexcept(bool(_x.error() == _y.error())))
+    friend bool operator==(const DExpected &_x, const DExpected<U, E2> &_y) noexcept(noexcept(bool(_x.error() == _y.error())))
     {
         if (_x.has_value())
             return _y.has_value();
@@ -1498,13 +1498,13 @@ public:
     }
 
     template <typename E2>
-    friend bool operator==(const Dexpected &_x, const Dunexpected<E2> &_e) noexcept(noexcept(bool(_x.error() == _e.error())))
+    friend bool operator==(const DExpected &_x, const DUnexpected<E2> &_e) noexcept(noexcept(bool(_x.error() == _e.error())))
     {
         return !_x.has_value() && bool(_x.error() == _e.error());
     }
 
     // TODO:可能没有swap
-    friend void swap(Dexpected &_x, Dexpected &_y) noexcept(noexcept(_x.swap(_y))) { _x.swap(_y); }
+    friend void swap(DExpected &_x, DExpected &_y) noexcept(noexcept(_x.swap(_y))) { _x.swap(_y); }
 
 private:
     bool m_has_value;
