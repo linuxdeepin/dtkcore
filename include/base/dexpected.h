@@ -33,9 +33,15 @@ class Dunexpected;
 template <bool v>
 using _bool_constant = std::integral_constant<bool, v>;
 
-enum class emplace_tag { USE_EMPLACE };
+/*!
+ * @brief 原位构造标签
+ */
+enum class emplace_tag { USE_EMPLACE /**< 使用原位构造 */ };
 
-enum class dunexpected_tag { DUNEXPECTED };
+/*!
+ * @brief 从Dunexpected构造标签
+ */
+enum class dunexpected_tag { DUNEXPECTED /**< 从Dunexpected构造 */ };
 
 template <typename Type>
 struct remove_cvref
@@ -210,15 +216,31 @@ void reinit(Tp *_newVal, Up *_oldVal, Vp &&_arg) noexcept(std::is_nothrow_constr
 
 }  // namespace __dexpected
 
+/*!
+ * @brief 类模板Dtk::Core::Dunexpected代表一个Dtk::Core::Dexpected中存储的不期待的值
+ * @tparam E 不期待的值的类型，该类型不能是非对象类型，数组类型，Dtk::Core::Dunexpected的特化类型或有cv限定符的类型
+ */
 template <typename E>
 class Dunexpected
 {
     static_assert(__dexpected::_can_be_dunexpected<E>(), "can't be dunexpected");
 
 public:
+    /*!
+     * @brief Dtk::Core::Dunexpected的默认拷贝构造函数
+     */
     constexpr Dunexpected(const Dunexpected &) = default;
+
+    /*!
+     * @brief Dtk::Core::Dunexpected的默认移动构造函数
+     */
     constexpr Dunexpected(Dunexpected &&) = default;
 
+    /*!
+     * @brief 使用类型E直接初始化一个Dtk::Core::Dunexpected对象
+     * @tparam Er 错误类型，默认为E
+     * @param[in] _e 一个类型为Er的值
+     */
     template <typename Er = E,
               typename std::enable_if<!std::is_same<typename remove_cvref<Er>::type, Dunexpected>::value and
                                           !std::is_same<typename remove_cvref<Er>::type, emplace_tag>::value and
@@ -229,6 +251,12 @@ public:
     {
     }
 
+    /*!
+     * @brief 直接从参数构造出一个包含错误类型为E的对象的Dtk::Core::Dunexpected对象
+     * @tparam Args 可变参数模板类型，这里是构造类型为E的对象所需要的参数的类型
+     * @param[in] args 构造类型为E的对象用到的参数
+     * @attention 为了区分是构造E还是Dtk::Core::Dunexpected，需要在第一个参数使用emplace_tag进行标识
+     */
     template <typename... Args>
     constexpr explicit Dunexpected(emplace_tag, Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
         : m_error(std::forward<Args>(args)...)
@@ -236,6 +264,14 @@ public:
         static_assert(std::is_constructible<E, Args...>::value, "can't construct E from args.");
     }
 
+    /*!
+     * @brief 从参数和初始化列表构造出一个包含错误类型为E的对象的Dtk::Core::Dunexpected对象
+     * @tparam U 初始化列表的模板类型
+     * @tparam Args 可变参数模板类型，这里是构造类型为E的对象所需要的参数的类型
+     * @param _li 模板类型为U的初始化列表
+     * @param[in] args 构造类型为E的对象用到的参数
+     * @attention 为了区分是构造E还是Dtk::Core::Dunexpected，需要在第一个参数使用emplace_tag进行标识
+     */
     template <typename U, typename... Args>
     constexpr explicit Dunexpected(emplace_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
         std::is_nothrow_constructible<E, std::initializer_list<U> &, Args...>::value)
@@ -243,35 +279,79 @@ public:
     {
     }
 
+    /*!
+     * @brief Dtk::Core::Dunexpected的默认拷贝赋值运算符
+     */
     Dunexpected &operator=(const Dunexpected &) = default;
+
+    /*!
+     * @brief Dtk::Core::Dunexpected的默认移动赋值运算符
+     */
     Dunexpected &operator=(Dunexpected &&) = default;
 
+    /*!
+     * @brief 获取Dtk::Core::Dunexpected持有的不期待值
+     * @return 不期待值的const左值引用
+     */
     constexpr const E &error() const &noexcept { return m_error; }
 
+    /*!
+     * @brief 获取Dtk::Core::Dunexpected持有的不期待值
+     * @return 不期待值的左值引用
+     */
     E &error() &noexcept { return m_error; }
 
+    /*!
+     * @brief 获取Dtk::Core::Dunexpected持有的不期待值
+     * @attention 获取后原Dtk::Core::Dunexpected不可用
+     * @return 不期待值的const右值引用
+     */
     constexpr const E &&error() const &&noexcept { return std::move(m_error); }
 
+    /*!
+     * @brief 获取Dtk::Core::Dunexpected持有的不期待值
+     * @attention 获取后原Dtk::Core::Dunexpected不可用
+     * @return 不期待值的右值引用
+     */
     E &&error() &&noexcept { return std::move(m_error); }
 
+    /*!
+     * @brief 交换两个Dtk::Core::Dunexpected的值
+     * @param[in] _other 另一个模板参数为E的Dtk::Core::Dunexpected对象
+     */
     void swap(Dunexpected &_other)
     {
         using std::swap;
         swap(m_error, _other.m_error);
     }
 
+    /*!
+     * @brief 重载相等运算符
+     * @tparam Er 另一个Dtk::Core::Dunexpected的模板类型
+     * @param[in] _x 模板参数为E的Dtk::Core::Dunexpected对象
+     * @param[in] _y 模板参数为Er的Dtk::Core::Dunexpected对象
+     */
     template <typename Er>
     friend constexpr bool operator==(const Dunexpected &_x, const Dunexpected<Er> _y)
     {
         return _x.m_error == _y.error();
     }
 
+    /*!
+     * @brief 交换两个Dtk::Core::Dunexpected的值
+     */
     friend void swap(Dunexpected &_x, Dunexpected &_y) { _x.swap(_y); }
 
 private:
     E m_error;
 };
 
+/*!
+ * @brief
+ * 模板类Dtk::Core::Dexpected提供存储两个值之一的方式。Dtk::Core::Dexpected的对象要么保有一个期待的T类型值，要么保有一个不期待的E类型值，不会没有值。
+ * @tparam T 期待的类型
+ * @tparam E 不期待的类型
+ */
 template <typename T, typename E>
 class Dexpected
 {
@@ -361,15 +441,24 @@ public:
     template <typename U>
     using rebind = Dexpected<U, error_type>;
 
+    /*!
+     * @brief Dtk::Core::Dexpected的默认构造函数
+     */
     template <typename std::enable_if<std::is_default_constructible<T>::value, bool>::type = true>
     constexpr Dexpected() noexcept(std::is_nothrow_default_constructible<T>::value)
-        : m_has_value(false)
+        : m_has_value(true)
         , m_value()
     {
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的默认拷贝构造函数
+     */
     Dexpected(const Dexpected &) = default;
 
+    /*!
+     * @brief Dtk::Core::Dexpected的拷贝构造函数
+     */
     template <typename std::enable_if<std::is_copy_constructible<T>::value and std::is_copy_constructible<E>::value and
                                           (!std::is_trivially_copy_constructible<T>::value or
                                            !std::is_trivially_copy_constructible<E>::value),
@@ -386,8 +475,14 @@ public:
             construct_at(std::addressof(m_error), _x.m_error);
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的默认移动构造函数
+     */
     Dexpected(Dexpected &&) = default;
 
+    /*!
+     * @brief Dtk::Core::Dexpected的移动构造函数
+     */
     template <typename std::enable_if<std::is_move_constructible<T>::value and std::is_move_constructible<E>::value and
                                           (!std::is_trivially_move_constructible<T>::value or
                                            !std::is_trivially_move_constructible<E>::value),
@@ -403,6 +498,12 @@ public:
             construct_at(std::addressof(m_error), std::move(_x).m_error);
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的拷贝构造函数
+     * @tparam U 另一个Dtk::Core::Dexpected的期待类型
+     * @tparam G 另一个Dtk::Core::Dexpected的不期待类型
+     * @param[in] _x 模板类型分别为U和G的Dtk::Core::Dexpected对象
+     */
     template <
         typename U,
         typename G,
@@ -421,6 +522,13 @@ public:
             construct_at(std::addressof(m_error), _x.m_error);
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的拷贝构造函数
+     * @tparam U 另一个Dtk::Core::Dexpected的期待类型
+     * @tparam G 另一个Dtk::Core::Dexpected的不期待类型
+     * @param[in] _x 模板类型分别为U和G的Dtk::Core::Dexpected对象
+     * @attention 该拷贝构造函数有explicit标识
+     */
     template <
         typename U,
         typename G,
@@ -438,6 +546,13 @@ public:
             construct_at(std::addressof(m_error), _x.m_error);
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的移动构造函数
+     * @tparam U 另一个Dtk::Core::Dexpected的期待类型
+     * @tparam G 另一个Dtk::Core::Dexpected的不期待类型
+     * @param[in] _x 模板类型分别为U和G的Dtk::Core::Dexpected对象
+     * @attention 构造后另一个Dtk::Core::Dexpected不可用
+     */
     template <typename U,
               typename G,
               typename std::enable_if<std::is_constructible<T, U>::value and std::is_constructible<E, G>::value and
@@ -454,6 +569,13 @@ public:
             construct_at(std::addressof(m_error), std::move(_x).m_error);
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的移动构造函数
+     * @tparam U 另一个Dtk::Core::Dexpected的期待类型
+     * @tparam G 另一个Dtk::Core::Dexpected的不期待类型
+     * @param[in] _x 模板类型分别为U和G的Dtk::Core::Dexpected对象
+     * @attention 构造后另一个Dtk::Core::Dexpected不可用，该函数有explicit标识
+     */
     template <typename U,
               typename G,
               typename std::enable_if<std::is_constructible<T, U>::value and std::is_constructible<E, G>::value and
@@ -470,6 +592,12 @@ public:
             construct_at(std::addressof(m_error), std::move(_x).m_error);
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的移动构造函数，直接从期待类型构造出Dtk::Core::Dexpected对象
+     * @tparam U Dtk::Core::Dexpected的期待类型，默认为类型T
+     * @param[in] _v 期待类型为U的对象
+     * @attention 构造后原对象不可用，该函数有explicit标识
+     */
     template <typename U = T,
               typename std::enable_if<!std::is_same<typename remove_cvref<U>::type, Dexpected>::value and
                                           !std::is_same<typename remove_cvref<U>::type, emplace_tag>::value and
@@ -483,6 +611,12 @@ public:
     {
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的移动构造函数，直接从期待类型构造出Dtk::Core::Dexpected对象
+     * @tparam U Dtk::Core::Dexpected的期待类型，默认为类型T
+     * @param[in] _v 期待类型为U的对象
+     * @attention 构造后原对象不可用
+     */
     template <typename U = T,
               typename std::enable_if<!std::is_same<typename remove_cvref<U>::type, Dexpected>::value and
                                           !std::is_same<typename remove_cvref<U>::type, emplace_tag>::value and
@@ -495,6 +629,12 @@ public:
     {
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的拷贝构造函数，从Dtk::Core::Dunexpected构造出Dtk::Core::Dexpected对象
+     * @tparam G Dtk::Core::Dexpected的期待类型，默认为类型E
+     * @param[in] _u 期待类型为G的Dtk::Core::Dunexpected对象
+     * @attention 该函数有explicit标识
+     */
     template <typename G = E,
               typename std::enable_if<std::is_constructible<E, const G &>::value and !std::is_convertible<const G &, E>::value,
                                       bool>::type = true>
@@ -504,6 +644,11 @@ public:
     {
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的拷贝构造函数，从Dtk::Core::Dunexpected构造出Dtk::Core::Dexpected对象
+     * @tparam G Dtk::Core::Dexpected的期待类型，默认为类型E
+     * @param[in] _u 期待类型为G的Dtk::Core::Dunexpected对象
+     */
     template <typename G = E,
               typename std::enable_if<std::is_constructible<E, const G &>::value and std::is_convertible<const G &, E>::value,
                                       bool>::type = true>
@@ -513,6 +658,12 @@ public:
     {
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的移动构造函数，从Dtk::Core::Dunexpected构造出Dtk::Core::Dexpected对象
+     * @tparam G Dtk::Core::Dexpected的期待类型，默认为类型E
+     * @param[in] _u 期待类型为G的Dtk::Core::Dunexpected对象
+     * @attention 构造后原对象不可用，该函数有explicit标识
+     */
     template <
         typename G = E,
         typename std::enable_if<std::is_constructible<E, G>::value and !std::is_convertible<G, E>::value, bool>::type = true>
@@ -522,6 +673,12 @@ public:
     {
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的移动构造函数，从Dtk::Core::Dunexpected构造出Dtk::Core::Dexpected对象
+     * @tparam G Dtk::Core::Dexpected的期待类型，默认为类型E
+     * @param[in] _u 期待类型为G的Dtk::Core::Dunexpected对象
+     * @attention 构造后原对象不可用
+     */
     template <typename G = E,
               typename std::enable_if<std::is_constructible<E, G>::value and std::is_convertible<G, E>::value, bool>::type = true>
     constexpr Dexpected(Dunexpected<G> &&_u) noexcept(std::is_nothrow_constructible<E, G>::value)
@@ -530,6 +687,12 @@ public:
     {
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的转发构造函数，从参数直接构造出期待值
+     * @tparam Args 构造期待类型T所用到的参数的类型
+     * @param[in] args 构造期待类型T所用到的参数
+     * @attention 为了区分是构造T还是Dtk::Core::Dexpected，需要在第一个参数使用emplace_tag进行标识
+     */
     template <typename... Args>
     constexpr explicit Dexpected(emplace_tag, Args &&...args) noexcept(std::is_nothrow_constructible<T, Args...>::value)
         : m_has_value(true)
@@ -539,6 +702,14 @@ public:
         static_assert(std::is_constructible<T, Args...>::value, "can't construct T from args.");
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的转发构造函数，从参数直接构造出期待值
+     * @tparam U 初始化列表的模板参数
+     * @tparam Args 构造期待类型T所用到的参数的类型
+     * @param[in] _li  构造期待类型T所用到的初始化列表
+     * @param[in] args 构造期待类型T所用到的参数
+     * @attention 为了区分是构造T还是Dtk::Core::Dexpected，需要在第一个参数使用emplace_tag进行标识
+     */
     template <typename U, typename... Args>
     constexpr explicit Dexpected(emplace_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
         std::is_nothrow_constructible<T, std::initializer_list<U> &, Args...>::value)
@@ -548,6 +719,12 @@ public:
         static_assert(std::is_constructible<T, std::initializer_list<U> &, Args...>::value, "can't construct T from args.");
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的转发构造函数，从参数直接构造出不期待值
+     * @tparam Args 构造不期待类型E所用到的参数的类型
+     * @param[in] args 构造不期待类型E所用到的参数
+     * @attention 为了区分是构造E还是Dtk::Core::Dexpected，需要在第一个参数使用dunexpected_tag进行标识
+     */
     template <typename... Args>
     constexpr explicit Dexpected(dunexpected_tag, Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
         : m_has_value(false)
@@ -557,6 +734,14 @@ public:
         static_assert(std::is_constructible<E, Args...>::value, "can't construct E from args.");
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的转发构造函数，从参数直接构造出不期待值
+     * @tparam U 初始化列表的模板参数
+     * @tparam Args 构造不期待类型E所用到的参数的类型
+     * @param[in] _li  构造不期待类型E所用到的初始化列表
+     * @param[in] args 构造不期待类型E所用到的参数
+     * @attention 为了区分是构造E还是Dtk::Core::Dexpected，需要在第一个参数使用dunexpected_tag进行标识
+     */
     template <typename U, typename... Args>
     constexpr explicit Dexpected(dunexpected_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
         std::is_nothrow_constructible<E, std::initializer_list<U> &, Args...>::value)
@@ -566,6 +751,9 @@ public:
         static_assert(std::is_constructible<E, std::initializer_list<U> &, Args...>::value, "can't construct E from args.");
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的析构函数
+     */
     ~Dexpected()
     {
         if (des_value()) {
@@ -577,8 +765,15 @@ public:
         }
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的默认拷贝赋值运算符
+     */
     Dexpected &operator=(const Dexpected &) = delete;
 
+    /*!
+     * @brief Dtk::Core::Dexpected的拷贝赋值运算符
+     * @param[in] _x 同类型的Dtk::Core::Dexpected对象
+     */
     template <typename std::enable_if<std::is_copy_assignable<T>::value and std::is_copy_constructible<T>::value and
                                           std::is_copy_assignable<E>::value and std::is_copy_constructible<E>::value and
                                           (std::is_nothrow_move_constructible<T>::value or
@@ -595,6 +790,11 @@ public:
         return *this;
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的移动赋值运算符
+     * @param[in] _x 同类型的Dtk::Core::Dexpected对象
+     * @attention 赋值后原对象不可用
+     */
     template <typename std::enable_if<std::is_move_assignable<T>::value and std::is_move_constructible<T>::value and
                                           std::is_move_assignable<E>::value and std::is_move_constructible<E>::value and
                                           (std::is_nothrow_move_constructible<T>::value or
@@ -611,6 +811,11 @@ public:
         return *this;
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的转发赋值运算符
+     * @tparam U 期待类型，默认为T
+     * @param[in] _v 期待类型U的对象
+     */
     template <
         typename U = T,
         typename std::enable_if<!std::is_same<Dexpected, typename remove_cvref<U>::type>::value and
@@ -625,6 +830,11 @@ public:
         return *this;
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的拷贝赋值运算符
+     * @tparam G 不期待类型
+     * @param[in] _e 模板类型为G的Dtk::Core::Dunexpected对象
+     */
     template <typename G,
               typename std::enable_if<std::is_constructible<E, const G &>::value and std::is_assignable<E &, const G &>::value and
                                           (std::is_nothrow_constructible<E, const G &>::value or
@@ -636,6 +846,12 @@ public:
         return *this;
     }
 
+    /*!
+     * @brief Dtk::Core::Dexpected的移动赋值运算符
+     * @tparam G 不期待类型
+     * @param[in] _e 模板类型为G的Dtk::Core::Dunexpected对象
+     * @attention 赋值后原对象不可用
+     */
     template <typename G,
               typename std::enable_if<std::is_constructible<E, G>::value and std::is_assignable<E &, G>::value and
                                           (std::is_nothrow_constructible<E, G>::value or
@@ -647,6 +863,12 @@ public:
         return *this;
     }
 
+    /*!
+     * @brief 从参数直接转发构造期待值
+     * @tparam Args 构造期待值所用到的参数的类型
+     * @param[in] args 构造期待值所用到的参数
+     * @return 返回构造好的期待值的引用
+     */
     template <typename... Args>
     T &emplace(Args &&...args) noexcept
     {
@@ -661,6 +883,14 @@ public:
         return m_value;
     }
 
+    /*!
+     * @brief 从参数直接转发构造期待值
+     * @tparam U 初始化列表的模板参数
+     * @tparam Args 构造期待值所用到的参数的类型
+     * @param[in] args 构造期待值所用到的参数
+     * @param[in] li 构造期待值所用到的参数化列表
+     * @return 返回构造好的期待值的引用
+     */
     template <typename U, typename... Args>
     T &emplace(std::initializer_list<U> li, Args &&...args) noexcept
     {
@@ -676,6 +906,10 @@ public:
     }
 
     // TODO:需要swap吗？
+    /*!
+     * @brief 交换两个Dtk::Core::Dexpected的值
+     * @param[in] _x 另一个Dtk::Core::Dexpected对象
+     */
     template <typename std::enable_if<std::is_move_constructible<T>::value and std::is_move_constructible<E>::value and
                                           (std::is_nothrow_move_constructible<T>::value or
                                            std::is_nothrow_move_constructible<E>::value),
@@ -700,46 +934,82 @@ public:
         }
     }
 
+    /*!
+     * @brief 重载箭头运算符
+     * @return 一个指向期待值的const指针
+     */
     const T *operator->() const noexcept
     {
         assert(m_has_value);
         return std::addressof(m_value);
     }
 
+    /*!
+     * @brief 重载箭头运算符
+     * @return 一个指向期待值的指针
+     */
     T *operator->() noexcept
     {
         assert(m_has_value);
         return std::addressof(m_value);
     }
 
+    /*!
+     * @brief 重载解引用运算符
+     * @return 一个期待值的const左值引用
+     */
     const T &operator*() const &noexcept
     {
         assert(m_has_value);
         return m_value;
     }
 
+    /*!
+     * @brief 重载解引用运算符
+     * @return 一个期待值的左值引用
+     */
     T &operator*() &noexcept
     {
         assert(m_has_value);
         return m_value;
     }
 
+    /*!
+     * @brief 重载解引用运算符
+     * @return 一个期待值的const右值引用
+     */
     const T &&operator*() const &&noexcept
     {
         assert(m_has_value);
         return std::move(m_value);
     }
 
+    /*!
+     * @brief 重载解引用运算符
+     * @return 一个期待值的右值引用
+     */
     T &&operator*() &&noexcept
     {
         assert(m_has_value);
         return std::move(m_value);
     }
 
+    /*!
+     * @brief bool转换函数
+     * @return 表示Dtk::Core::Dexpected是否有值的bool值
+     */
     constexpr explicit operator bool() const noexcept { return m_has_value; }
 
+    /*!
+     * @brief 判断Dtk::Core::Dexpected是否有值
+     * @return 表示是否有值的bool值
+     */
     constexpr bool has_value() const noexcept { return m_has_value; }
 
+    /*!
+     * @brief 获取Dtk::Core::Dexpected的期待值
+     * @return 期待值的const左值引用
+     */
     const T &value() const &
     {
         if (likely(m_has_value)) {
@@ -748,6 +1018,10 @@ public:
         _DEXPECTED_THROW_OR_ABORT(bad_result_access<E>(m_error));
     }
 
+    /*!
+     * @brief 获取Dtk::Core::Dexpected的期待值
+     * @return 期待值的左值引用
+     */
     T &value() &
     {
         if (likely(m_has_value)) {
@@ -756,6 +1030,11 @@ public:
         _DEXPECTED_THROW_OR_ABORT(bad_result_access<E>(m_error));
     }
 
+    /*!
+     * @brief 获取Dtk::Core::Dexpected的期待值
+     * @return 期待值的const右值引用
+     * @attention 调用后期待值不可用
+     */
     const T &&value() const &&
     {
         if (likely(m_has_value)) {
@@ -764,6 +1043,11 @@ public:
         _DEXPECTED_THROW_OR_ABORT(bad_result_access<E>(m_error));
     }
 
+    /*!
+     * @brief 获取Dtk::Core::Dexpected的期待值
+     * @return 期待值的右值引用
+     * @attention 调用后期待值不可用
+     */
     T &&value() &&
     {
         if (likely(m_has_value)) {
@@ -772,24 +1056,42 @@ public:
         _DEXPECTED_THROW_OR_ABORT(bad_result_access<E>(m_error));
     }
 
+    /*!
+     * @brief 获取Dtk::Core::Dexpected的不期待值
+     * @return 不期待值的const左值引用
+     */
     const E &error() const &noexcept
     {
         assert(!m_has_value);
         return m_error;
     }
 
+    /*!
+     * @brief 获取Dtk::Core::Dexpected的不期待值
+     * @return 不期待值的左值引用
+     */
     E &error() &noexcept
     {
         assert(!m_has_value);
         return m_error;
     }
 
+    /*!
+     * @brief 获取Dtk::Core::Dexpected的不期待值
+     * @return 不期待值的const右值引用
+     * @attention 调用后不期待值不可用
+     */
     const E &&error() const &&noexcept
     {
         assert(!m_has_value);
         return std::move(m_error);
     }
 
+    /*!
+     * @brief 获取Dtk::Core::Dexpected的不期待值
+     * @return 不期待值的右值引用
+     * @attention 调用后不期待值不可用
+     */
     E &&error() &&noexcept
     {
         assert(!m_has_value);
@@ -797,6 +1099,12 @@ public:
     }
 
     // TODO:因为无法确定U转T时是否会抛出异常，所以都按抛出异常来
+    /*!
+     * @brief 如果有期待值返回期待值，否则返回传入的默认值
+     * @tparam U 期待值的类型
+     * @param[in] _v 默认的期待值
+     * @return 期待值
+     */
     template <typename U>
     T value_or(U &&_v) const &
     {
@@ -807,6 +1115,13 @@ public:
         return static_cast<T>(std::forward<U>(_v));
     }
 
+    /*!
+     * @brief 如果有期待值返回期待值，否则返回传入的默认值
+     * @tparam U 期待值的类型
+     * @param[in] _v 默认的期待值
+     * @return 期待值
+     * @attention 如果由期待值，调用后原期待值不可用，同时类型U要可以转换成类型T
+     */
     template <typename U>
     T value_or(U &&_v) &&
     {
@@ -817,6 +1132,9 @@ public:
         return static_cast<T>(std::forward<U>(_v));
     }
 
+    /*!
+     *@brief 重载相等运算符
+     */
     template <typename U, typename E2, typename std::enable_if<!std::is_void<U>::value, bool>::type = true>
     friend bool
     operator==(const Dexpected &_x,
@@ -828,12 +1146,18 @@ public:
             return !_y.has_value() and bool(_x.error() == _x.error());
     }
 
+    /*!
+     *@brief 重载相等运算符
+     */
     template <typename U>
     friend constexpr bool operator==(const Dexpected &_x, const U &_v) noexcept(noexcept(bool(*_x == _v)))
     {
         return _x.has_value() && bool(*_x == _v);
     }
 
+    /*!
+     *@brief 重载相等运算符
+     */
     template <typename E2>
     friend constexpr bool operator==(const Dexpected &_x,
                                      const Dunexpected<E2> &_e) noexcept(noexcept(bool(_x.error() == _e.error())))
@@ -841,6 +1165,9 @@ public:
         return !_x.has_value() && bool(_x.error() == _e.error());
     }
 
+    /*!
+     *@brief 交换两个Dtk::Core::Dexpected中的值
+     */
     friend void swap(Dexpected &_x, Dexpected &_y) noexcept(noexcept(_x.swap(_y))) { _x.swap(_y); }
 
 private:
@@ -855,6 +1182,10 @@ private:
     };
 };
 
+/*!
+ * @brief 对于Dtk::Core::Dexpected的void偏特化，其他函数参考原模板类
+ * @tparam E 不期待值的类型
+ */
 template <typename E>
 class Dexpected<void, E>
 {
