@@ -104,6 +104,8 @@ set(TOINSTALLBASE
   ../include/base/dobject.h
   ../include/base/dsingleton.h
   ../include/base/private/dobject_p.h
+  ../include/base/derror.h
+  ../include/base/dexpected.h
 )
 install(FILES ${TOINSTALLBASE} DESTINATION "${INCLUDE_INSTALL_DIR}")
 install(DIRECTORY ../include/dci/ DESTINATION "${INCLUDE_INSTALL_DIR}" FILES_MATCHING PATTERN "*.h")
