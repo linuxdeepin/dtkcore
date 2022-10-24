@@ -50,15 +50,34 @@ void DDBusInterfacePrivate::updateProp(const char *propName, const QVariant &val
         return;
     m_propertyMap.insert(propName, value);
     const QMetaObject *metaObj = m_parent->metaObject();
-    QByteArray baSignal = QStringLiteral("%1Changed(%2)").arg(propName).arg(value.typeName()).toLatin1();
+    const char *typeName(value.typeName());
+    void *data = const_cast<void *>(value.data());
+    if (value.canConvert<QDBusArgument>()) {
+        auto dbusType = qvariant_cast<QDBusArgument>(value);
+        auto dbusMetaType = QDBusMetaType::signatureToType(dbusType.currentSignature().toUtf8());
+        typeName = QMetaType::typeName(dbusMetaType);
+
+        void *dbusData = QMetaType::create(dbusMetaType);
+        QDBusMetaType::demarshall(dbusType, dbusMetaType, dbusData);
+        data = dbusData;
+        // release dbus data of `QMetaType::create`.
+        QObject dbusDataDeleter;
+        QObject::connect(&dbusDataDeleter, &QObject::destroyed, m_parent, [dbusData, dbusMetaType]() {
+            QMetaType::destroy(dbusMetaType, dbusData);
+        }, Qt::QueuedConnection);
+    }
+    QByteArray baSignal = QStringLiteral("%1Changed(%2)").arg(propName).arg(typeName).toLatin1();
     QByteArray baSignalName = QStringLiteral("%1Changed").arg(propName).toLatin1();
     const char *signal = baSignal.data();
     const char *signalName = baSignalName.data();
     int i = metaObj->indexOfSignal(signal);
     if (i != -1) {
-        QMetaObject::invokeMethod(m_parent, signalName, Qt::DirectConnection, QGenericArgument(value.typeName(), value.data()));
-    } else
-        qWarning() << "invalid property changed:" << propName << value;
+        QMetaObject::invokeMethod(m_parent, signalName, Qt::DirectConnection, QGenericArgument(typeName, data));
+    } else {
+        qDebug() << "It's not exist the property:[" << propName <<"] for parent:" << m_parent
+                 << ", interface:" << q_ptr->interface()
+                 << ", and It's changed value is:" << value;
+    }
 }
 
 void DDBusInterfacePrivate::initDBusConnection()
