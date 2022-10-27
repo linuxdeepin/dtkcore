@@ -10,6 +10,7 @@ set(CMAKE_AUTORCC ON)
 
 set (DSG_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" CACHE STRING "PREFIX of DSG_DATA_DIRS")
 add_definitions(-DPREFIX="${DSG_PREFIX_PATH}")
+add_definitions(-DLIBDTKCORE_LIBRARY)
 find_package(Qt5 REQUIRED COMPONENTS Core)
 if(LINUX)
 find_package(PkgConfig REQUIRED)
