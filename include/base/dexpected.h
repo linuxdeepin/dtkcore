@@ -5,13 +5,13 @@
 #ifndef DEXPECTED_H
 #define DEXPECTED_H
 
-#include "dtkcore_global.h"
 #include <cassert>
 #include <cstdlib>
 #include <exception>
 #include <initializer_list>
 #include <memory>
 #include <type_traits>
+#include "derror.h"
 
 DCORE_BEGIN_NAMESPACE
 
@@ -352,7 +352,7 @@ private:
  * @tparam T 期待的类型
  * @tparam E 不期待的类型
  */
-template <typename T, typename E>
+template <typename T, typename E = DError>
 class DExpected
 {
     template <typename, typename>
