@@ -15,8 +15,8 @@
 
 DCORE_BEGIN_NAMESPACE
 
-#define likely(x) __builtin_expect((x), 1)
-#define unlikely(x) __builtin_expect((x), 0)
+#define likely(x) __builtin_expect(static_cast<long int>((x)), 1)
+#define unlikely(x) __builtin_expect(reinterpret_cast<long int>((x)), 0)
 
 #if __cpp_exceptions
 #    define _DEXPECTED_THROW_OR_ABORT(_EXC) (throw(_EXC))
