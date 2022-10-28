@@ -1031,7 +1031,7 @@ public:
      * @brief 判断Dtk::Core::DExpected是否有值
      * @return 表示是否有值的bool值
      */
-    constexpr bool has_value() const noexcept { return m_has_value; }
+    constexpr bool hasValue() const noexcept { return m_has_value; }
 
     /*!
      * @brief 获取Dtk::Core::DExpected的期待值
@@ -1167,10 +1167,10 @@ public:
     operator==(const DExpected &_x,
                const DExpected<U, E2> &_y) noexcept(noexcept(bool(*_x == *_y)) and noexcept(bool(_x.error() == _y.error())))
     {
-        if (_x.has_value())
-            return _y.has_value() and bool(*_x == *_y);
+        if (_x.hasValue())
+            return _y.hasValue() and bool(*_x == *_y);
         else
-            return !_y.has_value() and bool(_x.error() == _x.error());
+            return !_y.hasValue() and bool(_x.error() == _x.error());
     }
 
     /*!
@@ -1179,7 +1179,7 @@ public:
     template <typename U>
     friend constexpr bool operator==(const DExpected &_x, const U &_v) noexcept(noexcept(bool(*_x == _v)))
     {
-        return _x.has_value() && bool(*_x == _v);
+        return _x.hasValue() && bool(*_x == _v);
     }
 
     /*!
@@ -1189,7 +1189,7 @@ public:
     friend constexpr bool operator==(const DExpected &_x,
                                      const DUnexpected<E2> &_e) noexcept(noexcept(bool(_x.error() == _e.error())))
     {
-        return !_x.has_value() && bool(_x.error() == _e.error());
+        return !_x.hasValue() && bool(_x.error() == _e.error());
     }
 
     /*!
@@ -1473,7 +1473,7 @@ public:
 
     constexpr explicit operator bool() const noexcept { return m_has_value; }
 
-    constexpr bool has_value() const noexcept { return m_has_value; }
+    constexpr bool hasValue() const noexcept { return m_has_value; }
 
     void operator*() const noexcept { assert(m_has_value); }
 
@@ -1518,16 +1518,16 @@ public:
     template <typename U, typename E2, typename std::enable_if<std::is_void<U>::value, bool>::type = true>
     friend bool operator==(const DExpected &_x, const DExpected<U, E2> &_y) noexcept(noexcept(bool(_x.error() == _y.error())))
     {
-        if (_x.has_value())
-            return _y.has_value();
+        if (_x.hasValue())
+            return _y.hasValue();
         else
-            return !_y.has_value() and bool(_x.error() == _y.error());
+            return !_y.hasValue() and bool(_x.error() == _y.error());
     }
 
     template <typename E2>
     friend bool operator==(const DExpected &_x, const DUnexpected<E2> &_e) noexcept(noexcept(bool(_x.error() == _e.error())))
     {
-        return !_x.has_value() && bool(_x.error() == _e.error());
+        return !_x.hasValue() && bool(_x.error() == _e.error());
     }
 
     // TODO:可能没有swap
