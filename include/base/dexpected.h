@@ -5,13 +5,13 @@
 #ifndef DEXPECTED_H
 #define DEXPECTED_H
 
+#include "derror.h"
 #include <cassert>
 #include <cstdlib>
 #include <exception>
 #include <initializer_list>
 #include <memory>
 #include <type_traits>
-#include "derror.h"
 
 DCORE_BEGIN_NAMESPACE
 
@@ -228,10 +228,12 @@ void reinit(Tp *_newVal, Up *_oldVal, Vp &&_arg) noexcept(std::is_nothrow_constr
 }  // namespace __dexpected
 
 /*!
- * @brief 类模板Dtk::Core::DUnexpected代表一个Dtk::Core::DExpected中存储的不期待的值
- * @tparam E 不期待的值的类型，该类型不能是非对象类型，数组类型，Dtk::Core::DUnexpected的特化类型或有cv限定符的类型
+ * @brief
+ * 类模板Dtk::Core::DUnexpected代表一个Dtk::Core::DExpected中存储的不期待的值
+ * @tparam E
+ * 不期待的值的类型，该类型不能是非对象类型，数组类型，Dtk::Core::DUnexpected的特化类型或有cv限定符的类型
  */
-template <typename E>
+template <typename E = DError>
 class DUnexpected
 {
     static_assert(__dexpected::_can_be_dunexpected<E>(), "can't be dunexpected");
@@ -263,10 +265,12 @@ public:
     }
 
     /*!
-     * @brief 直接从参数构造出一个包含错误类型为E的对象的Dtk::Core::DUnexpected对象
+     * @brief
+     * 直接从参数构造出一个包含错误类型为E的对象的Dtk::Core::DUnexpected对象
      * @tparam Args 可变参数模板类型，这里是构造类型为E的对象所需要的参数的类型
      * @param[in] args 构造类型为E的对象用到的参数
-     * @attention 为了区分是构造E还是Dtk::Core::DUnexpected，需要在第一个参数使用emplace_tag进行标识
+     * @attention
+     * 为了区分是构造E还是Dtk::Core::DUnexpected，需要在第一个参数使用emplace_tag进行标识
      */
     template <typename... Args>
     constexpr explicit DUnexpected(emplace_tag, Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
@@ -276,12 +280,14 @@ public:
     }
 
     /*!
-     * @brief 从参数和初始化列表构造出一个包含错误类型为E的对象的Dtk::Core::DUnexpected对象
+     * @brief
+     * 从参数和初始化列表构造出一个包含错误类型为E的对象的Dtk::Core::DUnexpected对象
      * @tparam U 初始化列表的模板类型
      * @tparam Args 可变参数模板类型，这里是构造类型为E的对象所需要的参数的类型
      * @param _li 模板类型为U的初始化列表
      * @param[in] args 构造类型为E的对象用到的参数
-     * @attention 为了区分是构造E还是Dtk::Core::DUnexpected，需要在第一个参数使用emplace_tag进行标识
+     * @attention
+     * 为了区分是构造E还是Dtk::Core::DUnexpected，需要在第一个参数使用emplace_tag进行标识
      */
     template <typename U, typename... Args>
     constexpr explicit DUnexpected(emplace_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
@@ -604,7 +610,8 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::DExpected的移动构造函数，直接从期待类型构造出Dtk::Core::DExpected对象
+     * @brief
+     * Dtk::Core::DExpected的移动构造函数，直接从期待类型构造出Dtk::Core::DExpected对象
      * @tparam U Dtk::Core::DExpected的期待类型，默认为类型T
      * @param[in] _v 期待类型为U的对象
      * @attention 构造后原对象不可用，该函数有explicit标识
@@ -623,7 +630,8 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::DExpected的移动构造函数，直接从期待类型构造出Dtk::Core::DExpected对象
+     * @brief
+     * Dtk::Core::DExpected的移动构造函数，直接从期待类型构造出Dtk::Core::DExpected对象
      * @tparam U Dtk::Core::DExpected的期待类型，默认为类型T
      * @param[in] _v 期待类型为U的对象
      * @attention 构造后原对象不可用
@@ -641,7 +649,8 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::DExpected的拷贝构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
+     * @brief
+     * Dtk::Core::DExpected的拷贝构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
      * @tparam G Dtk::Core::DExpected的期待类型，默认为类型E
      * @param[in] _u 期待类型为G的Dtk::Core::DUnexpected对象
      * @attention 该函数有explicit标识
@@ -656,7 +665,8 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::DExpected的拷贝构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
+     * @brief
+     * Dtk::Core::DExpected的拷贝构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
      * @tparam G Dtk::Core::DExpected的期待类型，默认为类型E
      * @param[in] _u 期待类型为G的Dtk::Core::DUnexpected对象
      */
@@ -670,7 +680,8 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::DExpected的移动构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
+     * @brief
+     * Dtk::Core::DExpected的移动构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
      * @tparam G Dtk::Core::DExpected的期待类型，默认为类型E
      * @param[in] _u 期待类型为G的Dtk::Core::DUnexpected对象
      * @attention 构造后原对象不可用，该函数有explicit标识
@@ -685,7 +696,8 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::DExpected的移动构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
+     * @brief
+     * Dtk::Core::DExpected的移动构造函数，从Dtk::Core::DUnexpected构造出Dtk::Core::DExpected对象
      * @tparam G Dtk::Core::DExpected的期待类型，默认为类型E
      * @param[in] _u 期待类型为G的Dtk::Core::DUnexpected对象
      * @attention 构造后原对象不可用
@@ -702,7 +714,8 @@ public:
      * @brief Dtk::Core::DExpected的转发构造函数，从参数直接构造出期待值
      * @tparam Args 构造期待类型T所用到的参数的类型
      * @param[in] args 构造期待类型T所用到的参数
-     * @attention 为了区分是构造T还是Dtk::Core::DExpected，需要在第一个参数使用emplace_tag进行标识
+     * @attention
+     * 为了区分是构造T还是Dtk::Core::DExpected，需要在第一个参数使用emplace_tag进行标识
      */
     template <typename... Args>
     constexpr explicit DExpected(emplace_tag, Args &&...args) noexcept(std::is_nothrow_constructible<T, Args...>::value)
@@ -719,7 +732,8 @@ public:
      * @tparam Args 构造期待类型T所用到的参数的类型
      * @param[in] _li  构造期待类型T所用到的初始化列表
      * @param[in] args 构造期待类型T所用到的参数
-     * @attention 为了区分是构造T还是Dtk::Core::DExpected，需要在第一个参数使用emplace_tag进行标识
+     * @attention
+     * 为了区分是构造T还是Dtk::Core::DExpected，需要在第一个参数使用emplace_tag进行标识
      */
     template <typename U, typename... Args>
     constexpr explicit DExpected(emplace_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
@@ -734,7 +748,8 @@ public:
      * @brief Dtk::Core::DExpected的转发构造函数，从参数直接构造出不期待值
      * @tparam Args 构造不期待类型E所用到的参数的类型
      * @param[in] args 构造不期待类型E所用到的参数
-     * @attention 为了区分是构造E还是Dtk::Core::DExpected，需要在第一个参数使用dunexpected_tag进行标识
+     * @attention
+     * 为了区分是构造E还是Dtk::Core::DExpected，需要在第一个参数使用dunexpected_tag进行标识
      */
     template <typename... Args>
     constexpr explicit DExpected(dunexpected_tag, Args &&...args) noexcept(std::is_nothrow_constructible<E, Args...>::value)
@@ -751,7 +766,8 @@ public:
      * @tparam Args 构造不期待类型E所用到的参数的类型
      * @param[in] _li  构造不期待类型E所用到的初始化列表
      * @param[in] args 构造不期待类型E所用到的参数
-     * @attention 为了区分是构造E还是Dtk::Core::DExpected，需要在第一个参数使用dunexpected_tag进行标识
+     * @attention
+     * 为了区分是构造E还是Dtk::Core::DExpected，需要在第一个参数使用dunexpected_tag进行标识
      */
     template <typename U, typename... Args>
     constexpr explicit DExpected(dunexpected_tag, std::initializer_list<U> _li, Args &&...args) noexcept(
