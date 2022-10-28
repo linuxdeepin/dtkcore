@@ -181,6 +181,17 @@ constexpr bool _can_be_dunexpected()
 template <typename Tp,
           typename Up,
           typename Vp,
+          typename std::enable_if<std::is_nothrow_constructible<Tp, Vp>::value and std::is_nothrow_move_constructible<Tp>::value,
+                                  bool>::type = true>
+void reinit(Tp *_newVal, Up *_oldVal, Vp &&_arg) noexcept(std::is_nothrow_constructible<Tp, Vp>::value)
+{
+    destroy_at(_oldVal);
+    construct_at(_newVal, std::forward<Vp>(_arg));
+}
+
+template <typename Tp,
+          typename Up,
+          typename Vp,
           typename std::enable_if<std::is_nothrow_constructible<Tp, Vp>::value and !std::is_nothrow_move_constructible<Tp>::value,
                                   bool>::type = true>
 void reinit(Tp *_newVal, Up *_oldVal, Vp &&_arg) noexcept(std::is_nothrow_constructible<Tp, Vp>::value)
@@ -403,7 +414,7 @@ class DExpected
     void assign_err(V &&_v)
     {
         if (m_has_value) {
-            __dexpected::reinit(std::addressof(m_value), std::addressof(m_error), std::forward<V>(_v));
+            __dexpected::reinit(std::addressof(m_error), std::addressof(m_value), std::forward<V>(_v));
             m_has_value = false;
         } else {
             m_error = std::forward<V>(_v);
