@@ -1391,7 +1391,7 @@ public:
 
     ~DExpected()
     {
-        if (des_value()) {
+        if (des_value() and !m_has_value) {
             destroy_at(std::addressof(m_error));
         }
     }
