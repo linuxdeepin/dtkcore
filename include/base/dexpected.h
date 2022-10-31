@@ -1065,7 +1065,7 @@ public:
     const T &&value() const &&
     {
         if (likely(m_has_value)) {
-            return m_value;
+            return std::move(m_value);
         }
         _DEXPECTED_THROW_OR_ABORT(bad_result_access<E>(m_error));
     }
@@ -1078,7 +1078,7 @@ public:
     T &&value() &&
     {
         if (likely(m_has_value)) {
-            return m_value;
+            return std::move(m_value);
         }
         _DEXPECTED_THROW_OR_ABORT(bad_result_access<E>(m_error));
     }
