@@ -5,7 +5,6 @@
 #ifndef DEXPECTED_H
 #define DEXPECTED_H
 
-#include "derror.h"
 #include <cassert>
 #include <cstdlib>
 #include <exception>
@@ -13,15 +12,17 @@
 #include <memory>
 #include <type_traits>
 
+#include "derror.h"
+
 DCORE_BEGIN_NAMESPACE
 
 #define likely(x) __builtin_expect(static_cast<long int>((x)), 1)
 #define unlikely(x) __builtin_expect(reinterpret_cast<long int>((x)), 0)
 
 #if __cpp_exceptions
-#    define _DEXPECTED_THROW_OR_ABORT(_EXC) (throw(_EXC))
+#define _DEXPECTED_THROW_OR_ABORT(_EXC) (throw(_EXC))
 #else
-#    define _DEXPECTED_THROW_OR_ABORT(_EXC) (std::abort())
+#define _DEXPECTED_THROW_OR_ABORT(_EXC) (std::abort())
 #endif
 
 template <typename T, typename E>
@@ -483,8 +484,6 @@ public:
     DExpected(const DExpected &_x) noexcept(
         std::is_nothrow_copy_constructible<T>::value and std::is_nothrow_copy_constructible<E>::value)
         : m_has_value(_x.m_has_value)
-        , m_invalid()
-
     {
         if (m_has_value)
             construct_at(std::addressof(m_value), _x.m_value);
@@ -507,7 +506,6 @@ public:
     DExpected(DExpected &&_x) noexcept(
         std::is_nothrow_move_constructible<T>::value and std::is_nothrow_move_constructible<E>::value)
         : m_has_value(_x.m_has_value)
-        , m_invalid()
     {
         if (m_has_value)
             construct_at(std::addressof(m_value), std::move(_x).m_value);
@@ -530,8 +528,6 @@ public:
     DExpected(const DExpected<U, G> &_x) noexcept(
         std::is_nothrow_constructible<T, const U &>::value and std::is_nothrow_constructible<E, const G &>::value)
         : m_has_value(_x.m_has_value)
-        , m_invalid()
-
     {
         if (m_has_value)
             construct_at(std::addressof(m_value), _x.m_value);
@@ -555,7 +551,6 @@ public:
     explicit DExpected(const DExpected<U, G> &_x) noexcept(
         std::is_nothrow_constructible<T, const U &>::value and std::is_nothrow_constructible<E, const G &>::value)
         : m_has_value(_x.m_has_value)
-        , m_invalid()
     {
         if (m_has_value)
             construct_at(std::addressof(m_value), _x.m_value);
@@ -578,7 +573,6 @@ public:
     DExpected(DExpected<U, G> &&_x) noexcept(
         std::is_nothrow_constructible<T, U>::value and std::is_nothrow_constructible<E, G>::value)
         : m_has_value(_x.m_has_value)
-        , m_invalid()
     {
         if (m_has_value)
             construct_at(std::addressof(m_value), std::move(_x).m_value);
@@ -601,7 +595,6 @@ public:
     explicit DExpected(DExpected<U, G> &&_x) noexcept(
         std::is_nothrow_constructible<T, U>::value and std::is_nothrow_constructible<E, G>::value)
         : m_has_value(_x.m_has_value)
-        , m_invalid()
     {
         if (m_has_value)
             construct_at(std::addressof(m_value), std::move(_x).m_value);
@@ -1201,9 +1194,6 @@ private:
     bool m_has_value;
     union
     {
-        struct
-        {
-        } m_invalid;
         T m_value;
         E m_error;
     };
