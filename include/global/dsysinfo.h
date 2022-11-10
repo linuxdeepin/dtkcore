@@ -95,6 +95,7 @@ public:
         ARM,        /*!< @~english arm */
         ARM_BE,     /*!< @~english arm-be */
         ALPHA,      /*!< @~english alpha */
+        SW_64,      /*!< @~english sw_64 */
         ARC,        /*!< @~english arc */
         ARC_BE,     /*!< @~english arc-be */
         CRIS,       /*!< @~english cris */

@@ -1256,6 +1256,8 @@ DSysInfo::Arch DSysInfo::arch()
 #  else
     return ARC;
 #  endif
+#elif defined(__sw_64__)
+    return SW_64;
 #else
 #  error "Please register your architecture here!"
 #endif
