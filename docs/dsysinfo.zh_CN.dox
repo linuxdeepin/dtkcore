@@ -1,0 +1,121 @@
+/*!
+@~chinese
+@file includes/global/dsysinfo.h
+
+dsysinfo.h是一组用于查询系统信息的静态类
+
+@enum Dtk::Core::DSysInfo::ProductType dsysinfo.h
+@brief 产品信息
+| 值           | 序号 | 含义    |
+|-------------|----|-------|
+| UnknownType | 0  | 未知类型  |
+| deepin      | 1  | 深度社区版 |
+| ArchLinux   | 2  |       |
+| CentOS      | 3  |       |
+| Debian      | 4  |       |
+| Fedora      | 5  |       |
+| LinuxMint   | 6  |       |
+| Manjaro     | 7  |       |
+| openSUSE    | 8  |       |
+| SailfishOS  | 9  |       |
+| Ubuntu      | 10 |       |
+| Uos         | 11 |       |
+| Gentoo      | 12 |       |
+| NixOS       | 13 |       |
+
+
+@enum Dtk::Core::DSysInfo::DeepinType dsysinfo.h
+@brief 深度操作系统版本
+| 值                  | 序号 | 含义                    |
+|--------------------|----|-----------------------|
+| UnknownDeepin      | 0  | 未知版本          |
+| DeepinDesktop      | 1  | deepin桌面发行版           |
+| DeepinProfessional | 2  | deepin专业版,现为uos专业版    |
+| DeepinServer       | 3  | deepin服务器版本,现为uos服务器版 |
+| DeepinPersonal     | 4  | deepin个人版,现为uos家庭版    |
+
+@enum Dtk::Core::DSysInfo::LogoType
+@brief 系统的logo类型
+| 值            | 序号 | 含义 |
+|--------------|----|----|
+| Normal       | 0  | 正常 |
+|  Light       | 1  | 亮色 |
+| Symbolic     | 2  | 符号 |
+| Transparent  | 3  | 水印 |
+
+@enum Dtk::Core::DSysInfo::OrgType
+@brief
+| 值            | 序号 | 含义           |
+|--------------|----|--------------|
+| Distribution | 0  | 当前版本         |
+| Distributor  | 1  | 当前发行版        |
+| Manufacturer | 2  | 当前发行版或设备的制造商 |
+
+@enum Dtk::Core::DSysInfo::UosType
+@brief UOS版本类型
+| 值               | 序号 | 含义          |
+|-----------------|----|-------------|
+|  UosTypeUnknown | 0  | 未知版本     |
+| UosDesktop      | 1  | UOS桌面版      |
+| UosServer       | 2  | UOS服务器版     |
+| UosDevice       | 3  | UOS设备版      |
+| UosTypeCount    | 4  | 记录枚举数量   |
+
+@enum Dtk::Core::DSysInfo::UosType
+@brief 详细uos版本
+| 值                 | 序号 | 含义                  |
+|-------------------|----|---------------------|
+| UosEditionUnknown | 0  | 未知发行版           |
+| UosProfessional   | 1  | UOS专业版              |
+| UosHome           | 2  | UOS家庭版              |
+| UosCommunity      | 3  | 社区版                 |
+| UosMilitary       | 4  | *                    |
+| UosEnterprise     | 5  | UOS企业版              |
+| UosEnterpriseC    | 6  | UOS行业版            |
+| UosEuler          | 7  | UOS服务器欧拉版           |
+| UosMilitaryS      | 8  | *                    |
+| UosDeviceEdition  | 9  | UOS专用设备版            |
+| UosEducation      | 10 | UOS教育版              |
+| UosEditionCount   | 11 | 记录枚举数量              |
+
+@enum Dtk::Core::DSysInfo::UosArch
+@biref UOS使用的架构
+| 值              | 序号 | 含义     |
+|----------------|----|--------|
+| UosArchUnknown | 0  | 未知架构   |
+| UosAMD64       | 1  | x86_64 |
+| UosARM64       | 2  | arm64  |
+| UosMIPS64      | 4  | mips64 |
+| UosSW64        | 8  | sw_64  |
+
+
+
+
+@fn static bool Dtk::Core::DSysInfo::isDeepin() //FIXME: 显示错乱 无法修复
+@brief 是否为deepin系统
+@return 0 不是deepin系统
+@return 1 是deepin系统
+
+@fn static bool Dtk::Core::DSysInfo::isDDE()
+@brief 是否使用dde桌面环境
+
+@fn static DeepinType  Dtk::Core::DSysInfo::deepinType()
+@brief deepin系统类型
+
+@fn static QString Dtk::Core::DSysInfo::deepinTypeDisplayName (const QLocale &locale=QLocale::system())
+@brief 显示的deepin发行版类型名称
+
+@fn static QString 	Dtk::Core::DSysInfo::deepinVersion()
+@brief deepin版本
+
+@fn static QString 	Dtk::Core::DSysInfo::deepinCopyright()
+@brief deepin 开源许可协议
+
+@fn static UosEdition Dtk::Core::DSysInfo::uosEditionType()
+@brief DSysInfo::osEditionType 版本类型 显示版本类型 专业版/个人版/社区版..
+@note 根据 osBuild.B && osBuild.D
+
+@fn static UosArch Dtk::Core::DSysInfo::uosArch()
+@brief DSysInfo::osArch 架构信息（使用一个字节的二进制位，从低位到高位） 【0x8 sw64】【0x4 mips64】【0x2 arm64】【0x1 amd64】
+
+*/

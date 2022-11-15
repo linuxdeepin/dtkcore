@@ -50,9 +50,9 @@ Copyright: None
 License: CC0-1.0
 
 # docs
-Files: *.md *README*
-Copyright: None
-License: CC0-1.0
+Files: *.dox *.md src/util/README.dpinyin tools/qdbusxml2cpp/README
+Copyright: UnionTech Software Technology Co., Ltd.
+License: CC-BY-4.0
 
 # interface
 Files: include/DtkCore/D*
@@ -68,3 +68,4 @@ License: CC0-1.0
 Files: src/log/*
 Copyright: UnionTech Software Technology Co., Ltd.
 License: LGPL-3.0-or-later
+

@@ -89,13 +89,13 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dtkcore.pc DESTINATION "${CMAKE_INSTAL
 configure_file(misc/qt_lib_dtkcore.pri.in qt_lib_dtkcore.pri @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/qt_lib_dtkcore.pri DESTINATION "${MKSPECS_INSTALL_DIR}")
 set(CONFIGNAME include/global/dtkcore_config.h)
-file(WRITE ${CONFIGNAME} 
+file(WRITE ${CONFIGNAME}
   "// it is auto make config\n"
   "#define DTK_VERSION_MAJOR ${PROJECT_VERSION_MAJOR}\n"
   "#define DTK_VERSION_MINOR ${PROJECT_VERSION_MINOR}\n"
   "#define DTK_VERSION_PATCH ${PROJECT_VERSION_PATCH}\n"
   "#define DTK_VERSION_BUILD ${BUILD_VERSION}\n"
-  "#define DTK_VERSION_STR \"${PROJECT_VERSION}\"\n"	
+  "#define DTK_VERSION_STR \"${PROJECT_VERSION}\"\n"
   "\n"
 )
 file(GLOB CONFIGSOURCE include/DtkCore/*)
