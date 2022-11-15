@@ -18,12 +18,13 @@ set (DOXYGEN_QHP_VIRTUAL_FOLDER "dtkcore")
 set (DOXYGEN_HTML_EXTRA_STYLESHEET "" CACHE STRING "Doxygen custom stylesheet for HTML output")
 set (DOXYGEN_TAGFILES "qtcore.tags=qthelp://org.qt-project.qtcore/qtcore/" CACHE STRING "Doxygen tag files")
 
+set (DOXYGEN_MACRO_EXPANSION "YES")
 set (DOXYGEN_PREDEFINED
     "\"DCORE_BEGIN_NAMESPACE=namespace Dtk { namespace Core {\""
     "\"DCORE_END_NAMESPACE=}}\""
     "\"DCORE_USE_NAMESPACE=using namespace Dtk::Core\;\""
+    "Q_OS_LINUX=1"
 )
-set (DOXYGEN_MACRO_EXPANSION "YES")
 set (DOXYGEN_EXPAND_ONLY_PREDEF "YES")
 
 doxygen_add_docs (doxygen
