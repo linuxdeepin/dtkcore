@@ -79,7 +79,6 @@ public:
         UosEditionCount // must at last
     };
 
-    // 注意：此处架构是从OsBuild获取的系统版本的Arch信息，并不是指硬件的Arch信息
     enum UosArch {
         UosArchUnknown,
         UosAMD64 = 1 << 0,
