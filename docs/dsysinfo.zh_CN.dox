@@ -79,7 +79,7 @@ dsysinfo.h是一组用于查询系统信息的静态类
 | UosEditionCount   | 11 | 记录枚举数量              |
 
 @enum Dtk::Core::DSysInfo::UosArch
-@biref UOS使用的架构
+@brief UOS使用的架构
 | 值              | 序号 | 含义     |
 |----------------|----|--------|
 | UosArchUnknown | 0  | 未知架构   |
@@ -117,5 +117,91 @@ dsysinfo.h是一组用于查询系统信息的静态类
 
 @fn static UosArch Dtk::Core::DSysInfo::uosArch()
 @brief DSysInfo::osArch 架构信息（使用一个字节的二进制位，从低位到高位） 【0x8 sw64】【0x4 mips64】【0x2 arm64】【0x1 amd64】
+@note 此处架构是从OsBuild获取的系统版本的Arch信息，并不是指硬件的Arch信息
+
+@fn static QString 	uosProductTypeName(const QLocale &locale=QLocale::system())
+@brief DSysInfo::osProductTypeName 版本名称 ProductType[xx] 项对应的值, 如果找不到对应语言的默认使用 ProductType的值(Desktop/Server/Device) locale 当前系统语言
+
+@fn static QString Dtk::Core::DSysInfo::uosSystemName(const QLocale &locale=QLocale::system())
+@brief SystemName[xx] 项对应的值, 如果找不到对应语言的默认使用 SystemName 的值 Uniontech OS locale 当前系统语言
+
+@fn static QString Dtk::Core::DSysInfo::function uosEditionName(const QLocale &locale=QLocale::system())
+@brief 版本名称 EditionName[xx] 项对应的值, 如果找不到对应语言的默认使用 EditionName 的值(Professional/Home/Community...) locale 当前系统语言
+
+@fn static QString Dtk::Core::DSysInfo::spVersion()
+@brief 阶段版本名称 小版本号 A-BC-D 中 BC、 A.B.C 中的 B 返回 SP1-SPxx, 如果正式版返回空 X.Y.Z模式下暂不支持返回此版本号
+@note minVersion.BC == 00 正式版本, minVersion.BC | minVersion.B == 01-99 SP1….SP99
+
+@fn static QString Dtk::Core::DSysInfo::udpateVersion()
+@brief 更新版本名称 小版本号 A-BC-D 中 D、A.B.C 模式中的 C 返回 update1… update9, 如果正式版返回空 X.Y.Z模式下暂不支持返回此版本号
+@note minVersion.D == 0;正式版本 minVersion.D | minVersion.C == 1-9;update1… update9,updateA...updateZ
+
+@fn static QString Dtk::Core::DSysInfo::majorVersion()
+@brief 主版本号 主版本号 【20】【23】【25】【26】【29】【30】
+
+@fn static QString Dtk::Core::DSysInfo::minorVersion()
+@brief 小版本号 【ABCD】 ·[0-9]{4} 【A.B.C】 或者【X.Y.Z】
+
+@fn static QString Dtk::Core::DSysInfo::buildVersion()
+@brief 小版本号 系统镜像批次号,按时间顺序(不可回退)从100-999递增
+
+@fn static QString Dtk::Core::DSysInfo::distributionInfoPath ()
+@brie 返回distribution文件地址 一般在`/usr/share/deepin/`目录下
+
+@fn static QString Dtk::Core::DSysInfo::distributionInfoSectionName(OrgType type)
+@brief 返回distribution.info 文件中SectionName字段的值
+
+@fn static Dtk::Core::DSysInfo::distributionOrgName(OrgType type=Distribution, const QLocale &locale=QLocale::system())
+@brief 返回组织名称。使用类型为Distribution来获取当前deepin distribution本身的名称
+
+@fn static QPair<QString,QString>Dtk::Core::DSysInfo::distributionOrgWebsite(OrgType type=Distribution)
+@brief 发行版组织的网站名称和网址。使用 type 作为 Distribution 获取当前 deepin 发行版本身的名称。
+
+@fn static QString Dtk::Core::DSysInfo::distributionOrgLogo(OrgType orgType=Distribution, LogoType type=Normal, const QString &fallback=QString())
+@brief 获得的组织logo路径,如果不存在，则返回给定的其他路径。 使用 type 作为 Distribution 获取当前 deepin 发行版本身的logo。
+
+@fn static QString Dtk::Core::DSysInfo::operatingSystemName()
+@brief 操作系统名
+
+@fn static ProductType Dtk::Core::DSysInfo::productType()
+@brief 产品类型
+
+@fn static QString Dtk::Core::DSysInfo::productVersion()
+@brief 产品版本
+
+@fn static bool Dtk::Core::DSysInfo::isCommunityEdition()
+@brief 检查当前版本是否是社区版 开发者可以使用这种方式来检查我们是否需要启用或禁用社区版或企业版的功能。
+目前的规则：
+    专业版、服务器版、个人版（DeepinType）将被视为企业版。
+    Uos（ProductType）将被视为企业版。
+
+@fn static QString Dtk::Core::DSysInfo::computerName()
+@brief 电脑名
+
+@fn static QString Dtk::Core::DSysInfo::cpuModelName()
+@brief cpu模式名
+
+@fn static qint64 Dtk::Core::DSysInfo::memoryInstalledSize()
+@brief 内存安装大小
+
+@fn static qint64 Dtk::Core::DSysInfo::memoryTotalSize()
+@brief 实际内存大小
+
+@fn static qint64 Dtk::Core::DSysInfo::systemDiskSize()
+@brief 系统磁盘大小
+
+@fn static QDateTime Dtk::Core::DSysInfo::bootTime ()
+@brief 系统启动时间点
+
+@fn static QDateTime Dtk::Core::DSysInfo::shutdownTime ()
+@brief 上一次正常关机时间点(重启也会被记录在内)
+
+@fn static qint64 Dtk::Core::DSysInfo::uptime()
+@brief 系统启动到现在时长
+@note 参见`cat /proc/uptime`命令
+
+@fn static Arch Dtk::Core::DSysInfo::arch
+@brief cpu架构信息
+@note 此处架构是从gcc编译器获取的
 
 */

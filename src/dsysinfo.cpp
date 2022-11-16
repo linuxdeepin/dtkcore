@@ -58,9 +58,9 @@ public:
     QString minorVersion;
     struct MinVersion {
         enum Type {
-            A_BC_D, // 专业版
-            X_Y_Z, // 家庭版
-            A_B_C // 社区版
+            A_BC_D, /*!< Professional Edition*/
+            X_Y_Z,  /*!< Home Edition*/
+            A_B_C  /*!< Community Edition*/
         };
         MinVersion()
             : A(0)
@@ -218,7 +218,7 @@ void DSysInfoPrivate::ensureDeepinInfo()
 
 bool DSysInfoPrivate::ensureOsVersion()
 {
-#ifndef OS_VERSION_TEST_FILE // 测试时总是重新读取文件
+#ifndef OS_VERSION_TEST_FILE // Always re-read the file when testing
     if (osBuild.A > 0)
         return true;
 #endif
@@ -269,19 +269,19 @@ bool DSysInfoPrivate::ensureOsVersion()
 
     switch (osBuild.D) {
     case 7: {
-        // 家庭版使用“完整版本号编码-X.Y.Z”的形式
+        // Home Edition uses the form of "full version number coding -x.y.z"
         const QStringList &versionList = minorVersion.split('.');
         if (versionList.isEmpty()) {
-            // 如果读取失败直接返回为空
+            // If the reading fails, return it directly to empty
             qWarning() << "no minorVersion";
             return false;
         } else if (versionList.length() == 2) {
-            // Z为0
+            // Z is 0
             minVersion.X = versionList.first().toUInt();
             minVersion.Y = versionList.last().toUInt();
             minVersion.Z = 0;
         } else if (versionList.length() == 3) {
-            // X.Y.Z都存在
+            // X.Y.Z exists
             minVersion.X = versionList.at(0).toUInt();
             minVersion.Y = versionList.at(1).toUInt();
             minVersion.Z = versionList.at(2).toUInt();
@@ -290,32 +290,32 @@ bool DSysInfoPrivate::ensureOsVersion()
     } break;
 
     case 3: {
-        // 社区版使用“完整版本号编码-A.B.C”的形式
+        // The community version uses the form of "full version number coding A.B.C"
         bool a_bc_dMode = false;
         const QStringList &versionList = minorVersion.split('.');
         if (versionList.isEmpty()) {
-            // 如果读取失败直接返回为空
+            // If the reading fails, return it directly to empty
             qWarning() << "no minorVersion";
             return false;
         } else if (versionList.length() == 1) {
             QString modeVersion = versionList.first();
             if (modeVersion.length() == 2) {
-                //A.B.C模式且B C 为0
+                //A.B.C mode and B c are 0
                 minVersion.A = modeVersion.toUInt();
                 minVersion.B = 0;
                 minVersion.C = 0;
             } else {
-                // A_BC_D模式
+                // A_BC_D mode
                 splitA_BC_DMode();
                 a_bc_dMode = true;
             }
         } else if (versionList.length() == 2) {
-            // C为0
+            // C=0
             minVersion.A = versionList.first().toUInt();
             minVersion.B = versionList.last().toUInt();
             minVersion.C = 0;
         } else if (versionList.length() == 3) {
-            // A.B.C都存在
+            // A.B.C exists
             minVersion.A = versionList.at(0).toUInt();
             minVersion.B = versionList.at(1).toUInt();
             minVersion.C = versionList.at(2).toUInt();
@@ -575,8 +575,9 @@ QString DSysInfo::deepinCopyright()
 }
 
 /*!
-  \brief DSysInfo::osType 系统类型
-  显示系统类型【1：桌面】【2：服务器】【3：专用设备】
+@~english
+  \brief
+  Display system type [1: desktop] [2: server] [3: special devices]
   \note 根据 osBuild.B 判断
  */
 DSysInfo::UosType DSysInfo::uosType()
@@ -592,9 +593,10 @@ DSysInfo::UosType DSysInfo::uosType()
 }
 
 /*!
-  \brief DSysInfo::osEditionType 版本类型
-  显示版本类型 专业版/个人版/社区版...
-  \note 根据 osBuild.B && osBuild.D
+@~english
+  \brief
+  Editions: professional version/personal version/community version ...
+  \note According to osbuild.b && osbuild.d
  */
 DSysInfo::UosEdition DSysInfo::uosEditionType()
 {
@@ -606,7 +608,7 @@ DSysInfo::UosEdition DSysInfo::uosEditionType()
             return UosProfessional;
         case 2:
         case 7:
-            // 新版本家庭版(7)与旧版本个人版(2)同为Home 不修改旧有逻辑的情况下新增7保证对旧版的适配
+            //The new version of the family version (7) and the old version of the personal version (2) The same as the home does not modify the old logic (7) to ensure the adaptation of the old version
             return UosHome;
         case 3:
             return UosCommunity;
@@ -642,7 +644,8 @@ DSysInfo::UosEdition DSysInfo::uosEditionType()
 }
 
 /*!
-  \brief DSysInfo::osArch 架构信息（使用一个字节的二进制位，从低位到高位）
+@~english
+   \brief Architecture information (using bit flags of a byte)
   【0x8 sw64】【0x4 mips64】【0x2 arm64】【0x1 amd64】
  */
 DSysInfo::UosArch DSysInfo::uosArch()
@@ -661,9 +664,10 @@ static QString getUosVersionValue(const QString &key, const QLocale &locale)
 }
 
 /*!
-  \brief DSysInfo::osProductTypeName 版本名称
-  ProductType[xx] 项对应的值, 如果找不到对应语言的默认使用 ProductType的值(Desktop/Server/Device)
-  \a locale 当前系统语言
+@~english
+  \brief Version name
+  ProductType[xx] The corresponding value of the item, if you can't find the value of the corresponding language, use the value of the productType (desktop/server/device)
+  \a locale Current system language
  */
 QString DSysInfo::uosProductTypeName(const QLocale &locale)
 {
@@ -671,10 +675,11 @@ QString DSysInfo::uosProductTypeName(const QLocale &locale)
 }
 
 /*!
-  \brief DSysInfo::osSystemName 版本名称
-  
-  SystemName[xx] 项对应的值, 如果找不到对应语言的默认使用 SystemName 的值 Uniontech OS
-  \a locale 当前系统语言
+@~english
+  \brief DSysInfo::osSystemName Version name
+
+  The corresponding value corresponding to SystemName [xx] item, if you can't find the default language of the corresponding language, use the value of SystemName uniontech os
+  \a locale Current system language
  */
 QString DSysInfo::uosSystemName(const QLocale &locale)
 {
@@ -682,9 +687,10 @@ QString DSysInfo::uosSystemName(const QLocale &locale)
 }
 
 /*!
-  \brief DSysInfo::osEditionName 版本名称
-   EditionName[xx] 项对应的值, 如果找不到对应语言的默认使用 EditionName 的值(Professional/Home/Community...)
-  \a locale 当前系统语言
+@~english
+  \brief DSysInfo::osEditionName Version name
+   EditionName[xx] The corresponding value of the item, if you can't find the value of the corresponding language, use the value of EditionName (Professional/Home/Community ...)
+  \a locale Current system language
  */
 QString DSysInfo::uosEditionName(const QLocale &locale)
 {
@@ -692,11 +698,12 @@ QString DSysInfo::uosEditionName(const QLocale &locale)
 }
 
 /*!
-  \brief DSysInfo::spVersion 阶段版本名称
-  小版本号 A-BC-D 中 BC、 A.B.C 中的 B
-  返回 SP1-SPxx， 如果正式版返回空
-  X.Y.Z模式下暂不支持返回此版本号
-  \note minVersion.BC == 00：正式版本    minVersion.BC | minVersion.B == 01-99：SP1….SP99
+@~english
+  \brief DSysInfo::spVersion Period version name
+  BC, A.B.C in the small version number a-bc-d
+  Return to SP1-SPXX, if the official version returns empty
+  In the x.y.z mode, it will not support returning this version number for the time being
+  \ note minversion.bc == 00: The official version minversion.bc | minversion.b == 01-99: SP1 ... .sp99
  */
 QString DSysInfo::spVersion()
 {
@@ -726,11 +733,12 @@ QString DSysInfo::spVersion()
 }
 
 /*!
-  \brief DSysInfo::udpateVersion 更新版本名称
-  小版本号 A-BC-D 中 D、A.B.C 模式中的 C
-  返回 update1… update9， 如果正式版返回空
-  X.Y.Z模式下暂不支持返回此版本号
-  \note minVersion.D == 0：正式版本    minVersion.D | minVersion.C == 1-9：update1… update9,updateA...updateZ
+@~english
+  \brief DSysInfo::udpateVersion Update version name
+  minor version number D in A-BC-D mode、C in A.B.C mode
+  Return to Update1 ... Update9, if the official version returns to empty
+ In the x.y.z mode, it will not support returning this version number for the time being
+  \note minVersion.D == 0：official version    minVersion.D | minVersion.C == 1-9：update1… update9,updateA...updateZ
  */
 QString DSysInfo::udpateVersion()
 {
@@ -769,9 +777,10 @@ QString DSysInfo::udpateVersion()
 }
 
 /*!
-  \brief DSysInfo::majorVersion 主版本号
-  主版本号 【20】【23】【25】【26】【29】【30】
-  \note 返回 MajorVersion 的值
+@~english
+  \brief Main edition number
+  Main edition number 【20】【23】【25】【26】【29】【30】
+  \note Return to Majorversion value
  */
 QString DSysInfo::majorVersion()
 {
@@ -780,10 +789,11 @@ QString DSysInfo::majorVersion()
 }
 
 /*!
-  \brief DSysInfo::minorVersion 小版本号
+@~english
+  \brief DSysInfo::minorVersion minor version
  *【ABCD】 ·[0-9]{4}
- *【A.B.C】 或者【X.Y.Z】
-  \note 返回 MinorVersion 的值
+ *【A.B.C】 or【X.Y.Z】
+  @return the value of minorversion
  */
 QString DSysInfo::minorVersion()
 {
@@ -792,9 +802,10 @@ QString DSysInfo::minorVersion()
 }
 
 /*!
-  \brief DSysInfo::buildVersion 小版本号
-  系统镜像批次号，按时间顺序（不可回退）从100-999递增
-  \note 返回 osBuild.xyz 的值
+@~english
+  \brief DSysInfo::buildVersion Small version number
+  System mirror batch number, in order of time (non-retreat) increase from 100-999
+  \note Return  osbuild.xyz value
  */
 QString DSysInfo::buildVersion()
 {
@@ -833,10 +844,11 @@ QString DSysInfo::distributionInfoSectionName(DSysInfo::OrgType type)
 }
 
 /*!
+@~english
   \return the organization name.
-  
+
   use \a type as Distribution to get the name of current deepin distribution itself.
-  
+
   \sa deepinDistributionInfoPath()
  */
 QString DSysInfo::distributionOrgName(DSysInfo::OrgType type, const QLocale &locale)
@@ -856,10 +868,11 @@ QString DSysInfo::deepinDistributorName()
 }
 
 /*!
+@~english
   \return the organization website name and url.
-  
+
   use \a type as Distribution to get the name of current deepin distribution itself.
-  
+
   \sa deepinDistributionInfoPath()
  */
 QPair<QString, QString> DSysInfo::distributionOrgWebsite(DSysInfo::OrgType type)
@@ -883,10 +896,11 @@ QPair<QString, QString> DSysInfo::deepinDistributorWebsite()
 }
 
 /*!
+@~english
   \return the obtained organization logo path, or the given \a fallback one if there are no such logo.
-  
+
   use \a type as Distribution to get the logo of current deepin distribution itself.
-  
+
   \sa deepinDistributionInfoPath()
  */
 QString DSysInfo::distributionOrgLogo(DSysInfo::OrgType orgType, DSysInfo::LogoType type, const QString &fallback)
@@ -935,15 +949,16 @@ QString DSysInfo::productVersion()
 }
 
 /*!
+@~english
   \brief Check if current edition is a community edition
-  
+
   Developer can use this way to check if we need enable or disable features
   for community or enterprise edition.
-  
+
   Current rule:
    - Professional, Server, Personal edition (DeepinType) will be treat as Enterprise edition.
    - Uos (ProductType) will be treat as Enterprise edition.
-  
+
   \return true if it's on a community edition distro/installation
  */
 bool DSysInfo::isCommunityEdition()
@@ -1004,6 +1019,7 @@ QString DSysInfo::cpuModelName()
 }
 
 /*!
+@~english
   \return the installed memory size
  */
 qint64 DSysInfo::memoryInstalledSize()
@@ -1036,6 +1052,7 @@ qint64 DSysInfo::memoryInstalledSize()
 }
 
 /*!
+@~english
   \return the total available to use memory size
  */
 qint64 DSysInfo::memoryTotalSize()
