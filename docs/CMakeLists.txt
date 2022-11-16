@@ -27,6 +27,22 @@ set (DOXYGEN_PREDEFINED
 )
 set (DOXYGEN_EXPAND_ONLY_PREDEF "YES")
 
+if(BUILD_THEME)
+set (DOXYGEN_HTML_EXTRA_STYLESHEET "docs/doxygentheme/doxygen-awesome.css"
+                                "docs/doxygentheme/doxygen-awesome-sidebar-only.css"
+                                "docs/doxygentheme/doxygen-awesome-sidebar-only-darkmode-toggle.css"
+                                )
+set (DOXYGEN_HTML_EXTRA_FILES "docs/doxygentheme/doxygen-awesome-darkmode-toggle.js"
+                            "docs/doxygentheme/doxygen-awesome-fragment-copy-button.js"
+                            "docs/doxygentheme/doxygen-awesome-paragraph-link.js"
+                            "docs/doxygentheme/doxygen-awesome-interactive-toc.js"
+                            )
+set (DOXYGEN_GENERATE_TREEVIEW "YES")
+set (DOXYGEN_DISABLE_INDEX "NO")
+set (DOXYGEN_FULL_SIDEBAR "NO")
+set (DOXYGEN_HTML_HEADER "docs/doxygentheme/header.html")
+endif()
+
 doxygen_add_docs (doxygen
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/include

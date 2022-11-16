@@ -69,3 +69,7 @@ Files: src/log/*
 Copyright: UnionTech Software Technology Co., Ltd.
 License: LGPL-3.0-or-later
 
+#doxygentheme
+Files: docs/doxygentheme/*
+Copyright: Copyright (c) 2021 - 2022 jothepro
+License: MIT
