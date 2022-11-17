@@ -581,10 +581,8 @@ Logger::Logger()
   \sa setDefaultCategory()
  */
 Logger::Logger(const QString &defaultCategory)
+    :Logger()
 {
-    Q_D(Logger);
-    d->logDevice = new LogDevice(this);
-
     setDefaultCategory(defaultCategory);
 }
 
