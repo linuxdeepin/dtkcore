@@ -61,7 +61,7 @@ dsysinfo.h是一组用于查询系统信息的静态类
 | UosDevice       | 3  | UOS设备版      |
 | UosTypeCount    | 4  | 记录枚举数量   |
 
-@enum Dtk::Core::DSysInfo::UosType
+@enum Dtk::Core::DSysInfo::UosEdition
 @brief 详细uos版本
 | 值                 | 序号 | 含义                  |
 |-------------------|----|---------------------|
@@ -98,52 +98,66 @@ dsysinfo.h是一组用于查询系统信息的静态类
 
 @fn static bool Dtk::Core::DSysInfo::isDDE()
 @brief 是否使用dde桌面环境
+@note 此方法仅在linux平台下可用
 
 @fn static DeepinType  Dtk::Core::DSysInfo::deepinType()
 @brief deepin系统类型
+@note 此方法仅在linux平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::deepinTypeDisplayName (const QLocale &locale=QLocale::system())
 @brief 显示的deepin发行版类型名称
+@note 此方法仅在linux平台下可用
 
 @fn static QString 	Dtk::Core::DSysInfo::deepinVersion()
 @brief deepin版本
+@note 此方法仅在linux平台下可用
 
 @fn static QString 	Dtk::Core::DSysInfo::deepinCopyright()
 @brief deepin 开源许可协议
+@note 此方法仅在linux平台下可用
 
 @fn static UosEdition Dtk::Core::DSysInfo::uosEditionType()
 @brief DSysInfo::osEditionType 版本类型 显示版本类型 专业版/个人版/社区版..
 @note 根据 osBuild.B && osBuild.D
+@note 此方法仅在linux平台下可用
 
 @fn static UosArch Dtk::Core::DSysInfo::uosArch()
 @brief DSysInfo::osArch 架构信息（使用一个字节的二进制位，从低位到高位） 【0x8 sw64】【0x4 mips64】【0x2 arm64】【0x1 amd64】
 @note 此处架构是从OsBuild获取的系统版本的Arch信息，并不是指硬件的Arch信息
+@note 此方法仅在linux平台下可用
 
 @fn static QString 	uosProductTypeName(const QLocale &locale=QLocale::system())
 @brief DSysInfo::osProductTypeName 版本名称 ProductType[xx] 项对应的值, 如果找不到对应语言的默认使用 ProductType的值(Desktop/Server/Device) locale 当前系统语言
 
 @fn static QString Dtk::Core::DSysInfo::uosSystemName(const QLocale &locale=QLocale::system())
 @brief SystemName[xx] 项对应的值, 如果找不到对应语言的默认使用 SystemName 的值 Uniontech OS locale 当前系统语言
+@note 此方法仅在linux平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::function uosEditionName(const QLocale &locale=QLocale::system())
 @brief 版本名称 EditionName[xx] 项对应的值, 如果找不到对应语言的默认使用 EditionName 的值(Professional/Home/Community...) locale 当前系统语言
+@note 此方法仅在linux平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::spVersion()
 @brief 阶段版本名称 小版本号 A-BC-D 中 BC、 A.B.C 中的 B 返回 SP1-SPxx, 如果正式版返回空 X.Y.Z模式下暂不支持返回此版本号
 @note minVersion.BC == 00 正式版本, minVersion.BC | minVersion.B == 01-99 SP1….SP99
+@note 此方法仅在linux平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::udpateVersion()
 @brief 更新版本名称 小版本号 A-BC-D 中 D、A.B.C 模式中的 C 返回 update1… update9, 如果正式版返回空 X.Y.Z模式下暂不支持返回此版本号
 @note minVersion.D == 0;正式版本 minVersion.D | minVersion.C == 1-9;update1… update9,updateA...updateZ
+@note 此方法仅在linux平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::majorVersion()
 @brief 主版本号 主版本号 【20】【23】【25】【26】【29】【30】
+@note 此方法仅在linux平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::minorVersion()
 @brief 小版本号 【ABCD】 ·[0-9]{4} 【A.B.C】 或者【X.Y.Z】
+@note 此方法仅在linux平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::buildVersion()
 @brief 小版本号 系统镜像批次号,按时间顺序(不可回退)从100-999递增
+@note 此方法仅在linux平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::distributionInfoPath ()
 @brie 返回distribution文件地址 一般在`/usr/share/deepin/`目录下
