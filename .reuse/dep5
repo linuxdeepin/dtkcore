@@ -54,6 +54,11 @@ Files: *.dox *.md src/util/README.dpinyin tools/qdbusxml2cpp/README
 Copyright: UnionTech Software Technology Co., Ltd.
 License: CC-BY-4.0
 
+# doxygen src
+Files: docs/src/*
+Copyright: None
+License: CC0-1.0
+
 # interface
 Files: include/DtkCore/D*
 Copyright: None
