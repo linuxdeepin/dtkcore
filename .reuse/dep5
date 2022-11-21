@@ -78,3 +78,8 @@ License: LGPL-3.0-or-later
 Files: docs/doxygentheme/*
 Copyright: Copyright (c) 2021 - 2022 jothepro
 License: MIT
+
+#reference
+Files: docs/references/*
+Copyright: UnionTech Software Technology Co., Ltd.
+License: CC-BY-4.0
