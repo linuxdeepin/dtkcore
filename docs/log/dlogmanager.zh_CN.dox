@@ -1,0 +1,26 @@
+/*!
+@~chinese
+@file include/log/LogManager.h
+DLogManager是dtk日志管理类,提供对日志的基础设置,使用此类可以很方便的为自己的dtk程序加上日志
+
+@fn static void Dtk::Core::DLogManager::registerConsoleAppender()
+@brief 配置日志输出方式，调用此方法后日志输出方式是输出到终端
+
+@fn static void Dtk::Core::DLogManager::registerFileAppender()
+@brief 配置日志输出方式，调用此方法后日志输出方式是输出到文件。
+@note 输出日志默认文件位置为`~/.cache/<organizationName>/<applicationName>.log`如果获取 $HOME 环境变量失败将不写日志.
+如果在创建程序的时候没有指定这两个name,如果未设置organizationName,则是 `~/.cache/<applicationName>/<applicationName>.log`
+applicationName 就算没有设置也会fallback一个,如进程二进制文件名
+@sa DLogManager::setlogFilePath()
+
+@fn static QString Dtk::Core::DLogManager::getlogFilePath()
+@brief 获取当前的日志存储路径,包括文件名
+
+@fn static void Dtk::Core::DLogManager::setlogFilePath(const QString &logFilePath)
+@brief 设置log文件路径。如果文件存在且不是log文件类型(比如文件夹)会导致设置无效并输出一条警告。
+@note 注意,此文件路径为包括具体文件名的绝对路径。需要此文件不存在或者存在且为有效类型(xxx.log),一般情况下无需手动指定路径。
+
+@fn static void Dtk::Core::DLogManager::setLogFormat(const QString &format)
+@brief 设置日志的格式,如果没有设置格式，默认的格式为:`"%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n"`
+@sa Dtk::Core::AbstractStringAppender::format()
+*/

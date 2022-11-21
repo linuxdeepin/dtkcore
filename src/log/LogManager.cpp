@@ -10,9 +10,10 @@
 DCORE_BEGIN_NAMESPACE
 
 /*!
+@~english
   \class Dtk::Core::DLogManager
   \inmodule dtkcore
-  
+
   \brief DLogManager is the deepin user application log manager.
  */
 
@@ -40,6 +41,7 @@ void DLogManager::initRollingFileAppender(){
 }
 
 /*!
+@~english
   \brief Registers the appender to write the log records to the Console.
 
   \sa registerFileAppender
@@ -49,6 +51,7 @@ void DLogManager::registerConsoleAppender(){
 }
 
 /*!
+@~english
   \brief Registers the appender to write the log records to the file.
 
   \sa getlogFilePath
@@ -59,17 +62,18 @@ void DLogManager::registerFileAppender() {
 }
 
 /*!
+@~english
   \brief Return the path file log storage.
 
-  \brief DLogManager::getlogFilePath 获取日志文件路径
-  \brief 默认日志路径是 ~/.cache/organizationName/applicationName.log
-  \brief 如果获取 HOME 环境变量失败将不写日志
+  \brief DLogManager::getlogFilePath Get the log file path
+  \brief The default log path is ~/.cache/<OrganizationName>/<ApplicationName>.log
+  \brief If the environment variable $HOME cannot be acquired, DLogManager will not log anything
   \sa registerFileAppender
  */
 QString DLogManager::getlogFilePath()
 {
-    // 不再构造时去设置默认logpath(且mkdir), 而在getlogPath时再去判断是否设置默认值
-    // 修复设置了日志路径还是会在默认的位置创建目录的问题
+    //No longer set the default log path (and mkdir) when constructing now, instead set the default value if it's empty when getlogFilePath is called.
+    //Fix the problem that the log file is still created in the default path when the log path is set manually.
     if (DLogManager::instance()->m_logPath.isEmpty()) {
         if (QDir::homePath() == QDir::rootPath()) {
             qWarning() << "unable to locate the cache directory."
@@ -89,9 +93,10 @@ QString DLogManager::getlogFilePath()
 }
 
 /*!
-  \brief DLogManager::setlogFilePath 设置日志文件路径
-  \a logFilePath 日志文件路径
-  \brief 如果设置的文件路进不是文件路径将什么都不做，输出一条警告
+@~english
+  \brief DLogManager::setlogFilePath Set the log file path
+  \a logFilePath Log file path
+  \brief If the file path set is not the file path, nothing will do, and an output warning
  */
 void DLogManager::setlogFilePath(const QString &logFilePath)
 {

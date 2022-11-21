@@ -18,6 +18,7 @@ set (DOXYGEN_QHP_VIRTUAL_FOLDER "dtkcore")
 set (DOXYGEN_HTML_EXTRA_STYLESHEET "" CACHE STRING "Doxygen custom stylesheet for HTML output")
 set (DOXYGEN_TAGFILES "qtcore.tags=qthelp://org.qt-project.qtcore/qtcore/" CACHE STRING "Doxygen tag files")
 set (DOXYGEN_IMAGE_PATH ${PROJECT_SOURCE_DIR}/docs/src)
+set (DOXYGEN_SOURCE_BROWSE "YES")
 
 set (DOXYGEN_MACRO_EXPANSION "YES")
 set (DOXYGEN_PREDEFINED
