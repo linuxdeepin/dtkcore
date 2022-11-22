@@ -46,7 +46,7 @@ public:
     void ensureReleaseInfo();
     void ensureComputerInfo();
     QMap<QString, QString> parseInfoFile(QFile &file);
-
+    QMap<QString, QString> parseInfoContent(const QString &content);
 #ifdef Q_OS_LINUX
     DSysInfo::DeepinType deepinType = DSysInfo::DeepinType(-1);
     QMap<QString, QString> deepinTypeMap; //Type Name with Language
@@ -508,6 +508,21 @@ QMap<QString, QString> DSysInfoPrivate::parseInfoFile(QFile &file)
             }
         }
     } while (lineLength >= 0);
+    return map;
+}
+
+QMap<QString, QString> DSysInfoPrivate::parseInfoContent(const QString &content)
+{
+    QMap<QString, QString> map;
+    QStringList lineContents = content.split("\n");
+    for (auto lineContent : lineContents) {
+        if (lineContent.contains(':')) {
+            QStringList list = lineContent.split(':');
+            if (list.size() == 2) {
+                map.insert(list.first().trimmed(), list.back().trimmed());
+            }
+        }
+    }
     return map;
 }
 
@@ -995,6 +1010,9 @@ QString DSysInfo::computerName()
 
 QString DSysInfo::cpuModelName()
 {
+    if (!siGlobal->cpuModelName.isEmpty())
+        return siGlobal->cpuModelName;
+
 #ifdef Q_OS_LINUX
     static QFile file("/proc/cpuinfo");
 
@@ -1009,10 +1027,31 @@ QString DSysInfo::cpuModelName()
         } else if (map.contains("cpu model")) {
             // loonson3-cpuinfo sw-cpuinfo
             siGlobal->cpuModelName = map.value("cpu model");
+        } else if (map.contains("Hardware")) {
+            // "HardWare" field contains cpu info on huawei kirin machine (e.g. klv or klu)
+            siGlobal->cpuModelName = map.value("Hardware");
         }
 
         file.close();
     }
+
+    // Get the cpu info by executing lscpu command
+    if (siGlobal->cpuModelName.isEmpty()) {
+        QProcess lscpu;
+        QStringList env = QProcess::systemEnvironment();
+        env << "LC_ALL=C"; // Add an environment variable
+        lscpu.setEnvironment(env);
+        lscpu.start("/usr/bin/lscpu");
+        if (lscpu.waitForFinished(3000)) {
+            const QMap<QString, QString> map = siGlobal->parseInfoContent(lscpu.readAll());
+            if (map.contains("Model name")) {
+                siGlobal->cpuModelName = map.value("Model name");
+            }
+        } else {
+            qWarning() << "lscpu:" << lscpu.errorString();
+        }
+    }
+
     return siGlobal->cpuModelName;
 #endif
     return QString();
