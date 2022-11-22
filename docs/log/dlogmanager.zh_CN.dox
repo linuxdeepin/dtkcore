@@ -1,5 +1,7 @@
 /*!
 @~chinese
+
+@ingroup dlog
 @file include/log/LogManager.h
 DLogManager是dtk日志管理类,提供对日志的基础设置,使用此类可以很方便的为自己的dtk程序加上日志
 
@@ -23,4 +25,5 @@ applicationName 就算没有设置也会fallback一个,如进程二进制文件�
 @fn static void Dtk::Core::DLogManager::setLogFormat(const QString &format)
 @brief 设置日志的格式,如果没有设置格式，默认的格式为:`"%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n"`
 @sa Dtk::Core::AbstractStringAppender::format()
+
 */

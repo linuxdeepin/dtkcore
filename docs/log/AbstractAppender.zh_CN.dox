@@ -1,5 +1,6 @@
 /*!
 @~chinese
+@ingroup dlog
 @file include/log/AbstractAppender.h
 
 AbstractAppender类是所有可以与Logger一起使用的日志appender的基础接口类。
