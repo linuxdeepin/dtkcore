@@ -11,6 +11,7 @@
 DCORE_BEGIN_NAMESPACE
 
 /*!
+@~english
   \class Dtk::Core::AbstractStringAppender
   \inmodule dtkcore
 
@@ -32,6 +33,7 @@ DCORE_BEGIN_NAMESPACE
 const char formattingMarker = '%';
 
 /*!
+@~english
     \brief Constructs a new string appender object.
  */
 AbstractStringAppender::AbstractStringAppender()
@@ -41,6 +43,7 @@ AbstractStringAppender::AbstractStringAppender()
 }
 
 /*!
+@~english
   \brief Returns the current log format string.
 
   The default format is set to "%{time}{yyyy-MM-ddTHH:mm:ss.zzz} [%{type:-7}] <%{function}> %{message}\n". You can set a different log record
@@ -82,12 +85,10 @@ QString AbstractStringAppender::format() const
     \li %{Type} - Uppercased log level.
     \li %{typeOne} - One letter log level.
     \li %{TypeOne} - One uppercase letter log level.
-    \li %{File} - Full source file name (with path) of the file that requested log recording. Uses the __FILE__
-    \li   preprocessor macro.
+    \li %{File} - Full source file name (with path) of the file that requested log recording. Uses the __FILE__ preprocessor macro.
     \li %{file} - Short file name (with stripped path).
     \li %{line} - Line number in the source file. Uses the __LINE__ preprocessor macro.
-    \li %{Function} - Name of function that called on of the LOG_* macros. Uses the Q_FUNC_INFO macro provided with
-    \li   Qt.
+    \li %{Function} - Name of function that called on of the LOG_* macros. Uses the Q_FUNC_INFO macro provided with Qt.
     \li %{function} - Similar to the %{Function}, but the function name is stripped using stripFunctionName
     \li %{message} - The log message sent by the caller.
     \li %{category} - The log category.
@@ -110,6 +111,7 @@ void AbstractStringAppender::setFormat(const QString &format)
 }
 
 /*!
+@~english
   \brief Strips the long function signature (as added by Q_FUNC_INFO macro).
 
   The string processing drops the returning type, arguments and template parameters of function. It is definitely
@@ -291,6 +293,7 @@ QByteArray AbstractStringAppender::qCleanupFuncinfo(const char *name)
 }
 
 /*!
+@~english
   \brief Returns the string to record to the logging target, formatted according to the format().
 
   \a time The time stamp.

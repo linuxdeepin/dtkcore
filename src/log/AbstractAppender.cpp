@@ -7,6 +7,7 @@
 DCORE_BEGIN_NAMESPACE
 
 /*!
+@~english
   \class Dtk::Core::AbstractAppender
   \inmodule dtkcore
 
@@ -36,6 +37,7 @@ DCORE_BEGIN_NAMESPACE
 
 
 /*!
+@~english
     \brief Constructs a AbstractAppender object.
  */
 AbstractAppender::AbstractAppender()
@@ -45,6 +47,7 @@ AbstractAppender::AbstractAppender()
 }
 
 /*!
+@~english
     \brief Destructs the AbstractAppender object.
  */
 AbstractAppender::~AbstractAppender()
@@ -53,6 +56,7 @@ AbstractAppender::~AbstractAppender()
 }
 
 /*!
+@~english
   \brief Returns the current details level of appender.
 
   Log records with a log level lower than a current detailsLevel() will be silently ignored by appender and would not
@@ -75,6 +79,7 @@ Logger::LogLevel AbstractAppender::detailsLevel() const
 }
 
 /*!
+@~english
   \brief Sets the current details level of appender.
 
   Default details \a level is Logger::Debug
@@ -91,6 +96,7 @@ void Dtk::Core::AbstractAppender::setDetailsLevel(Logger::LogLevel level)
 }
 
 /*!
+@~english
   \brief Sets the current details \a level of appender.
 
   This function is provided for convenience, it behaves like an above function.
@@ -104,6 +110,7 @@ void AbstractAppender::setDetailsLevel(const QString &level)
 }
 
 /*!
+@~english
   \brief Tries to write the log record to this logger.
 
   This is the function called by Logger object to write a log \a message to the appender.
@@ -131,6 +138,7 @@ void AbstractAppender::write(const QDateTime &time, Logger::LogLevel level, cons
 }
 
 /*!
+@~english
   \fn virtual void AbstractAppender::append(const QDateTime &timeStamp, Logger::LogLevel level, const char *file, int line,
                         const char *function, const QString &category, const QString &message) = 0
 
