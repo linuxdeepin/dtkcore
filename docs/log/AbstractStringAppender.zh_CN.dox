@@ -1,5 +1,6 @@
 /*!
 @~chinese
+@ingroup dlog
 @file include/log/AbstractStringAppender.h
 
 @class Dtk::Core::AbstractStringAppender

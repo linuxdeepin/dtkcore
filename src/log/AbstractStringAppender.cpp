@@ -58,6 +58,7 @@ QString AbstractStringAppender::format() const
 }
 
 /*!
+@~english
   \brief Sets the logging format for writing strings to the log target with this appender.
 
   The string format seems to be very common to those developers who have used a standard sprintf function.
