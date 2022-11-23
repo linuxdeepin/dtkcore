@@ -18,14 +18,14 @@ class LIBDTKCORESHARED_EXPORT Logger
 {
     Q_DISABLE_COPY(Logger)
 public:
-    //! the log levels
+    //!@~english the log levels
     enum LogLevel {
-        Trace,   //!< ~english Trace level. Can be used for mostly unneeded records used for internal code tracing.
-        Debug,   //!< ~english Debug level.for the debugging of the software.
-        Info,    //!< ~english Info level. Can be used for informational records, which may be interesting for not only developers.
-        Warning, //!< ~english Warning. May be used to log some non-fatal warnings detected by your application.
-        Error,   //!< ~english May be used for a big problems making your application work wrong but not crashing.
-        Fatal    //!< ~english Fatal. Used for unrecoverable errors, crashes the application (abort) right after the log record is written.
+        Trace,   //!<@~english Trace level. Can be used for mostly unneeded records used for internal code tracing.
+        Debug,   //!<@~english Debug level.for the debugging of the software.
+        Info,    //!<@~english Info level. Can be used for informational records, which may be interesting for not only developers.
+        Warning, //!<@~english Warning. May be used to log some non-fatal warnings detected by your application.
+        Error,   //!<@~english May be used for a big problems making your application work wrong but not crashing.
+        Fatal    //!<@~english Fatal. Used for unrecoverable errors, crashes the application (abort) right after the log record is written.
     };
 
     Logger();
