@@ -11,9 +11,10 @@
 DCORE_BEGIN_NAMESPACE
 
 /*!
-  \class Dtk::Core::RollingFileAppender
-  \inmodule dtkcore
-  \brief The RollingFileAppender class extends FileAppender so that the underlying file is rolled over at a user chosen frequency.
+@~english
+  @class Dtk::Core::RollingFileAppender
+  @ingroup dlog
+  @brief The RollingFileAppender class extends FileAppender so that the underlying file is rolled over at a user chosen frequency.
 
   The class is based on Log4Qt.DailyRollingFileAppender class (http://log4qt.sourceforge.net/)
   and has the same date pattern format.

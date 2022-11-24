@@ -11,14 +11,15 @@
 DCORE_BEGIN_NAMESPACE
 
 /*!
-  \class Dtk::Core::ConsoleAppender
-  \inmodule dtkcore
-  
-  \brief ConsoleAppender is the simple appender that writes the log records to the std::cerr output stream.
-  
+@~english
+  @class Dtk::Core::ConsoleAppender
+  @ingroup dlog
+
+  @brief ConsoleAppender is the simple appender that writes the log records to the std::cerr output stream.
+
   ConsoleAppender uses "[%{type:-7}] <%{function}> %{message}\n" as a default output format. It is similar to the
   AbstractStringAppender but doesn't show a time.
-  
+
   You can modify ConsoleAppender output format without modifying your code by using \c QT_MESSAGE_PATTERN environment
   variable. If you need your application to ignore this environment variable you can call
   ConsoleAppender::ignoreEnvironmentPattern(true)
@@ -46,6 +47,7 @@ void ConsoleAppender::ignoreEnvironmentPattern(bool ignore)
 }
 
 /*!
+@~english
   \brief Writes the log record to the std::cerr stream.
   \reimp
 

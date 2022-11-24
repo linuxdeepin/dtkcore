@@ -9,15 +9,17 @@
 DCORE_BEGIN_NAMESPACE
 
 /*!
-  \class Dtk::Core::FileAppender
-  \inmodule dtkcore
-  
-  \brief Simple appender that writes the log records to the plain text file.
+@~english
+  @class Dtk::Core::FileAppender
+  @ingroup dtkcore
+
+  @brief Simple appender that writes the log records to the plain text file.
  */
 
 
 /*!
-    \brief Constructs the new file appender assigned to file with the given \a fileName.
+@~english
+    @brief Constructs the new file appender assigned to file with the given \a fileName.
  */
 FileAppender::FileAppender(const QString &fileName)
 {
@@ -31,6 +33,7 @@ FileAppender::~FileAppender()
 }
 
 /*!
+@~english
   \brief Returns the name set by setFileName() or to the FileAppender constructor.
 
   \sa setFileName()
@@ -75,6 +78,7 @@ bool FileAppender::openFile()
 }
 
 /*!
+@~english
   \brief Write the log record to the file.
   \reimp
 
