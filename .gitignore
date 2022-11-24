@@ -36,3 +36,7 @@ dtkcore.pc
 qt_lib_dtkcore.pri
 dtkcore_config.h
 CMakeLists.txt.user
+
+#tools
+.vscode
+.idea
