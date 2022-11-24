@@ -19,12 +19,14 @@
 DCORE_BEGIN_NAMESPACE
 
 /*!
+@~english
   \headerfile <Logger.h>
   \inmodule dtkcore
   @brief A file containing the description of Logger class and and additional useful macros for logging.
  */
 
 /*!
+@~english
   \macro Dtk::Core::logger
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::logger
@@ -44,6 +46,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dTrace
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dTrace
@@ -65,6 +68,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dDebug
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dDebug
@@ -80,6 +84,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dInfo
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dInfo
@@ -95,6 +100,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dWarning
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dWarning
@@ -110,6 +116,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dError
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dError
@@ -124,6 +131,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dFatal
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dFatal
@@ -142,6 +150,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dCTrace(category)
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dCTrace()
@@ -162,6 +171,7 @@ DCORE_BEGIN_NAMESPACE
 
 
 /*!
+@~english
   \macro Dtk::Core::dCDebug
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dCDebug
@@ -175,6 +185,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dCInfo
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dCInfo
@@ -188,6 +199,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dCWarning
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dCWarning
@@ -201,6 +213,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dCError
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dCError
@@ -214,6 +227,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dCFatal
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dCFatal
@@ -230,6 +244,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dCategory(category)
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dCategory()
@@ -270,6 +285,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dGlobalCategory(category)
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dGlobalCategory()
@@ -291,6 +307,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dAssert
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dAssert
@@ -313,6 +330,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dTraceTime
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dTraceTime
@@ -369,6 +387,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
   \macro Dtk::Core::dInfoTime
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dInfoTime
@@ -382,6 +401,7 @@ DCORE_BEGIN_NAMESPACE
  */
 
 /*!
+@~english
  \enum Dtk::Core::Logger::LogLevel
  \value Trace
  Can be used for mostly unneeded records used for internal code tracing.
@@ -398,6 +418,7 @@ DCORE_BEGIN_NAMESPACE
 */
 
 /*!
+@~english
   \class Dtk::Core::Logger
   \inmodule dtkcore
 
@@ -473,6 +494,7 @@ private:
 //#endif
 
 /*!
+@~english
   \internal
 
   LoggerPrivate class implements the Singleton pattern in a thread-safe way. It contains a static pointer to the
@@ -919,6 +941,7 @@ QDebug Logger::write(Logger::LogLevel level, const char *file, int line,
 }
 
 /*!
+@~english
   @brief Writes the assertion.
 
   This function writes the assertion record using the write() function.

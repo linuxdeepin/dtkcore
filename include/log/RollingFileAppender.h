@@ -16,23 +16,19 @@ class LIBDTKCORESHARED_EXPORT RollingFileAppender : public FileAppender
 {
   public:
     /*!
-  The enum DatePattern defines constants for date patterns.
-  \sa setDatePattern(DatePattern)
+    @~english
+    The enum DatePattern defines constants for date patterns.
+    \sa setDatePattern(DatePattern)
      */
     enum DatePattern
     {
-      /*! The minutely date pattern string is "'.'yyyy-MM-dd-hh-mm". */
-      MinutelyRollover = 0,
-      /*! The hourly date pattern string is "'.'yyyy-MM-dd-hh". */
-      HourlyRollover,
-      /*! The half-daily date pattern string is "'.'yyyy-MM-dd-a". */
-      HalfDailyRollover,
-      /*! The daily date pattern string is "'.'yyyy-MM-dd". */
-      DailyRollover,
-      /*! The weekly date pattern string is "'.'yyyy-ww". */
-      WeeklyRollover,
-      /*! The monthly date pattern string is "'.'yyyy-MM". */
-      MonthlyRollover
+
+      MinutelyRollover = 0,/*!<@~english The minutely date pattern string is "'.'yyyy-MM-dd-hh-mm". */
+      HourlyRollover,/*!<@~english The hourly date pattern string is "yyyy-MM-dd-hh". */
+      HalfDailyRollover,/*!<@~english The half-daily date pattern string is "'.'yyyy-MM-dd-a". */
+      DailyRollover,/*!<@~english The daily date pattern string is "'.'yyyy-MM-dd". */
+      WeeklyRollover,/*!<@~english The weekly date pattern string is "'.'yyyy-ww". */
+      MonthlyRollover/*!<@~english The monthly date pattern string is "'.'yyyy-MM". */
     };
 
     RollingFileAppender(const QString &fileName = QString());

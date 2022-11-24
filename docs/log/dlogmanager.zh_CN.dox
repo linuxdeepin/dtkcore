@@ -3,7 +3,8 @@
 
 @ingroup dlog
 @file include/log/LogManager.h
-DLogManager是dtk日志管理类,提供对日志的基础设置,使用此类可以很方便的为自己的dtk程序加上日志
+DLogManager是dtk日志管理类,提供对日志的基础设置,使用此类可以很方便的为自己的dtk程序加上日志,一般情况下应用如果需要写入日志只需要调用此类
+调用相应的注册方法设置存储路径相关信息即可
 
 @fn static void Dtk::Core::DLogManager::registerConsoleAppender()
 @brief 配置日志输出方式，调用此方法后日志输出方式是输出到终端
