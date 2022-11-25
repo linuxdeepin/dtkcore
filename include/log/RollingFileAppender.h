@@ -42,7 +42,7 @@ class LIBDTKCORESHARED_EXPORT RollingFileAppender : public FileAppender
     void setLogFilesLimit(int limit);
     int logFilesLimit() const;
 
-    void setLogSizeLimit(int qint64);
+    void setLogSizeLimit(int limit);
     qint64 logSizeLimit() const;
 
   protected:

@@ -241,4 +241,16 @@ int RollingFileAppender::logFilesLimit() const
     return m_logFilesLimit;
 }
 
+void RollingFileAppender::setLogSizeLimit(int limit)
+{
+    QMutexLocker locker(&m_rollingMutex);
+    m_logSizeLimit = limit;
+}
+
+qint64 RollingFileAppender::logSizeLimit() const
+{
+    QMutexLocker locker(&m_rollingMutex);
+    return m_logSizeLimit;
+}
+
 DCORE_END_NAMESPACE
