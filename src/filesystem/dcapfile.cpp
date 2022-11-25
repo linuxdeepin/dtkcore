@@ -81,7 +81,7 @@ QString DCapFile::readLink() const
     if (!d->canReadWrite(d->fileName))
         return {};
 
-    return QFile::readLink();
+    return QFile::symLinkTarget();
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
