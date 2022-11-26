@@ -26,58 +26,66 @@ DCORE_BEGIN_NAMESPACE
 Q_DECLARE_LOGGING_CATEGORY(cfLog)
 
 /*!
-    \class Dtk::Core::DConfigBackend
+@~english
+    @class Dtk::Core::DConfigBackend
     \inmodule dtkcore
 
-    \brief 配置后端的抽象接口.
+    @brief Configure the abstract interface of the backend.
 
-    所有DConfig使用的配置后端都继承此类,用户可以继承此类实现自己的配置后端.
+    All configuration backends used by DConfig inherit this class, and users can inherit this class to implement their own configuration backends.
  */
 
 /*!
-    \fn bool DConfigBackend::load(const QString &) = 0
+@~english
+    @fn bool DConfigBackend::load(const QString &) = 0
 
-    \brief 初始化后端
+    @brief Initialize the backend
 
-    \a appId 管理的配置信息key值，默认为应用程序名称
+    \a appId Managed configuration information key value, the default is the application name.
   */
 
 /*!
-    \fn bool DConfigBackend::isValid() const = 0
+@~english
+    @fn bool DConfigBackend::isValid() const = 0
 
-    \sa DConfig::isValid().
-
- */
-
-/*!
-    \fn QStringList DConfigBackend::keyList() const = 0
-
-    \sa DConfig::keyList()
+    @sa DConfig::isValid().
 
  */
 
 /*!
-    \fn QVariant DConfigBackend::value(const QString &key, const QVariant &fallback = QVariant()) const = 0
+@~english
+    @fn QStringList DConfigBackend::keyList() const = 0
 
-    \sa DConfig::value()
+    @sa DConfig::keyList()
+
  */
 
 /*!
-    \fn void DConfigBackend::setValue(const QString &key, const QVariant &value) = 0
+@~english
+    @fn QVariant DConfigBackend::value(const QString &key, const QVariant &fallback = QVariant()) const = 0
 
-    \sa DConfig::setValue()
+    @sa DConfig::value()
  */
 
 /*!
-    \fn void DConfigBackend::reset(const QString &key)
+@~english
+    @fn void DConfigBackend::setValue(const QString &key, const QVariant &value) = 0
 
-    \sa DConfig::reset()
+    @sa DConfig::setValue()
  */
 
 /*!
-    \fn QString DConfigBackend::name() const = 0
+@~english
+    @fn void DConfigBackend::reset(const QString &key)
 
-    \brief 后端配置的唯一标识
+    @sa DConfig::reset()
+ */
+
+/*!
+@~english
+    @fn QString DConfigBackend::name() const = 0
+
+    @brief The unique identity of the backend configuration
 
  */
 
@@ -249,10 +257,11 @@ public:
     }
 
     /*!
+    @~english
       \internal
 
-      初始化DBus连接,会先调用acquireManager动态获取一个配置连接,
-      再通过这个配置连接进行配置文件的访问.
+        Initialize the DBus connection, the call acquireManager dynamically obtains a configuration connection,
+        The configuration file is then accessed through this configuration connection.
      */
     virtual bool load(const QString &/*appId*/) override
     {
@@ -425,12 +434,13 @@ DConfigPrivate::~DConfigPrivate()
 }
 
 /*!
+@~english
   \internal
 
-    \brief 创建一个配置后端
+    @brief Create a configuration backend
 
-    默认使用的配置后端会优先根据环境变量来选择配置中心的D-Bus接口还是文件配置后端接口。
-    若没有配置此环境变量，则根据是否有配置中心提供D-Bus服务来选择配置中心服务还是文件配置后端接口.
+    The default configuration backend preferentially selects the D-Bus interface in the configuration center or the file configuration backend interface based on environment variables.
+    If this environment variable is not configured, the configuration center service or file configuration backend interface will be selected according to whether the configuration center provides D-Bus services
  */
 DConfigBackend *DConfigPrivate::getOrCreateBackend()
 {
@@ -462,11 +472,12 @@ DConfigBackend *DConfigPrivate::getOrCreateBackend()
 }
 
 /*!
+@~english
   \internal
 
-    \brief 创建一个配置后端
+    @brief Create a configuration backend
 
-    尝试根据环境变量来选择配置中心的D-Bus接口还是文件配置后端接口。
+    Try to choose between configuring the D-Bus interface in the center or the file configuration backend interface based on the environment variables. 
  */
 DConfigBackend *DConfigPrivate::createBackendByEnv()
 {
@@ -501,21 +512,24 @@ DConfigBackend *DConfigPrivate::createBackendByEnv()
 }
 
 /*!
-    \class Dtk::Core::DConfig
+@~english
+    @class Dtk::Core::DConfig
     \inmodule dtkcore
 
-    \brief 配置策略提供的接口类
+    @brief Configure the interface class provided by the policy
 
-    此接口规范定义了开发库所提供的关于配置文件读写的相关接口，
-    如果应用程序所使用的开发库实现了此规范，则程序应当优先使用开发库提供的接口。
+    
+    This interface specification defines the relevant interfaces provided by the development library for reading and writing configuration files,
+    If the application uses a development library that implements this specification, the application should use the interfaces provided by the development library first.
  */
 
 
 /*!
- * \brief 构造配置策略提供的对象
- * \a name 配置文件名
- * \a subpath 配置文件对应的子目录
- * \a parent 父对象
+@~english
+ * @brief Constructs the objects provided by the configuration policy
+ * \a name Configuration File Name
+ * \a subpath Subdirectory corresponding to the configuration file
+ * \a parent Parent object
  */
 DConfig::DConfig(const QString &name, const QString &subpath, QObject *parent)
     : DConfig(nullptr, name, subpath, parent)
@@ -528,12 +542,13 @@ DConfig::DConfig(DConfigBackend *backend, const QString &name, const QString &su
 
 }
 /*!
- * \brief 构造配置策略提供的对象, 指定配置所属的应用Id
+@~english
+ * @brief Constructs the object provided by the configuration policy, specifying the application Id to which the configuration belongs.
  * \a appId
  * \a name
  * \a subpath
  * \a parent
- * \return 构造的配置策略对象，由调用者释放
+ * @return The constructed configuration policy object, which is released by the caller
  */
 DConfig *DConfig::create(const QString &appId, const QString &name, const QString &subpath, QObject *parent)
 {
@@ -546,13 +561,14 @@ DConfig *DConfig::create(DConfigBackend *backend, const QString &appId, const QS
 }
 
 /*!
- * \brief 使用自定义的配置策略后端构造对象
- * \a backend 调用者继承于DConfigBackend的配置策略后端
- * \a appId 配置文件所属的应用Id，为空时默认为本应用Id
- * \a name 配置文件名
- * \a subpath 配置文件对应的子目录
- * \a parent 父对象
- * \note 调用者只构造backend，由DConfig释放。
+@~english
+ * @brief Use custom configuration policy backend to construct objects
+ * \a backend The caller inherits the configuration policy backend of DConfigBackend
+ * \a appId The application Id of the configuration file. If it is blank, it will be the application Id by default
+ * \a name Configuration File Name
+ * \a subpath Subdirectory corresponding to the configuration file
+ * \a parent Parent object
+ * @note The caller only constructs backend, which is released by DConfig.
  */
 DConfig::DConfig(DConfigBackend *backend, const QString &appId, const QString &name, const QString &subpath, QObject *parent)
     : QObject(parent)
@@ -575,9 +591,10 @@ DConfig::DConfig(DConfigBackend *backend, const QString &appId, const QString &n
 }
 
 /*!
- * \brief DConfig::backendName
- * \return 配置策略后端名称
- * \note 调用者只能用DConfig访问DConfigBackend对象，所以不返回DConfigBackend对象。
+@~english
+ * @brief DConfig::backendName
+ * @return Configure policy backend name
+ * @note The caller can only access the DConfigBackend object with DConfig, so the DConfigBackend object is not returned.
  */
 QString DConfig::backendName() const
 {
@@ -589,8 +606,9 @@ QString DConfig::backendName() const
 }
 
 /*!
- * \brief 获得所有可用的配置项名称
- * \return 配置项名称集合
+@~english
+ * @brief Get all available configuration item names
+ * @return Configuration item name collection
  */
 QStringList DConfig::keyList() const
 {
@@ -602,8 +620,9 @@ QStringList DConfig::keyList() const
 }
 
 /*!
- * \brief 判断此后端是否可用
- * \return
+@~english
+ * @brief Check whether the backend is available
+ * @return
  */
 bool DConfig::isValid() const
 {
@@ -612,10 +631,11 @@ bool DConfig::isValid() const
 }
 
 /*!
- * \brief 根据配置项名称获得对应值
- * \param key 配置项名称
- * \param fallback 没有获取到配置项值后提供的默认值
- * \return
+@~english
+ * @brief Get the corresponding value according to the configuration item name
+ * @param key Configuration Item Name
+ * @param fallback The default value provided after the configuration item value is not obtained
+ * @return
  */
 QVariant DConfig::value(const QString &key, const QVariant &fallback) const
 {
@@ -627,9 +647,10 @@ QVariant DConfig::value(const QString &key, const QVariant &fallback) const
 }
 
 /*!
- * \brief 根据配置项名称设置其值
- * \param 配置项名称
- * \param 需要更新的值
+@~english
+ * @brief Set the value according to the configuration item name
+ * @param key Configuration Item Name
+ * @param value Values that need to be updated
  */
 void DConfig::setValue(const QString &key, const QVariant &value)
 {
@@ -641,8 +662,9 @@ void DConfig::setValue(const QString &key, const QVariant &value)
 }
 
 /*!
- * \brief 设置其配置项对应的默认值，此值为经过override机制覆盖后的值，不一定为此配置文件中meta中定义的值
- * \param 配置项名称
+@~english
+ * @brief Set the default value corresponding to its configuration item. This value is overridden by the override mechanism. It is not necessarily the value defined in the meta in this configuration file
+ * @param key Configuration Item Name
  */
 void DConfig::reset(const QString &key)
 {
@@ -654,8 +676,9 @@ void DConfig::reset(const QString &key)
 }
 
 /*!
- * \brief 返回配置文件名称
- * \return
+@~english
+ * @brief Return configuration file name
+ * @return
  */
 QString DConfig::name() const
 {
@@ -664,8 +687,9 @@ QString DConfig::name() const
 }
 
 /*!
- * \brief 返回配置文件对应的子目录
- * \return
+@~english
+ * @brief Return the subdirectory corresponding to the configuration file
+ * @return
  */
 QString DConfig::subpath() const
 {
