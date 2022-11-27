@@ -25,11 +25,11 @@ dci文件的结构路径如下:
 
 @fn bool Dtk::Core::DDciFile::writeToFile(const QString &fileName)
 @brief 写入文件,在做完对于dci文件的操作之后调用此接口,为保存的作用
-@param[in] fileName:文件名
+@param[in] fileName 文件名
 
 @fn bool Dtk::Core::DDciFile::writeToDevice(QIODevice *device)
 @brief 写入到设备,设备指的是qt中的io设备,可以在qt文档中找到相关信息
-@param[in] device:IO设备
+@param[in] device IO设备
 @sa [QIODevice](https://doc.qt.io/qt-6/qiodevice.html)
 
 @fn QByteArray Dtk::Core::DDciFile::toData()
@@ -42,68 +42,69 @@ dci文件的结构路径如下:
 
 @fn QStringList Dtk::Core::DDciFile::list(const QString &dir, bool onlyFileName = false)
 @brief 列出文件列表
-@param[in] dir:文件夹地址
-@param[in] onlyFileName:是否只显示文件名 默认为false
+@param[in] dir 文件夹地址
+@param[in] onlyFileName 是否只显示文件名 默认为false
 
 @fn int Dtk::Core::DDciFile::childrenCount(const QString &dir)
 @brief 子文件计数
 
 @fn bool Dtk::Core::DDciFile::exists(const QString &filePath)
 @brief 判断文件是否存在
-@param[in] filePath:DCI图标结构路径
+@param[in] filePath DCI图标结构路径
 
 @fn FileType Dtk::Core::DDciFile::type(const QString &filePath)
 @brief 判断文件类型
 @sa DDciFile::FileType
-@param[in] filePath:DCI图标结构路径
+@param[in] filePath DCI图标结构路径
 
 @fn QByteArray Dtk::Core::DDciFile::dataRef(const QString &filePath)
 @brief 获取dci内部文件的数据,以一种引用(软连接)的方式获取,不会产生数据的的复制
-@param[in] filePath:DCI图标结构路径
+@param[in] filePath DCI图标结构路径
 @revar 如果返回为空字符串,则说明此文件不存在或者无效
 
 @fn QString Dtk::Core::DDciFile::name(const QString &filePath)
 @brief 获取dci内文件的文件名
-@param[in] filePath:DCI图标结构路径
+@param[in] filePath DCI图标结构路径
 @revar 如果返回为空字符串,则说明此文件不存在或者无效
 
 @fn QString Dtk::Core::DDciFile::symlinkTarget(const QString &filePath, bool originData = false)
 @brief 获取软链目标
-@param[in] originData:
+@param[in] filePath DCI图标结构路径 
+@param[in] originData
 @revar 如果返回为空字符串,则说明此文件不存在或者无效
 @note 链接的目标只能是“不存在的路径”、“文件”、“链接”,不可是目录
 
 @fn bool Dtk::Core::DDciFile::mkdir(const QString &filePath)
 @brief 创建目录(注意：此目录指的是在dci文件内部的目录，而不是指的是传统目录)
-@param[in] filePath:DCI图标结构路径
+@param[in] filePath DCI图标结构路径
 @return 操作是否成功
 
 @fn bool Dtk::Core::DDciFile::writeFile(const QString &filePath, const QByteArray &data, bool override = false)
 @brief 写入文件
-@param[in] filePath:DCI图标结构路径
-@param[in] data:数据内容
-@param[in] override:当文件已经存在时,是否覆盖此文件,默认状态下不执行覆盖,会在lasterror中记录"The target file is existed"错误信息。
+@param[in] filePath DCI图标结构路径
+@param[in] data 数据内容
+@param[in] override 当文件已经存在时,是否覆盖此文件,默认状态下不执行覆盖,会在lasterror中记录"The target file is existed"错误信息。
 如果传入为true,则会执行覆盖操作,** 此操作不可逆 **。
 @return 操作是否成功
 @sa QByteArray DDciFile::toData()
 
 @fn bool Dtk::Core::DDciFile::remove(const QString &filePath)
 @brief 移除文件
-@param[in] filePath:DCI图标结构路径
+@param[in] filePath DCI图标结构路径
 @return 操作是否成功
 
 @fn bool Dtk::Core::DDciFile::rename(const QString &filePath, const QString &newFilePath, bool override = false)
 @brief 重命名文件
-@param[in] filePath:DCI图标结构路径
-@param[in] newFilePath:新文件的路径
-@param[in] override:当文件已经存在时,是否覆盖此文件,默认状态下不执行覆盖,会在lasterror中记录"The target file is existed"错误信息。
+@param[in] filePath DCI图标结构路径
+@param[in] newFilePath 新文件的路径
+@param[in] override 当文件已经存在时,是否覆盖此文件,默认状态下不执行覆盖,会在lasterror中记录"The target file is existed"错误信息。
 如果传入为true,则会执行覆盖操作,** 此操作不可逆 **。
 @return 操作是否成功
 
 @fn bool Dtk::Core::DDciFile::link(const QString &source, const QString &to)
 @brief 链接文件
-@param[in] source:文件源
-@param[in] to:链接目标
+@param[in] source 文件源
+@param[in] to 链接目标
 @return 操作是否成功
 
 */
