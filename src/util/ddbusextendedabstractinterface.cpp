@@ -45,16 +45,11 @@ DDBusExtendedAbstractInterface::~DDBusExtendedAbstractInterface() {}
 void DDBusExtendedAbstractInterface::setSync(bool sync) { setSync(sync, true); }
 
 /*
- * Note: After sync is set to false, it will always return a empty value
+ * @~english
+ * @note After sync is set to false, it will always return a empty value
  * if you call the property's get function directly. So you can only get it
  * through the changed signal when you get an property, and it's also a good
  * idea to save a cache yourself.
- */
-
-/*
- * 注意: 如果设置 sync 为 false 那么在调用属性的 get
- * 函数获取一个属性时会一直返回空值, 解决方法是监听属性的 changed
- * 信号并自行保存一份缓存, 让 changed 信号修改这个缓存
  */
 void DDBusExtendedAbstractInterface::setSync(bool sync, bool autoStart) {
   m_sync = sync;

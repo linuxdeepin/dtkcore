@@ -46,7 +46,6 @@ set (DOXYGEN_HTML_HEADER "docs/doxygentheme/header.html")
 endif()
 
 doxygen_add_docs (doxygen
-    ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/docs
     ALL
