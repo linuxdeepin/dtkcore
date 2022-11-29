@@ -14,33 +14,33 @@
 //
 //
 
-
 #ifndef DDBUSEXTENDEDPENDINGCALLWATCHER_P_H
 #define DDBUSEXTENDEDPENDINGCALLWATCHER_P_H
-
-#include <QDBusPendingCallWatcher>
+#include "dtkcore_global.h"
 #include <QDBusError>
+#include <QDBusPendingCallWatcher>
 
-class DDBusExtendedPendingCallWatcher: public QDBusPendingCallWatcher
-{
-    Q_OBJECT
+DCORE_BEGIN_NAMESPACE
+class DDBusExtendedPendingCallWatcher : public QDBusPendingCallWatcher {
+  Q_OBJECT
 
 public:
-    explicit DDBusExtendedPendingCallWatcher(const QDBusPendingCall &call,
-                                            const QString &asyncProperty,
-                                            const QVariant &previousValue,
-                                            QObject *parent = 0);
-    ~DDBusExtendedPendingCallWatcher();
+  explicit DDBusExtendedPendingCallWatcher(const QDBusPendingCall &call,
+                                           const QString &asyncProperty,
+                                           const QVariant &previousValue,
+                                           QObject *parent = 0);
+  ~DDBusExtendedPendingCallWatcher();
 
-    Q_PROPERTY(QString AsyncProperty READ asyncProperty)
-    inline QString asyncProperty() const { return m_asyncProperty; }
+  Q_PROPERTY(QString AsyncProperty READ asyncProperty)
+  inline QString asyncProperty() const { return m_asyncProperty; }
 
-    Q_PROPERTY(QVariant PreviousValue READ previousValue)
-    inline QVariant previousValue() const { return m_previousValue; }
+  Q_PROPERTY(QVariant PreviousValue READ previousValue)
+  inline QVariant previousValue() const { return m_previousValue; }
 
 private:
-    QString m_asyncProperty;
-    QVariant m_previousValue;
+  QString m_asyncProperty;
+  QVariant m_previousValue;
 };
+DCORE_END_NAMESPACE
 
 #endif /* DDBUSEXTENDEDPENDINGCALLWATCHER_P_H */
