@@ -4,7 +4,7 @@
 
 @class Dtk::Core::DConfigBackend dconfig.h
 @brief 配置后端的抽象接口。
-    所有DConfig使用的配置后端都继承此类,用户可以继承此类实现自己的配置后端。
+@details 所有DConfig使用的配置后端都继承此类,用户可以继承此类实现自己的配置后端。
 @sa FileBackend
 @sa DBusBackend
 @sa QSettingBackend
@@ -24,7 +24,7 @@
 
 @fn bool Dtk::Core::DConfigBackend::load(const QString &) = 0
 @brief 初始化后端
-    appId 管理的配置信息key值,默认为应用程序名称。
+@details appId 管理的配置信息key值,默认为应用程序名称。
 @sa FileBackend::load()
 @sa DBusBackend::load()
 @sa QSettingBackend::load()
@@ -86,12 +86,11 @@
 
 @fn DConfigBackend* Dtk::Core::DConfigPrivate::getOrCreateBackend()
 @brief 创建一个配置后端
-    默认使用的配置后端会优先根据环境变量来选择配置中心的D-Bus接口还是文件配置后端接口。
-    若没有配置此环境变量,则根据是否有配置中心提供D-Bus服务来选择配置中心服务还是文件配置后端接口。
+@details 默认使用的配置后端会优先根据环境变量来选择配置中心的D-Bus接口还是文件配置后端接口。若没有配置此环境变量,则根据是否有配置中心提供D-Bus服务来选择配置中心服务还是文件配置后端接口。
 
 @fn DConfigBackend* Dtk::Core::DConfigPrivate::createBackendByEnv()
 @brief 创建一个配置后端
-    尝试根据环境变量来选择配置中心的D-Bus接口还是文件配置后端接口。
+@details 尝试根据环境变量来选择配置中心的D-Bus接口还是文件配置后端接口。
 
 @var QString Dtk::Core::DConfigPrivate::appId
 @brief 配置文件所属的应用Id,为空时默认为本应用Id。
@@ -106,9 +105,8 @@
 @brief 配置策略后端
 
 @class Dtk::Core::DConfig dconfig.h
-@brief 配置策略提供的接口类 
-    此接口规范定义了开发库所提供的关于配置文件读写的相关接口，
-    如果应用程序所使用的开发库实现了此规范，则程序应当优先使用开发库提供的接口。
+@brief 配置策略提供的接口类
+@details 此接口规范定义了开发库所提供的关于配置文件读写的相关接口，如果应用程序所使用的开发库实现了此规范，则程序应当优先使用开发库提供的接口。
 
 @fn DConfig Dtk::Core::DConfig(const QString &name, const QString &subpath, QObject *parent)
 @brief 构造配置策略提供的对象
