@@ -20,7 +20,7 @@ Copyright: None
 License: CC0-1.0
 
 # config
-Files: *.toml *.conf *.json
+Files: *.toml *.conf *.json .clang-format
 Copyright: None
 License: CC0-1.0
 
