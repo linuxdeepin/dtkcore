@@ -8,7 +8,7 @@ You should read the <a href=docs/Specification.md>Deepin Application Specificati
 
 ## Document
 
-中文文档：[dtkcore文档（测试版本）]（https://linuxdeepin.github.io/dtkcore/index.html）
+中文文档：[dtkcore文档（测试版本）](https://linuxdeepin.github.io/dtkcore/index.html)
 
 ## Dependencies
 
