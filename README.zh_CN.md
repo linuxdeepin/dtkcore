@@ -6,7 +6,7 @@ Deepin Tool Kit Core(DtkCore) 是所有C++/Qt开发人员在Deepin上工作的�
 
 ## 文档
 
-中文文档：[dtkcore文档（测试版本）]（https://linuxdeepin.github.io/dtkcore/index.html）
+中文文档：[dtkcore文档（测试版本）](https://linuxdeepin.github.io/dtkcore/index.html)
 
 ## 依赖
 
