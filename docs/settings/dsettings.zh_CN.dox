@@ -1,11 +1,10 @@
 /*!
 @~chinese
 @file include/settings/dsettings.h
-
+@ingroup dsettings
 @class Dtk::Core::DSettingsBackend dsettings.h
 @brief DSettingsBackend是一个配置存储类的接口
-
-简单的例子:
+@details 简单的例子:
 @code
 {
     "groups": [{
@@ -82,17 +81,17 @@
 @brief 返回全部键值
 
 @fn virtual QVariant DSettingsBackend::getOption(const QString &key) const = 0;
-@brief 获取 \a key 对应的值
+@brief 获取 `key` 对应的值
 
 @fn virtual void DSettingsBackend::doSync() = 0;
 @brief 开始进行同步
 
 @fn virtual void DSettingsBackend::doSetOption(const QString &key, const QVariant &value) = 0;
-@brief 设置key对应的值,并使用存储后端进行存储。
+@brief 设置`key`对应的值,并使用存储后端进行存储。
 
 @fn void DSettingsBackend::optionChanged(const QString &key, const QVariant &value);
 @brief DSettingsOption的值发生变化时发出的信号。
-@details \a key 发生改变的 option 键,\a value 对应键的值。
+@details `key` 发生改变的 option 键,`value`对应键的值。
 
 @fn void DSettingsBackend::sync();
 @brief 私有信号,请勿使用。
@@ -186,10 +185,10 @@ DSettings的API接口进行读取和写入,但是不能在标准的DSettingsDial
 @brief 设置存储后端
 
 @fn static QPointer<DSettings> Dtk::Core::DSettings::fromJson(const QByteArray &json)
-@brief 从 \a json 中获取 DSettings,返回的数据使用之后需要自己手动释放。
+@brief 从 json 中获取 DSettings,返回的数据使用之后需要自己手动释放。
 
 @fn static QPointer<DSettings> Dtk::Core::DSettings::fromJsonFile(const QString &filepath)
-@brief 从 \a json 文件中获取 DSetting。
+@brief 从 json 文件中获取 DSetting。
 
 @fn QJsonObject Dtk::Core::DSettings::meta() const
 @brief 返回JSON对象
@@ -198,26 +197,26 @@ DSettings的API接口进行读取和写入,但是不能在标准的DSettingsDial
 @brief 返回全部键值
 
 @fn QList<QPointer<DSettingsOption> > Dtk::Core::DSettings::options() const
-@brief 返回全部 \a key 的值
+@brief 返回全部 `key` 的值
 
 @fn QPointer<DSettingsOption> Dtk::Core::DSettings::option(const QString &key) const
-@brief 获取 \a key 对应的值
+@brief 获取 `key` 对应的值
 
 @fn QVariant Dtk::Core::DSettings::value(const QString &key) const
-@brief 获取 \a key 对应的值
+@brief 获取 `key` 对应的值
 
 @fn QStringList Dtk::Core::DSettings::groupKeys() const
 @brief 返回子组全部键值
 
 @fn QList<QPointer<DSettingsGroup> > Dtk::Core::DSettings::groups() const
-@brief 返回子组全部 \a key 的值
+@brief 返回子组全部 `key` 的值
 
 @fn QPointer<DSettingsGroup> Dtk::Core::DSettings::group(const QString &key) const
 @brief DSettings::group将递归找到子组
 @return
 
 @fn QVariant Dtk::Core::DSettings::getOption(const QString &key) const
-@brief 获取 \a key 对应的值
+@brief 获取 `key` 对应的值
 
 @fn void Dtk::Core::DSettings::sync()
 @brief 开始进行同步

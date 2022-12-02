@@ -8,7 +8,8 @@
 @brief 非常简单但相当强大的组件，可用于记录你的应用程序活动。
 
 @enum Dtk::Core::Logger::LogLevel
-@brief
+@brief 日志等级
+@details
 | **值**   | **序号** | **含义**                             |
 |:-------:|:------:|:----------------------------------:|
 | Trace   | 0      | 追踪级别,可用于大部分不需要的记录,用于内部代码追踪         |
@@ -59,7 +60,7 @@
 
 @fn void Dtk::Core::Logger::registerCategoryAppender(const QString &category, AbstractAppender *appender)
 @brief 注册appender,将日志记录写到特定的类别中<br>
-        调用这个方法,你可以将一些appender与命名的类别联系起来。
+@details 调用这个方法,你可以将一些appender与命名的类别联系起来。
         在调用特定类别的日志写入时(直接调用带有类别参数的`write()`,写入默认类别,或使用特殊的`dCDebug()`、`dCWarning()`等宏),
         Logger只将日志信息写入注册的类别appender列表中。<br>
         你可以调用`logToGlobalInstance()`将所有类别的日志信息传递给全局的Logger实例Appender(使用`registerAppender()`注册)。
@@ -134,8 +135,8 @@
 @fn QDebug Dtk::Core::Logger::write(LogLevel level, const char *file,
                 int line,const char *func, const char *category)
 @brief 这是为方便而提供的重载函数。它的行为与同名函数类似,此函数无需传入message参数
-    这个函数不接受任何日志信息作为参数。它返回的是可以使用流函数写入的`QDebug`对象<br>
-    例如，你可能想写：
+@details 这个函数不接受任何日志信息作为参数。它返回的是可以使用流函数写入的`QDebug`对象<br>
+        例如，你可能想写：
     @code
         dDebug() << "This is the size" << size << "of the element" << elementName;
     @endcode
@@ -157,8 +158,8 @@
 
 @fn void Dtk::Core::Logger:: writeAssert(const char *file, int line,
                     const char *func, const char *condition)
-@brief 写入断言<br>
-        这个函数使用write()函数来写断言记录<br>
+@brief 写入断言
+@details 这个函数使用write()函数来写断言记录<br>
         断言记录总是使用`Logger::Fatal`日志级别来写,这将导致程序的中止和核心转储(core dump)的生成(如果支持)
         写入appenders的信息与传入参数相同,前缀为 `ASSERT:`
 @param[in] file 目标文件名

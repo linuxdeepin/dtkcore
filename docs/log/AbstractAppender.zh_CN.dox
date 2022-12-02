@@ -5,14 +5,11 @@
 
 AbstractAppender类是所有可以与Logger一起使用的日志appender的基础接口类。
 @class Dtk::Core::AbstractAppender
-@brief
-    AbstractAppender为应用消息的线程安全、互斥保护的日志提供了一个通用的实现,例如ConsoleAppender、FileAppender或其他的东西。
-    AbstractAppender是抽象的,不能被实例化,但是你可以使用它的任何一个子类,或者根据你的选择创建一个自定义的日志appender。
-
-    Appenders是逻辑设备,旨在通过调用`Logger::registerAppender()`附加到Logger对象。在每个来自应用程序的日志记录调用中,Logger对象都会依次调用所有在它身上注册的appender的`write()`函数。
-
-    你可以子类化AbstractAppender来实现你喜欢的任何类型的日志目标。它可以是外部日志子系统(例如,*nix中的syslog)、XML文件、SQL数据库条目、D-Bus消息或任何你能想到的其他东西。
-
+@brief AbstractAppender为应用消息的线程安全、互斥保护的日志提供了一个通用的实现
+@details AbstractAppender为应用消息的线程安全、互斥保护的日志提供了一个通用的实现,例如ConsoleAppender、FileAppender或其他的东西。<br>
+    AbstractAppender是抽象的,不能被实例化,但是你可以使用它的任何一个子类,或者根据你的选择创建一个自定义的日志appender。<br>
+    Appenders是逻辑设备,旨在通过调用`Logger::registerAppender()`附加到Logger对象。在每个来自应用程序的日志记录调用中,Logger对象都会依次调用所有在它身上注册的appender的`write()`函数。<br>
+    你可以子类化AbstractAppender来实现你喜欢的任何类型的日志目标。它可以是外部日志子系统(例如,*nix中的syslog)、XML文件、SQL数据库条目、D-Bus消息或任何你能想到的其他东西。<br>
     对于简单的非结构化的纯文本日志(例如,到一个纯文本文件或到控制台输出),你子类化AbstractStringAppender而不是AbstractAppender,这将给你一个更方便的方法来控制日志输出的格式。
 
 @fn AbstractAppender Dtk::Core::AbstractAppender::AbstractAppender()
@@ -22,7 +19,8 @@ AbstractAppender类是所有可以与Logger一起使用的日志appender的基�
 @brief AbstractAppender析构函数
 
 @fn Logger::LogLevel Dtk::Core::AbstractAppender::detailsLevel()
-@brief 返回appender的当前日志级别.日志级别低于当前`detailsLevel()`的日志记录将被appender默认忽略,
+@brief 返回appender的当前日志级别
+@details 返回appender的当前日志级别.日志级别低于当前`detailsLevel()`的日志记录将被appender默认忽略,
         并且不会被发送到其append()函数。
     它提供了额外的日志灵活性，允许你为不同类型的日志设置不同的严重性级别
 @note 该函数是线程安全的
@@ -55,10 +53,10 @@ AbstractAppender类是所有可以与Logger一起使用的日志appender的基�
 @sa Logger::write()
 @sa detailsLevel()
 
-@fn @pure void Dtk::Core::AbstractAppender::AbstractAppender::append(const QDateTime &timeStamp, Logger::LogLevel level, const char *file, int line,
+@fn void Dtk::Core::AbstractAppender::AbstractAppender::append(const QDateTime &timeStamp, Logger::LogLevel level, const char *file, int line,
                         const char *function, const QString &category, const QString &message) = 0
 @brief 将日志记录写到loger实例中
-         每次当用户试图使用`write()`函数向这个AbstractAppender实例写入消息时,都会调用这个函数。`Write()`函数作为代理工作,只输出日志级别大于或等于当前`logLevel()`的消息
+@details 每次当用户试图使用`write()`函数向这个AbstractAppender实例写入消息时,都会调用这个函数。`Write()`函数作为代理工作,只输出日志级别大于或等于当前`logLevel()`的消息
 @note 当你实现一个自定义的appender时,需要重载这个函数。
 @note 该函数不需要是线程安全的,因为它从未被Logger对象直接调用。`write()`函数作为代理,保护该函数不被并发调用。
 @param[in] timeStamp 时间戳
