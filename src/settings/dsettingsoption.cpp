@@ -33,31 +33,32 @@ public:
 };
 
 /*!
-  \class Dtk::Core::DSettingsOption
+@~english
+  @class Dtk::Core::DSettingsOption
   \inmodule dtkcore
-  \brief DSettingsOption is the base key/value item of DSettings.
-  \brief DSettingsOption是DSettings的基本单元，用于存放一对键-值数据。
+  @brief DSettingsOption is the base key/value item of DSettings.
  */
 
 /*!
-  \fn void DSettingsOption::valueChanged(QVariant value);
-  \brief Emit when option value change.
-  \brief 选项的数据变化时发出改信息.
+@~english
+  @fn void DSettingsOption::valueChanged(QVariant value);
+  @brief Emit when option value change.
 
-  \a value 发生改变的数据.
+  \a value Changed data.
  */
 
 /*!
-  \fn void DSettingsOption::dataChanged(const QString &dataType, QVariant value);
-  \brief Emit when option data change.
-  \brief 选项的附件的额外数据变化时发出改信息，可以看作这个值的属性发生变化.
+@~english
+  @fn void DSettingsOption::dataChanged(const QString &dataType, QVariant value);
+  @brief Emit when option data change.
 
-  \a dataType 改变的数据类型, \a value 改变的数据.
+  \a dataType Changed data type, \a value Changed data.
  */
 
 /*!
-  \property Dtk::Core::DSettingsOption::value
-  \brief Current value of this option.
+@~english
+  @property Dtk::Core::DSettingsOption::value
+  @brief Current value of this option.
  */
 
 DSettingsOption::DSettingsOption(QObject *parent) :
@@ -71,9 +72,9 @@ DSettingsOption::~DSettingsOption()
 }
 
 /*!
-  \brief Get direct parent group of this option.
-  \brief 当前选项的直接上级组。
-  \return 返回当前选项的直接上级组.
+@~english
+  @brief Get direct parent group of this option.
+  @return Returns the direct parent group of the this option.
  */
 QPointer<DSettingsGroup> DSettingsOption::parentGroup() const
 {
@@ -82,10 +83,10 @@ QPointer<DSettingsGroup> DSettingsOption::parentGroup() const
 }
 
 /*!
-  \brief Change the direct parent group of this option.
-  \brief 修改但前选项的上级组.
+@~english
+  @brief Change the direct parent group of this option.
 
-  \a parentGroup 上级组.
+  \a parentGroup parent group.
  */
 void DSettingsOption::setParentGroup(QPointer<DSettingsGroup> parentGroup)
 {
@@ -94,9 +95,9 @@ void DSettingsOption::setParentGroup(QPointer<DSettingsGroup> parentGroup)
 }
 
 /*!
-  \brief Return the full key of this option, include all parent.
-  \brief 当前选项的键值.
-  \return 返回当前选项的键值.
+@~english
+  @brief Return the full key of this option, include all parent.
+  @return Return the full key of this option, include all parent.
  */
 QString DSettingsOption::key() const
 {
@@ -105,9 +106,9 @@ QString DSettingsOption::key() const
 }
 
 /*!
-  \brief Get display name of the option, it may be translated.
-  \brief 当前选项的名称.
-  \return 返回当前选项的名称.
+@~english
+  @brief Get display name of the option, it may be translated.
+  @return Return the name of the option.
  */
 QString DSettingsOption::name() const
 {
@@ -116,10 +117,10 @@ QString DSettingsOption::name() const
 }
 
 /*!
-  \brief Check this option can be reset to default value. if false, reset action will not take effect.
-  \brief 选项是否可以重置，如果可以重置，在调用reset方法后，选项的值会变成初始值.
+@~english
+  @brief Check this option can be reset to default value. if false, reset action will not take effect.
 
-  \return true if can be reset.
+  @return true if can be reset.
  */
 bool DSettingsOption::canReset() const
 {
@@ -128,10 +129,10 @@ bool DSettingsOption::canReset() const
 }
 
 /*!
-  \brief Default value of this option, must config in this json desciption file.
-  \brief 选项的默认值.
+@~english
+  @brief Default value of this option, must config in this json desciption file.
 
-  \return 返回选项的默认值.
+  @return Return the default value of this option.
  */
 QVariant DSettingsOption::defaultValue() const
 {
@@ -140,10 +141,10 @@ QVariant DSettingsOption::defaultValue() const
 }
 
 /*!
-  \brief Get current value of option.
-  \brief 选项的当前值.
+@~english
+  @brief Get current value of option.
 
-  \return 返回选项的当前值.
+  @return Return the current value of this option.
  */
 QVariant DSettingsOption::value() const
 {
@@ -152,13 +153,13 @@ QVariant DSettingsOption::value() const
 }
 
 /*!
-  \brief Custom data of option, like QObject::property.
-  \a dataType 数据类型.
-  \brief 选项的附件data，用于未选项设置一些额外的辅助属性.
+@~english
+  @brief Custom data of option, like QObject::property.
+  \a dataType Data type.
 
-  \return 数据类型对应的数据.
-  \sa QObject::property
-  \sa Dtk::Core::DSettingsOption::setData
+  @return Data type Indicates the data.
+  @sa QObject::property
+  @sa Dtk::Core::DSettingsOption::setData
  */
 QVariant DSettingsOption::data(const QString &dataType) const
 {
@@ -167,11 +168,11 @@ QVariant DSettingsOption::data(const QString &dataType) const
 }
 
 /*!
-  \brief UI widget type of this option.
-  \brief 选项的控件类型.
+@~english
+  @brief UI widget type of this option.
 
-  \return 返回选项的控件类型.
-  \sa Dtk::Widget::DSettingsWidgetFactory
+  @return Returns the UI widget type of the option.
+  @sa Dtk::Widget::DSettingsWidgetFactory
  */
 QString DSettingsOption::viewType() const
 {
@@ -180,11 +181,10 @@ QString DSettingsOption::viewType() const
 }
 
 /*!
-  \brief Check this option will show on DSettings dialog.
-  \brief 检查选项是否会在界面上显示.
+@~english
+  @brief Check this option will show on DSettings dialog.
 
-  \return true if option not bind to ui element.
-  \return 如果显示则返回true，否则返回false。
+  @return true if option not bind to ui element.
  */
 bool DSettingsOption::isHidden() const
 {
@@ -193,15 +193,13 @@ bool DSettingsOption::isHidden() const
 }
 
 /*!
-  \brief Convert QJsonObject to DSettingsOption.
-  \brief 从json对象中反序列化出一个选项对象.
+@~english
+  @brief Convert QJsonObject to DSettingsOption.
 
   \a prefixKey instead parse prefix key from parent.
-  \a prefixKey 选项的前缀
   \a json is an QJsonObejct instance.
-  \a json 待反序列化的json对象
 
-  \return 返回解析完成后的 option 数据.
+  @return Return the option data after parsing.
  */
 QPointer<DSettingsOption> DSettingsOption::fromJson(const QString &prefixKey, const QJsonObject &json)
 {
@@ -211,10 +209,10 @@ QPointer<DSettingsOption> DSettingsOption::fromJson(const QString &prefixKey, co
 }
 
 /*!
-  \brief Set current value of option.
-  \brief 设置选项的当前值.
+@~english
+  @brief Set current value of option.
 
-  \a value 选项的当前值.
+  \a value Current value of option.
  */
 void DSettingsOption::setValue(QVariant value)
 {
@@ -230,7 +228,7 @@ void DSettingsOption::setValue(QVariant value)
 }
 
 ///*!
-// * \brief Override default value of json
+// * @brief Override default value of json
 // * \a value
 // */
 //void DSettingsOption::setDefault(QVariant value)
@@ -240,14 +238,11 @@ void DSettingsOption::setValue(QVariant value)
 //}
 
 /*!
-  \brief Set custom data.
-  \brief 为选项添加自定义属性.
+@~english
+  @brief Set custom data.
   \a dataType is data id, just a unique string.
   \a value of the data id.
-  \a dataType 选项的扎属性数据id，对每个选项必须唯一
-  \a value 选项id对应的值
-  \sa Dtk::Core::DSettingsOption::data
-  \sa Dtk::Core::DSettingsOption::data
+  @sa Dtk::Core::DSettingsOption::data
  */
 void DSettingsOption::setData(const QString &dataType, QVariant value)
 {
@@ -263,14 +258,11 @@ void DSettingsOption::setData(const QString &dataType, QVariant value)
 }
 
 /*!
-  \brief Parse QJsonObject to DSettingsOption.
-  \brief 从json对象中反序列化，并设置自身的值。
+@~english
+  @brief Parse QJsonObject to DSettingsOption.
   \a prefixKey instead parse prefix key from parent.
-  \a json is an QJsonObejct instance.
-  \a 选项的前缀
-  \a 待反序列化的json对象
-  \sa QPointer<DSettingsOption> Dtk::Core::DSettingsOption::fromJson(const QString &prefixKey, const QJsonObject &json)
-  \sa QPointer<DSettingsOption> Dtk::Core::DSettingsOption::fromJson(const QString &prefixKey, const QJsonObject &json)
+  \a option is an QJsonObejct instance.
+  @sa QPointer<DSettingsOption> Dtk::Core::DSettingsOption::fromJson(const QString &prefixKey, const QJsonObject &json)
  */
 void DSettingsOption::parseJson(const QString &prefixKey, const QJsonObject &option)
 {
