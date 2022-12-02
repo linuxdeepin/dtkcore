@@ -7,10 +7,8 @@
 
 @class Dtk::Core::DDBusExtendedAbstractInterface
 @brief 扩展DBus接口, 继承自QDBusAbstractInterface
-    
-和QDBusAbstractInterface相比, 该类连接了org.freedesktop.DBus.Properties接口, 提供了异步访问属性的接口, 可以方便地通过此类进行异步DBus通信. <br>
+@details 和QDBusAbstractInterface相比, 该类连接了org.freedesktop.DBus.Properties接口, 提供了异步访问属性的接口, 可以方便地通过此类进行异步DBus通信. <br>
 同时此类提供了属性改变信号的分发和中继.
-
 
 @fn DDBusExtendedAbstractInterface::DDBusExtendedAbstractInterface(const QString &service, const QString &path, const char *interface, const QDBusConnection &connection, QObject *parent)
 @brief 构造函数
@@ -19,20 +17,15 @@
 @param[in] interface 该interface实际连接的接口
 @param[in] connection 用于连接该interface的DBus连接
 @param[in] parent 父对象
-
-该构造函数受到保护, 只有子对象才能访问.
+@note 该构造函数受到保护, 只有子对象才能访问.
 
 @property Dtk::Core::DDBusExtendedAbstractInterface::sync
 @brief 是否同步获取属性
-
-当sync为false的时候, 在调用属性的get函数的时候会一直返回空值, 解决方法是监听属性的changed信号并自行保存一份缓存, 让changed信号修改这个缓存.
-
+@details 当sync为false的时候, 在调用属性的get函数的时候会一直返回空值, 解决方法是监听属性的changed信号并自行保存一份缓存, 让changed信号修改这个缓存.
 
 @property Dtk::Core::DDBusExtendedAbstractInterface::useCache
 @brief 是否使用缓存
-
-如果使用缓存, 在内部获取属性的时候将不再进行DBus调用更新属性.
-
+@details 如果使用缓存, 在内部获取属性的时候将不再进行DBus调用更新属性.
 
 @fn inline bool DDBusExtendedAbstractInterface::sync() const
 @brief 获取是否同步
@@ -49,94 +42,72 @@
 @brief 设置是否同步
 @param[in] sync 是否是同步模式
 @sa [sync](@ref Dtk::Core::DDBusExtendedAbstractInterface::sync)
-
-该函数内部实现调用[setSync](@ref DDBusExtendedAbstractInterface::setSync(bool sync, bool autoStart)), autoStart参数值为true, 即默认自启动.
-
+@details 该函数内部实现调用[setSync](@ref DDBusExtendedAbstractInterface::setSync(bool sync, bool autoStart)), autoStart参数值为true, 即默认自启动.
 
 @fn inline bool DDBusExtendedAbstractInterface::useCache() const
 @brief 获取是否使用缓存
 @sa [useCache](@ref Dtk::Core::DDBusExtendedAbstractInterface::useCache)
 
-
 @fn inline void DDBusExtendedAbstractInterface::setUseCache()
 @brief 设置是否使用缓存
 @sa [useCache](@ref Dtk::Core::DDBusExtendedAbstractInterface::useCache)
 
-
 @fn void DDBusExtendedAbstractInterface::getAllProperties()
 @brief 获取所有属性
 @sa [sync](@ref Dtk::Core::DDBusExtendedAbstractInterface::sync)
-
-该方法会调用org.freedesktop.DBus.Properties接口的GetAll方法, 获取所有属性并且发送属性改变信号, 如果是同步模式(sync为true), 该方法会使用同步调用call.
+@details 该方法会调用org.freedesktop.DBus.Properties接口的GetAll方法, 获取所有属性并且发送属性改变信号, 如果是同步模式(sync为true), 该方法会使用同步调用call. <br>
 sync为false的时候会使用异步调用asyncCall.
-
 
 @fn inline QDBusError DDBusExtendedAbstractInterface::lastExtendedError() const
 @brief 获取上一次的错误
 @return QDBusError 上一次由DBus调用引起的错误
 
-
 @fn void DDBusExtendedAbstractInterface::startServiceProcess()
 @brief 启动服务进程
-
-该函数会调用org.freedesktop.DBus的服务的/路径的StartServiceByName方法启动DDBusExtendedAbstractInterface对应的Service.
-
+@details 该函数会调用org.freedesktop.DBus的服务的/路径的StartServiceByName方法启动DDBusExtendedAbstractInterface对应的Service.
 
 @fn void DDBusExtendedAbstractInterface::serviceValidChanged(const bool valid) const
 @brief 服务是否有效状态改变信号
 @param[in] valid 服务是否有效
 
-
 @fn void DDBusExtendedAbstractInterface::serviceStartFinished(const quint32 ret) const
 @brief 服务启动完成通知信号
 @param[in] ret 启动服务的返回值
-
-启动服务是调用org.freedesktop.DBus服务的/路径的StartServiceByName方法, ret为StartServiceByName的返回值.
-
+@details 启动服务是调用org.freedesktop.DBus服务的/路径的StartServiceByName方法, ret为StartServiceByName的返回值.
 
 @fn void DDBusExtendedAbstractInterface::propertyChanged(const QString &propertyName, const QVariant &value)
 @brief 属性改变信号
 @param[in] propertyName 改变的属性名
 @param[in] value 改变后的属性值
 
-
 @fn void DDBusExtendedAbstractInterface::propertyInvalidated(const QString &propertyName)
 @brief 属性失效通知信号
 @param[in] propertyName 失效的属性名
-
-该信号会在DBus属性改变但是本地反序列化失败的情况下发出.
-
+@details 该信号会在DBus属性改变但是本地反序列化失败的情况下发出.
 
 @fn void DDBusExtendedAbstractInterface::asyncPropertyFinished(const QString &propertyName)
 @brief 异步获取属性完成通知信号
 @param[in] propertyName 获取成功的属性名
 
-
 @fn void DDBusExtendedAbstractInterface::asyncSetPropertyFinished(const QString &propertyName)
 @brief 异步设置属性完成通知信号
 @param[in] propertyName 设置成功的属性名
 
-
 @fn void DDBusExtendedAbstractInterface::asyncGetAllPropertiesFinished()
 @brief 异步获取所有属性完成的通知信号
 @sa [getAllProperties](@ref Dtk::Core::DDBusExtendedAbstractInterface::getAllProperties())
-
-getAllProperties方法并没有返回值, 须监听此信号以实现完整功能.
+@details getAllProperties方法并没有返回值, 须监听此信号以实现完整功能.
 
 
 @fn void DDBusExtendedAbstractInterface::connectNotify(const QMetaMethod &signal)
 @brief 信号连接通知函数
 @param[in] signal 连接到该对象的信号
-
-该函数重写了QObject的connectNotify函数, 当有某一个信号连接到该对象的时候, 该函数就会被调用.
-
+@details 该函数重写了QObject的connectNotify函数, 当有某一个信号连接到该对象的时候, 该函数就会被调用.
 
 @fn void DDBusExtendedAbstractInterface::disconnectNotify(const QMetaMethod &signal)
 @brief 信号断开连接通知函数
 @param[in] signal 断连的信号
-
-该函数重写了QObject的disconnectNotify函数, 当有某一个连接到该对象的信号断连时, 该函数就会被调用.
-
+@details 该函数重写了QObject的disconnectNotify函数, 当有某一个连接到该对象的信号断连时, 该函数就会被调用.
 
 @fn QVariant DDBusExtendedAbstractInterface::internalPropGet(const char *propname, void *propertyPtr)
 @brief 内部属性获取函数
@@ -144,8 +115,7 @@ getAllProperties方法并没有返回值, 须监听此信号以实现完整功�
 @param[in] propertyPtr 属性缓存指针
 @sa [useCache](@ref Dtk::Core::DDBusExtendedAbstractInterface::useCache)
 @sa [sync](@ref Dtk::Core::DDBusExtendedAbstractInterface::sync)
-
-当useCache为true的时候, 该函数仅仅返回propertyPtr指向的内存拷贝. 
+@details 当useCache为true的时候, 该函数仅仅返回propertyPtr指向的内存拷贝.
 
 @fn void DDBusExtendedAbstractInterface::internalPropSet(const char *propname, const QVariant &value, void *propertyPtr)
 @brief 内部属性设置函数
@@ -153,7 +123,5 @@ getAllProperties方法并没有返回值, 须监听此信号以实现完整功�
 @param[in] value 要设置的值
 @param[in] propertyPtr 属性缓存指针
 @sa [sync](@ref Dtk::Core::DDBusExtendedAbstractInterface::sync)
-
-
 
 */

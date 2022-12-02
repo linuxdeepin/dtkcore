@@ -17,7 +17,8 @@ dci文件的结构路径如下:
 | Symlink | 3 | 软连接 |
 
 @fn bool Dtk::Core::DDciFile::isValid()
-@brief 判断读取的dci文件是否有效,当指定的dci文件未成功加载时,此函数会返回false,一般会出现在文件格式错误(不是一个dci格式的文件),或者是dci文件数据被篡改而无法识别的情况
+@brief 判断读取的dci文件是否有效
+@details 当指定的dci文件未成功加载时,此函数会返回false,一般会出现在文件格式错误(不是一个dci格式的文件),或者是dci文件数据被篡改而无法识别的情况
 @note 本类中所有涉及文件操作的函数均会首先执行此方法,故如无必要,无需手动确保文件是否有效
 
 @fn QString Dtk::Core::DDciFile::lastErrorString()
@@ -69,7 +70,7 @@ dci文件的结构路径如下:
 
 @fn QString Dtk::Core::DDciFile::symlinkTarget(const QString &filePath, bool originData = false)
 @brief 获取软链目标
-@param[in] filePath DCI图标结构路径 
+@param[in] filePath DCI图标结构路径
 @param[in] originData
 @retval 如果返回为空字符串,则说明此文件不存在或者无效
 @note 链接的目标只能是“不存在的路径”、“文件”、“链接”,不可是目录

@@ -1,6 +1,7 @@
 /*!
 @~chinese
 @file include/settings/dsettingsgroup.h
+@ingroup dsettings
 
 @class Dtk::Core::DSettingsGroup dsettingsgroup.h
 @brief 一组DSettings选项的集合,也可以包含子组。

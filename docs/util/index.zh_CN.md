@@ -2,6 +2,7 @@
 
 @mainpage
 @defgroup dutil
+@brief dtk实用工具
 
 ## 模块介绍
 

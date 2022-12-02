@@ -2,6 +2,7 @@
 
 @mainpage
 @defgroup dlog
+@brief dtk日志组件
 
 ## Dlog：dtk日志组件
 

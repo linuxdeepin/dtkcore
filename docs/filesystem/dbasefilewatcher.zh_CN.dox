@@ -40,7 +40,7 @@
 
 @fn static bool Dtk::Core::DBaseFileWatcher::ghostSignal(const QUrl &targetUrl, DBaseFileWatcher::SignalType2 signal, const QUrl &arg1, const QUrl &arg2)
 @brief 发送一个信号表示目标目录`targetUrl`得到了一个`signal`信号，包含参数`arg1`和`arg2`<br>
-    示例用法:
+@details 示例用法:
 @code
   DBaseFileWatcher::ghostSignal(QUrl("bookmark:///"), &DBaseFileWatcher::fileMoved, QUrl("bookmark:///bookmarkFile1"), QUrl("bookmark:///NewNameFile1"));
 @endcode

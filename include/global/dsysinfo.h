@@ -49,9 +49,9 @@ public:
     };
 
     enum OrgType {
-        Distribution, //!< distribution itself
-        Distributor, //!< distributer of the current distribution
-        Manufacturer //!< manufacturer of the current distribution or device
+        Distribution, //!<@~english distribution itself
+        Distributor, //!<@~english distributer of the current distribution
+        Manufacturer //!<@~english manufacturer of the current distribution or device
     };
 
     enum UosType {
