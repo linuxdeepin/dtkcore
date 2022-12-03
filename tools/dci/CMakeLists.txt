@@ -20,3 +20,5 @@ target_include_directories(${BIN_NAME} PUBLIC
   ../../include/global/
 )
 #end dci
+
+install(TARGETS ${BIN_NAME} DESTINATION "${TOOL_INSTALL_DIR}")
