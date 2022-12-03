@@ -81,16 +81,17 @@ bool createTo(const QString &sourceDir, const QString &targetDir) {
     return dci.writeToFile(newFile);
 }
 
-static bool copyFilesFromDci(const DDciFile *dci, const QString &targetDir, const QString &sourceDir) {
+static bool copyFilesFromDci(const DDciFile *dci, const QString &targetDir, const QString &sourceDir, QMap<QString, QString> &pathMap) {
     QDir target(targetDir);
     for (const QString &file : dci->list(sourceDir)) {
         const QString &newFileName = QFileInfo(file).fileName();
         const QString &newFilePath = target.filePath(newFileName);
+        pathMap.insert(file, newFilePath);
         const auto &type = dci->type(file);
         if (type == DDciFile::Directory) {
             if (!target.mkdir(newFileName))
                 return false;
-            if (!copyFilesFromDci(dci, newFilePath, file))
+            if (!copyFilesFromDci(dci, newFilePath, file, pathMap))
                 return false;
         } else if (type == DDciFile::File) {
             QFile newFile(newFilePath);
@@ -100,8 +101,7 @@ static bool copyFilesFromDci(const DDciFile *dci, const QString &targetDir, cons
             if (newFile.write(data) != data.size())
                 return false;
         } else if (type == DDciFile::Symlink) {
-            if (!QFile::link(dci->symlinkTarget(file, true), newFilePath))
-                return false;
+            // link the real source later
         } else {
             return false;
         }
@@ -124,7 +124,28 @@ bool exportTo(const QString &dciFile, const QString &targetDir) {
     if (!dci.isValid())
         return false;
 
-    return copyFilesFromDci(&dci, newDir, "/");
+    QMap<QString, QString> pathMap;
+    if (!copyFilesFromDci(&dci, newDir, "/", pathMap))
+        return false;
+
+    // link to real source
+    for (auto it = pathMap.begin(); it != pathMap.end(); it++) {
+        if (dci.type(it.key()) == DDciFile::Symlink) {
+            const QString &realSource = it.value();
+            const QDir &dirInDci(QFileInfo(it.key()).path());
+            const QDir &dirRealSrc(QFileInfo(realSource).path());
+            const QString &target = dci.symlinkTarget(it.key(), true);
+            const QString &absoluteTarget = QDir::cleanPath(dirInDci.absoluteFilePath(target));
+            const QString &realTarget = pathMap.value(absoluteTarget);
+
+            // link to relative path(e.g. xx.webp -> ../../normal.light/x/xx.webp)
+            if (!QFile::link(dirRealSrc.relativeFilePath(realTarget), realSource)) {
+                qErrnoWarning(strerror(errno));
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 #define SPACE_CHAR    "    "
