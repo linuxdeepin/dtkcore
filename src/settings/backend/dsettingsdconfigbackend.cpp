@@ -23,13 +23,15 @@ public:
 };
 
 /*!
-  \class Dtk::Core::DSettingsDConfigBackend
+@~english
+  @class Dtk::Core::DSettingsDConfigBackend
   \inmodule dtkcore
-  \brief Storage DSetttings to an DConfig.
+  @brief Storage DSetttings to an DConfig.
  */
 
 /*!
-  \brief Save data to configure file name with DConfig.
+@~english
+  @brief Save data to configure file name with DConfig.
   \a name configure file name.
   \a subpath subdirectory of configure file name.
   \a parent
@@ -48,8 +50,9 @@ DSettingsDConfigBackend::~DSettingsDConfigBackend()
 }
 
 /*!
-  \brief List all keys of DConfig
-  \return
+@~english
+  @brief List all keys of DConfig
+  @return
  */
 QStringList DSettingsDConfigBackend::keys() const
 {
@@ -58,9 +61,10 @@ QStringList DSettingsDConfigBackend::keys() const
 }
 
 /*!
-  \brief Get value of key from DConfig
+@~english
+  @brief Get value of key from DConfig
   \a key
-  \return
+  @return
  */
 QVariant DSettingsDConfigBackend::getOption(const QString &key) const
 {
@@ -69,7 +73,8 @@ QVariant DSettingsDConfigBackend::getOption(const QString &key) const
 }
 
 /*!
-  \brief Set value of key to DConfig
+@~english
+  @brief Set value of key to DConfig
   \a key
   \a value
  */
@@ -82,7 +87,8 @@ void DSettingsDConfigBackend::doSetOption(const QString &key, const QVariant &va
 }
 
 /*!
-  \brief Trigger DSettings to save option value to DConfig
+@~english
+  @brief Trigger DSettings to save option value to DConfig
  */
 void DSettingsDConfigBackend::doSync()
 {
