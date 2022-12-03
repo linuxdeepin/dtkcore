@@ -127,6 +127,56 @@ bool exportTo(const QString &dciFile, const QString &targetDir) {
     return copyFilesFromDci(&dci, newDir, "/");
 }
 
+#define SPACE_CHAR    "    "
+#define BEGINE_CHAR   "├── "
+#define MIDDLE_CHAR   "│   "
+#define END_CHAR      "└── "
+#define ARROW_CHAR    " -> "
+
+static inline QString pathName(const QString &path)
+{
+    QDir dir(path);
+    return  dir.dirName().isEmpty() ? path : dir.dirName();
+}
+
+void print(DDciFile &dci, const QString &dir = QString("/"), QString prefix = QString())
+{
+    const auto &fileList = dci.list(dir);
+    QString dirName = pathName(dir);
+
+    printf("%s\n", qPrintable(prefix + dirName));
+
+    prefix.replace(END_CHAR, SPACE_CHAR);
+    prefix.replace(BEGINE_CHAR,  MIDDLE_CHAR);
+
+    for (const auto &file : fileList) {
+        QString newPrefix = prefix;
+        newPrefix.append(file == fileList.last() ? END_CHAR : BEGINE_CHAR);
+        if (dci.type(file) == DDciFile::Directory) {
+            print(dci, file, newPrefix);
+        } else {
+            QString fileName = pathName(file);
+            QString symlinkTarget;
+            if (dci.type(file) == DDciFile::Symlink) {
+                symlinkTarget.append(ARROW_CHAR).append(dci.symlinkTarget(file));
+            }
+            printf("%s\n", qPrintable(newPrefix + fileName + symlinkTarget));
+        }
+    }
+}
+
+bool tree(const QString &dciFile)
+{
+    QFileInfo info(dciFile);
+    DDciFile dci(dciFile);
+    if (!dci.isValid())
+        return false;
+
+    print(dci, "/");
+
+    return true;
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
@@ -142,13 +192,17 @@ int main(int argc, char *argv[])
                                             "The commands of DCI tools can be expressed as follows:\n"
                                             "\t dci --create [target file path] [source directory path]\n"
                                             "\t dci --export [target directory path] [source file path]\n"
+                                            "\t dci --tree [target file path]\n"
                                             "For example, the tool is used in the following ways: \n"
                                             "\t dci --create ~/Desktop ~/Desktop/action_add\n"
-                                            "\t dci --export ~/Desktop ~/Desktop/action_add.dci\n");
+                                            "\t dci --export ~/Desktop ~/Desktop/action_add.dci\n"
+                                            "\t dci --tree ~/Desktop/action_add.dci\n");
 
-    auto options = QList<QCommandLineOption> {
+    auto options = QList<QCommandLineOption>
+    {
         QCommandLineOption("create", "Create the new dci files by the directorys", "targetDirectiry"),
         QCommandLineOption("export", "Export the dci files to the directorys", "targetDirectory"),
+        QCommandLineOption("tree", "tree view the dci file", "targetDciFile"),
     };
     commandParser.addOptions(options);
     commandParser.addPositionalArgument("sources", "The directorys of create or the dci files of export",
@@ -168,6 +222,11 @@ int main(int argc, char *argv[])
             if (!exportTo(dci, commandParser.value(options.at(1)))) {
                 printf("Failed on export the \"%s\" dci file\n", qPrintable(dci));
             }
+        }
+    } else if (commandParser.isSet(options.at(2))) {
+        const QString &dci = commandParser.value(options.at(2));
+        if (!tree(dci)) {
+            printf("Failed on view the \"%s\" dci file\n", qPrintable(dci));
         }
     } else {
         commandParser.showHelp(-1);
