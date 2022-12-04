@@ -23,13 +23,15 @@ public:
 };
 
 /*!
-  \class Dtk::Core::QSettingBackend
+@~english
+  @class Dtk::Core::QSettingBackend
   \inmodule dtkcore
-  \brief Storage DSetttings to an QSettings.
+  @brief Storage DSetttings to an QSettings.
  */
 
 /*!
-  \brief Save data to filepath with QSettings::NativeFormat format.
+@~english
+  @brief Save data to filepath with QSettings::NativeFormat format.
   \a filepath is path to storage data.
   \a parent
  */
@@ -48,8 +50,9 @@ QSettingBackend::~QSettingBackend()
 }
 
 /*!
-  \brief List all keys of QSettings
-  \return
+@~english
+  @brief List all keys of QSettings
+  @return
  */
 QStringList QSettingBackend::keys() const
 {
@@ -58,9 +61,10 @@ QStringList QSettingBackend::keys() const
 }
 
 /*!
-  \brief Get value of key from QSettings
+@~english
+  @brief Get value of key from QSettings
   \a key
-  \return
+  @return
  */
 QVariant QSettingBackend::getOption(const QString &key) const
 {
@@ -72,7 +76,8 @@ QVariant QSettingBackend::getOption(const QString &key) const
 }
 
 /*!
-  \brief Set value of key to QSettings
+@~english
+  @brief Set value of key to QSettings
   \a key
   \a value
  */
@@ -91,7 +96,8 @@ void QSettingBackend::doSetOption(const QString &key, const QVariant &value)
 }
 
 /*!
-  \brief Trigger DSettings to save option value to QSettings
+@~english
+  @brief Trigger DSettings to save option value to QSettings
  */
 void QSettingBackend::doSync()
 {
