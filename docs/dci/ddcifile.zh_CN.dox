@@ -1,6 +1,7 @@
 /*!
 @~chinese
 @file include/dci/ddcifile.h
+@ingroup dci
 
 @class Dtk::Core::DDciFile ddcifile.h
 @brief ddcifile.h 是关于dci文件相关操作的一个类,实现了 DCI 文件的逻辑。其只是对数据的打包
