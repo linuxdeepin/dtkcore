@@ -75,7 +75,7 @@
 
 @fn bool Dtk::Core::DCapFile::link(const QString &newName)
 @brief 创建一个名为newName的链接
-@details 创建一个名为newName的链接, 该链接指向当前由`setFileName()`指定的文件或者是在构造时指定的文件。链接是什么取决于底层文件系统(无论是Windows上的快捷方式还是Unix上的符号链接)。如果成功, 则返回ture;否则返回false
+@details 该链接指向当前由`setFileName()`指定的文件或者是在构造时指定的文件。链接是什么取决于底层文件系统(无论是Windows上的快捷方式还是Unix上的符号链接)。如果成功, 则返回ture;否则返回false
 @note 如果是windows系统的newName参数必须有`.lnk`合法后缀才可用
 @param[in] newName 新文件名
 
@@ -153,7 +153,7 @@
 
 @fn QStringList Dtk::Core::DCapDir::entryList(Filters filters = NoFilter,  SortFlags sort = NoSort)
 @brief 返回目录中所有文件和目录的名称列表
-@details返回目录中所有文件和目录的名称列表, 这些名称根据以前使用`setNameFilters()` 和`setFilter()`
+@details 这些名称根据以前使用`setNameFilters()` 和`setFilter()`
         设置的名称和属性筛选器排序, 并根据使用`setSorting() 设置的标志进行排序。<br>
         可以使用过滤器和排序参数覆盖属性过滤器和排序规范。
         如果目录不可读、不存在或与规范不匹配, 则返回空列表。
