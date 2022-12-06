@@ -1,7 +1,8 @@
 /*!
 @~chinese
-@file includes/global/dsysinfo.h
-@ingroup global
+@ingroup dglobal
+@file include/global/dsysinfo.h
+
 @class Dtk::Core::DSysInfo
 @brief dsysinfo 是一组用于查询系统信息的静态类
 
@@ -95,7 +96,6 @@
 | UosARM64       | 2  | arm64  |
 | UosMIPS64      | 4  | mips64 |
 | UosSW64        | 8  | sw_64  |
-
 
 
 
