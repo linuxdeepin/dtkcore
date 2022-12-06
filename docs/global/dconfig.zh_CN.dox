@@ -1,7 +1,7 @@
 /*!
 @~chinese
 @file include/global/dconfig.h
-@ingroup global
+@ingroup dglobal
 @class Dtk::Core::DConfigBackend dconfig.h
 @brief 配置后端的抽象接口。
 @details 所有DConfig使用的配置后端都继承此类,用户可以继承此类实现自己的配置后端。
