@@ -616,7 +616,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
         // private class declare
         hs << "class " << className << "Private;" << endl;
         // class header:
-        hs << "class " << className << " : public DBusExtendedAbstractInterface" << endl
+        hs << "class " << className << " : public DDBusExtendedAbstractInterface" << endl
            << "{" << endl
            << "    Q_OBJECT" << endl;
         hs << endl;
@@ -659,7 +659,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
            << "    ~" << className << "();" << endl
            << endl;
         cs << className << "::" << className << "(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent)" << endl
-           << "    : DBusExtendedAbstractInterface(service, path, staticInterfaceName(), connection, parent)" << endl
+           << "    : DDBusExtendedAbstractInterface(service, path, staticInterfaceName(), connection, parent)" << endl
            << "    , d_ptr(new " << className << "Private)" << endl
            << "{" << endl;
         if (!interface->properties.isEmpty())
