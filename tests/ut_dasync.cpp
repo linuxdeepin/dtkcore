@@ -11,7 +11,7 @@
 #include "ut_dutil.h"
 
 DCORE_USE_NAMESPACE
-
+#if 0
 // 为了方便托管 std::thread 而创建的辅助类
 class Thread : public QObject {
     std::thread *m_thread = nullptr;
@@ -168,7 +168,6 @@ TEST_F(ut_DAsync, testRunInSubThread)
     m_loop->exec("testRunInSubThread");
 }
 
-#if 0
 TEST_F(ut_DAsync, testMultiThreadSynchronization)
 {
     // task3, 在子线程中输入 0~999, 在 post 中乘以 2 输出到主线程 then 中
@@ -208,7 +207,6 @@ TEST_F(ut_DAsync, testMultiThreadSynchronization)
 
     m_loop->exec("testMultiThreadSynchronization");
 }
-#endif
 
 TEST_F(ut_DAsync, testOneTimeTask)
 {
@@ -350,3 +348,4 @@ TEST_F(ut_DAsync, testFixedApi)
     })->start();
     m_loop->exec("test task7");
 }
+#endif
