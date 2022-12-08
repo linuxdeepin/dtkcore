@@ -37,9 +37,10 @@ Q_LOGGING_CATEGORY(cfLog, "dtk.dsg.config");
 #define FILE_SUFFIX QLatin1String(".json")
 
 /*!
+@~english
   \internal
 
-    \brief 按子目录查找机制查找配置文件
+    @brief 按子目录查找机制查找配置文件
 
     在 \a baseDir目录下,查找名称为 \a name的文件,
     若存在 \a subpath,则从 \a subpath叶子目录逐级向上查找名称为 \a name的文件,
@@ -164,53 +165,58 @@ inline static QString getUserName(const uint uid) {
 }
 
 /*!
-    \class Dtk::Core::DConfigFile
+@~english
+    @class Dtk::Core::DConfigFile
     \inmodule dtkcore
 
-    \brief 规范配置文件读写的相关接口的配置文件实现.
+    @brief Specification configuration file implementation of the interface that the configuration file reads and writes.
  */
 
 /*!
-    \enum DConfigFile::Flag
+@~english
+    @enum DConfigFile::Flag
 
-    \value NoOverride  存在此标记时，将表明则此配置项不可被覆盖（详见下述 override 机制）。
-    反之，不存在此标记时表明此配置项允许被覆盖，对于此类配置项，
-    如若其有界面设置入口，则当此项不可写时，应当隐藏或禁用界面的设置入口.
-    \value Global 当读写此类配置时，将忽略用户身份，无论程序使用哪个用户身份执行，读操作都将获取到同样的数据，
-    写操作将对所有用户都生效。但是，如果对应的配置存储目录不存在或无权限写入，则忽略此标志.
+    \value NoOverride When this flag exists , it indicates that this configuration item can't be overwritten (see the override mechanism below for details).     
+    Otherwise, the absence of this flag indicates that this configuration item is allowed to be overwritten,
+    If it has a screen setting entry, hide or disable the screen setting entry when this entry is not writable.
+    \value Global When reading or writing such a configuration, the user identity is ignored and the same data is obtained regardless of which user identity the program executes.
+    The write operation will take effect for all users. However, if the corresponding configuration storage directory does not exist or has no write permission, this flag is ignored.
 */
 
 /*!
-    \enum DConfigFile::Permissions
+@~english
+    @enum DConfigFile::Permissions
 
-    \value ReadOnly 将配置项覆盖为只读，
-    \value ReadWrite 将配置项覆盖为可读可写.
+    \value ReadOnly Overwrite the configuration item as readonly.
+    \value ReadWrite Overwrite the configuration item as readable and writable.
 */
 
 /*!
-    \enum DConfigFile::Visibility
+@~english
+    @enum DConfigFile::Visibility
 
-    \value Private 仅限程序内部使用，
-    对外不可见。此类配置项完全由程序自己读写，可随意增删改写其含义，无需做兼容性考虑，
-    \value Public 外部程序可使用。
-    此类配置项一旦发布，在兼容性版本的升级中，要保障此配置项向下兼容，
-    简而言之，只允许在程序/库的大版本升级时才允许删除或修改此类配置项，
-    当配置项的 permissions、visibility、flags 任意一个属性被修改则认为此配置项被修改，
-    除此之外修改 value、name、description 属性时则不需要考虑兼容性.
+    \value Private For internal program use only,
+    Not visible to the outside world. Such configuration items are completely read and written by the program itself, and can be added, deleted and rewritten at will without compatibility consideration,
+    \value Public External programs are available.
+    Once this type of configuration item is released, ensure that the configuration item is backward compatible during the upgrade of the compatible version.
+    In short, this type of configuration item is only allowed to be deleted or modified when a major version of the program/library is upgraded.
+    The configuration item is changed if any of its permissions, visibility, or flags properties are changed.
+    In addition, you do not need to consider compatibility when modifying the value, name, and description attributes.
 */
 
 /*!
-    \struct Dtk::Core::DConfigFile::Version
+@~english
+    @struct Dtk::Core::DConfigFile::Version
     \inmodule dtkcore
-    \brief 版本信息
+    @brief Version Information
 
-    此文件的内容格式的版本。版本号使用两位数字描述，
-    首位数字不同的描述文件相互之间不兼容，第二位数字不同的描述文件需满足向下兼容。
-    读取此描述文件的程序要根据版本进行内容分析，当遇到不兼容的版本时，需要立即终止解析，忽略此文件，
-    并在程序日志中写入警告信息，如 “1.0” 和 “2.0” 版本之间不兼容，
-    如果解析程序最高只支持 1.0 版本，则遇到 2.0 版本的描述文件时应该终止解析，
-    但是如果遇到 1.1 版本，则可以继续执行。
-    写入此描述文件时，遇到不兼容的版本时，需要先清空当前内容再写入，每次写入皆需更新此字段。
+    The content format version of this file. The version number is described by two digits,
+    Profiles with different first digits are incompatible with each other, and profiles with different second digits need to be compatible with each other.
+    A program that reads this profile needs to perform content analysis by version, and when it encounters an incompatible version, it needs to terminate parsing immediately and ignore the file.
+    And write a warning message to the program log, such as "1.0" and "2.0" versions are not compatible,
+    If the parser only supports version 1.0, it should stop parsing when it encounters a 2.0 profile.
+    But if version 1.1 is encountered, execution can continue.
+    When writing to this profile, if an incompatible version is encountered, the current contents need to be cleared before writing, and this field needs to be updated with each write
 */
 
 DConfigMeta::~DConfigMeta() {}
@@ -419,127 +425,143 @@ private:
 
 
 /*!
-    \class Dtk::Core::DConfigMeta
+@~english
+    @class Dtk::Core::DConfigMeta
     \inmodule dtkcore
 
-    \brief 提供配置文件的原型和覆盖机制的访问接口.
+    @brief Provides a prototype of the configuration file and an access interface to the override mechanism.
 
 */
 
 /*!
-    \fn DConfigFile::Version DConfigMeta::version() const = 0;
+@~english
+    @fn DConfigFile::Version DConfigMeta::version() const = 0;
 
-    \brief 返回配置版本信息.
-    \return
+    @brief Returns configuration version information.
+    @return
 */
 
 /*!
-    \fn void DConfigMeta::setVersion(quint16 major, quint16 minor) = 0;
+@~english
+    @fn void DConfigMeta::setVersion(quint16 major, quint16 minor) = 0;
 
-    \brief 设置配置版本信息
-    \a major 主板本号
-    \a minor 次版本号
+    @brief Sets configuration version information
+    \a major Major version number
+    \a minor Minor version number
 */
 
 /*!
-    \fn bool DConfigMeta::load(const QString &localPrefix = QString()) = 0;
+@~english
+    @fn bool DConfigMeta::load(const QString &localPrefix = QString()) = 0;
 
-    \brief 解析配置文件
-    \a localPrefix 为目录前缀
-    \return
+    @brief Parsing configuration files
+    \a localPrefix Directory prefix
+    @return
 */
 
 /*!
-    \fn bool DConfigMeta::load(QIODevice *meta, const QList<QIODevice*> &overrides) = 0;
+@~english
+    @fn bool DConfigMeta::load(QIODevice *meta, const QList<QIODevice*> &overrides) = 0;
 
-    \brief 解析配置文件流
-    \a meta 为原型流
-    \a overrides 为覆盖机制查找的文件流
-    \return
+    @brief Parse the configuration file stream
+    \a meta Prototype stream
+    \a overrides The file stream to find for the override mechanism
+    @return
 */
 
 /*!
-    \fn QStringList DConfigMeta::keyList() const = 0;
+@~english
+    @fn QStringList DConfigMeta::keyList() const = 0;
 
-    \brief 返回配置内容的所有配置项
-    \return
+    @brief Returns all configuration items for the configuration content
+    @return
 */
 
 /*!
-    \fn DConfigFile::Flags DConfigMeta::flags(const QString &key) const = 0;
+@~english
+    @fn DConfigFile::Flags DConfigMeta::flags(const QString &key) const = 0;
 
-    \brief 返回指定配置项的特性
-    \a key 配置项名称, NoOverride为此配置项不可被覆盖, Global为忽略用户身份
-    \return
+    @brief Returns the attribute of the specified configuration item
+    \a key Configure the name of the option, NoOverride This option can't be overridden, and Global ignores the user identity
+    @return
 */
 
 /*!
-    \fn DConfigFile::Permissions DConfigMeta::permissions(const QString &key) const = 0;
+@~english
+    @fn DConfigFile::Permissions DConfigMeta::permissions(const QString &key) const = 0;
 
-    \brief 返回指定配置项的权限
-    \a key 配置项名称
-    \return
-
-*/
-
-/*!
-    \fn DConfigFile::Visibility DConfigMeta::visibility(const QString &key) const = 0;
-
-    \brief 返回指定配置项的可见性
-    \a key 配置项名称
-    \return
-
-*/
-
-/*!
-    \fn int DConfigMeta::serial(const QString &key) const = 0;
-
-    \brief 返回配置项的单调递增值
-    \a key 配置项名称
-    \return -1为无效值，表明没有配置此项
-*/
-
-/*!
-    \fn QString DConfigMeta::displayName(const QString &key, const QLocale &locale) = 0;
-
-    \brief 返回指定配置项的显示名
-    \a key 配置项名称
-    \a locale 为语言版本
-    \return
-*/
-
-/*!
-    \fn QString DConfigMeta::description(const QString &key, const QLocale &locale) = 0;
-
-    \brief 返回指定配置项的描述信息
-    \a key 配置项名称
-    \a locale 为语言版本
-    \return
+    @brief Returns the permission for the specified configuration item
+    \a key Configuration name
+    @return
 
 */
 
 /*!
-    \fn QString DConfigMeta::metaPath(const QString &localPrefix = QString(), bool *useAppId = nullptr) const = 0;
+@~english
+    @fn DConfigFile::Visibility DConfigMeta::visibility(const QString &key) const = 0;
 
-    \brief 返回描述文件的路径
-    \a localPrefix 目录的所有需要查找的覆盖机制目录
-    \return
+    @brief Returns the visibility of the specified configuration item
+    \a key Configuration name
+    @return
+
 */
 
 /*!
-    \fn QStringList DConfigMeta::allOverrideDirs(const bool useAppId, const QString &prefix = QString()) const = 0;
+@~english
+    @fn int DConfigMeta::serial(const QString &key) const = 0;
 
-    \brief 获得前缀为 \a prefix 目录的所有需要查找的覆盖机制目录
-    \a userAppId 是否不使用通用目录
-    \return
+    @brief Returns a monotonically increasing value of a configuration item
+    \a key Configuration name
+    @return An invalid value of -1 indicates that the entry is not configured
+
 */
 
 /*!
-    \fn QVariant DConfigMeta::value(const QString &key) const = 0;
+@~english
+    @fn QString DConfigMeta::displayName(const QString &key, const QLocale &locale) = 0;
 
-    \brief meta初始值经过覆盖机制覆盖后的原始值
-    \a key 配置项名称
-    \return
+    @brief Returns the display name of the specified configuration
+    \a key Configuration name
+    \a locale Language version
+    @return
+*/
+
+/*!
+@~english
+    @fn QString DConfigMeta::description(const QString &key, const QLocale &locale) = 0;
+
+    @brief Returns a description of the specified configuration item
+    \a key Configuration name
+    \a locale Language version
+    @return
+
+*/
+
+/*!
+@~english
+    @fn QString DConfigMeta::metaPath(const QString &localPrefix = QString(), bool *useAppId = nullptr) const = 0;
+
+    @brief Returns the path to the profile
+    \a localPrefix Directory of all override mechanisms that need to be searched
+    @return
+*/
+
+/*!
+@~english
+    @fn QStringList DConfigMeta::allOverrideDirs(const bool useAppId, const QString &prefix = QString()) const = 0;
+
+    @brief Gets all the override mechanism directories to look for for the \a prefix directory
+    \a useAppId Whether not to use the generic directory
+    @return
+*/
+
+/*!
+@~english
+    @fn QVariant DConfigMeta::value(const QString &key) const = 0;
+
+    @brief Original value of meta overwritten by the overwriting mechanism
+    \a key Configuration name
+    @return
 */
 
 class Q_DECL_HIDDEN DConfigMetaImpl : public DConfigMeta {
@@ -740,9 +762,10 @@ public:
         return true;
     }
     /*!
+    @~english
       \internal
 
-        \brief 获得前缀为\a prefix目录的应用或公共库的所有覆盖机制目录,越后优先级越高
+        @brief 获得前缀为 \a prefix 目录的应用或公共库的所有覆盖机制目录,越后优先级越高
      */
     inline QStringList overrideDirs(const QString & prefix, bool useAppId) const {
         const QString &path2 = QString("%1/etc/dsg/configs/overrides/%2/%3")
@@ -774,9 +797,10 @@ public:
         return dirs;
     }
     /*!
+    @~english
       \internal
 
-        \brief 获得所有遵守覆盖机制的文件流
+        @brief 获得所有遵守覆盖机制的文件流
 
         在override文件放置路径下按优先级查找覆盖文件,支持子目录查找机制,
         使用自然排序（如“a2”在“a11”之前）规则按文件名进行排序
@@ -852,75 +876,85 @@ DConfigMetaImpl::~DConfigMetaImpl()
 }
 
 /*!
-    \class Dtk::Core::DConfigCache
+@~english
+    @class Dtk::Core::DConfigCache
     \inmodule dtkcore
 
-    \brief 提供配置文件的用户和全局运行缓存访问接口.
+    @brief Provides user and global runtime cache access interfaces for Configuration file.
 
 */
 
 /*!
-    \fn bool DConfigCache::load(const QString &localPrefix = QString()) = 0;
-    \brief 解析缓存配置文件
-    \return
+@~english
+    @fn bool DConfigCache::load(const QString &localPrefix = QString()) = 0;
+    @brief Parse the cache configuration file
+    @return
 */
 
 /*!
-    \fn bool DConfigCache::save(const QString &localPrefix = QString(), QJsonDocument::JsonFormat format = QJsonDocument::Indented, bool sync = false) = 0;
-    \brief 保存缓存的值到磁盘中
-    \a localPrefix 为目录前缀
-    \a format 保存格式
-    \a sync 是否立即刷新
-    \return
+@~english
+    @fn bool DConfigCache::save(const QString &localPrefix = QString(), QJsonDocument::JsonFormat format = QJsonDocument::Indented, bool sync = false) = 0;
+    @brief Save the cached value to disk
+    \a localPrefix Directory prefix
+    \a format Save format
+    \a sync Whether to refresh immediately
+    @return
 */
 
 /*!
-    \fn bool DConfigCache::isGlobal() const = 0;
-    \brief 是否是全局缓存
-    \return
+@~english
+    @fn bool DConfigCache::isGlobal() const = 0;
+    @brief Whether to cache globally
+    @return
 */
 
 /*!
-    \fn void DConfigCache::remove(const QString &key) = 0;
-    \brief 删除缓存中的配置项
-    \a key 配置项名称
-    \return
+@~english
+    @fn void DConfigCache::remove(const QString &key) = 0;
+    @brief Delete a configuration entry from the cache
+    \a key Configuration name
+    @return
 */
 
 /*!
-    \fn QStringList DConfigCache::keyList() const = 0;
-    \brief 返回配置内容的所有配置项
-    \return
+@~english
+    @fn QStringList DConfigCache::keyList() const = 0;
+    @brief Returns all configuration items for the configuration content
+    @return
 */
 
 /*!
-    \fn bool DConfigCache::setValue(const QString &key, const QVariant &value, const int serial, const uint uid, const QString &callerAppid) = 0;
-    \brief 设置缓存中的值
-    \a key 配置项名称
-    \a value 需要设置的值
-    \a uid 设置时的用户id
-    \a callerAppid 设置时的应用id
-    \return 为true时表示重新设置了新值，false表示没有设置
+@~english
+    @fn bool DConfigCache::setValue(const QString &key, const QVariant &value, const int serial, const uint uid, const QString &callerAppid) = 0;
+    @brief Sets the value in the cache
+    \a key Configuration name
+    \a value Configuration name
+    \a uid User Id at setup time
+    \a callerAppid Application id at setup time
+    @return A value of true indicates that the new value has been reset, and false indicates that it has not been set
 */
 
 /*!
-    \fn QVariant DConfigCache::value(const QString &key) const = 0;
-    \brief 获取缓存中的值
-    \a key 配置项名称
-    \return
+@~english
+    @fn QVariant DConfigCache::value(const QString &key) const = 0;
+    @brief Get the value in the cache
+    \a key Configuration name
+    @return
 */
 
 /*!
-    \fn int DConfigCache::serial(const QString &key) const = 0;
-    \brief 返回配置项的单调递增值
-    \a key 配置项名称
-    \return -1为无效值，表明没有配置此项
+@~english
+    @fn int DConfigCache::serial(const QString &key) const = 0;
+    @brief Returns a monotonically increasing value of a configuration item
+    \a key Configuration name
+    @return An invalid value of -1 indicates that the entry is not configured
 */
 
 /*!
-    \fn uint DConfigCache::uid() const = 0;
-    \brief 用户标识，为全局缓存时，uid为非用户标识的特定值
-    \return
+@~english
+    @fn uint DConfigCache::uid() const = 0;
+    @brief User identification, when used in the global cache, uid is a specific value for non-user identification
+    @return
 */
 
 class Q_DECL_HIDDEN DConfigCacheImpl : public DConfigCache {
@@ -1228,8 +1262,9 @@ DConfigFilePrivate::~DConfigFilePrivate()
 }
 
 /*!
-    \brief 支持的版本
-    \return
+@~english
+    @brief Supported versions
+    @return
  */
 constexpr DConfigFile::Version DConfigFile::supportedVersion()
 {
@@ -1237,10 +1272,11 @@ constexpr DConfigFile::Version DConfigFile::supportedVersion()
 }
 
 /*!
-    \brief 构造配置文件管理对象
-    \a appId 应用程序唯一标识
-    \a name 配置文件名
-    \a subpath 子目录
+@~english
+    @brief 构造配置文件管理对象
+    \a appId Application unique identification
+    \a name Config filename
+    \a subpath Subdirectories
  */
 DConfigFile::DConfigFile(const QString &appId, const QString &name, const QString &subpath)
     : DObject(*new DConfigFilePrivate(this, appId, name, subpath))
@@ -1261,9 +1297,10 @@ DConfigFile::DConfigFile(const DConfigFile &other)
 }
 
 /*!
-    \brief 解析配置文件
-    \a localPrefix 为目录前缀
-    \return
+@~english
+    @brief Parse configuration files
+    \a localPrefix Directory prefix
+    @return
 */
 bool DConfigFile::load(const QString &localPrefix)
 {
@@ -1272,10 +1309,11 @@ bool DConfigFile::load(const QString &localPrefix)
 }
 
 /*!
-    \brief 解析配置文件流
-    \a meta 为原型流
-    \a overrides 为覆盖机制查找的文件流
-    \return
+@~english
+    @brief Parse the profile stream
+    \a meta Prototype stream
+    \a overrides File stream to find for the override mechanism
+    @return
 */
 bool DConfigFile::load(QIODevice *meta, const QList<QIODevice *> &overrides)
 {
@@ -1283,10 +1321,11 @@ bool DConfigFile::load(QIODevice *meta, const QList<QIODevice *> &overrides)
 }
 
 /*!
-    \brief 保存缓存的值到磁盘中
-    \a format 保存格式
-    \a sync 是否立即刷新
-    \return
+@~english
+    @brief Save the cached value to disk
+    \a format Save format
+    \a sync Whether to refresh immediately
+    @return
 */
 bool DConfigFile::save(const QString &localPrefix, QJsonDocument::JsonFormat format, bool sync) const
 {
@@ -1298,10 +1337,11 @@ bool DConfigFile::save(const QString &localPrefix, QJsonDocument::JsonFormat for
 }
 
 /*!
- * \brief DConfigFile::value
- * \param key 配置项名称
- * \param uid 用户id，当key为全局项时，uid无效
- * \return
+@~english
+ * @brief DConfigFile::value
+ * @param key Configuration name
+ * @param uid User id, uid is invalid when the key is global
+ * @return
  */
 QVariant DConfigFile::value(const QString &key, DConfigCache *userCache) const
 {
@@ -1310,12 +1350,13 @@ QVariant DConfigFile::value(const QString &key, DConfigCache *userCache) const
 }
 
 /*!
-    \brief 设置缓存中的值
-    \a key 配置项名称
-    \a value 需要设置的值
-    \a uid 设置时的用户id
-    \a appid 设置时的应用id
-    \return 为true时表示重新设置了新值，false表示没有设置
+@~english
+    @brief Sets the value in the cache
+    \a key Configuration name
+    \a value The value to set
+    \a uid User id at setup time
+    \a appid Application id at setup time
+    @return A value of true indicates that the new value has been reset, and false indicates that it has not been set
  */
 bool DConfigFile::setValue(const QString &key, const QVariant &value, const QString &callerAppid, DConfigCache *userCache)
 {
@@ -1331,8 +1372,9 @@ DConfigCache *DConfigFile::createUserCache(const uint uid)
 
 
 /*!
-    \brief 返回全局缓存
-    \return
+@~english
+    @brief Return to the global cache
+    @return
  */
 DConfigCache *DConfigFile::globalCache() const
 {
@@ -1341,8 +1383,9 @@ DConfigCache *DConfigFile::globalCache() const
 }
 
 /*!
-    \brief 返回原型对象
-    \return
+@~english
+    @brief Return the prototype object
+    @return
  */
 DConfigMeta *DConfigFile::meta()
 {
@@ -1351,8 +1394,9 @@ DConfigMeta *DConfigFile::meta()
 }
 
 /*!
-    \brief 检测配置文件是否有效
-    \return
+@~english
+    @brief Checks whether the configuration file is valid
+    @return
  */
 bool DConfigFile::isValid() const
 {
