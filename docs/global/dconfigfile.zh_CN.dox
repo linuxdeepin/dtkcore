@@ -1,0 +1,241 @@
+/*!
+@~chinese
+@file include/global/dconfigfile.h
+@ingroup dglobal
+
+@class Dtk::Core::DConfigFile dconfigfile.h
+@brief 规范配置文件读写的相关接口的配置文件实现
+
+@enum Dtk::Core::DConfigFile::Flag
+@brief 配置项名称
+@details
+| 值           | 序号 | 含义    |
+|-------------|----|-------|
+| NoOverride  | 0  | 存在此标记时，将表明则此配置项不可被覆盖（详见下述 override 机制）。反之，不存在此标记时表明此配置项允许被覆盖，对于此类配置项，如若其有界面设置入口，则当此项不可写时，应当隐藏或禁用界面的设置入口.  |
+| Global      | 1  | 当读写此类配置时，将忽略用户身份，无论程序使用哪个用户身份执行，读操作都将获取到同样的数据，写操作将对所有用户都生效。但是，如果对应的配置存储目录不存在或无权限写入，则忽略此标志 |
+
+@enum Dtk::Core::DConfigFile::Permissions
+@brief 配置项的权限
+@details
+| 值          | 序号 | 含义    |
+|------------|----|-------|
+| ReadOnly   | 0  | 将配置项覆盖为只读 |
+| ReadWrite  | 1  | 将配置项覆盖为可读可写 |
+
+@enum Dtk::Core::DConfigFile::Visibility
+@brief 配置项的可见性
+@details
+| 值       | 序号 | 含义    |
+|---------|----|-------|
+| Private | 0  | 仅限程序内部使用，对外不可见。此类配置项完全由程序自己读写，可随意增删改写其含义，无需做兼容性考虑 |
+| Public  | 1  | 外部程序可使用。 此类配置项一旦发布，在兼容性版本的升级中，要保障此配置项向下兼容，简而言之，只允许在程序/库的大版本升级时才允许删除或修改此类配置项，当配置项的 permissions、visibility、flags 任意一个属性被修改则认为此配置项被修改，除此之外修改 value、name、description 属性时则不需要考虑兼容性。|
+
+@struct Dtk::Core::DConfigFile::Version
+@brief 版本信息
+@details 
+此文件的内容格式的版本。版本号使用两位数字描述，
+首位数字不同的描述文件相互之间不兼容，第二位数字不同的描述文件需满足向下兼容。
+读取此描述文件的程序要根据版本进行内容分析，当遇到不兼容的版本时，需要立即终止解析，忽略此文件，
+并在程序日志中写入警告信息，如 “1.0” 和 “2.0” 版本之间不兼容，
+如果解析程序最高只支持 1.0 版本，则遇到 2.0 版本的描述文件时应该终止解析，
+但是如果遇到 1.1 版本，则可以继续执行。
+写入此描述文件时，遇到不兼容的版本时，需要先清空当前内容再写入，每次写入皆需更新此字段。
+
+@fn static constexpr DConfigFile::Version Dtk::Core::DConfigFile::supportedVersion()
+@brief 支持的版本
+@return
+
+@fn Dtk::Core::DConfigFile::DConfigFile(const QString &appId, const QString &name, const QString &subpath = QString())
+@brief DConfigFile构造函数,构造配置文件管理对象。
+@param[in] appId 应用程序唯一标识
+@param[in] name 配置文件名
+@param[in] subpath 子目录
+
+@fn Dtk::Core::DConfigFile::DConfigFile(const DConfigFile &other);
+@brief DConfigFile构造函数,构造配置文件管理对象。
+@param[in] appId 应用程序唯一标识
+@param[in] name 配置文件名
+@param[in] subpath 子目录
+
+@fn bool Dtk::Core::DConfigFile::load(const QString &localPrefix = QString())
+@brief 解析配置文件
+@param[in] localPrefix 为目录前缀
+@return
+
+@fn bool Dtk::Core::DConfigFile::load(QIODevice *meta, const QList<QIODevice*> &overrides)
+@brief 解析配置文件流
+@param[in] meta 为原型流
+@param[in] overrides 为覆盖机制查找的文件流
+@return
+
+@fn bool Dtk::Core::DConfigFile::save(const QString &localPrefix = QString(), QJsonDocument::JsonFormat format = QJsonDocument::Indented, bool sync = false) const
+@brief 保存缓存的值到磁盘中
+@param[in] format 保存格式
+@param[in] sync 是否立即刷新
+@return
+
+@fn bool Dtk::Core::DConfigFile::isValid() const
+@brief 检测配置文件是否有效
+@return
+
+@fn QVariant Dtk::Core::DConfigFile::value(const QString &key, DConfigCache *userCache = nullptr) const
+@brief DConfigFile::value
+@param[in] key 配置项名称
+@param[in] uid 用户id,当key为全局项时,uid无效
+@return
+
+@fn bool Dtk::Core::DConfigFile::setValue(const QString &key, const QVariant &value, const QString &callerAppid, DConfigCache *userCache = nullptr)
+@brief 设置缓存中的值
+@param[in] key 配置项名称
+@param[in] value 需要设置的值
+@param[in] uid 设置时的用户id
+@param[in] appid 设置时的应用id
+@return 为true时表示重新设置了新值,false表示没有设置
+
+@fn DConfigCache* Dtk::Core::DConfigFile::createUserCache(const uint uid)
+@brief 创建用户缓存
+
+@fn DConfigCache* Dtk::Core::DConfigFile::globalCache() const
+@brief 返回全局缓存
+@return
+
+@fn DConfigMeta* Dtk::Core::DConfigFile::meta()
+@brief 返回原型对象
+@return
+
+*/
+
+/*!
+@class Dtk::Core::DConfigMeta dconfigfile.h
+@brief 提供配置文件的原型和覆盖机制的访问接口
+
+@fn virtual DConfigFile::Version Dtk::Core::DConfigMeta::version() const = 0
+@brief 返回配置版本信息
+@return
+
+@fn virtual void Dtk::Core::DConfigMeta::setVersion(quint16 major, quint16 minor) = 0
+@brief 设置配置版本信息
+@param[in] major 主板本号
+@param[in] minor 次版本号
+
+@fn virtual bool Dtk::Core::DConfigMeta::load(const QString &localPrefix = QString()) = 0
+@brief 解析配置文件
+@param[in] localPrefix 为目录前缀
+@return
+
+@fn virtual bool Dtk::Core::DConfigMeta::load(QIODevice *meta, const QList<QIODevice*> &overrides) = 0
+@brief 解析配置文件流
+@param[in] meta 为原型流
+@param[in] overrides 为覆盖机制查找的文件流
+@return
+
+@fn virtual QStringList Dtk::Core::DConfigMeta::keyList() const = 0
+@brief 返回配置内容的所有配置项
+@return
+
+@fn virtual DConfigFile::Flags Dtk::Core::DConfigMeta::flags(const QString &key) const = 0
+@brief 返回指定配置项的特性
+@param[in] key 配置项名称, NoOverride为此配置项不可被覆盖, Global为忽略用户身份
+@return
+
+@fn virtual DConfigFile::Permissions Dtk::Core::DConfigMeta::permissions(const QString &key) const = 0
+@brief 返回指定配置项的权限
+@param[in] key 配置项名称
+@return
+
+@fn virtual DConfigFile::Visibility Dtk::Core::DConfigMeta::visibility(const QString &key) const = 0
+@brief 返回指定配置项的可见性
+@param[in] key 配置项名称
+@return
+
+@fn virtual int Dtk::Core::DConfigMeta::serial(const QString &key) const = 0
+@brief 返回配置项的单调递增值
+@param[in] key 配置项名称
+@return -1为无效值,表明没有配置此项
+
+@fn virtual QString Dtk::Core::DConfigMeta::displayName(const QString &key, const QLocale &locale) = 0
+@brief 返回指定配置项的显示名
+@param[in] key 配置项名称
+@param[in] locale 为语言版本
+@return
+
+@fn virtual QString Dtk::Core::DConfigMeta::description(const QString &key, const QLocale &locale) = 0
+@brief 返回指定配置项的描述信息
+@param[in] key 配置项名称
+@param[in] locale 为语言版本
+@return
+
+@fn virtual QString Dtk::Core::DConfigMeta::metaPath(const QString &localPrefix = QString(), bool *useAppId = nullptr) const = 0
+@brief 返回描述文件的路径
+@param[in] localPrefix 目录的所有需要查找的覆盖机制目录
+@param[in] useAppId 是否不使用通用目录
+@return
+
+@fn virtual QStringList Dtk::Core::DConfigMeta::allOverrideDirs(const bool useAppId, const QString &prefix = QString()) const = 0
+@brief 获得前缀为 `prefix` 目录的所有需要查找的覆盖机制目录
+@param[in] useAppId 是否不使用通用目录
+@param[in] prefix 目录的应用或公共库的所有覆盖机制目录
+@return
+
+@fn virtual QVariant DConfigMeta::value(const QString &key) const = 0
+@brief meta初始值经过覆盖机制覆盖后的原始值
+@param[in] key 配置项名称
+@return
+
+*/
+
+/*!
+@class Dtk::Core::DConfigCache dconfigfile.h
+@brief 提供配置文件的用户和全局运行缓存访问接口
+
+@fn virtual bool Dtk::Core::DConfigCache::load(const QString &localPrefix = QString()) = 0
+@brief 解析缓存配置文件
+@return
+
+@fn virtual bool Dtk::Core::DConfigCache::load(const QString &localPrefix = QString()) = 0
+@brief 解析缓存配置文件
+@return
+
+@fn virtual bool Dtk::Core::DConfigCache::save(const QString &localPrefix = QString(), QJsonDocument::JsonFormat format = QJsonDocument::Indented, bool sync = false) = 0
+@brief 保存缓存的值到磁盘中
+@param[in] localPrefix 为目录前缀
+@param[in] format 保存格式
+@param[in] sync 是否立即刷新
+@return
+
+@fn virtual bool Dtk::Core::DConfigCache::isGlobal() const = 0
+@brief 是否是全局缓存
+@return
+
+@fn virtual void Dtk::Core::DConfigCache::remove(const QString &key) = 0
+@brief 删除缓存中的配置项
+@param[in] key 配置项名称
+@return
+
+@fn virtual QStringList Dtk::Core::DConfigCache::keyList() const = 0
+@brief 返回配置内容的所有配置项
+@return
+
+@fn virtual bool Dtk::Core::DConfigCache::setValue(const QString &key, const QVariant &value, const int serial, const uint uid, const QString &callerAppid) = 0
+@brief 设置缓存中的值
+@param[in] key 配置项名称
+@param[in] value 需要设置的值
+@param[in] uid 设置时的用户id
+@param[in] callerAppid 设置时的应用id
+@return 为true时表示重新设置了新值,false表示没有设置。
+
+@fn virtual QVariant Dtk::Core::DConfigCache::value(const QString &key) const = 0
+@brief 获取缓存中的值
+@param[in] key 配置项名称
+@return
+
+@fn virtual int Dtk::Core::DConfigCache::serial(const QString &key) const = 0
+@brief 返回配置项的单调递增值
+@param[in] key 配置项名称
+@return -1为无效值,表明没有配置此项
+
+@fn virtual uint Dtk::Core::DConfigCache::uid() const = 0
+@brief 用户标识,为全局缓存时,uid为非用户标识的特定值
+@return
+
+*/
