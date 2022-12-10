@@ -1,0 +1,201 @@
+/*!
+@~chinese
+@file include/global/ddesktopentry.h
+@ingroup dglobal
+
+@class Dtk::Core::DDesktopEntry ddesktopentry.h
+@brief 处理desktop文件的接口
+@details 
+DDesktopEntry提供了处理XDG desktop读写的方法的接口,这个Class类似于QSettings。
+
+有关该规范本身的更多详细信息，请参阅:
+https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
+
+@enum Dtk::Core::DDesktopEntry::EntryType
+@brief 桌面入口文件的类型
+@details
+| 值           | 序号 | 含义    |
+|-------------|----|-------|
+| Unknown     | 0  | 未知的桌面文件类型。可能是无效的 |
+| Application | 1  | 该文件描述应用程序 |
+| Link        | 2  | 该文件描述URL |
+| Directory   | 3  | 该文件描述目录设置 |
+| ServiceType | 4  | KDE特定类型。规范中提到过, 所以这里也列出了 |
+| Service     | 5  | KDE特定类型。规范中提到过, 所以这里也列出了 |
+| FSDevice    | 6  | KDE特定类型。规范中提到过, 所以这里也列出了 |
+
+@enum Dtk::Core::DDesktopEntry::ValueType
+@brief 值的类型
+@details
+| 值           | 序号 | 含义    |
+|-------------|----|-------|
+| Unparsed   | 0  | 可能没有用，考虑删除它 |
+| String     | 1  | 字符串 |
+| Strings    | 2  | 字符串数组 |
+| Boolean    | 3  | 布尔值 |
+| Numeric    | 4  | 数字 |
+| NotExisted | 5  | 不存在 |
+
+@enum Dtk::Core::DDesktopEntry::Status
+@brief desktop文件的解析状态
+@details
+| 值           | 序号 | 含义    |
+|-------------|----|-------|
+| NoError     | 0  | 没有错误发生 |
+| AccessError | 1  | 发生访问错误(例如, 试图写入只读文件) |
+| FormatError | 2  | 发生格式错误(例如, 加载格式错误的desktop文件) |
+
+@fn Dtk::Core::DDesktopEntry::DDesktopEntry(const QString &filePath) noexcept
+@brief DDesktopEntry构造函数
+
+@fn bool Dtk::Core::DDesktopEntry::save() const
+@brief 将数据回写到desktop文件。
+@return true表示写成功; 否则返回false
+
+@fn Status Dtk::Core::DDesktopEntry::status() const
+@brief Get data parse status
+@return 返回一个状态码, 表示DDesktopEntry遇到的第一个错误, 如果没有错误发生, 则返回QSettings::NoError。请注意, DDesktopEntry会延迟执行某些操作。
+
+@fn QStringList Dtk::Core::DDesktopEntry::keys(const QString &section = "Desktop Entry") const
+@brief 根据 `section` 返回全部键值
+@return 返回所有的键值
+
+@fn QStringList Dtk::Core::DDesktopEntry::allGroups(bool sorted = false) const
+@brief 获取desktop中所有组的列表。如果 `sorted` 设置为true, 则返回结果将保持读取desktop文件时的顺序不变。
+@return 返回所有的组.
+
+@fn bool Dtk::Core::DDesktopEntry::contains(const QString &key, const QString &section = "Desktop Entry") const
+@brief 检查desktop文件是否有给定的 `section` 包含给定的 `key`
+@return 如果desktop在 `section` 包含 `key` 返回true; 否则返回false。
+
+@fn QString Dtk::Core::DDesktopEntry::name() const
+@brief 返回“Desktop Entry”部分下的“Name”键的本地化字符串值。这等价于调用localizedValue("Name")。
+@return 返回“Desktop Entry”部分下的“Name”键的本地化字符串值。
+@sa localizedValue(), genericName(), ddeDisplayName()
+
+@fn QString Dtk::Core::DDesktopEntry::genericName() const
+@brief 返回"Desktop Entry"部分下的"GenericName"键的本地化字符串值。它等价于调用localizedValue("GenericName")。如果是“GenericName”不存在。则不会回退到“Name”。
+@return 返回"Desktop Entry"部分下的"GenericName"键的本地化字符串值。
+@sa localizedValue(), name(), ddeDisplayName()
+
+@fn QString Dtk::Core::DDesktopEntry::ddeDisplayName() const
+@brief 为DDE应用程序专门显示名称
+@details 这将检查“X-Deepin-Vendor”,并将返回本地化的字符串值“GenericName” 
+"X-Deepin-Vendor"是"deepin"，否则它将返回"Name"的本地化字符串值。
+@return 返回专门用于DDE应用程序的显示名称
+@sa localizedValue(), name(), genericName()
+
+@fn QString Dtk::Core::DDesktopEntry::comment() const
+@brief 返回“Desktop Entry”部分下的“Comment”键的本地化字符串值。这等价于调用localizedValue("Comment")。
+@return 返回“Desktop Entry”部分下的“Comment”键的本地化字符串值。
+@sa localizedValue()
+
+@fn QString Dtk::Core::DDesktopEntry::rawValue(const QString &key, const QString &section = "Desktop Entry", const QString &defaultValue = QString()) const
+@brief 返回 `section` 中与给定 `key` 关联的原始字符串值。如果desktop不包含具有该键的项, 则函数返回一个构造好的 `defaultValue`。
+@return 返回 `section` 中与给定 `key` 相关联的原始字符串值。
+@sa stringValue() localizedValue() stringListValue()
+
+@fn QString Dtk::Core::DDesktopEntry::stringValue(const QString &key, const QString &section = "Desktop Entry", const QString &defaultValue = QString()) const
+@brief 返回 `section` 与给定 `key` 关联的未转义字符串值。如果desktop不包含键值为0的项, 则函数返回一个构造好的 `defaultValue`。
+@return 返回 `section` 中与给定 `key` 相关联的未转义字符串值。
+@sa rawValue() localizedValue() stringListValue()
+
+@fn QString Dtk::Core::DDesktopEntry::localizedValue(const QString &key, const QString &localeKey = "default", const QString &section = "Desktop Entry", const QString& defaultValue = QString()) const
+@brief 返回与 `section` 中给定的 `key` 和 `localeKey` 相关联的本地化字符串值。
+@details 
+如果找不到给定的 `localeKey` ,它将回退到"C",如果仍然找不到,将回退 `key` 没有`localeKey`部分。。
+如果destkop不包含 `key` 值为0的项,则函数返回一个构造好的 `defaultValue`。
+@return 返回 `section` 中与给定的 `key` 和 `localeKey` 关联的本地化字符串值。
+@sa rawValue() stringValue() stringListValue()
+
+@fn QString Dtk::Core::DDesktopEntry::localizedValue(const QString &key, const QLocale &locale, const QString &section = "Desktop Entry", const QString& defaultValue = QString()) const
+@brief 返回与给定的 `key` 和 `section` 中的区域设置相关联的本地化字符串值。
+@details 
+如果找不到给定的 `localeKey` ,它将回退到"C",如果仍然找不到,将回退 `key` 没有`localeKey`部分。
+如果destkop不包含 `key` 值为0的项,则函数返回一个构造好的 `defaultValue`。
+@return 返回 `section`中 与给定的 `key` 和 `locale` 设置相关联的本地化字符串值。
+@sa rawValue() stringValue() stringListValue()
+
+@fn QStringList Dtk::Core::DDesktopEntry::stringListValue(const QString &key, const QString &section = "Desktop Entry") const
+@brief 返回给定 `section` 中与给定 `key` 关联的字符串的列表。如果destkop不包含为该键的项,则函数返回一个空字符串列表。
+@return 返回给定 `section` 中与给定 `key` 关联的字符串的列表。
+@sa rawValue() stringValue() localizedValue()
+
+@fn bool Dtk::Core::DDesktopEntry::setRawValue(const QString &value, const QString &key, const QString& section = "Desktop Entry")
+@brief 设置给定 `section` 中与给定 `key` 关联的原始字符串值。
+
+@fn bool Dtk::Core::DDesktopEntry::setStringValue(const QString &value, const QString &key, const QString& section = "Desktop Entry")
+@brief 设置给定 `section` 中与给定 `key` 关联的字符串
+
+@fn bool Dtk::Core::DDesktopEntry::setLocalizedValue(const QString &value, const QString& localeKey, const QString &key, const QString& section = "Desktop Entry")
+@brief 设置给定的 `key` 和 `section` 中的区域设置相关联的本地化字符串值。
+
+@fn bool Dtk::Core::DDesktopEntry::removeEntry(const QString &key, const QString &section = "Desktop Entry");
+@brief 删除desktop中 `section` 与 `key` 对应的值
+
+@fn static QString& Dtk::Core::DDesktopEntry::escape(QString &str)
+@brief 支持转义序列`\s`、`\n`、`\t`、`\r`和`\\`表示值
+@details string和localestring类型的值支持转义序列`\s`、`\n`、`\t`、`\r`和`\\`,分别表示ASCII空格、换行符、制表符、回车和反斜杠。
+
+@fn static QString& Dtk::Core::DDesktopEntry::escapeExec(QString &str)
+@brief 必须将参数括在双引号之间，并对双引号字符进行转义。
+@details
+| 原字符 | 转义后 |
+|------|---------|
+| \`    | "`" |
+| $    | "$" |
+| \    | "\" |
+在它前面加上一个额外的反斜杠字符。实现必须在扩展字段代码之前和之前撤销引用,将参数传递给可执行程序。
+@note 类型为string的值的通用转义规则规定,反斜杠字符也可以转义为("\\")和这个转义规则应用在引用规则之前。<br>
+因此,要明确地表示在desktop文件中,引号参数中的文字反斜杠字符 <br>
+要求使用四个连续的反斜杠字符("\\\\")。同样，在桌面入口文件中引用参数中的美元符号表示为("\\$")。
+
+@fn static QString& Dtk::Core::DDesktopEntry::unescape(QString &str, bool unescapeSemicolons = false)
+@brief 对于类型为string和localestring的值,支持转义序列`\s`、`\n`、`\t`、`\r`和`\\`,分别表示ASCII空格、换行符、制表符、回车符和反斜杠。
+@details 有些键可以有多个值。这种情况下，`key` 的值被指定为复数形式:
+例如，字符串。多个值应该用分号分隔，`key` 的值可以选择以分号结尾。空字符串必须以分号结尾。
+这些值中的分号需要使用`\;`转义。
+
+有关该规范本身的更多详细信息，请参阅:
+https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#value-types
+
+@fn static QString& Dtk::Core::DDesktopEntry::unescapeExec(QString &str)
+@brief 必须将参数括在双引号之间,并对双引号字符进行转义，
+@details 
+| 原字符 | 转义后 |
+|------|---------|
+| \`    | "`" |
+| $    | "$" |
+| \    | "\" |
+在它前面加上一个额外的反斜杠字符。实现必须在扩展字段代码之前和之前撤销引用,将参数传递给可执行程序。
+
+保留字符：
+| 功能                  | 字符 |
+|---------------------|---------|
+| space               | " " |
+| tab                 |  |
+| newline             |  |
+| double quote        |  |
+| single quote        | "'" |
+| backslash character | "\" |
+| greater-than sign   | ">" |
+| less-than sign      | "<" |
+| tilde               | "~" |
+| vertical bar        | \| |
+| ampersand           | "&" |
+| semicolon           | ";" |
+| dollar sign         | "$" |
+| asterisk            | "*" |
+| question mark       | "?" |
+| hash mark           | "#" |
+| parenthesis         | "(" 和 ")" |
+| backtick character  | "`" |
+@note 类型为string的值的通用转义规则规定 <br>
+反斜杠字符也可以转义为("\\"),而且转义规则在引号规则之前应用。<br>
+因此,要在desktop文件的引号参数中明确表示字面上的反斜杠字符,需要使用四个连续的反斜杠字符(“\\\\”)。<br>
+同样,在desktop文件中,引号参数中的美元符号可以明确地表示为("\\$")。
+
+@fn bool Dtk::Core::DDesktopEntry::setStatus(const Status &status)
+@brief 设置desktop文件解析状态
+
+*/

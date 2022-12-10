@@ -479,9 +479,10 @@ bool DDesktopEntryPrivate::remove(const QString &sectionName, const QString &key
 }
 
 /*!
-  \class Dtk::Core::DDesktopEntry
+@~english
+  @class Dtk::Core::DDesktopEntry
   \inmodule dtkcore
-  \brief Handling desktop entry files.
+  @brief Handling desktop entry files.
   
   DDesktopEntry provide method for handling XDG desktop entry read and write. The interface
   of this class is similar to QSettings.
@@ -502,8 +503,9 @@ DDesktopEntry::~DDesktopEntry()
 }
 
 /*!
-  \brief Write back data to the desktop entry file.
-  \return true if write success; otherwise returns false.
+@~english
+  @brief Write back data to the desktop entry file.
+  @return true if write success; otherwise returns false.
  */
 bool DDesktopEntry::save() const
 {
@@ -552,9 +554,10 @@ bool DDesktopEntry::save() const
 }
 
 /*!
-  \brief Get data parse status
+@~english
+  @brief Get data parse status
   
-  \return Returns a status code indicating the first error that was met by DDesktopEntry, or QSettings::NoError if no error occurred.
+  @return Returns a status code indicating the first error that was met by DDesktopEntry, or QSettings::NoError if no error occurred.
   
   Be aware that DDesktopEntry delays performing some operations.
  */
@@ -565,9 +568,10 @@ DDesktopEntry::Status DDesktopEntry::status() const
 }
 
 /*!
-  \brief Get a list of all section keys inside the given \a section.
+@~english
+  @brief Get a list of all section keys inside the given \a section.
   
-  \return all available section keys.
+  @return all available section keys.
  */
 QStringList DDesktopEntry::keys(const QString &section) const
 {
@@ -582,11 +586,12 @@ QStringList DDesktopEntry::keys(const QString &section) const
 }
 
 /*!
-  \brief Get a list of all section groups inside the desktop entry.
+@~english
+  @brief Get a list of all section groups inside the desktop entry.
   
   If \a sorted is set to true, the returned result will keep the order as-is when reading the entry file.
   
-  \return all available section groups.
+  @return all available section groups.
  */
 QStringList DDesktopEntry::allGroups(bool sorted) const
 {
@@ -619,9 +624,10 @@ QStringList DDesktopEntry::allGroups(bool sorted) const
 }
 
 /*!
-  \brief Check if the desktop entry file have the given \a section contains the given \a key
+@~english
+  @brief Check if the desktop entry file have the given \a section contains the given \a key
   
-  \return true if the desktop entry contains the \a key in \a section; otherwise returns false.
+  @return true if the desktop entry contains the \a key in \a section; otherwise returns false.
  */
 bool DDesktopEntry::contains(const QString &key, const QString &section) const
 {
@@ -636,13 +642,14 @@ bool DDesktopEntry::contains(const QString &key, const QString &section) const
 }
 
 /*!
-  \brief Returns the localized string value of the "Name" key under "Desktop Entry" section.
+@~english
+  @brief Returns the localized string value of the "Name" key under "Desktop Entry" section.
   
   It's equivalent to calling localizedValue("Name").
 
-  \return Returns the localized string value of the "Name" key under "Desktop Entry" section.
+  @return Returns the localized string value of the "Name" key under "Desktop Entry" section.
   
-  \sa localizedValue(), genericName(), ddeDisplayName()
+  @sa localizedValue(), genericName(), ddeDisplayName()
  */
 QString DDesktopEntry::name() const
 {
@@ -650,14 +657,15 @@ QString DDesktopEntry::name() const
 }
 
 /*!
-  \brief Returns the localized string value of the "GenericName" key under "Desktop Entry" section.
+@~english
+  @brief Returns the localized string value of the "GenericName" key under "Desktop Entry" section.
   
   It's equivalent to calling localizedValue("GenericName"). It will NOT fallback to "Name" if "GenericName"
   is not existed.
   
-  \return Returns the localized string value of the "GenericName" key under "Desktop Entry" section.
+  @return Returns the localized string value of the "GenericName" key under "Desktop Entry" section.
 
-  \sa localizedValue(), name(), ddeDisplayName()
+  @sa localizedValue(), name(), ddeDisplayName()
  */
 QString DDesktopEntry::genericName() const
 {
@@ -665,14 +673,15 @@ QString DDesktopEntry::genericName() const
 }
 
 /*!
-  \brief Display name specially for DDE applications.
+@~english
+  @brief Display name specially for DDE applications.
   
   This will check "X-Deepin-Vendor" and will return the localized string value of "GenericName" if
   "X-Deepin-Vendor" is "deepin", or it will return the localized string value of "Name".
 
-  \return Returns the display name specially for DDE applications.
+  @return Returns the display name specially for DDE applications.
   
-  \sa localizedValue(), name(), genericName()
+  @sa localizedValue(), name(), genericName()
  */
 QString DDesktopEntry::ddeDisplayName() const
 {
@@ -686,13 +695,14 @@ QString DDesktopEntry::ddeDisplayName() const
 }
 
 /*!
-  \brief Returns the localized string value of the "Comment" key under "Desktop Entry" section.
+@~english
+  @brief Returns the localized string value of the "Comment" key under "Desktop Entry" section.
   
   It's equivalent to calling localizedValue("Comment").
 
-  \return Returns the localized string value of the "Comment" key under "Desktop Entry" section.
+  @return Returns the localized string value of the "Comment" key under "Desktop Entry" section.
   
-  \sa localizedValue()
+  @sa localizedValue()
  */
 QString DDesktopEntry::comment() const
 {
@@ -700,13 +710,14 @@ QString DDesktopEntry::comment() const
 }
 
 /*!
-  \brief Returns the raw string value associated with the given \a key in \a section.
+@~english
+  @brief Returns the raw string value associated with the given \a key in \a section.
   
   If the entry contains no item with the key, the function returns a constructed \a defaultValue.
 
-  \return Returns the raw string value associated with the given \a key in \a section.
+  @return Returns the raw string value associated with the given \a key in \a section.
   
-  \sa stringValue() localizedValue() stringListValue()
+  @sa stringValue() localizedValue() stringListValue()
  */
 QString DDesktopEntry::rawValue(const QString &key, const QString &section, const QString &defaultValue) const
 {
@@ -721,13 +732,14 @@ QString DDesktopEntry::rawValue(const QString &key, const QString &section, cons
 }
 
 /*!
-  \brief Returns the unescaped string value associated with the given \a key in \a section.
+@~english
+  @brief Returns the unescaped string value associated with the given \a key in \a section.
   
   If the entry contains no item with the key, the function returns a constructed \a defaultValue.
   
-  \return Returns the unescaped string value associated with the given \a key in \a section.
+  @return Returns the unescaped string value associated with the given \a key in \a section.
 
-  \sa rawValue() localizedValue() stringListValue()
+  @sa rawValue() localizedValue() stringListValue()
  */
 QString DDesktopEntry::stringValue(const QString &key, const QString &section, const QString &defaultValue) const
 {
@@ -737,16 +749,17 @@ QString DDesktopEntry::stringValue(const QString &key, const QString &section, c
 }
 
 /*!
-  \brief Returns the localized string value associated with the given \a key and \a localeKey in \a section.
+@~english
+  @brief Returns the localized string value associated with the given \a key and \a localeKey in \a section.
   
   If the given \a localeKey can't be found, it will fallback to "C", if still cannot found, will fallback to the
   key without localeKey.
   
   If the entry contains no item with the key, the function returns a constructed \a defaultValue.
 
-  \return Returns the localized string value associated with the given \a key and \a localeKey in \a section.
+  @return Returns the localized string value associated with the given \a key and \a localeKey in \a section.
   
-  \sa rawValue() stringValue() stringListValue()
+  @sa rawValue() stringValue() stringListValue()
  */
 QString DDesktopEntry::localizedValue(const QString &key, const QString &localeKey, const QString &section, const QString &defaultValue) const
 {
@@ -793,16 +806,17 @@ QString DDesktopEntry::localizedValue(const QString &key, const QString &localeK
 }
 
 /*!
-  \brief Returns the localized string value associated with the given \a key and \a locale in \a section.
+@~english
+  @brief Returns the localized string value associated with the given \a key and \a locale in \a section.
   
   If the given \a locale can't be found, it will fallback to "C", if still cannot found, will fallback to the
   key without a locale key.
   
   If the entry contains no item with the key, the function returns a default-constructed value.
 
-  \return Returns the localized string value associated with the given \a key and \a locale in \a section.
+  @return Returns the localized string value associated with the given \a key and \a locale in \a section.
   
-  \sa rawValue() stringValue() stringListValue()
+  @sa rawValue() stringValue() stringListValue()
  */
 QString DDesktopEntry::localizedValue(const QString &key, const QLocale &locale, const QString &section, const QString &defaultValue) const
 {
@@ -810,13 +824,14 @@ QString DDesktopEntry::localizedValue(const QString &key, const QLocale &locale,
 }
 
 /*!
-  \brief Returns a list of strings associated with the given \a key in the given \a section.
+@~english
+  @brief Returns a list of strings associated with the given \a key in the given \a section.
   
   If the entry contains no item with the key, the function returns a empty string list.
   
-  \return Returns a list of strings associated with the given \a key in the given \a section.
+  @return Returns a list of strings associated with the given \a key in the given \a section.
 
-  \sa rawValue() stringValue() localizedValue()
+  @sa rawValue() stringValue() localizedValue()
  */
 QStringList DDesktopEntry::stringListValue(const QString &key, const QString &section) const
 {
