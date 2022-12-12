@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
         printf("Memory Size: %f GiB\n", DSysInfo::memoryTotalSize() / 1024.0 / 1024 / 1024);
         printf("Disk Size: %f GiB\n", DSysInfo::systemDiskSize() / 1024.0 / 1024 / 1024);
 
-        if (DSysInfo::isDDE()) {
+        if (DSysInfo::isDeepin() && DSysInfo::isDDE()) {
             printf("Deepin Type: %s\n", qPrintable(DSysInfo::deepinTypeDisplayName()));
             printf("Deepin Version: %s\n", qPrintable(DSysInfo::deepinVersion()));
 
@@ -76,15 +76,16 @@ int main(int argc, char *argv[])
         printf("Product Type: %s\n", qPrintable(DSysInfo::productTypeString()));
         printf("Product Version: %s\n", qPrintable(DSysInfo::productVersion()));
 
-        printf("Uos Product Name: %s\n", qPrintable(DSysInfo::uosProductTypeName()));
-        printf("Uos SystemName Name: %s\n", qPrintable(DSysInfo::uosSystemName()));
-        printf("Uos Edition Name: %s\n", qPrintable(DSysInfo::uosEditionName()));
-        printf("Uos SP Version: %s\n", qPrintable(DSysInfo::spVersion()));
-        printf("Uos update Version: %s\n", qPrintable(DSysInfo::udpateVersion()));
-        printf("Uos major Version: %s\n", qPrintable(DSysInfo::majorVersion()));
-        printf("Uos minor Version: %s\n", qPrintable(DSysInfo::minorVersion()));
-        printf("Uos build Version: %s\n", qPrintable(DSysInfo::buildVersion()));
-
+        if (DSysInfo::isDeepin()) {
+            printf("Uos Product Name: %s\n", qPrintable(DSysInfo::uosProductTypeName()));
+            printf("Uos SystemName Name: %s\n", qPrintable(DSysInfo::uosSystemName()));
+            printf("Uos Edition Name: %s\n", qPrintable(DSysInfo::uosEditionName()));
+            printf("Uos SP Version: %s\n", qPrintable(DSysInfo::spVersion()));
+            printf("Uos update Version: %s\n", qPrintable(DSysInfo::udpateVersion()));
+            printf("Uos major Version: %s\n", qPrintable(DSysInfo::majorVersion()));
+            printf("Uos minor Version: %s\n", qPrintable(DSysInfo::minorVersion()));
+            printf("Uos build Version: %s\n", qPrintable(DSysInfo::buildVersion()));
+        }
         if (distributionInfoValid()) {
             printDistributionOrgInfo(DSysInfo::Distribution);
             printDistributionOrgInfo(DSysInfo::Distributor);

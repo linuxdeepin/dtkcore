@@ -549,6 +549,10 @@ bool DSysInfo::isDeepin()
 
 bool DSysInfo::isDDE()
 {
+    if (!DSysInfo::isDeepin()) {
+        return qgetenv("XDG_SESSION_DESKTOP") == "deepin";
+    }
+
     siGlobal->ensureDeepinInfo();
 
     return siGlobal->deepinType != UnknownDeepin;
@@ -597,6 +601,8 @@ QString DSysInfo::deepinCopyright()
  */
 DSysInfo::UosType DSysInfo::uosType()
 {
+    if (!DSysInfo::isDeepin())
+        return UosTypeUnknown;
     siGlobal->ensureOsVersion();
 
     UosType ost = UosTypeUnknown;

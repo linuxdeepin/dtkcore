@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 | 值            | 序号 | 含义 |
 |--------------|----|----|
 | Normal       | 0  | 正常 |
-|  Light       | 1  | 亮色 |
+| Light        | 1  | 亮色 |
 | Symbolic     | 2  | 符号 |
 | Transparent  | 3  | 水印 |
 
@@ -147,83 +147,83 @@ int main(int argc, char **argv) {
 
 
 @fn static bool Dtk::Core::DSysInfo::isDeepin() //FIXME: 显示错乱 无法修复
-@brief 是否为deepin系统
-@return 0 不是deepin系统
-@return 1 是deepin系统
+@brief 是否为 deepin 或 uos 系统
+@return 0 不是 deepin 或 uos 系统
+@return 1 是 deepin 或 uos 系统
 
 @fn static bool Dtk::Core::DSysInfo::isDDE()
-@brief 是否使用dde桌面环境
-@note 此方法仅在linux平台下可用
+@brief 是否使用 dde 桌面环境
+@note 此方法仅在 linux 平台下可用
 
 @fn static DeepinType  Dtk::Core::DSysInfo::deepinType()
-@brief deepin系统类型
-@note 此方法仅在linux平台下可用
+@brief deepin 系统类型
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::deepinTypeDisplayName (const QLocale &locale=QLocale::system())
-@brief 显示的deepin发行版类型名称
-@note 此方法仅在linux平台下可用
+@brief 显示的 deepin 发行版类型名称
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString 	Dtk::Core::DSysInfo::deepinVersion()
-@brief deepin版本
-@note 此方法仅在linux平台下可用
+@brief deepin 版本
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString 	Dtk::Core::DSysInfo::deepinCopyright()
 @brief deepin 开源许可协议
-@note 此方法仅在linux平台下可用
+@note 此方法仅在 linux 平台下可用
 
 @fn static UosEdition Dtk::Core::DSysInfo::uosEditionType()
 @brief DSysInfo::osEditionType 版本类型 显示版本类型 专业版/个人版/社区版..
 @note 根据 osBuild.B && osBuild.D
-@note 此方法仅在linux平台下可用
+@note 此方法仅在 linux 平台下可用
 
 @fn static UosArch Dtk::Core::DSysInfo::uosArch()
 @brief DSysInfo::osArch 架构信息
 @details(使用一个字节的二进制位, 从低位到高位) 【0x8 sw64】【0x4 mips64】【0x2 arm64】【0x1 amd64】
-@note 此处架构是从OsBuild获取的系统版本的Arch信息, 并不是指硬件的Arch信息
-@note 此方法仅在linux平台下可用
+@note 此处架构是从 OsBuild 获取的系统版本的 Arch 信息, 并不是指硬件的 Arch 信息
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString 	uosProductTypeName(const QLocale &locale=QLocale::system())
 @brief DSysInfo::osProductTypeName 版本名称
-@details ProductType[xx] 项对应的值, 如果找不到对应语言的默认使用 ProductType的值(Desktop/Server/Device) locale 当前系统语言
+@details ProductType[xx] 项对应的值, 如果找不到对应语言的默认使用 ProductType 的值(Desktop/Server/Device) locale 当前系统语言
 
 @fn static QString Dtk::Core::DSysInfo::uosSystemName(const QLocale &locale=QLocale::system())
 @brief SystemName[xx] 项对应的值
 @details 如果找不到对应语言的默认使用 SystemName 的值 Uniontech OS locale 当前系统语言
-@note 此方法仅在linux平台下可用
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::function uosEditionName(const QLocale &locale=QLocale::system())
 @brief 版本名称 EditionName[xx] 项对应的值
 @details 如果找不到对应语言的默认使用 EditionName 的值(Professional/Home/Community...) locale 当前系统语言
-@note 此方法仅在linux平台下可用
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::spVersion()
 @brief 阶段版本名称
 @details 小版本号 A-BC-D 中 BC、 A.B.C 中的 B 返回 SP1-SPxx,  如果正式版返回空 X.Y.Z模式下暂不支持返回此版本号
 @note minVersion.BC == 00 正式版本, minVersion.BC | minVersion.B == 01-99 SP1….SP99
-@note 此方法仅在linux平台下可用
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::udpateVersion()
-@brief 更新版本名称 小版本号 A-BC-D 中 D、A.B.C 模式中的 C 返回 update1… update9,  如果正式版返回空 X.Y.Z模式下暂不支持返回此版本号
+@brief 更新版本名称 小版本号 A-BC-D 中 D、A.B.C 模式中的 C 返回 update1… update9,  如果正式版返回空 X.Y.Z 模式下暂不支持返回此版本号
 @note minVersion.D == 0;正式版本 minVersion.D | minVersion.C == 1-9;update1… update9, updateA...updateZ
-@note 此方法仅在linux平台下可用
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::majorVersion()
 @brief 主版本号 主版本号 【20】【23】【25】【26】【29】【30】
-@note 此方法仅在linux平台下可用
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::minorVersion()
 @brief 小版本号 【ABCD】 ·[0-9]{4} 【A.B.C】 或者【X.Y.Z】
-@note 此方法仅在linux平台下可用
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::buildVersion()
 @brief 小版本号 系统镜像批次号, 按时间顺序(不可回退)从100-999递增
-@note 此方法仅在linux平台下可用
+@note 此方法仅在 linux 平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::distributionInfoPath ()
-@brie 返回distribution文件地址 一般在`/usr/share/deepin/`目录下
+@brie 返回 distribution 文件地址 一般在`/usr/share/deepin/`目录下
 
 @fn static QString Dtk::Core::DSysInfo::distributionInfoSectionName(OrgType type)
-@brief 返回distribution.info 文件中SectionName字段的值
+@brief 返回 distribution.info 文件中 SectionName 字段的值
 
 @fn static Dtk::Core::DSysInfo::distributionOrgName(OrgType type=Distribution,  const QLocale &locale=QLocale::system())
 @brief 返回组织名称
