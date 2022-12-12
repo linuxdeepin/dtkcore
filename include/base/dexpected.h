@@ -470,17 +470,10 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::DExpected的默认拷贝构造函数
-     */
-    DExpected(const DExpected &) = default;
-
-    /*!
      * @brief Dtk::Core::DExpected的拷贝构造函数
      */
-    template <typename std::enable_if<std::is_copy_constructible<T>::value and std::is_copy_constructible<E>::value and
-                                          (!std::is_trivially_copy_constructible<T>::value or
-                                           !std::is_trivially_copy_constructible<E>::value),
-                                      bool>::type = true>
+    template <
+        typename std::enable_if<std::is_copy_constructible<T>::value and std::is_copy_constructible<E>::value, bool>::type = true>
     DExpected(const DExpected &_x) noexcept(
         std::is_nothrow_copy_constructible<T>::value and std::is_nothrow_copy_constructible<E>::value)
         : m_has_value(_x.m_has_value)
@@ -492,17 +485,10 @@ public:
     }
 
     /*!
-     * @brief Dtk::Core::DExpected的默认移动构造函数
-     */
-    DExpected(DExpected &&) = default;
-
-    /*!
      * @brief Dtk::Core::DExpected的移动构造函数
      */
-    template <typename std::enable_if<std::is_move_constructible<T>::value and std::is_move_constructible<E>::value and
-                                          (!std::is_trivially_move_constructible<T>::value or
-                                           !std::is_trivially_move_constructible<E>::value),
-                                      bool>::type = true>
+    template <
+        typename std::enable_if<std::is_move_constructible<T>::value and std::is_move_constructible<E>::value, bool>::type = true>
     DExpected(DExpected &&_x) noexcept(
         std::is_nothrow_move_constructible<T>::value and std::is_nothrow_move_constructible<E>::value)
         : m_has_value(_x.m_has_value)
@@ -1244,10 +1230,7 @@ public:
     {
     }
 
-    DExpected(const DExpected &) = default;
-
-    template <typename std::enable_if<std::is_copy_constructible<E>::value and !std::is_trivially_copy_constructible<E>::value,
-                                      bool>::type = true>
+    template <typename std::enable_if<std::is_copy_constructible<E>::value, bool>::type = true>
     DExpected(const DExpected &_x) noexcept(std::is_nothrow_copy_constructible<E>::value)
         : m_has_value(_x.m_has_value)
         , m_void()
@@ -1256,10 +1239,7 @@ public:
             construct_at(std::addressof(m_error), _x.m_error);
     }
 
-    DExpected(DExpected &&) = default;
-
-    template <typename std::enable_if<std::is_move_constructible<E>::value and !std::is_trivially_move_constructible<E>::value,
-                                      bool>::type = true>
+    template <typename std::enable_if<std::is_move_constructible<E>::value, bool>::type = true>
     DExpected(DExpected &&_x) noexcept(std::is_nothrow_move_constructible<E>::value)
         : m_has_value(_x.m_has_value)
         , m_void()
