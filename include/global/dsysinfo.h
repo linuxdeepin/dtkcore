@@ -138,9 +138,9 @@ public:
     static QString deepinCopyright();
 
     // uos version interface
-    Q_DECL_DEPRECATED_X("Use arch() instead") static UosType uosType();
+    static UosType uosType();
     static UosEdition uosEditionType();
-    static UosArch uosArch();
+    Q_DECL_DEPRECATED_X("Use arch() instead") static UosArch uosArch();
     static QString uosProductTypeName(const QLocale &locale = QLocale::system());
     static QString uosSystemName(const QLocale &locale = QLocale::system());
     static QString uosEditionName(const QLocale &locale = QLocale::system());
