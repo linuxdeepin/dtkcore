@@ -15,6 +15,8 @@ BuildRequires:  annobin
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(gsettings-qt)
 BuildRequires:  gtest-devel
+BuildRequires:  uchardet-devel
+BuildRequires:  libicu-devel
 
 # since f30
 Obsoletes:      deepin-tool-kit <= 0.3.3

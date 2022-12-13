@@ -19,6 +19,11 @@ find_package(Qt5 REQUIRED COMPONENTS DBus)
 endif()
 find_package(Qt5 REQUIRED COMPONENTS Xml)
 
+# start text encoding
+find_package(ICU REQUIRED COMPONENTS uc)
+pkg_check_modules(uchardet REQUIRED uchardet)
+# end text encoding
+
 # start base 
 include(base/base.cmake)
 # end base
@@ -66,6 +71,8 @@ if(LINUX)
     Qt5::DBus
     Qt5::Xml
     ${QGSettings_LIBRARIES}
+    ICU::uc
+    uchardet
   )
 else()
   add_library(${LIBNAME} SHARED 
@@ -81,6 +88,8 @@ else()
     ${LIBNAME} PRIVATE 
     Qt5::Core 
     Qt5::Xml
+    ICU::uc
+    uchardet
   )
 endif()
 set_target_properties(${LIBNAME} PROPERTIES
@@ -90,6 +99,7 @@ set_target_properties(${LIBNAME} PROPERTIES
 target_include_directories( ${LIBNAME} PUBLIC
   ${QGSettings_INCLUDE_DIRS}
   ${Qt5Core_PRIVATE_INCLUDE_DIRS}
+  ${uchardet_INCLUDE_DIRS}
   ../include/util/
   ../include/dci/
   ../include/log/
