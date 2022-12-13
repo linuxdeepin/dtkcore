@@ -16,6 +16,7 @@ if(LINUX)
     ${CMAKE_CURRENT_LIST_DIR}/ddbusinterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedabstractinterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedpendingcallwatcher.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/dtextencoding.cpp
   )
 else()
   set(UTILS_SOURCE
@@ -35,6 +36,7 @@ else()
     ${CMAKE_CURRENT_LIST_DIR}/ddbusinterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedabstractinterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedpendingcallwatcher.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/dtextencoding.cpp
   )
 endif()
 file(GLOB UTILS_HEADER
