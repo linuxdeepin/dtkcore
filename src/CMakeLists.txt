@@ -66,7 +66,7 @@ if(LINUX)
     ${glob_SRC}
   )
   target_link_libraries(
-    ${LIBNAME} PRIVATE 
+    ${LIBNAME} PUBLIC 
     Qt5::Core 
     Qt5::DBus
     Qt5::Xml
@@ -85,7 +85,7 @@ else()
     ${glob_SRC}
   )
   target_link_libraries(
-    ${LIBNAME} PRIVATE 
+    ${LIBNAME} PUBLIC 
     Qt5::Core 
     Qt5::Xml
     ICU::uc
@@ -95,22 +95,35 @@ endif()
 set_target_properties(${LIBNAME} PROPERTIES
   VERSION ${CMAKE_PROJECT_VERSION}
   SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR}
+  EXPORT_NAME Core
 )
 target_include_directories( ${LIBNAME} PUBLIC
   ${QGSettings_INCLUDE_DIRS}
   ${Qt5Core_PRIVATE_INCLUDE_DIRS}
   ${uchardet_INCLUDE_DIRS}
-  ../include/util/
-  ../include/dci/
-  ../include/log/
-  ../include/base/
-  ../include/base/private
-  ../include/global/
-  ../include/DtkCore/
-  ../include/settings/
-  ../include/filesystem/
-  ../include/
 )
+target_include_directories(${LIBNAME} PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/util>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/dci>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/log>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/base>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/base/private>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/global>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/DtkCore>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/settings>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/filesystem>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+)
+
+target_include_directories(${LIBNAME} INTERFACE
+  $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
+)
+
+target_link_directories(${LIBNAME} INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:${LIBRARY_INSTALL_DIR}>
+)
+
 set(TOINSTALLBASE
   ../include/base/dobject.h
   ../include/base/dsingleton.h
@@ -133,4 +146,11 @@ file(GLOB TOINSTALLSETTINGS
 )
 install(FILES ${TOINSTALLSETTINGS} DESTINATION "${INCLUDE_INSTALL_DIR}")
 install(DIRECTORY ../include/util/ DESTINATION "${INCLUDE_INSTALL_DIR}" FILES_MATCHING PATTERN "*.h")
-install(TARGETS ${LIBNAME} DESTINATION ${LIBRARY_INSTALL_DIR})
+install(TARGETS ${LIBNAME} EXPORT DtkCoreTargets
+ DESTINATION ${LIBRARY_INSTALL_DIR})
+
+install(EXPORT DtkCoreTargets
+  FILE DtkCoreTargets.cmake
+  NAMESPACE Dtk::
+  DESTINATION ${CONFIG_CMAKE_INSTALL_DIR}
+)
