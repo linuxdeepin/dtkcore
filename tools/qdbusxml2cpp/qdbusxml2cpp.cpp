@@ -604,6 +604,9 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
     foreach (const QDBusIntrospection::Interface *interface, interfaces) {
         QString className = "__" + classNameForInterface(interface->name, Proxy);
 
+        // using namespace Dtk::Core in cpp
+        cs << "DCORE_USE_NAMESPACE" << endl;
+
         // comment:
         hs << "/*" << endl
            << " * Proxy class for interface " << interface->name << endl
@@ -615,8 +618,8 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
 
         // private class declare
         hs << "class " << className << "Private;" << endl;
-        // class header:
-        hs << "class " << className << " : public DDBusExtendedAbstractInterface" << endl
+        // class header: add Dtk::Core
+        hs << "class " << className << " : public DTK_CORE_NAMESPACE::DDBusExtendedAbstractInterface" << endl
            << "{" << endl
            << "    Q_OBJECT" << endl;
         hs << endl;
