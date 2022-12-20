@@ -5,6 +5,7 @@
 @class Dtk::Core::DConfigBackend dconfig.h
 @brief 配置后端的抽象接口。
 @details 所有DConfig使用的配置后端都继承此类,用户可以继承此类实现自己的配置后端。
+
 @sa FileBackend
 @sa DBusBackend
 @sa QSettingBackend
@@ -106,7 +107,184 @@
 
 @class Dtk::Core::DConfig dconfig.h
 @brief 配置策略提供的接口类
-@details 此接口规范定义了开发库所提供的关于配置文件读写的相关接口，如果应用程序所使用的开发库实现了此规范，则程序应当优先使用开发库提供的接口。
+@details
+## 概述
+
+此接口规范定义了开发库所提供的关于配置文件读写的相关接口，如果应用程序所使用的开发库实现了此规范，则程序应当优先使用开发库提供的接口。
+
+项目目录结构如下：
+```bash
+├── CMakeLists.txt
+├── config
+│   └── example.json
+└── main.cpp
+```
+
+## CMakeLists.txt
+
+```cmake
+cmake_minimum_required(VERSION 3.1.0)                # 指定cmake最低版本
+
+project(dconfig-example VERSION 1.0.0 LANGUAGES CXX) # 指定项目名称, 版本, 语言 cxx就是c++
+
+set(CMAKE_CXX_STANDARD 11)                           # 指定c++标准
+set(CMAKE_CXX_STANDARD_REQUIRED ON)                  # 指定c++标准要求,至少为11以上
+
+set(CMAKE_AUTOMOC ON)                                # 支持qt moc
+set(CMAKE_AUTORCC ON)                                # support qt resource file # 支持qt资源文件
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)                # 支持 clangd
+
+if (CMAKE_VERSION VERSION_LESS "3.7.0")              # 如果cmake版本小于3.7.0
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)                # 设置包含当前目录
+endif()
+
+find_package(Qt5 REQUIRED COMPONENTS Core)           # 寻找Qt5组件Core
+find_package(Dtk REQUIRED COMPONENTS Core)           # 寻找Dtk组件Core
+
+add_executable(${PROJECT_NAME}                       # 生成可执行文件
+    main.cpp
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE        # 添加需要链接的共享库
+    Qt5::Core
+    dtkcore
+)
+
+# dconfig_meta_files函数，部署一些"meta"的配置。
+# 函数定义在dtkcommon的cmake目录下
+# APPID 应用的ID
+# FILES 需要部署的文件。
+dconfig_meta_files(
+    APPID ${PROJECT_NAME} 
+    FILES ./config/example.json
+)
+```
+
+## example.json
+```json
+{
+    "magic": "dsg.config.meta",
+    "version": "1.0",
+    "contents": {
+        "canExit": {
+            "value": true,
+            "serial": 0,
+            "flags": ["global"],
+            "name": "I am name",
+            "name[zh_CN]": "我是名字",
+            "description": "I am description",
+            "permissions": "readwrite",
+            "visibility": "private"
+        },
+        "key1": {
+            "value": "125",
+            "serial": 0,
+            "flags": ["nooverride"],
+            "name": "I am name",
+            "name[zh_CN]": "我是名字",
+            "description": "I am description",
+            "permissions": "readwrite",
+            "visibility": "public"
+        },
+        "number": {
+          "value": 1,
+          "serial": 0,
+          "flags": ["global"],
+          "name": "array value type",
+          "permissions": "readwrite",
+          "visibility": "public"
+        },
+        "array": {
+          "value": ["value1", "value2"],
+          "serial": 0,
+          "flags": ["global"],
+          "name": "array",
+          "permissions": "readwrite",
+          "visibility": "public"
+        },
+        "map": {
+          "value": {"key1": "value1", "key2": "value2"},
+          "serial": 0,
+          "flags": ["global"],
+          "name": "map",
+          "permissions": "readwrite",
+          "visibility": "public"
+        }
+    }
+}
+```
+
+## main.cpp
+```cpp
+#include <DConfig>
+#include <QDebug>
+#include <QCoreApplication>
+
+DCORE_USE_NAMESPACE
+
+int main(int argc, char *argv[])
+{
+    QCoreApplication a(argc, argv);
+    
+    // 构造DConfig，元数据文件名example，与元数据安装目录的/usr/share/dsg/configs/APPID名(可执行文件名)对应目录/example.json，
+    DConfig config("example");
+
+    // 判断是否有效
+    if (!config.isValid()) {
+        qWarning() << QString("DConfig无效, name:[%1].").
+                      arg(config.name());
+        return 0;
+    }
+
+    // 获取所有配置项的key
+    qDebug() << "所有的所有配置项的key:" << config.keyList();
+
+    // 获取指定配置项的值，配置项可以是字符串，数组，map容器，布尔值，整型，详见example.json
+    qDebug() << "canExit对应的值:" << config.value("canExit").toBool();
+
+    QVariantMap map;
+    for (int i = 0; i < 1; i++) {
+        QVariantMap nestItem;
+        for (int j = 0; j < 1; j++) {
+            nestItem[QString::number(j)] = QString::number(j);
+        }
+        map[QString::number(i)] = nestItem;
+    }
+
+    QScopedPointer<DConfig> heapConfig;
+    heapConfig.reset(new DConfig("example"));
+
+    if (!heapConfig->isValid()) {
+        qWarning() << QString("DConfig无效, name:[%1].").
+                      arg(heapConfig->name());
+        return 0;
+    }
+
+    // 监听值改变的信号
+    const bool &oldValue = heapConfig->value("canExit").toBool();
+    QObject::connect(heapConfig.get(), &DConfig::valueChanged, [oldValue,&heapConfig](const QString &key){
+        qDebug() << "canExit原来的值:" << oldValue << ", canExit新的值:" << heapConfig->value(key).toBool();
+    });
+    
+    // 重置canExit的值
+    heapConfig->setValue("canExit", !oldValue);
+
+    return a.exec();
+}
+```
+
+## 从源码构建
+```bash
+mkdir build && cd build
+# 修改路径前缀为/usr,GNU标准的默认值为/usr/local
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+make
+sudo make install
+```
+结果如下图
+
+![example](/docs/src/dconfig_example1.png)
 
 @fn DConfig Dtk::Core::DConfig(const QString &name, const QString &subpath, QObject *parent)
 @brief 构造配置策略提供的对象
