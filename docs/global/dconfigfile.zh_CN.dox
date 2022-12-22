@@ -5,6 +5,182 @@
 
 @class Dtk::Core::DConfigFile dconfigfile.h
 @brief 规范配置文件读写的相关接口的配置文件实现
+@details
+## 概述
+
+规范配置文件读写的相关接口的配置文件实现
+
+项目目录结构如下：
+```bash
+├── CMakeLists.txt
+├── config
+│   └── example.json
+└── main.cpp
+```
+
+## CMakeLists.txt
+```cmake
+cmake_minimum_required(VERSION 3.1.0)                    # 指定cmake最低版本
+
+project(dconfigfile-example VERSION 1.0.0 LANGUAGES CXX) # 指定项目名称, 版本, 语言 cxx就是c++
+
+set(CMAKE_CXX_STANDARD 11)                               # 指定c++标准
+set(CMAKE_CXX_STANDARD_REQUIRED ON)                      # 指定c++标准要求,至少为11以上
+
+set(CMAKE_AUTOMOC ON)                                    # 支持qt moc
+set(CMAKE_AUTORCC ON)                                    # 支持qt资源文件
+set(CMAKE_AUTOUIC ON)                                    # 支持qt ui文件(非必须)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)                    # 支持 clangd
+
+if (CMAKE_VERSION VERSION_LESS "3.7.0")                  # 如果cmake版本小于3.7.0
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)                    # 设置包含当前目录
+endif()
+
+find_package(Qt5 REQUIRED COMPONENTS Core)               # 寻找Qt5组件Core
+find_package(Dtk REQUIRED COMPONENTS Core)               # 寻找Dtk组件Core
+
+add_executable(${PROJECT_NAME}                           # 生成可执行文件
+    main.cpp
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE            # 添加需要链接的共享库
+    Qt5::Core
+    dtkcore
+)
+
+# dconfig_meta_files函数，部署一些"meta"的配置。
+# 函数定义在dtkcommon的cmake目录下
+# APPID 应用的ID
+# FILES 需要部署的文件。
+dconfig_meta_files(
+    APPID ${PROJECT_NAME}
+    FILES ./config/example.json
+)
+```
+
+## example.json
+```json
+{
+    "magic": "dsg.config.meta",
+    "version": "1.0",
+    "contents": {
+        "canExit": {
+            "value": true,
+            "serial": 0,
+            "flags": ["global"],
+            "name": "I am name",
+            "name[zh_CN]": "我是名字",
+            "description": "I am description",
+            "permissions": "readwrite",
+            "visibility": "private"
+        },
+        "key1": {
+            "value": "125",
+            "serial": 0,
+            "flags": ["nooverride"],
+            "name": "I am name",
+            "name[zh_CN]": "我是名字",
+            "description": "I am description",
+            "permissions": "readwrite",
+            "visibility": "public"
+        },
+        "number": {
+          "value": 1,
+          "serial": 0,
+          "flags": ["global"],
+          "name": "array value type",
+          "permissions": "readwrite",
+          "visibility": "public"
+        },
+        "array": {
+          "value": ["value1", "value2"],
+          "serial": 0,
+          "flags": ["global"],
+          "name": "array",
+          "permissions": "readwrite",
+          "visibility": "public"
+        },
+        "map": {
+          "value": {"key1": "value1", "key2": "value2"},
+          "serial": 0,
+          "flags": ["nooverride"],
+          "name": "map",
+          "permissions": "readwrite",
+          "visibility": "public"
+        }
+    }
+}
+```
+
+## main.cpp
+```cpp
+#include <DConfigFile>
+#include <QDebug>
+#include <QCoreApplication>
+#include <unistd.h>
+
+DCORE_USE_NAMESPACE
+
+int main(int argc, char *argv[])
+{
+    QCoreApplication a(argc, argv);
+
+    // 构造DConfigFile，元数据文件名example，与元数据安装目录的/usr/share/dsg/configs/APPID名(可执行文件名)对应目录/example.json，
+    DConfigFile configFile("dconfigfile-example","example");
+    // 解析配置文件 
+    configFile.load();
+
+    // 创建用户缓存
+    QScopedPointer<DConfigCache> userCache(configFile.createUserCache(getuid()));
+    // 解析配置文件
+    userCache->load();
+
+    // 判断是否有效
+    if (!configFile.isValid()) {
+        qWarning() << QString("DConfig无效.");
+        return 0;
+    }
+
+    // meta 返回原型对象, keyList获取所有配置项的key
+    qDebug() << "所有的所有配置项的key:" << configFile.meta()->keyList();
+
+    // 获取指定配置项的值，配置项可以是字符串，数组，map容器，布尔值，整型，详见example.json
+    qDebug() << "canExit对应的值:" <<  configFile.value("canExit").toBool();
+    
+    // 配置项的可见性，其余配置项标记、配置项的权限可查看文档
+    qDebug() << "配置项的可见性" << configFile.meta()->visibility("canExit");
+
+    QVariantMap map;
+    map.insert("k1","v1");
+    map.insert("k2","v2");
+    // 设置map的值
+    configFile.setValue("map", map, "dconfigfile-example", userCache.get());
+
+    configFile.save();
+
+    // root用户运行，save的数据会保存到/root/.config/dsg/configs-fake-global/dconfigfile-example/example.json
+    // map数据对应的flags标记为NoOverride，配置项允许被覆盖，如果flags为global泽忽略用户身份，详见文档。
+    userCache->save();
+
+    return a.exec();
+}
+```
+
+## 从源码构建
+```bash
+mkdir build && cd build
+# 修改路径前缀为/usr,GNU标准的默认值为/usr/local
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+sudo make install
+sudo ./dconfigfile-example
+```
+
+结果如下图
+
+![一些简单的输出](/docs/src/dconfigfile_example1.png)
+
+![用户保存的数据](/docs/src/dconfigfile_example2.png)
 
 @enum Dtk::Core::DConfigFile::Flag
 @brief 配置项名称
