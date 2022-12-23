@@ -70,6 +70,8 @@ if(LINUX)
     Qt5::Core 
     Qt5::DBus
     Qt5::Xml
+  )
+  target_link_libraries(${LIBNAME} PRIVATE
     ${QGSettings_LIBRARIES}
     ICU::uc
     uchardet
@@ -88,6 +90,8 @@ else()
     ${LIBNAME} PUBLIC 
     Qt5::Core 
     Qt5::Xml
+  )
+  target_link_libraries(${LIBNAME} PRIVATE
     ICU::uc
     uchardet
   )
