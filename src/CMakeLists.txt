@@ -101,7 +101,7 @@ set_target_properties(${LIBNAME} PROPERTIES
   SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR}
   EXPORT_NAME Core
 )
-target_include_directories( ${LIBNAME} PUBLIC
+target_include_directories(${LIBNAME} PRIVATE
   ${QGSettings_INCLUDE_DIRS}
   ${Qt5Core_PRIVATE_INCLUDE_DIRS}
   ${uchardet_INCLUDE_DIRS}
