@@ -12,7 +12,8 @@
 
 void doubleLoadCheck()
 {
-    QFile f("/proc/self/maps");
+    // logic error
+    /*QFile f("/proc/self/maps");
     if (!f.open(QIODevice::ReadOnly))
         qFatal("%s", f.errorString().toLocal8Bit().data());
 
@@ -38,7 +39,7 @@ void doubleLoadCheck()
             msg += modulePath + " and " + info.absoluteFilePath() + " both loaded";
             qFatal("%s", msg.data());
         }
-    }
+    }*/
 }
 
 // 在库被加载时就执行此函数
@@ -57,5 +58,5 @@ const char *dtkVersionString()
 #ifdef QT_DEBUG
     qWarning() << "Use DTK_VERSION_STR instead.";
 #endif
-    return "";//DTK_VERSION_STR;
+    return "";  // DTK_VERSION_STR;
 }
