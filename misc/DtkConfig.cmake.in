@@ -1,15 +1,5 @@
 @PACKAGE_INIT@
 
-if(UNIX AND NOT APPLE)
-  set(LINUX TRUE)
-endif()
-include(CMakeFindDependencyMacro)
-find_dependency(Qt5Core)
-find_dependency(Qt5Xml)
-if (LINUX)
-    find_dependency(Qt5DBus) 
-endif()
-
 include(${CMAKE_CURRENT_LIST_DIR}/DtkCoreTargets.cmake)
 
 set(DtkCore_LIBRARIES Dtk::Core)

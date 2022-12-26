@@ -65,13 +65,10 @@ if(LINUX)
     ${utils_SRC}
     ${glob_SRC}
   )
-  target_link_libraries(
-    ${LIBNAME} PUBLIC 
+  target_link_libraries(${LIBNAME} PRIVATE
     Qt5::Core 
     Qt5::DBus
     Qt5::Xml
-  )
-  target_link_libraries(${LIBNAME} PRIVATE
     ${QGSettings_LIBRARIES}
     ICU::uc
     uchardet
@@ -86,12 +83,9 @@ else()
     ${utils_SRC}
     ${glob_SRC}
   )
-  target_link_libraries(
-    ${LIBNAME} PUBLIC 
-    Qt5::Core 
-    Qt5::Xml
-  )
   target_link_libraries(${LIBNAME} PRIVATE
+    Qt5::Core
+    Qt5::Xml
     ICU::uc
     uchardet
   )
