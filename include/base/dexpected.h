@@ -369,6 +369,7 @@ private:
  * 模板类Dtk::Core::DExpected提供存储两个值之一的方式。Dtk::Core::DExpected的对象要么保有一个期待的T类型值，要么保有一个不期待的E类型值，不会没有值。
  * @tparam T 期待的类型
  * @tparam E 不期待的类型
+ * @note 该类自DtkCore 5.6.3引入
  */
 template <typename T, typename E = DError>
 class DExpected

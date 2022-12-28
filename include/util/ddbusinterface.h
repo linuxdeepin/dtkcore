@@ -10,6 +10,7 @@ DCORE_BEGIN_NAMESPACE
 
 class DDBusInterfacePrivate;
 
+// Imported since 5.6.3
 class DDBusInterface : public QDBusAbstractInterface
 {
     Q_OBJECT
