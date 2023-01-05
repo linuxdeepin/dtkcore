@@ -24,28 +24,12 @@ set (DOXYGEN_SOURCE_BROWSE "YES")
 
 set (DOXYGEN_MACRO_EXPANSION "YES")
 set (DOXYGEN_PREDEFINED
-    "\"DCORE_BEGIN_NAMESPACE=namespace Dtk { namespace Core {\""
-    "\"DCORE_END_NAMESPACE=}}\""
-    "\"DCORE_USE_NAMESPACE=using namespace Dtk::Core\;\""
+    "DCORE_BEGIN_NAMESPACE=namespace Dtk { namespace Core {"
+    "DCORE_END_NAMESPACE=}}"
+    "DCORE_USE_NAMESPACE=using namespace Dtk::Core;"
     "Q_OS_LINUX=1"
 )
 set (DOXYGEN_EXPAND_ONLY_PREDEF "YES")
-
-if(BUILD_THEME)
-set (DOXYGEN_HTML_EXTRA_STYLESHEET "docs/doxygentheme/doxygen-awesome.css"
-                                "docs/doxygentheme/doxygen-awesome-sidebar-only.css"
-                                "docs/doxygentheme/doxygen-awesome-sidebar-only-darkmode-toggle.css"
-                                )
-set (DOXYGEN_HTML_EXTRA_FILES "docs/doxygentheme/doxygen-awesome-darkmode-toggle.js"
-                            "docs/doxygentheme/doxygen-awesome-fragment-copy-button.js"
-                            "docs/doxygentheme/doxygen-awesome-paragraph-link.js"
-                            "docs/doxygentheme/doxygen-awesome-interactive-toc.js"
-                            )
-set (DOXYGEN_GENERATE_TREEVIEW "YES")
-set (DOXYGEN_DISABLE_INDEX "NO")
-set (DOXYGEN_FULL_SIDEBAR "NO")
-set (DOXYGEN_HTML_HEADER "docs/doxygentheme/header.html")
-endif()
 
 doxygen_add_docs (doxygen
     ${PROJECT_SOURCE_DIR}/include
