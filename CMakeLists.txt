@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.10)
 
-set (DVERSION "5.6.2" CACHE STRING "define project version")
+set (DVERSION "5.6.4" CACHE STRING "define project version")
 
 project (DtkCore
   VERSION ${DVERSION}
@@ -19,7 +19,8 @@ endif ()
 set (INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/dtk${PROJECT_VERSION_MAJOR}/DCore")
 set (TOOL_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/dtk${PROJECT_VERSION_MAJOR}/DCore/bin")
 set (LIBRARY_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}")
-set (MKSPECS_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/qt5/mkspecs/modules" CACHE STRING "INSTALL DIR FOR qt pri files")
+set (MKSPECS_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/qt5/mkspecs/modules" CACHE STRING "Install dir for qt pri files")
+set (FEATURES_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/qt5/mkspecs/features" CACHE STRING "Install dir for qt prf files")
 set (CONFIG_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/DtkCore" CACHE STRING "Install dir for cmake config files")
 
 set (BUILD_EXAMPLES ON CACHE BOOL "Build examples")
@@ -67,11 +68,12 @@ if(BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
 add_subdirectory(tools)
-install(FILES cmake/DtkCMake/DtkCMakeConfig.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkCMake/")
+install(FILES cmake/DtkCMake/DtkCMakeConfig.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkCMake")
 install(FILES cmake/DtkTools/DtkToolsConfig.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkTools")
 install(FILES cmake/DtkTools/DtkSettingsToolsMacros.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkTools")
+install(FILES cmake/DtkDConfig/DtkDConfigConfig.cmake DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/DtkDConfig")
 
-configure_package_config_file(misc/DtkConfig.cmake.in
+configure_package_config_file(misc/DtkCoreConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfig.cmake
     INSTALL_DESTINATION ${CONFIG_CMAKE_INSTALL_DIR}
     PATH_VARS TOOL_INSTALL_DIR)
@@ -88,6 +90,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dtkcore.pc DESTINATION "${CMAKE_INSTAL
 
 configure_file(misc/qt_lib_dtkcore.pri.in qt_lib_dtkcore.pri @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/qt_lib_dtkcore.pri DESTINATION "${MKSPECS_INSTALL_DIR}")
+install(FILES misc/dtk_install_dconfig.prf DESTINATION ${FEATURES_INSTALL_DIR})
 set(CONFIGNAME include/global/dtkcore_config.h)
 file(WRITE ${CONFIGNAME}
   "// it is auto make config\n"
