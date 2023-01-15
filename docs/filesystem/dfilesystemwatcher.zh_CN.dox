@@ -1,0 +1,35 @@
+/*!
+@~chinese
+@ingroup dfilesystem
+@file include/filesystem/dfilesystemwatcher.h
+@class DFileSystemWatcher
+@brief 监听文件系统变化的类
+
+@fn DFileSystemWatcher::DFileSystemWatcher(QObject *parent)
+@brief 构造函数
+
+@fn DFileSystemWatcher::DFileSystemWatcher(const QStringList &paths, QObject *parent = Q_NULLPTR)
+@brief 构造函数
+@param paths 要监听的路径列表
+
+@fn bool DFileSystemWatcher::addPath(const QString &file)
+@brief 添加要监听的路径
+@param[in] file 要监听的路径
+
+@fn QStringList DFileSystemWatcher::addPaths(const QStringList &files)
+@brief 添加要监听的路径列表
+@param[in] files 要监听的路径列表
+
+@fn bool DFileSystemWatcher::removePath(const QString &file)
+@brief 移除监听的路径
+
+@fn QStringList DFileSystemWatcher::removePaths(const QStringList &files)
+@brief 移除监听的路径列表
+
+@fn QStringList DFileSystemWatcher::directories() const
+@brief 获取监听的目录列表
+
+@fn QStringList DFileSystemWatcher::files() const
+@brief 获取监听的文件列表
+
+*/

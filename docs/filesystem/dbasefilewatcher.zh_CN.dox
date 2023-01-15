@@ -5,6 +5,8 @@
 
 @class Dtk::Core::DBaseFileWatcher
 @brief DBaseFileWatcher 类提供了一系列接口可供监视文件和目录的变动。
+@note 建议使用 DFileWatcher 类，该类是 DBaseFileWatcher 的子类，提供了更多的功能。或者使用DFileWatcherManager类，该类提供了对文件和目录的监视功能。
+@warning 该类是一个虚类，不应该被直接使用，而应该使用 DFileWatcher 类或者 DFileWatcherManager 类。
 
 @fn QUrl Dtk::Core::DBaseFileWatcher::fileUrl()
 @brief 返回文件的统一资源定位符
@@ -45,5 +47,22 @@
   DBaseFileWatcher::ghostSignal(QUrl("bookmark:///"), &DBaseFileWatcher::fileMoved, QUrl("bookmark:///bookmarkFile1"), QUrl("bookmark:///NewNameFile1"));
 @endcode
 
-*/
+@var Dtk::Core::DBaseFileWatcher::fileDeleted(const QUrl &url)
+@brief 文件被删除的信号
 
+@var Dtk::Core::DBaseFileWatcher::fileMoved(const QUrl &fromUrl, const QUrl &toUrl)
+@brief 文件被移动的信号
+
+@var Dtk::Core::DBaseFileWatcher::fileAttributeChanged(const QUrl &url)
+@brief 文件属性被改变的信号
+
+@var Dtk::Core::DBaseFileWatcher::subfileCreated(const QUrl &url)
+@brief 子文件被创建的信号
+
+@var Dtk::Core::DBaseFileWatcher::fileClosed(const QUrl &url)
+@brief 文件被关闭的信号
+
+@var Dtk::Core::DBaseFileWatcher::fileModified(const QUrl &url)
+@brief 文件被修改的信号
+
+*/
