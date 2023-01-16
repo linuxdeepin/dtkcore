@@ -12,7 +12,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-
+    app.setApplicationName("tests");
     DTimedLoop loop;
 
     testing::InitGoogleTest(&argc, argv);
