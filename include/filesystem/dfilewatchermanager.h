@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2017 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2017 - 2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -9,6 +9,7 @@
 #include "dobject.h"
 
 #include <QObject>
+#include <QString>
 
 DCORE_BEGIN_NAMESPACE
 
@@ -25,7 +26,8 @@ public:
 
     DFileWatcher *add(const QString &filePath);
     void remove(const QString &filePath);
-
+    void removeAll();
+    QStringList watchedFiles() const;
 Q_SIGNALS:
     void fileDeleted(const QString &filePath);
     void fileAttributeChanged(const QString &filePath);
