@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2017 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2017 - 2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -24,7 +24,6 @@ public:
 DFileWatcherManagerPrivate::DFileWatcherManagerPrivate(DFileWatcherManager *qq)
     : DObjectPrivate(qq)
 {
-
 }
 
 /*!
@@ -38,13 +37,9 @@ DFileWatcherManager::DFileWatcherManager(QObject *parent)
     : QObject(parent)
     , DObject(*new DFileWatcherManagerPrivate(this))
 {
-
 }
 
-DFileWatcherManager::~DFileWatcherManager()
-{
-
-}
+DFileWatcherManager::~DFileWatcherManager() {}
 
 /*!
 @~english
@@ -63,24 +58,16 @@ DFileWatcher *DFileWatcherManager::add(const QString &filePath)
 
     watcher = new DFileWatcher(filePath, this);
 
-    connect(watcher, &DFileWatcher::fileAttributeChanged, this, [this](const QUrl & url) {
+    connect(watcher, &DFileWatcher::fileAttributeChanged, this, [this](const QUrl &url) {
         Q_EMIT fileAttributeChanged(url.toLocalFile());
     });
-    connect(watcher, &DFileWatcher::fileClosed, this, [this](const QUrl & url) {
-        Q_EMIT fileClosed(url.toLocalFile());
-    });
-    connect(watcher, &DFileWatcher::fileDeleted, this, [this](const QUrl & url) {
-        Q_EMIT fileDeleted(url.toLocalFile());
-    });
-    connect(watcher, &DFileWatcher::fileModified, this, [this](const QUrl & url) {
-        Q_EMIT fileModified(url.toLocalFile());
-    });
-    connect(watcher, &DFileWatcher::fileMoved, this, [this](const QUrl & fromUrl, const QUrl & toUrl) {
+    connect(watcher, &DFileWatcher::fileClosed, this, [this](const QUrl &url) { Q_EMIT fileClosed(url.toLocalFile()); });
+    connect(watcher, &DFileWatcher::fileDeleted, this, [this](const QUrl &url) { Q_EMIT fileDeleted(url.toLocalFile()); });
+    connect(watcher, &DFileWatcher::fileModified, this, [this](const QUrl &url) { Q_EMIT fileModified(url.toLocalFile()); });
+    connect(watcher, &DFileWatcher::fileMoved, this, [this](const QUrl &fromUrl, const QUrl &toUrl) {
         Q_EMIT fileMoved(fromUrl.toLocalFile(), toUrl.toLocalFile());
     });
-    connect(watcher, &DFileWatcher::subfileCreated, this, [this](const QUrl & url) {
-        Q_EMIT subfileCreated(url.toLocalFile());
-    });
+    connect(watcher, &DFileWatcher::subfileCreated, this, [this](const QUrl &url) { Q_EMIT subfileCreated(url.toLocalFile()); });
 
     d->watchersMap[filePath] = watcher;
     watcher->startWatcher();
@@ -101,6 +88,29 @@ void DFileWatcherManager::remove(const QString &filePath)
     if (watcher) {
         watcher->deleteLater();
     }
+}
+
+/*!
+@~english
+  @brief Remove all file watcher
+*/
+void DFileWatcherManager::removeAll()
+{
+    Q_D(DFileWatcherManager);
+    for (auto it : d->watchersMap) {
+        it->deleteLater();
+    }
+    d->watchersMap.clear();
+}
+
+/*!
+@~english
+  @brief Show all file watcher
+*/
+QStringList DFileWatcherManager::watchedFiles() const
+{
+    Q_D(const DFileWatcherManager);
+    return d->watchersMap.keys();
 }
 
 DCORE_END_NAMESPACE

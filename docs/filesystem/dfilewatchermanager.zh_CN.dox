@@ -13,6 +13,12 @@
 @fn void DFileWatcherManager::remove(const QString &filePath)
 @brief 从 DFileWatcherManager 中移除路径`filePath`对应的 DFileWatcher.
 
+@fn void DFileWatcherManager::removeAll()
+@brief 从 DFileWatcherManager 中移除所有的 DFileWatcher.
+
+@fn void DFileWatcherManager::watchedFiles()
+@brief 获取 DFileWatcherManager 中所有的 DFileWatcher.
+
 @var void DFileWatcherManager::fileDeleted(const QString &filePath)
 @brief 当路径`filePath`对应的文件被删除时发送此信号.
 

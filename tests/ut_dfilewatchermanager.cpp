@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -14,7 +14,6 @@
 
 DCORE_USE_NAMESPACE
 
-
 class ut_DFileWatcherManager : public testing::Test
 {
 protected:
@@ -22,7 +21,6 @@ protected:
     void TearDown() override;
 
     DFileWatcherManager *fileWatcherManager = nullptr;
-
 };
 
 void ut_DFileWatcherManager::SetUp()
@@ -51,22 +49,37 @@ void ut_DFileWatcherManager::TearDown()
 TEST_F(ut_DFileWatcherManager, testDFileWatcherManagerAdd)
 {
     auto watcher = fileWatcherManager->add("/tmp/test");
-    if (!watcher->startWatcher()) return;
+    if (!watcher->startWatcher())
+        return;
 
     // test fileDeleted signal
     QSignalSpy spy(watcher, &DBaseFileWatcher::fileDeleted);
     QFile file("/tmp/test");
     if (file.exists())
         file.remove();
-    ASSERT_TRUE(QTest::qWaitFor([&spy](){
-        return spy.count() >= 1;
-    }, 1000));
+    ASSERT_TRUE(QTest::qWaitFor([&spy]() { return spy.count() >= 1; }, 1000));
     ASSERT_TRUE(spy.count() >= 1);
 }
 
-TEST_F(ut_DFileWatcherManager, testDFileSystemWatcherRemove)
+TEST_F(ut_DFileWatcherManager, testDFileWatcherManagerRemove)
 {
     fileWatcherManager->add("/tmp/test");
     fileWatcherManager->remove("/tmp/test");
+    ASSERT_EQ(fileWatcherManager->watchedFiles().count(), 0);
 }
 
+TEST_F(ut_DFileWatcherManager, testDFileWatcherManagerRemoveAll)
+{
+    fileWatcherManager->add("/tmp/test");
+    fileWatcherManager->add("/tmp/test1");
+    fileWatcherManager->removeAll();
+    ASSERT_EQ(fileWatcherManager->watchedFiles().count(), 0);
+}
+
+TEST_F(ut_DFileWatcherManager, testDFileSystemWatcherwatchedFiles)
+{
+    fileWatcherManager->add("/tmp/test");
+    fileWatcherManager->add("/tmp/test1");
+    fileWatcherManager->watchedFiles();
+    ASSERT_EQ(fileWatcherManager->watchedFiles().count(), 2);
+}
