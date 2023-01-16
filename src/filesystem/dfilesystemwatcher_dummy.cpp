@@ -19,7 +19,8 @@ DFileSystemWatcherPrivate::~DFileSystemWatcherPrivate()
 }
 
 /*!
-    \class Dtk::Core::DFileSystemWatcher
+@~english
+    @class Dtk::Core::DFileSystemWatcher
     \inmodule dtkcore
     \brief The DFileSystemWatcher class provides an interface for monitoring files and directories for modifications.
 
@@ -41,13 +42,13 @@ DFileSystemWatcherPrivate::~DFileSystemWatcherPrivate()
     they have been renamed or removed from disk, and directories once
     they have been removed from disk.
 
-    \note On systems running a Linux kernel without inotify support,
+    @note On systems running a Linux kernel without inotify support,
     file systems that contain watched paths cannot be unmounted.
 
-    \note Windows CE does not support directory monitoring by
+    @note Windows CE does not support directory monitoring by
     default as this depends on the file system driver installed.
 
-    \note The act of monitoring files and directories for
+    @note The act of monitoring files and directories for
     modifications consumes system resources. This implies there is a
     limit to the number of files and directories your process can
     monitor simultaneously. On all BSD variants, for
@@ -64,6 +65,7 @@ DFileSystemWatcherPrivate::~DFileSystemWatcherPrivate()
 
 
 /*!
+@~english
     Constructs a new file system watcher object with the given \a parent.
 */
 DFileSystemWatcher::DFileSystemWatcher(QObject *parent)
@@ -74,6 +76,7 @@ DFileSystemWatcher::DFileSystemWatcher(QObject *parent)
 }
 
 /*!
+@~english
     Constructs a new file system watcher object with the given \a parent
     which monitors the specified \a paths list.
 */
@@ -84,12 +87,14 @@ DFileSystemWatcher::DFileSystemWatcher(const QStringList &paths, QObject *parent
 }
 
 /*!
+@~english
     Destroys the file system watcher.
 */
 DFileSystemWatcher::~DFileSystemWatcher()
 { }
 
 /*!
+@~english
     Adds \a path to the file system watcher if \a path exists. The
     path is not added if it does not exist, or if it is already being
     monitored by the file system watcher.
@@ -105,12 +110,12 @@ DFileSystemWatcher::~DFileSystemWatcher()
     may include the resource not existing, access failures, or the
     total watch count limit, if the platform has one.
 
-    \note There may be a system dependent limit to the number of
+    @note There may be a system dependent limit to the number of
     files and directories that can be monitored simultaneously.
     If this limit is been reached, \a path will not be monitored,
     and false is returned.
 
-    \sa addPaths(), removePath()
+    @sa addPaths(), removePath()
 */
 bool DFileSystemWatcher::addPath(const QString &path)
 {
@@ -118,6 +123,7 @@ bool DFileSystemWatcher::addPath(const QString &path)
 }
 
 /*!
+@~english
     Adds each path in \a paths to the file system watcher. Paths are
     not added if they not exist, or if they are already being
     monitored by the file system watcher.
@@ -133,12 +139,12 @@ bool DFileSystemWatcher::addPath(const QString &path)
     may include the resource not existing, access failures, or the
     total watch count limit, if the platform has one.
 
-    \note There may be a system dependent limit to the number of
+    @note There may be a system dependent limit to the number of
     files and directories that can be monitored simultaneously.
     If this limit has been reached, the excess \a paths will not
     be monitored, and they will be added to the returned QStringList.
 
-    \sa addPath(), removePaths()
+    @sa addPath(), removePaths()
 */
 QStringList DFileSystemWatcher::addPaths(const QStringList &paths)
 {
@@ -146,6 +152,7 @@ QStringList DFileSystemWatcher::addPaths(const QStringList &paths)
 }
 
 /*!
+@~english
     Removes the specified \a path from the file system watcher.
 
     If the watch is successfully removed, true is returned.
@@ -153,7 +160,7 @@ QStringList DFileSystemWatcher::addPaths(const QStringList &paths)
     Reasons for watch removal failing are generally system-dependent,
     but may be due to the path having already been deleted, for example.
 
-    \sa removePaths(), addPath()
+    @sa removePaths(), addPath()
 */
 bool DFileSystemWatcher::removePath(const QString &path)
 {
@@ -161,6 +168,7 @@ bool DFileSystemWatcher::removePath(const QString &path)
 }
 
 /*!
+@~english
     Removes the specified \a paths from the file system watcher.
 
     The return value is a list of paths which were not able to be
@@ -169,7 +177,7 @@ bool DFileSystemWatcher::removePath(const QString &path)
     Reasons for watch removal failing are generally system-dependent,
     but may be due to the path having already been deleted, for example.
 
-    \sa removePath(), addPaths()
+    @sa removePath(), addPaths()
 */
 QStringList DFileSystemWatcher::removePaths(const QStringList &paths)
 {
@@ -177,16 +185,18 @@ QStringList DFileSystemWatcher::removePaths(const QStringList &paths)
 }
 
 /*!
-    \fn void DFileSystemWatcher::fileChanged(const QString &path)
+@~english
+    @fn void DFileSystemWatcher::fileChanged(const QString &path)
 
     This signal is emitted when the file at the specified \a path is
     modified, renamed or removed from disk.
 
-    \sa directoryChanged()
+    @sa directoryChanged()
 */
 
 /*!
-    \fn void DFileSystemWatcher::directoryChanged(const QString &path)
+@~english
+    @fn void DFileSystemWatcher::directoryChanged(const QString &path)
 
     This signal is emitted when the directory at a specified \a path
     is modified (e.g., when a file is added or deleted) or removed
@@ -195,23 +205,25 @@ QStringList DFileSystemWatcher::removePaths(const QStringList &paths)
     However, the last change in the sequence of changes will always
     generate this signal.
 
-    \sa fileChanged()
+    @sa fileChanged()
 */
 
 /*!
-    \fn QStringList DFileSystemWatcher::directories() const
+@~english
+    @fn QStringList DFileSystemWatcher::directories() const
 
     Returns a list of paths to directories that are being watched.
 
-    \sa files()
+    @sa files()
 */
 
 /*!
-    \fn QStringList DFileSystemWatcher::files() const
+@~english
+    @fn QStringList DFileSystemWatcher::files() const
 
     Returns a list of paths to files that are being watched.
 
-    \sa directories()
+    @sa directories()
 */
 
 QStringList DFileSystemWatcher::directories() const
