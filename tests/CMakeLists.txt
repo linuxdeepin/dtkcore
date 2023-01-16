@@ -62,6 +62,8 @@ include(../src/glob.cmake)
 
 #endglob
 
+# for test.so
+add_subdirectory(./testso)
 
 # test 
 file(GLOB TEST_HEADER
@@ -74,8 +76,6 @@ set(test_SRC
   ${TEST_HEADER}
   ${TEST_SOURCE}
 )
-
-
 
 # end test
 if(LINUX)
@@ -91,6 +91,7 @@ if(LINUX)
     ${test_SRC}
     ./data.qrc
   )
+  add_dependencies(${BIN_NAME} vtabletest)
   target_link_libraries(
     ${BIN_NAME} PRIVATE 
     Qt5::Gui 
@@ -104,6 +105,7 @@ if(LINUX)
     -lpthread
     -lm 
     -lgcov
+    -lvtabletest
   )
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(${BIN_NAME} PRIVATE -fprofile-instr-generate -ftest-coverage)
@@ -111,6 +113,7 @@ if(LINUX)
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(${BIN_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
   endif()
+  target_link_directories(${BIN_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/testso/)
   target_include_directories( ${BIN_NAME} PUBLIC
     ${Qt5Core_PRIVATE_INCLUDE_DIRS}
     ${QGSettings_INCULDE_DIRS}
@@ -125,6 +128,7 @@ if(LINUX)
     ../include/filesystem/
     ../include/
     ../src/filesystem/private/
+    ./testso/
   )
 else()
   add_executable(${BIN_NAME}
@@ -138,6 +142,7 @@ else()
     ${test_SRC}
     ./data.qrc
   )
+  add_dependencies(${BIN_NAME} vtabletest)
   target_link_libraries(
     ${BIN_NAME} PRIVATE 
     Qt5::Gui
@@ -149,6 +154,7 @@ else()
     -lpthread
     -lm 
     -lgcov
+    -lvtabletest
   )
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(${BIN_NAME} PRIVATE -fprofile-instr-generate -ftest-coverage)
@@ -156,6 +162,7 @@ else()
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(${BIN_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
   endif()
+  target_link_directories(${BIN_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/testso/)
   target_include_directories( ${BIN_NAME} PUBLIC
     ${Qt5Core_PRIVATE_INCLUDE_DIRS}
     ../include/util/
@@ -168,6 +175,7 @@ else()
     ../include/settings/
     ../include/filesystem/
     ../include/
+    ./testso/
   )
 endif()
 
