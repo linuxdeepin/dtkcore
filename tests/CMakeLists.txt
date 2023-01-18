@@ -34,8 +34,6 @@ endif()
 #message(${dbus_SRCS})
 # end dbus
 
-
-
 # start dci
 include(../src/dci/dci.cmake)
 #end dci
