@@ -4,7 +4,7 @@
 @file include/log/RollingFileAppender.h
 
 @class Dtk::Core::RollingFileAppender
-@brief RollingFileAppender类扩展了FileAppender,使日志文件在用户选择的频率上进行滚动
+@brief RollingFileAppender类扩展了FileAppender,使日志文件在按照用户指定的频率进行滚动
 @details
         该类是基于`Log4Qt.DailyRollingFileAppender`类[Log4Qt](http://log4qt.sourceforge.net/)
         并具有相同的日期模式格式<br>

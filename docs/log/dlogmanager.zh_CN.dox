@@ -9,13 +9,13 @@
 调用相应的注册方法设置存储路径相关信息即可
 
 @fn static void Dtk::Core::DLogManager::registerConsoleAppender()
-@brief 配置日志输出方式，调用此方法后日志输出方式是输出到终端
+@brief 注册默认的控制台记录器
 
 @fn static void Dtk::Core::DLogManager::registerFileAppender()
-@brief 配置日志输出方式，调用此方法后日志输出方式是输出到文件。
+@brief 注册默认的文件记录器，默认的文件记录器类型为RollingFileAppender.
 @note 输出日志默认文件位置为`~/.cache/<organizationName>/<applicationName>.log`如果获取 $HOME 环境变量失败将不写日志.
 如果在创建程序的时候没有指定这两个name,如果未设置organizationName,则是 `~/.cache/<applicationName>/<applicationName>.log`
-applicationName 就算没有设置也会fallback一个,如进程二进制文件名
+如果applicationName没有设置, 会fallback到进程二进制文件名
 @sa DLogManager::setlogFilePath()
 
 @fn static QString Dtk::Core::DLogManager::getlogFilePath()

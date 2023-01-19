@@ -52,9 +52,9 @@
 @fn void Dtk::Core::Logger::registerAppender(AbstractAppender *appender)
 @brief 注册appender来写入日志记录<br>
         在写入日志的调用中(使用其中一个宏或`write()`函数),Logger遍历appender列表,并向每个appender写入日志记录。请查阅AbstractAppender文档以了解appenders的概念。
-        如果没有appender被添加到Logger中,它就会退回到记录到`std::cerr`STL流中。
-        appender 要在Logger中注册的Appender
-@note Logger对appender拥有所有权,它将在应用程序退出时删除它。根据这一点,appender必须在堆上创建,以防止appender被重复销毁。
+        如果没有appender被添加到Logger中,它就会退回到记录到`std::cerr`流中。
+@param[in] appender 要在Logger中注册的Appender
+@note Logger对appender拥有所有权,它将在应用程序退出时删除它。因此,appender必须在堆上创建,以防止appender被重复销毁。
 @sa Logger::registerCategoryAppender()
 @sa Dtk::Core::AbstractAppender
 
@@ -171,4 +171,3 @@
                                 const char *category, const QString &msg)
 
 */
-
