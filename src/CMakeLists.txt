@@ -15,6 +15,7 @@ find_package(Qt5 REQUIRED COMPONENTS Core)
 if(LINUX)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(QGSettings REQUIRED gsettings-qt)
+pkg_check_modules(JOURNALD REQUIRED IMPORTED_TARGET libsystemd)
 find_package(Qt5 REQUIRED COMPONENTS DBus)
 endif()
 find_package(Qt5 REQUIRED COMPONENTS Xml)
@@ -24,7 +25,7 @@ find_package(ICU REQUIRED COMPONENTS uc)
 pkg_check_modules(uchardet REQUIRED uchardet)
 # end text encoding
 
-# start base 
+# start base
 include(base/base.cmake)
 # end base
 if(LINUX)
@@ -40,14 +41,14 @@ include(dci/dci.cmake)
 #start filesystem
 include(filesystem/filesystem.cmake)
 #end filesystem
-# start log 
+# start log
 include(log/log.cmake)
 #end log
-# start settings 
+# start settings
 include(settings/settings.cmake)
 #end settings
 
-#start utils 
+#start utils
 include(util/util.cmake)
 #end utils
 
@@ -55,7 +56,7 @@ include(util/util.cmake)
 include(glob.cmake)
 #endGLOG
 if(LINUX)
-  add_library(${LIBNAME} SHARED 
+  add_library(${LIBNAME} SHARED
     ${dbus_SRCS}
     ${base_SRCS}
     ${dci_SRCS}
@@ -66,8 +67,8 @@ if(LINUX)
     ${glob_SRC}
   )
   target_link_libraries(
-    ${LIBNAME} PUBLIC 
-    Qt5::Core 
+    ${LIBNAME} PUBLIC
+    Qt5::Core
     Qt5::DBus
     Qt5::Xml
   )
@@ -77,7 +78,7 @@ if(LINUX)
     uchardet
   )
 else()
-  add_library(${LIBNAME} SHARED 
+  add_library(${LIBNAME} SHARED
     ${base_SRCS}
     ${dci_SRCS}
     ${filesystem_SRCS}
@@ -87,8 +88,8 @@ else()
     ${glob_SRC}
   )
   target_link_libraries(
-    ${LIBNAME} PUBLIC 
-    Qt5::Core 
+    ${LIBNAME} PUBLIC
+    Qt5::Core
     Qt5::Xml
   )
   target_link_libraries(${LIBNAME} PRIVATE
@@ -140,11 +141,11 @@ install(DIRECTORY ../include/dci/ DESTINATION "${INCLUDE_INSTALL_DIR}" FILES_MAT
 install(DIRECTORY ../include/DtkCore/ DESTINATION "${INCLUDE_INSTALL_DIR}" FILES_MATCHING PATTERN "*")
 install(DIRECTORY ../include/filesystem/ DESTINATION "${INCLUDE_INSTALL_DIR}" FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY ../include/global/ DESTINATION "${INCLUDE_INSTALL_DIR}" FILES_MATCHING PATTERN "*.h")
-file(GLOB TOINSTALLLOG 
+file(GLOB TOINSTALLLOG
   ../include/log/*.h
 )
 install(FILES ${TOINSTALLLOG} DESTINATION "${INCLUDE_INSTALL_DIR}")
-file(GLOB TOINSTALLSETTINGS 
+file(GLOB TOINSTALLSETTINGS
   ../include/settings/*.h
   ../include/settings/backend/*.h
 )

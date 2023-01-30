@@ -18,6 +18,14 @@
 如果applicationName没有设置, 会fallback到进程二进制文件名
 @sa DLogManager::setlogFilePath()
 
+@fn static void Dtk::Core::DLogManager::registerJournaldAppender()
+@brief 注册默认的journald记录器
+@note 此方法只在linux下有效
+@detials 默认输出文件位置为`/var/log/journal/<machine-id>.journal`,前提是此目录存在且有写权限，
+如果目录不存在，systemd将不会自动创建此目录，并将日志写入到`/run/log/journal/<machine-id>.journal`中，此目录不支持持久化存储，
+将在下次重启后丢失。
+@note 查看日志可用`journalctl`命令，查看详细信息可用`journalctl -o verbose`命令，也可以使用deepin 日志查看器查看
+
 @fn static QString Dtk::Core::DLogManager::getlogFilePath()
 @brief 获取当前的日志存储路径,包括文件名
 
