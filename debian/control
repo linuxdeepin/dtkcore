@@ -5,7 +5,7 @@ Maintainer: Deepin Packages Builder <packages@deepin.com>
 Build-Depends: debhelper-compat ( =12), pkg-config,
  qttools5-dev-tools, qtbase5-private-dev, doxygen,
  libgsettings-qt-dev, libgtest-dev, libdtkcommon-dev, cmake,
- libuchardet-dev, libicu-dev
+ libuchardet-dev, libicu-dev, libsystemd-dev
 Standards-Version: 3.9.8
 
 Package: libdtkcore5
@@ -40,4 +40,3 @@ Description: Deepin Tool Kit Core (document)
  DtkCore is base devel library of Deepin Qt/C++ applications.
  .
  This package contains the doc files of DtkCore
- 

@@ -6,6 +6,7 @@
 #include <Logger.h>
 #include <ConsoleAppender.h>
 #include <RollingFileAppender.h>
+#include <JournalAppender.h>
 
 DCORE_BEGIN_NAMESPACE
 
@@ -40,6 +41,15 @@ void DLogManager::initRollingFileAppender(){
     logger->registerAppender(m_rollingFileAppender);
 }
 
+
+void DLogManager::initJournalAppender()
+{
+#ifdef Q_OS_LINUX
+    m_journalAppender = new JournalAppender();
+    logger->registerAppender(m_journalAppender);
+#endif
+}
+
 /*!
 @~english
   \brief Registers the appender to write the log records to the Console.
@@ -59,6 +69,11 @@ void DLogManager::registerConsoleAppender(){
  */
 void DLogManager::registerFileAppender() {
     DLogManager::instance()->initRollingFileAppender();
+}
+
+void DLogManager::registerJournalAppender()
+{
+    DLogManager::instance()->initJournalAppender();
 }
 
 /*!
