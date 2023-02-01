@@ -2,10 +2,8 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "DtkCore/DLog"
+#include <DLog>
 #include <QCoreApplication>
-#include <QTemporaryFile>
-#include <QDebug>
 DCORE_USE_NAMESPACE
 
 int main(int argc, char **argv)
