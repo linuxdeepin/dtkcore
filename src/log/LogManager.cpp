@@ -44,7 +44,7 @@ void DLogManager::initRollingFileAppender(){
 
 void DLogManager::initJournalAppender()
 {
-#ifdef Q_OS_LINUX
+#if (defined BUILD_WITH_SYSTEMD && defined Q_OS_LINUX)
     m_journalAppender = new JournalAppender();
     logger->registerAppender(m_journalAppender);
 #endif

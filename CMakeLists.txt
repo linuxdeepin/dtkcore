@@ -34,6 +34,8 @@ if(UNIX AND NOT APPLE)
 endif()
 set (BUILD_DOCS ON CACHE BOOL "Generate doxygen-based documentation")
 
+set (BUILD_WITH_SYSTEMD OFF CACHE BOOL "Build with systemd")
+
 # CXX FILAGS
 set(CMAKE_CXX_STANDARD 11)
 if (NOT CMAKE_BUILD_TYPE)

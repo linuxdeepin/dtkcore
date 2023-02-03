@@ -13,10 +13,12 @@ add_definitions(-DPREFIX="${DSG_PREFIX_PATH}")
 add_definitions(-DLIBDTKCORE_LIBRARY)
 find_package(Qt5 REQUIRED COMPONENTS Core)
 if(LINUX)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(QGSettings REQUIRED gsettings-qt)
-pkg_check_modules(JOURNALD REQUIRED IMPORTED_TARGET libsystemd)
-find_package(Qt5 REQUIRED COMPONENTS DBus)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(QGSettings REQUIRED gsettings-qt)
+  find_package(Qt5 REQUIRED COMPONENTS DBus)
+  if(BUILD_WITH_SYSTEMD)
+    pkg_check_modules(Systemd REQUIRED IMPORTED_TARGET libsystemd)
+  endif()
 endif()
 find_package(Qt5 REQUIRED COMPONENTS Xml)
 
@@ -71,6 +73,12 @@ if(LINUX)
     ICU::uc
     uchardet
   )
+  if(BUILD_WITH_SYSTEMD)
+    target_link_libraries(${LIBNAME} PRIVATE
+      PkgConfig::Systemd
+    )
+  endif()
+
 else()
   add_library(${LIBNAME} SHARED
     ${base_SRCS}
