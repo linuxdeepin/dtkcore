@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   deploydocs:
-    uses: linuxdeepin/.github/.github/workflows/deploy-dev-doc.yml@master
+    uses: peeweep-test/.github/.github/workflows/deploy-dev-doc.yml@master
     with:
       ref: ${{ inputs.tag }}
     secrets:
