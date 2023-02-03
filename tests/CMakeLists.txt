@@ -28,11 +28,6 @@ find_package(GTest REQUIRED)
 include(../src/base/base.cmake)
 
 # end base
-if(LINUX)
-  include(../src/dbus/dbus.cmake)
-endif()
-#message(${dbus_SRCS})
-# end dbus
 
 # start dci
 include(../src/dci/dci.cmake)
@@ -78,7 +73,6 @@ set(test_SRC
 # end test
 if(LINUX)
   add_executable(${BIN_NAME}
-    ${dbus_SRCS}
     ${base_SRCS}
     ${dci_SRCS}
     ${filesystem_SRCS}
