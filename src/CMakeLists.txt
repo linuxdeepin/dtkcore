@@ -28,11 +28,6 @@ pkg_check_modules(uchardet REQUIRED uchardet)
 # start base
 include(base/base.cmake)
 # end base
-if(LINUX)
-  include(dbus/dbus.cmake)
-endif()
-#message(${dbus_SRCS})
-# end dbus
 
 # start dci
 include(dci/dci.cmake)
@@ -57,7 +52,6 @@ include(glob.cmake)
 #endGLOG
 if(LINUX)
   add_library(${LIBNAME} SHARED
-    ${dbus_SRCS}
     ${base_SRCS}
     ${dci_SRCS}
     ${filesystem_SRCS}
