@@ -619,7 +619,7 @@ public:
         const auto &dataPaths = DStandardPaths::paths(DStandardPaths::DSG::DataDir);
         paths.reserve(dataPaths.size());
         for (auto item : dataPaths) {
-            paths.prepend(QString("%1/%2/configs/%3").arg(prefix, item, configKey.appId));
+            paths.prepend(QDir::cleanPath(QString("%1/%2/configs/%3").arg(prefix, item, configKey.appId)));
         }
         return paths;
     }
@@ -627,7 +627,7 @@ public:
     inline static QStringList genericMetaDirs(const QString &prefix) {
         QStringList paths;
         for (auto item: DStandardPaths::paths(DStandardPaths::DSG::DataDir)) {
-            paths.prepend(QString("%1/%2/configs").arg(prefix, item));
+            paths.prepend(QDir::cleanPath(QString("%1/%2/configs").arg(prefix, item)));
         }
         return paths;
     }
@@ -1016,7 +1016,7 @@ public:
 #endif
         }
 
-        return QString("%1/%2/configs/%3").arg(prefix, appDataDir, configKey.appId);
+        return QDir::cleanPath(QString("%1/%2/configs/%3").arg(prefix, appDataDir, configKey.appId));
     }
 
     QString getCacheDir(const QString &localPrefix = QString())
@@ -1124,6 +1124,7 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
     if (!cacheChanged)
         return true;
 
+    cacheChanged = false;
     const QString &dir = getCacheDir(localPrefix);
     if (dir.isEmpty()) {
         qCWarning(cfLog, "Falied on saveing, the config cache directory is empty for the user[%d], "
