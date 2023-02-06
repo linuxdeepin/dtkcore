@@ -8,7 +8,7 @@ You should read the <a href=docs/Specification.md>Deepin Application Specificati
 
 ## Document
 
-中文文档：[dtkcore文档（测试版本）](https://linuxdeepin.github.io/dtkcore/index.html)
+中文文档：[dtkcore文档](https://linuxdeepin.github.io/dtkcore/index.html)
 
 ## Dependencies
 
@@ -16,6 +16,15 @@ You should read the <a href=docs/Specification.md>Deepin Application Specificati
 
 * Qt >= 5.10
 
+## Compile option
+
+| **Compile option**           | **meaning**      | **Default state**      |
+|--------------------|-------------|---------------|
+| BUILD_DOCS         | Compile document  | ON            |
+| BUILD_TESTING      | Compile test      | Default is ON in debug mode |
+| BUILD_EXAMPLES     | Compile example   | ON            |
+| BUILD_WITH_SYSTEMD | Support Systemd function | OFF           |
+| BUILD_THEME        | Add themes to the document | OFF           |
 ## Installation
 
 ### Build from source code
