@@ -256,7 +256,13 @@ sudo ./dconfigfile-example
 @fn QVariant Dtk::Core::DConfigFile::value(const QString &key, DConfigCache *userCache = nullptr) const
 @brief DConfigFile::value
 @param[in] key 配置项名称
-@param[in] uid 用户id,当key为全局项时,uid无效
+@param[in] userCache 用户缓存,当key为全局项时, \a userCache 不会被使用
+@return
+
+@fn QVariant Dtk::Core::DConfigFile::cacheValue(DConfigCache *userCache, const QString &key) const
+@brief DConfigFile::cacheValue 获取指定用户缓存的配置项值，若无此配置项的用户缓存值，返回无效值
+@param[in] key 配置项名称
+@param[in] userCache 用户缓存,当key为全局配置项时, \a userCache 不会被使用
 @return
 
 @fn bool Dtk::Core::DConfigFile::setValue(const QString &key, const QVariant &value, const QString &callerAppid, DConfigCache *userCache = nullptr)

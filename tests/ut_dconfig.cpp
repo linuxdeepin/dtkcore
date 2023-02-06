@@ -20,7 +20,6 @@ class ut_DConfig : public testing::Test
 protected:
     static void SetUpTestCase() {
         fileBackendLocalPerfix.set("DSG_DCONFIG_FILE_BACKEND_LOCAL_PREFIX", "/tmp/example");
-        metaGuard = new FileCopyGuard(":/data/dconf-example.meta.json", QString("%1" PREFIX"/share/dsg/configs/%2/%3.json").arg(fileBackendLocalPerfix.value(), APP_ID, FILE_NAME));
 
         backendType.set("DSG_DCONFIG_BACKEND_TYPE", "FileBackend");
         dsgDataDir.set("DSG_DATA_DIRS", PREFIX"/share/dsg");
@@ -28,34 +27,43 @@ protected:
     static void TearDownTestCase() {
         QDir(fileBackendLocalPerfix.value()).removeRecursively();
         fileBackendLocalPerfix.restore();
-        delete metaGuard;
 
         backendType.restore();
         dsgDataDir.restore();
     }
     virtual void SetUp() override;
+    virtual void TearDown() override;
 
     static EnvGuard backendType;
     static EnvGuard fileBackendLocalPerfix;
-    static FileCopyGuard *metaGuard;
+    QString metaFilePath = QString("%1" PREFIX"/share/dsg/configs/%2/%3.json").arg(fileBackendLocalPerfix.value(), APP_ID, FILE_NAME);
+    QString noAppIdMetaFilePath = QString("%1" PREFIX"/share/dsg/configs/%2.json").arg(fileBackendLocalPerfix.value(), FILE_NAME);
 };
 EnvGuard ut_DConfig::fileBackendLocalPerfix;
 EnvGuard ut_DConfig::backendType;
-FileCopyGuard *ut_DConfig::metaGuard = nullptr;
+
+void ut_DConfig::TearDown()
+{
+    QDir(fileBackendLocalPerfix.value()).removeRecursively();
+}
 
 TEST_F(ut_DConfig, backend) {
 
+    FileCopyGuard guard(":/data/dconf-example.meta.json", metaFilePath);
     DConfig config(FILE_NAME);
     ASSERT_EQ(config.backendName(), QString("FileBackend"));
 }
 
 TEST_F(ut_DConfig, isValid) {
 
+    FileCopyGuard guard(":/data/dconf-example.meta.json", metaFilePath);
     DConfig config(FILE_NAME);
     ASSERT_TRUE(config.isValid());
 }
 
 TEST_F(ut_DConfig, value) {
+
+    FileCopyGuard guard(":/data/dconf-example.meta.json", metaFilePath);
     const QStringList array{"1", "2"};
     QVariantMap map;
     map.insert("key1", "value1");
@@ -102,6 +110,7 @@ TEST_F(ut_DConfig, value) {
 
 TEST_F(ut_DConfig, keyList) {
 
+    FileCopyGuard guard(":/data/dconf-example.meta.json", metaFilePath);
     DConfig config(FILE_NAME);
     QStringList keyList{QString("key2"), QString("canExit")};
     for (auto item : keyList) {
@@ -111,12 +120,60 @@ TEST_F(ut_DConfig, keyList) {
 
 TEST_F(ut_DConfig, OtherAppConfigfile) {
 
+    FileCopyGuard guard(":/data/dconf-example.meta.json", metaFilePath);
+
     constexpr char const *APP_OTHER = "tests_other";
     FileCopyGuard gurand(":/data/dconf-example_other_app_configure.meta.json", QString("%1" PREFIX"/share/dsg/configs/%2/%3.json").arg(fileBackendLocalPerfix.value(), APP_OTHER, FILE_NAME));
 
     QScopedPointer<DConfig> config(DConfig::create(APP_OTHER, FILE_NAME));
     ASSERT_TRUE(config->isValid());
     ASSERT_EQ(config->value("appPublic").toString(), QString("publicValue"));
+}
+
+TEST_F(ut_DConfig, appIdWriteConfig) {
+
+    FileCopyGuard guard(":/data/dconf-example.meta.json", noAppIdMetaFilePath);
+    {
+        // 内部会传递appid，强制appid不为空
+        DConfig config(FILE_NAME);
+        config.setValue("key2", "user-with-appid");
+        ASSERT_EQ(config.value("key2"), "user-with-appid");
+    }
+    {
+        // appid为公共id
+        QScopedPointer<DConfig> config(DConfig::createGeneric(FILE_NAME));
+        ASSERT_TRUE(config->isValid());
+        ASSERT_EQ(config->value("key2").toString(), QString("125"));
+    }
+    {
+        // 传递appid
+        QScopedPointer<DConfig> config(DConfig::create(APP_ID, FILE_NAME));
+        ASSERT_TRUE(config->isValid());
+        ASSERT_EQ(config->value("key2").toString(), "user-with-appid");
+    }
+}
+
+TEST_F(ut_DConfig, noAppidWirteConfig) {
+
+    FileCopyGuard guard(":/data/dconf-example.meta.json", noAppIdMetaFilePath);
+    FileCopyGuard guard2(":/data/dconf-example.meta.json", metaFilePath);
+    {
+        // 内部会传递appid，强制appid不为公共id
+        QScopedPointer<DConfig> config(DConfig::createGeneric(FILE_NAME));
+        ASSERT_TRUE(config->isValid());
+        config->setValue("key2", "user-with-no-appid");
+        ASSERT_EQ(config->value("key2"), "user-with-no-appid");
+    }
+    {
+        // appid为公共id，获取公共id的值
+        QScopedPointer<DConfig> config(DConfig::createGeneric(FILE_NAME));
+        ASSERT_EQ(config->value("key2"), "user-with-no-appid");
+    }
+    {
+        // 传递appid，fallback到公共id的值
+        QScopedPointer<DConfig> config(DConfig::create(APP_ID, FILE_NAME));
+        ASSERT_EQ(config->value("key2"), "user-with-no-appid");
+    }
 }
 
 void ut_DConfig::SetUp() {}

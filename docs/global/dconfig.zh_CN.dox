@@ -300,7 +300,7 @@ sudo make install
 @param[in] parent 父对象
 
 @fn static DConfig* Dtk::Core::DConfig::create(const QString &appId, const QString &name, const QString &subpath, QObject *parent)
-@brief 构造配置策略提供的对象,指定配置所属的应用Id。
+@brief 构造配置策略提供的对象,指定配置所属的应用Id，管理某一特定应用的配置。
 @param[in] appId 配置文件所属的应用Id,为空时默认为本应用Id
 @param[in] name 配置文件名
 @param[in] subpath 配置文件对应的子目录
@@ -315,6 +315,17 @@ sudo make install
 @param[in] subpath 配置文件对应的子目录
 @param[in] parent 父对象
 @return 构造的配置策略对象,由调用者释放
+
+@fn static DConfig* Dtk::Core::DConfig::createGeneric(const QString &name, const QString &subpath, QObject *parent)
+@brief 构造配置策略提供的对象，用来管理与应用无关的配置。
+@param[in] name 配置文件名
+@param[in] subpath 配置文件对应的子目录
+@param[in] parent 父对象
+@return 构造的配置策略对象,由调用者释放
+@note 如果我们管理针对某一特定应用的配置，应该使用 Dtk::Core::DConfig::create()，或 Dtk::Core::DConfig()，来指定所属应用的appId。
+
+@fn static DConfig* Dtk::Core::DConfig::createGeneric(DConfigBackend *backend, const QString &name, const QString &subpath, QObject *parent)
+@sa Dtk::Core::DConfig::createGeneric()
 
 @fn DConfig Dtk::Core::DConfig(DConfigBackend *backend, const QString &appId, const QString &name, const QString &subpath, QObject *parent)
 @brief 使用自定义的配置策略后端构造对象

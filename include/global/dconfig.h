@@ -43,6 +43,10 @@ public:
                            QObject *parent = nullptr);
     static DConfig *create(DConfigBackend *backend, const QString &appId, const QString &name, const QString &subpath = QString(),
                                   QObject *parent = nullptr);
+    static DConfig *createGeneric(const QString &name, const QString &subpath = QString(),
+                                  QObject *parent = nullptr);
+    static DConfig *createGeneric(DConfigBackend *backend, const QString &name, const QString &subpath = QString(),
+                                  QObject *parent = nullptr);
 
     QString backendName() const;
 

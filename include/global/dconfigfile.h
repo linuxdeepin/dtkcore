@@ -61,6 +61,7 @@ public:
 
     bool isValid() const;
     QVariant value(const QString &key, DConfigCache *userCache = nullptr) const;
+    QVariant cacheValue(DConfigCache *userCache, const QString &key) const;
     bool setValue(const QString &key, const QVariant &value, const QString &callerAppid,
                   DConfigCache *userCache = nullptr);
 
