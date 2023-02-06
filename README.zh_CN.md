@@ -6,13 +6,23 @@ Deepin Tool Kit Core(DtkCore) 是所有C++/Qt开发人员在Deepin上工作的�
 
 ## 文档
 
-中文文档：[dtkcore文档（测试版本）](https://linuxdeepin.github.io/dtkcore/index.html)
+中文文档：[dtkcore文档](https://linuxdeepin.github.io/dtkcore/index.html)
 
 ## 依赖
 
 ### 编译依赖
 
 * Qt >= 5.10
+
+## 编译选项
+
+| **编译选项**           | **含义**      | **默认状态**      |
+|--------------------|-------------|---------------|
+| BUILD_DOCS         | 编译文档        | ON            |
+| BUILD_TESTING      | 编译测试        | Debug模式下默认为ON |
+| BUILD_EXAMPLES     | 编译示例        | ON            |
+| BUILD_WITH_SYSTEMD | 支持Systmed功能 | OFF           |
+| BUILD_THEME        | 为文档添加主题     | OFF           |
 
 ## 安装
 
