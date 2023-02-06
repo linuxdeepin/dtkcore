@@ -1,3 +1,12 @@
+dtkcore (5.6.6) unstable; urgency=medium
+
+  * Release 5.6.6 . fix Systemd link problem
+  * Add support for systemd journal, and set it to optional
+  * Update docs
+  * Bring back losed dconfig
+
+ -- Deepin Packages Builder <packages@deepin.com>  Thu, 06 Mon 2023 17:05:36 +0800
+
 dtkcore (5.6.5) unstable; urgency=medium
 
   * Release 5.6.5
