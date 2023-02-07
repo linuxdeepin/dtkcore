@@ -7,8 +7,7 @@ arch=('x86_64' 'aarch64')
 url="https://github.com/linuxdeepin/dtkcore"
 license=('LGPL3')
 depends=('dconf' 'deepin-desktop-base-git' 'python' 'gsettings-qt' 'lshw')
-makedepends=('git' 'qt5-tools' 'dtkcommon-git' 'ninja' 'cmake' 'doxygen' 'uchardet' 'icu')
-optdepends=('systemd: journal support')
+makedepends=('git' 'qt5-tools' 'dtkcommon-git' 'ninja' 'cmake' 'doxygen' 'uchardet' 'icu' 'systemd')
 conflicts=('dtkcore')
 provides=('dtkcore')
 groups=('deepin-git')
@@ -25,7 +24,8 @@ build() {
       -DCMAKE_INSTALL_LIBDIR=lib \
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_BUILD_TYPE=Release \
-      -DD_DSG_APP_DATA_FALLBACK=/var/dsg/appdata
+      -DD_DSG_APP_DATA_FALLBACK=/var/dsg/appdata \
+      -DBUILD_WITH_SYSTEMD=ON
   ninja
 }
 
