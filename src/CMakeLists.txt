@@ -77,6 +77,7 @@ if(LINUX)
     target_link_libraries(${LIBNAME} PRIVATE
       PkgConfig::Systemd
     )
+    add_definitions(-DBUILD_WITH_SYSTEMD)
   endif()
 
 else()
