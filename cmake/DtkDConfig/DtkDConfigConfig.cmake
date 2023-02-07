@@ -21,7 +21,7 @@ if(NOT DEFINED DSG_DATA_DIR)
     set(DSG_DATA_DIR ${CMAKE_INSTALL_PREFIX}/share/dsg)
 endif()
 
-add_definitions(-DDSG_DATA_DIR=${DSG_DATA_DIR})
+add_definitions(-DDSG_DATA_DIR=\"${DSG_DATA_DIR}\")
 # deploy some `meta` 's configure.
 #
 # FILES       - deployed files.
