@@ -7,6 +7,7 @@
 #include <QTemporaryFile>
 #include <DDesktopEntry>
 #include <gtest/gtest.h>
+#include <QLocale>
 
 DCORE_USE_NAMESPACE
 

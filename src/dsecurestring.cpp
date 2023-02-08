@@ -4,6 +4,7 @@
 
 #include "dsecurestring.h"
 #include "dutil.h"
+#include <cstring>
 
 DCORE_BEGIN_NAMESPACE
 
@@ -14,7 +15,7 @@ DSecureString::DSecureString(const QString &other) noexcept
 
 DSecureString::~DSecureString()
 {
-    DUtil::SecureErase(*this);
+    std::memset(this->data(), 0, this->size());
 }
 
 DCORE_END_NAMESPACE

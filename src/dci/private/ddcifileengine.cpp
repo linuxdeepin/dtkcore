@@ -1,6 +1,11 @@
 // SPDX-FileCopyrightText: 2021 - 2022 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
+#include <QtGlobal>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <filesystem>  //Avoid changing the access control of the standard library
+#endif
 
 #define private public
 #define protected public
@@ -132,7 +137,11 @@ bool DDciFileEngine::isValid() const
     return file && file->isValid();
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+bool DDciFileEngine::open(QIODevice::OpenMode openMode, std::optional<QFile::Permissions> permissions)
+#else
 bool DDciFileEngine::open(QIODevice::OpenMode openMode)
+#endif
 {
     if (fileBuffer) {
         setError(QFile::OpenError, "The file is opened");
@@ -179,9 +188,15 @@ bool DDciFileEngine::open(QIODevice::OpenMode openMode)
     // 此时当文件不存在时应当创建它
     if (openMode & QIODevice::WriteOnly) {
         realDciFile.setFileName(dciFilePath);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+        auto success = permissions ? realDciFile.open(openMode, permissions.value()) : realDciFile.open(openMode);
+        if (!success)
+            return false;
+#else
         if (!realDciFile.open(openMode)) {
             return false;
         }
+#endif
 
         // 不存在时尝试新建
         if (!file->exists(subfilePath)
@@ -327,8 +342,16 @@ bool DDciFileEngine::link(const QString &newName)
     return file->link(subfilePath, linkPath) && forceSave();
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+bool DDciFileEngine::mkdir(const QString &dirName,
+                           bool createParentDirectories,
+                           std::optional<QFile::Permissions> permissions) const
+{
+    Q_UNUSED(permissions)
+#else
 bool DDciFileEngine::mkdir(const QString &dirName, bool createParentDirectories) const
 {
+#endif
     if (!file->isValid())
         return false;
     // 解析出新的 dci 内部文件路径
@@ -475,7 +498,11 @@ QString DDciFileEngine::fileName(QAbstractFileEngine::FileName file) const
         return QDir::cleanPath(DCI_FILE_SCHEME + dciFilePath);
     case BaseName:
         return QFileInfo(subfilePath).baseName();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+    case AbsoluteLinkTarget:
+#else
     case LinkName:
+#endif
         return this->file->type(subfilePath) == DDciFile::Symlink
                 ? this->file->symlinkTarget(subfilePath)
                 : QString();

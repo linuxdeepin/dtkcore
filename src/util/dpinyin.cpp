@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QSet>
 #include <QTextStream>
+#include <QMap>
 
 DCORE_BEGIN_NAMESPACE
 
@@ -208,8 +209,10 @@ QStringList firstLetters(const QString &words)
         result << pys;
     }
 
+    const auto &list = permutations(result);
+    const auto &dedupList = QSet<QString>{list.begin(), list.end()};
     // 首字母容易出现重复，去重
-    return QSet<QString>::fromList(permutations(result)).toList();
+    return QStringList{dedupList.begin(), dedupList.end()};
 }
 
 DCORE_END_NAMESPACE

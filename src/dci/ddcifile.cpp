@@ -92,25 +92,26 @@ public:
 
         QString linkPath() const {
             const QString &path = QString::fromUtf8(data);
-            if (path.startsWith('/'))
+            QStringView pathView{path};
+            if (pathView.startsWith('/'))
                 return path;
             // 转为绝对路径
             auto pNode = parent;
             int pathStart = 0;
-            while (pathStart < path.size()) {
-                if (path.midRef(pathStart, 3) == QLatin1String("../")) {
+            while (pathStart < pathView.size()) {
+                if (pathView.mid(pathStart, 3) == QLatin1String("../")) {
                     pathStart += 3;
                     pNode = pNode->parent;
                     if (!pNode)
                         return QString();
-                } else if (path.midRef(pathStart, 2) == QLatin1String("./")) {
+                } else if (pathView.mid(pathStart, 2) == QLatin1String("./")) {
                     pathStart += 2;
                 } else {
                     break;
                 }
             }
             Q_ASSERT(pNode);
-            return pNode->path() + QLatin1Char('/') + path.midRef(pathStart);
+            return pNode->path() + QLatin1Char('/') + path.mid(pathStart);
         }
     };
 
@@ -454,7 +455,7 @@ DDciFile::DDciFile(const QByteArray &data)
 bool DDciFile::isValid() const
 {
     D_DC(DDciFile);
-    return d->root;
+    return !!(d->root);
 }
 
 QString DDciFile::lastErrorString() const

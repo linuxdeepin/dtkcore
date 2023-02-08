@@ -54,6 +54,18 @@ void DDBusInterfacePrivate::updateProp(const char *propName, const QVariant &val
     void *data = const_cast<void *>(value.data());
     if (value.canConvert<QDBusArgument>()) {
         auto dbusType = qvariant_cast<QDBusArgument>(value);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        auto dbusMetaType = QDBusMetaType::signatureToMetaType(dbusType.currentSignature().toUtf8());
+        typeName = dbusMetaType.name();
+
+        void *dbusData = dbusMetaType.create();
+        QDBusMetaType::demarshall(dbusType, dbusMetaType, dbusData);
+        data = dbusData;
+        QObject dbusDataDeleter;
+        QObject::connect(&dbusDataDeleter, &QObject::destroyed, m_parent, [dbusData, dbusMetaType]() {
+            dbusMetaType.destroy(dbusData);
+        }, Qt::QueuedConnection);
+#else
         auto dbusMetaType = QDBusMetaType::signatureToType(dbusType.currentSignature().toUtf8());
         typeName = QMetaType::typeName(dbusMetaType);
 
@@ -65,6 +77,7 @@ void DDBusInterfacePrivate::updateProp(const char *propName, const QVariant &val
         QObject::connect(&dbusDataDeleter, &QObject::destroyed, m_parent, [dbusData, dbusMetaType]() {
             QMetaType::destroy(dbusMetaType, dbusData);
         }, Qt::QueuedConnection);
+#endif
     }
     QByteArray baSignal = QStringLiteral("%1Changed(%2)").arg(propName).arg(typeName).toLatin1();
     QByteArray baSignalName = QStringLiteral("%1Changed").arg(propName).toLatin1();

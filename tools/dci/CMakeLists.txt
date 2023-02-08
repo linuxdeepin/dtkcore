@@ -1,6 +1,6 @@
 set(BIN_NAME dci)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-find_package(Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 add_definitions(-DDTK_NO_PROJECT)
 # start dci
 include(../../src/dci/dci.cmake)
@@ -9,10 +9,10 @@ add_executable(${BIN_NAME}
   main.cpp
 )
 target_link_libraries(${BIN_NAME} PRIVATE
-  Qt5::Core 
+  Qt${QT_VERSION_MAJOR}::Core
+  Qt${QT_VERSION_MAJOR}::CorePrivate
 )
 target_include_directories(${BIN_NAME} PUBLIC
-  ${Qt5Core_PRIVATE_INCLUDE_DIRS}
   ../../include/
   ../../include/dci/
   ../../include/DtkCore/

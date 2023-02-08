@@ -12,7 +12,6 @@
 #include <QMutex>
 #include <QDateTime>
 #include <QIODevice>
-#include <QTextCodec>
 
 #include <iostream>
 
@@ -623,8 +622,15 @@ Logger::~Logger()
 
     QMutexLocker appendersLocker(&d->loggerMutex);
 
-    QSet<AbstractAppender*> appenderList;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QSet<AbstractAppender *> appenderList{d->appenders.begin(), d->appenders.end()};
+    for (const auto v : d->categoryAppenders.values()) {
+        appenderList.insert(v);
+    }
+#else
+    QSet<AbstractAppender *> appenderList;
     appenderList += d->appenders.toSet() += d->categoryAppenders.values().toSet();
+#endif
     qDeleteAll(appenderList);
 
     delete d->logDevice;
@@ -1031,7 +1037,7 @@ void CuteMessageLogger::write(const char *msg, ...) const
 {
     va_list va;
     va_start(va, msg);
-    m_l->write(m_level, m_file, m_line, m_function, m_category, QString().vsprintf(msg, va));
+    m_l->write(m_level, m_file, m_line, m_function, m_category, QString::vasprintf(msg, va));
     va_end(va);
 }
 
@@ -1049,7 +1055,7 @@ void LoggerTimingHelper::start(const char *msg, ...)
 {
     va_list va;
     va_start(va, msg);
-    m_block = QString().vsprintf(msg, va);
+    m_block = QString::vasprintf(msg, va);
     va_end(va);
 
     m_time.start();

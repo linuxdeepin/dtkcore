@@ -1,6 +1,6 @@
 set(BINNAME filewatcher)
 
-find_package(Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 add_executable(${BINNAME}
     main.cpp
@@ -8,7 +8,7 @@ add_executable(${BINNAME}
 
 target_link_libraries(
     ${BINNAME} PRIVATE
-    Qt5::Core
+    Qt${QT_VERSION_MAJOR}::Core
     dtkcore
 )
 

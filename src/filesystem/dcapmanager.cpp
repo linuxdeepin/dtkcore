@@ -25,14 +25,20 @@ bool _d_isSubFileOf(const QString &filePath, const QString &directoryPath)
 
 static QStringList defaultWriteablePaths() {
     QStringList paths;
-    int list[] = {
-        QStandardPaths::AppConfigLocation, QStandardPaths::AppDataLocation,
-        QStandardPaths::CacheLocation, QStandardPaths::TempLocation,
-        QStandardPaths::DataLocation, QStandardPaths::GenericConfigLocation,
-        QStandardPaths::HomeLocation, QStandardPaths::MusicLocation,
-        QStandardPaths::DocumentsLocation, QStandardPaths::MoviesLocation,
-        QStandardPaths::PicturesLocation, QStandardPaths::DownloadLocation
-    };
+    int list[] = {QStandardPaths::AppConfigLocation,
+                  QStandardPaths::AppDataLocation,
+                  QStandardPaths::CacheLocation,
+                  QStandardPaths::TempLocation,
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+                  QStandardPaths::DataLocation,
+#endif
+                  QStandardPaths::GenericConfigLocation,
+                  QStandardPaths::HomeLocation,
+                  QStandardPaths::MusicLocation,
+                  QStandardPaths::DocumentsLocation,
+                  QStandardPaths::MoviesLocation,
+                  QStandardPaths::PicturesLocation,
+                  QStandardPaths::DownloadLocation};
 
     for (uint i = 0; i < sizeof (list) / sizeof (int); ++i) {
         const QString &path  = QStandardPaths::writableLocation(QStandardPaths::StandardLocation(list[i]));

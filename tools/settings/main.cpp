@@ -52,6 +52,35 @@ static QString CppTemplate =
  *  dictionary         a{ss}     QVariantMap            QVariant::Map
 */
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+QString gsettings_type_from_QVarint(const QMetaType::Type qtype)
+{
+    switch (qtype) {
+    case QMetaType::Type::Bool:
+        return "b";
+    case QMetaType::Type::Int:
+        return "i";
+    case QMetaType::Type::UInt:
+        return "u";
+    case QMetaType::Type::LongLong:
+        return "x";
+    case QMetaType::Type::ULongLong:
+        return "t";
+    case QMetaType::Type::Double:
+        return "d";
+    case QMetaType::Type::QString:
+        return "s";
+    case QMetaType::Type::QStringList:
+        return "as";
+    case QMetaType::Type::QByteArray:
+        return "ay";
+    case QMetaType::Type::QVariantMap:
+        return "a{ss}";
+    default:
+        return "";
+    }
+}
+#else
 QString gsettings_type_from_QVarint(const QVariant::Type qtype)
 {
     switch (qtype) {
@@ -79,9 +108,36 @@ QString gsettings_type_from_QVarint(const QVariant::Type qtype)
         return "";
     }
 }
+#endif
 
 QString gsettings_value_from_QVarint(const QVariant value)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    switch (value.typeId()) {
+    case QMetaType::Type::Bool:
+        return value.toString();
+    case QMetaType::Type::Int:
+        return value.toString();
+    case QMetaType::Type::UInt:
+        return value.toString();
+    case QMetaType::Type::LongLong:
+        return value.toString();
+    case QMetaType::Type::ULongLong:
+        return value.toString();
+    case QMetaType::Type::Double:
+        return value.toString();
+    case QMetaType::Type::QString:
+        return QString("\"%1\"").arg(value.toString());
+    case QMetaType::Type::QStringList:
+        return value.toString();
+    case QMetaType::Type::QByteArray:
+        return value.toString();
+    case QMetaType::Type::QVariantMap:
+        return value.toString();
+    default:
+        return "";
+    }
+#else
     switch (value.type()) {
     case QVariant::Bool:
         return value.toString();
@@ -106,6 +162,7 @@ QString gsettings_value_from_QVarint(const QVariant value)
     default:
         return "";
     }
+#endif
 }
 
 
@@ -141,9 +198,17 @@ static bool writeGSettingXML(Dtk::Core::DSettings *settings,
     for (QString key : settings->keys()) {
         auto codeKey = QString(key).replace(".", "-").replace("_", "-");
         auto value = settings->option(key)->value();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        auto gtype = gsettings_type_from_QVarint(static_cast<QMetaType::Type>(value.typeId()));
+#else
         auto gtype = gsettings_type_from_QVarint(value.type());
+#endif
         if (gtype.isEmpty()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            qDebug() << "skip unsupported type:" << value.typeId() << key;
+#else
             qDebug() << "skip unsupported type:" << value.type() << key;
+#endif
             continue;
         }
 

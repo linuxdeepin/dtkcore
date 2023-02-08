@@ -4,7 +4,7 @@
 
 #include "AbstractStringAppender.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QCoreApplication>
 #include <QThread>
 
@@ -150,12 +150,11 @@ QByteArray AbstractStringAppender::qCleanupFuncinfo(const char *name)
     }
 
     bool hasLambda = false;
-    QRegExp lambdaRegex("::<lambda\\(.*\\)>");
-    int lambdaIndex = lambdaRegex.indexIn(QString::fromLatin1(info));
-    if (lambdaIndex != -1)
-    {
+    QRegularExpression lambdaRegex("::<lambda\\(.*\\)>");
+    QRegularExpressionMatch match = lambdaRegex.match(QString::fromLatin1(info));
+    if (match.hasMatch()) {
         hasLambda = true;
-        info.remove(lambdaIndex, lambdaRegex.matchedLength());
+        info.remove(match.capturedStart(), match.capturedLength());
     }
 
     // operator names with '(', ')', '<', '>' in it
@@ -279,7 +278,7 @@ QByteArray AbstractStringAppender::qCleanupFuncinfo(const char *name)
         templatecount = 1;
         --pos;
         while (pos && templatecount) {
-            register char c = info.at(pos);
+            const char c = info.at(pos);
             if (c == '>')
                 ++templatecount;
             else if (c == '<')

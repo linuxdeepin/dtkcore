@@ -11,16 +11,23 @@ set(CMAKE_AUTORCC ON)
 set (DSG_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" CACHE STRING "PREFIX of DSG_DATA_DIRS")
 add_definitions(-DPREFIX="${DSG_PREFIX_PATH}")
 add_definitions(-DLIBDTKCORE_LIBRARY)
-find_package(Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 if(LINUX)
   find_package(PkgConfig REQUIRED)
-  pkg_check_modules(QGSettings REQUIRED gsettings-qt)
-  find_package(Qt5 REQUIRED COMPONENTS DBus)
+  find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBus)
+  if("${QT_VERSION_MAJOR}" STREQUAL "5")
+      pkg_check_modules(QGSettings REQUIRED IMPORTED_TARGET gsettings-qt) #Dtk6 removed.
+  endif()
+
+  if("${QT_VERSION_MAJOR}" STREQUAL "6")
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core5Compat)
+  endif()
+
   if(BUILD_WITH_SYSTEMD)
     pkg_check_modules(Systemd REQUIRED IMPORTED_TARGET libsystemd)
   endif()
 endif()
-find_package(Qt5 REQUIRED COMPONENTS Xml)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Xml)
 
 # start text encoding
 find_package(ICU REQUIRED COMPONENTS uc)
@@ -64,15 +71,25 @@ if(LINUX)
   )
   target_link_libraries(
     ${LIBNAME} PUBLIC
-    Qt5::Core
-    Qt5::DBus
-    Qt5::Xml
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::CorePrivate
+    Qt${QT_VERSION_MAJOR}::DBus
+    Qt${QT_VERSION_MAJOR}::Xml
   )
   target_link_libraries(${LIBNAME} PRIVATE
-    ${QGSettings_LIBRARIES}
     ICU::uc
     uchardet
   )
+  if("${QT_VERSION_MAJOR}" STREQUAL "6")
+    target_link_libraries(${LIBNAME} PRIVATE
+      Qt${QT_VERSION_MAJOR}::Core5Compat #TODO: [QTextCodec] : should remove this dependencies
+    )
+  endif()
+  if("${QT_VERSION_MAJOR}" STREQUAL "5")
+    target_link_libraries(${LIBNAME} PRIVATE
+      PkgConfig::QGSettings
+    )
+  endif()
   if(BUILD_WITH_SYSTEMD)
     target_link_libraries(${LIBNAME} PRIVATE
       PkgConfig::Systemd
@@ -92,13 +109,24 @@ else()
   )
   target_link_libraries(
     ${LIBNAME} PUBLIC
-    Qt5::Core
-    Qt5::Xml
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::CorePrivate
+    Qt${QT_VERSION_MAJOR}::Xml
   )
   target_link_libraries(${LIBNAME} PRIVATE
     ICU::uc
     uchardet
   )
+  if("${QT_VERSION_MAJOR}" STREQUAL "6")
+    target_link_libraries(${LIBNAME} PRIVATE
+      Qt${QT_VERSION_MAJOR}::Core5Compat
+    )
+  endif()
+  if("${QT_VERSION_MAJOR}" STREQUAL "5")
+    target_link_libraries(${LIBNAME} PRIVATE
+      PkgConfig::QGSettings
+    )
+  endif()
 endif()
 set_target_properties(${LIBNAME} PROPERTIES
   VERSION ${CMAKE_PROJECT_VERSION}
@@ -106,8 +134,6 @@ set_target_properties(${LIBNAME} PROPERTIES
   EXPORT_NAME Core
 )
 target_include_directories(${LIBNAME} PRIVATE
-  ${QGSettings_INCLUDE_DIRS}
-  ${Qt5Core_PRIVATE_INCLUDE_DIRS}
   ${uchardet_INCLUDE_DIRS}
 )
 target_include_directories(${LIBNAME} PUBLIC
@@ -152,6 +178,11 @@ file(GLOB TOINSTALLSETTINGS
   ../include/settings/*.h
   ../include/settings/backend/*.h
 )
+
+if(${QT_VERSION_MAJOR} STREQUAL "6")
+  list(REMOVE_ITEM TOINSTALLSETTINGS "../include/settings/backend/qsettingbackend.h")
+endif()
+
 install(FILES ${TOINSTALLSETTINGS} DESTINATION "${INCLUDE_INSTALL_DIR}")
 install(DIRECTORY ../include/util/ DESTINATION "${INCLUDE_INSTALL_DIR}" FILES_MATCHING PATTERN "*.h")
 install(TARGETS ${LIBNAME} EXPORT DtkCoreTargets

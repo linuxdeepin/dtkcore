@@ -9,6 +9,7 @@
 #include <QTextCodec>
 #include <QLibrary>
 
+#include <climits>
 #include <unicode/ucsdet.h>
 #include <uchardet/uchardet.h>
 #include <iconv.h>
