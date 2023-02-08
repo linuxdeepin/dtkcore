@@ -4,6 +4,9 @@
 
 #include <gtest/gtest.h>
 #include <QDir>
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+#include <filesystem>  //Avoid changing the access control of the standard library
+#endif
 #define private public
 #include "filesystem/dfilesystemwatcher.h"
 #undef private

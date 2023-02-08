@@ -5,6 +5,7 @@
 #include <QCoreApplication>
 #include "dpinyin.h"
 #include <QCommandLineParser>
+#include <iostream>
 
 DCORE_USE_NAMESPACE
 
@@ -54,13 +55,13 @@ int main(int argc, char **argv)
     if (cp.isSet(letters)) {
         const auto &ls = firstLetters(words);
         printf("%s\n", qPrintable(ls.join("\n")));
-        printf("total size: %d\n", ls.size());
+        std:: cout << "total size: " << ls.size() << std::endl;
         return 0;
     }
 
     const auto &py = pinyin(words, ts);
     printf("%s\n", qPrintable(py.join("\n")));
-    printf("total size: %d\n", py.size());
+    std::cout << "total size: " << py.size() << std::endl;
 
     return 0;//a.exec();
 }

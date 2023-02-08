@@ -7,6 +7,7 @@
 #include <QString>
 #include <QDebug>
 #include <QDateTime>
+#include <QElapsedTimer>
 
 #include "dloggerdefs.h"
 
@@ -137,7 +138,7 @@ public:
 
 private:
     Logger *m_logger;
-    QTime m_time;
+    QElapsedTimer m_time;
     Logger::LogLevel m_logLevel;
     const char *m_file;
     int m_line;

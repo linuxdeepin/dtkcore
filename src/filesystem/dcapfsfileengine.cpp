@@ -20,7 +20,7 @@ static bool capDirIteraterHasNext(QAbstractFileEngineIterator *it)
     QString path = it->path();
     QFileInfo info(path);
     if (info.isSymLink())
-        info = info.symLinkTarget();
+        info = QFileInfo{info.symLinkTarget()};
 
     bool ret = std::any_of(paths.cbegin(), paths.cend(), std::bind(_d_isSubFileOf, path, std::placeholders::_1));
 
@@ -83,12 +83,20 @@ DCapFSFileEngine::~DCapFSFileEngine()
 {
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+bool DCapFSFileEngine::open(QIODevice::OpenMode openMode, std::optional<QFile::Permissions> permissions)
+#else
 bool DCapFSFileEngine::open(QIODevice::OpenMode openMode)
+#endif
 {
     D_D(DCapFSFileEngine);
     if (!d->canReadWrite(d->file))
         return false;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+    return QFSFileEngine::open(openMode, permissions);
+#else
     return QFSFileEngine::open(openMode);
+#endif
 }
 
 bool DCapFSFileEngine::remove()
@@ -138,12 +146,22 @@ bool DCapFSFileEngine::link(const QString &newName)
     return QFSFileEngine::link(newName);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+bool DCapFSFileEngine::mkdir(const QString &dirName,
+                             bool createParentDirectories,
+                             std::optional<QFile::Permissions> permissions) const
+#else
 bool DCapFSFileEngine::mkdir(const QString &dirName, bool createParentDirectories) const
+#endif
 {
     D_DC(DCapFSFileEngine);
     if (!d->canReadWrite(dirName))
         return false;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+    return QFSFileEngine::mkdir(dirName, createParentDirectories, permissions);
+#else
     return QFSFileEngine::mkdir(dirName, createParentDirectories);
+#endif
 }
 
 bool DCapFSFileEngine::rmdir(const QString &dirName, bool recurseParentDirectories) const

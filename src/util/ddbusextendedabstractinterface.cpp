@@ -169,14 +169,22 @@ QVariant DDBusExtendedAbstractInterface::internalPropGet(const char *propname, v
     if (m_useCache) {
         int propertyIndex = metaObject()->indexOfProperty(propname);
         QMetaProperty metaProperty = metaObject()->property(propertyIndex);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        return QVariant{metaProperty.metaType(), propertyPtr};
+#else
         return QVariant(metaProperty.userType(), propertyPtr);
+#endif
     }
 
     if (m_sync) {
         QVariant ret = property(propname);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        ret.metaType().construct(propertyPtr, ret.constData());
+#else
         QMetaType::construct(ret.userType(), propertyPtr, ret.constData());
 
+#endif
         return ret;
     } else {
         if (!isValid()) {
@@ -206,8 +214,13 @@ QVariant DDBusExtendedAbstractInterface::internalPropGet(const char *propname, v
 
         // is this metatype registered?
         const char *expectedSignature = "";
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        if (metaProperty.typeId() != QMetaType::QVariant) {
+            expectedSignature = QDBusMetaType::typeToSignature(metaProperty.metaType());
+#else
         if (int(metaProperty.type()) != QMetaType::QVariant) {
             expectedSignature = QDBusMetaType::typeToSignature(metaProperty.userType());
+#endif
             if (0 == expectedSignature) {
                 QString errorMessage = QStringLiteral("Type %1 must be registered with Qt D-Bus "
                                                       "before it can be used to read property "
@@ -220,7 +233,11 @@ QVariant DDBusExtendedAbstractInterface::internalPropGet(const char *propname, v
         }
 
         asyncProperty(propname);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        return QVariant{metaProperty.metaType(), propertyPtr};
+#else
         return QVariant(metaProperty.userType(), propertyPtr);
+#endif
     }
 }
 
@@ -256,7 +273,11 @@ void DDBusExtendedAbstractInterface::internalPropSet(const char *propname, const
             return;
         }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QVariant variant = QVariant{metaProperty.metaType(), propertyPtr};
+#else
         QVariant variant = QVariant(metaProperty.type(), propertyPtr);
+#endif
         variant = value;
 
         asyncSetProperty(propname, variant);
@@ -453,16 +474,25 @@ QVariant DDBusExtendedAbstractInterface::demarshall(const QString &interface,
         return value;
     }
 
-    QVariant result = QVariant(metaProperty.userType(), (void *)0);
     QString errorMessage;
-    const char *expectedSignature = QDBusMetaType::typeToSignature(metaProperty.userType());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QVariant result = QVariant{metaProperty.metaType()};
+    const char *expectedSignature = QDBusMetaType::typeToSignature(metaProperty.metaType());
 
+#else
+    QVariant result = QVariant(metaProperty.userType(), (void *)0);
+    const char *expectedSignature = QDBusMetaType::typeToSignature(metaProperty.userType());
+#endif
     if (value.userType() == qMetaTypeId<QDBusArgument>()) {
         // demarshalling a DBus argument ...
         QDBusArgument dbusArg = value.value<QDBusArgument>();
 
         if (expectedSignature == dbusArg.currentSignature().toLatin1()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            QDBusMetaType::demarshall(dbusArg, metaProperty.metaType(), result.data());
+#else
             QDBusMetaType::demarshall(dbusArg, metaProperty.userType(), result.data());
+#endif
             if (!result.isValid()) {
                 errorMessage = QStringLiteral("Unexpected failure demarshalling "
                                               "upon PropertiesChanged signal arrival "
@@ -483,7 +513,11 @@ QVariant DDBusExtendedAbstractInterface::demarshall(const QString &interface,
                                     QString::fromLatin1(expectedSignature));
         }
     } else {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        const char *actualSignature = QDBusMetaType::typeToSignature(value.metaType());
+#else
         const char *actualSignature = QDBusMetaType::typeToSignature(value.userType());
+#endif
 
         errorMessage = QStringLiteral("Unexpected `%1' (%2) "
                                       "upon PropertiesChanged signal arrival "

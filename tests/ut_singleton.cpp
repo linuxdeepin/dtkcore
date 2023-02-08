@@ -22,5 +22,9 @@ void MultiSingletonTester::run()
 
 int MultiSingletonTester::count() const
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    return Singleton::instance()->count.loadRelaxed();
+#else
     return Singleton::instance()->count.load();
+#endif
 }

@@ -16,6 +16,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QDateTime>
+#include <QRegularExpression>
 #include <qmath.h>
 
 #ifdef Q_OS_LINUX
@@ -127,7 +128,7 @@ bool DSysInfoPrivate::splitA_BC_DMode()
         minVersion.D = minv % 10;
     } else if (minorVersion.length() > 0) {
         const QString D = minorVersion.right(1);
-        if (D.contains(QRegExp("[0-9A-Z]"))) {
+        if (D.contains(QRegularExpression("[0-9A-Z]"))) {
             // 0-9...A-Z
             minVersion.D = 10 + static_cast<uint>(D.data()->toLatin1() - 'A');
         } else {
@@ -242,7 +243,11 @@ bool DSysInfoPrivate::ensureOsVersion()
     ok = (osbs.size() >= 2 && osbs.value(0).size() == 5);
     D_ASSET_EXIT(ok, "OsBuild version invalid!");
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const QStringList &left = osbs.value(0).split(QString(), Qt::SkipEmptyParts);
+#else
     const QStringList &left = osbs.value(0).split(QString(), QString::SkipEmptyParts);
+#endif
     D_ASSET_EXIT(left.size() == 5, "OsBuild version(ls) invalid!");
 
     int idx = 0;
@@ -1191,7 +1196,11 @@ QDateTime DSysInfo::shutdownTime()
         const QByteArray data = lastx.readLine(1024);
         //shutdown system down  4.19.0-amd64-des Fri Sep 30 17:53:17 2022 - Sat Oct  8 08:32:47 2022 (7+14:39)
         if (data.startsWith("shutdown")) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            QString timeFmt = QString(data).split(' ', Qt::SkipEmptyParts).mid(4, 5).join(' ');
+#else
             QString timeFmt = QString(data).split(' ', QString::SkipEmptyParts).mid(4, 5).join(' ');
+#endif
             dt = QDateTime::fromString(timeFmt);
             break;
         }

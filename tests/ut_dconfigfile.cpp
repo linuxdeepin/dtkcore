@@ -10,6 +10,10 @@
 #include <gtest/gtest.h>
 #include "test_helper.hpp"
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+#define type typeId  // In qt6 type is deprecated and typeId should be used, this macro is for more convenient compatibility with qt6
+#endif
+
 DCORE_USE_NAMESPACE
 
 static constexpr char const *LocalPrefix = "/tmp/example";
@@ -123,7 +127,11 @@ TEST_F(ut_DConfigFile, setValueTypeCheck) {
         ASSERT_TRUE(config.setValue("array", array, "test", userCache.get()));
         ASSERT_TRUE(config.setValue("array", QJsonDocument::fromJson("[]").toVariant(), "test", userCache.get()));
         ASSERT_FALSE(config.setValue("array", "", "test", userCache.get()));
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         ASSERT_FALSE(config.setValue("array", "value1", "test", userCache.get()));
+#else
+        ASSERT_TRUE(config.setValue("array", "value1", "test", userCache.get()));
+#endif
         ASSERT_EQ(config.value("array", userCache.get()).type(), type);
     }
     {
@@ -138,7 +146,11 @@ TEST_F(ut_DConfigFile, setValueTypeCheck) {
         ASSERT_TRUE(config.setValue("array_map", array, "test", userCache.get()));
         ASSERT_TRUE(config.setValue("array_map", QJsonDocument::fromJson("[]").toVariant(), "test", userCache.get()));
         ASSERT_FALSE(config.setValue("array_map", "", "test", userCache.get()));
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         ASSERT_FALSE(config.setValue("array_map", "value1", "test", userCache.get()));
+#else
+        ASSERT_TRUE(config.setValue("array_map", "value1", "test", userCache.get()));
+#endif
         ASSERT_EQ(config.value("array_map", userCache.get()).type(), type);
     }
     {
@@ -158,7 +170,18 @@ TEST_F(ut_DConfigFile, setValueTypeCheck) {
         QVariantMap map;
         map.insert("key1", QStringList{"value1"});
         map.insert("key2", QStringList{"value2"});
+        #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         ASSERT_EQ(config.value("map_array", userCache.get()).toMap(), map);
+        #else
+        auto ret = config.value("map_array", userCache.get()).toMap();
+        ASSERT_EQ(ret.keys(), map.keys());
+        auto value1 = ret.values();
+        auto value2 = map.values();
+        ASSERT_EQ(value1.size(), value2.size());
+        for(std::size_t i = 0; i < value1.size(); ++i){
+            ASSERT_EQ(value1[i].toStringList(), value2[i].toStringList());
+        }
+        #endif
         ASSERT_TRUE(config.setValue("map_array", QVariantMap(), "test", userCache.get()));
         ASSERT_TRUE(config.setValue("map_array", map, "test", userCache.get()));
         ASSERT_TRUE(config.setValue("map_array", QJsonDocument::fromJson("{}").toVariant(), "test", userCache.get()));
@@ -233,7 +256,7 @@ TEST_F(ut_DConfigFile, meta) {
     ASSERT_TRUE(userCache->load(LocalPrefix));
     ASSERT_EQ(config.value("key3", userCache.get()), QString("application"));
     const QStringList array{"value1", "value2"};
-    ASSERT_EQ(config.value("array", userCache.get()), array);
+    ASSERT_EQ(config.value("array", userCache.get()).toStringList(), array);
     QVariantMap map;
     map.insert("key1", "value1");
     map.insert("key2", "value2");

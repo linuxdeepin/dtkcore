@@ -154,11 +154,11 @@ public:
             // construct data and return
             QByteArray data;
 
-            data.append(QString("[%1]\n").arg(name));
+            data.append(QString("[%1]\n").arg(name).toLocal8Bit());
 
             QMap<QString, QString>::const_iterator i;
             for (i = valuesMap.begin(); i != valuesMap.end(); i++) {
-                data.append(QString("%1=%2\n").arg(i.key(), i.value()));
+                data.append(QString("%1=%2\n").arg(i.key(), i.value()).toLocal8Bit());
             }
 
             return data;
@@ -1029,9 +1029,9 @@ QString &DDesktopEntry::unescapeExec(QString &str)
     // The parseCombinedArgString() splits the string by the space symbols,
     // we temporarily replace them on the special characters.
     // Replacement will reverse after the splitting.
-    repl.insert(QLatin1Char(' '),  01);    // space
-    repl.insert(QLatin1Char('\t'), 02);    // tab
-    repl.insert(QLatin1Char('\n'), 03);    // newline,
+    repl.insert(QLatin1Char(' '), QChar::fromLatin1(01));   // space
+    repl.insert(QLatin1Char('\t'), QChar::fromLatin1(02));  // tab
+    repl.insert(QLatin1Char('\n'), QChar::fromLatin1(03));  // newline,
 
     repl.insert(QLatin1Char('"'), QLatin1Char('"'));    // double quote,
     repl.insert(QLatin1Char('\''), QLatin1Char('\''));  // single quote ("'"),

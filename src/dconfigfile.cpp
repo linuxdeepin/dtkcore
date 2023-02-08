@@ -1203,16 +1203,28 @@ public:
             } else {
                 const auto &metaValue = configMeta->value(key);
                 // sample judgement to reduce a copy of convert.
-                if (metaValue.type() == value.type())
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                if (metaValue.typeId() == value.typeId())
                     return cache->setValue(key, value, configMeta->serial(key), cache->uid(), appid);
 
                 // convert copy to meta's type, it promises `setValue` don't change meta's type.
+                auto copy = value;
+                if (!copy.convert(metaValue.metaType())) {
+                    qCWarning(cfLog) << "check type error, meta type is " << metaValue.metaType().name()
+                                     << ", and now type is " << value.metaType().name();
+                    return false;
+                }
+#else
+                if (metaValue.type() == value.type())
+                    return cache->setValue(key, value, configMeta->serial(key), cache->uid(), appid);
+
                 auto copy = value;
                 if (!copy.convert(metaValue.userType())) {
                     qCWarning(cfLog) << "check type error, meta type is " << metaValue.type()
                                      << ", and now type is " << value.type();
                     return false;
                 }
+#endif
 
                 return cache->setValue(key, copy, configMeta->serial(key), cache->uid(), appid);
             }

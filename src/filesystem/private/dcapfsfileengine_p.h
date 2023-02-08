@@ -25,13 +25,23 @@ public:
     DCapFSFileEngine(const QString &file);
     ~DCapFSFileEngine() override;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+    bool open(QIODevice::OpenMode openMode, std::optional<QFile::Permissions> permissions = std::nullopt) override;
+#else
     bool open(QIODevice::OpenMode openMode) override;
+#endif
     bool remove() override;
     bool copy(const QString &newName) override;
     bool rename(const QString &newName) override;
     bool renameOverwrite(const QString &newName) override;
     bool link(const QString &newName) override;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+    bool mkdir(const QString &dirName,
+               bool createParentDirectories,
+               std::optional<QFile::Permissions> permissions = std::nullopt) const override;
+#else
     bool mkdir(const QString &dirName, bool createParentDirectories) const override;
+#endif
     bool rmdir(const QString &dirName, bool recurseParentDirectories) const override;
     FileFlags fileFlags(FileFlags type) const override;
     bool cloneTo(QAbstractFileEngine *target) override;

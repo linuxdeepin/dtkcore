@@ -15,6 +15,7 @@
 #include <qdbusmetatype.h>
 #include <private/qdbusintrospection_p.h>
 
+#include <QVariant>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -24,6 +25,11 @@
 
 #define ANNOTATION_NO_WAIT "org.freedesktop.DBus.Method.NoReply"
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+#define endl Qt::endl
+#else
+#define endl endl
+#endif
 static QString globalClassName;
 static QString parentClassName;
 static QString proxyFile;
@@ -305,8 +311,13 @@ static QString classNameForInterface(const QString &interface, ClassType classTy
 
 static QByteArray qtTypeName(const QString &signature, const QDBusIntrospection::Annotations &annotations, int paramId = -1, const char *direction = "Out")
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const auto& type = QDBusMetaType::signatureToMetaType(signature.toLatin1());
+    if (type.id() == QMetaType::Type::UnknownType) {
+#else
     int type = QDBusMetaType::signatureToType(signature.toLatin1());
     if (type == QVariant::Invalid) {
+#endif
         QString annotationName = QString::fromLatin1("org.qtproject.QtDBus.QtTypeName");
         if (paramId >= 0)
             annotationName += QString::fromLatin1(".%1%2").arg(QLatin1String(direction)).arg(paramId);
@@ -331,7 +342,11 @@ static QByteArray qtTypeName(const QString &signature, const QDBusIntrospection:
         return qttype.toLatin1();
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return QVariant{type}.toByteArray();
+#else
     return QVariant::typeToName(QVariant::Type(type));
+#endif
 }
 
 static QString nonConstRefArg(const QByteArray &arg)
@@ -571,7 +586,11 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
         for (const auto method : interface->methods) {
             for (int i(0); i != method.outputArgs.size(); ++i) {
                 const QDBusIntrospection::Argument &arg = method.outputArgs[i];
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                if (QDBusMetaType::signatureToMetaType(arg.type.toLatin1()).id() != QMetaType::Type::UnknownType)
+#else
                 if (QDBusMetaType::signatureToType(arg.type.toLatin1()) != QVariant::Invalid)
+#endif
                     continue;
 
                 annotations << qtTypeName(arg.type, method.annotations, i, "Out");
@@ -579,7 +598,11 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
 
             for (int i(0); i != method.inputArgs.size(); ++i) {
                 const QDBusIntrospection::Argument &arg = method.inputArgs[i];
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                if (QDBusMetaType::signatureToMetaType(arg.type.toLatin1()).id() != QMetaType::Type::UnknownType)
+#else
                 if (QDBusMetaType::signatureToType(arg.type.toLatin1()) != QVariant::Invalid)
+#endif
                     continue;
 
                 annotations << qtTypeName(arg.type, method.annotations, i, "In");
@@ -587,7 +610,11 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
         }
 
         for (const auto property : interface->properties) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            if (QDBusMetaType::signatureToMetaType(property.type.toLatin1()).id() != QMetaType::Type::UnknownType)
+#else
             if (QDBusMetaType::signatureToType(property.type.toLatin1()) != QVariant::Invalid)
+#endif
                 continue;
 
             annotations << qtTypeName(property.type, property.annotations);
@@ -698,7 +725,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
             for (const auto property : interface->properties) {
                 char first = property.name[0].toLatin1();
                 QString name = property.name;
-                name[0] = first & ~0x20;
+                name[0] = QChar(first & ~0x20);
 
                 QByteArray type = qtTypeName(property.type, property.annotations);
 

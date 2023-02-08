@@ -260,7 +260,11 @@ quintptr DVtableHook::originalFun(const void *obj, quintptr functionOffset)
     }
 
     if (functionOffset > UINT_LEAST16_MAX) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        qWarning() << "Is not a virtual function, function address: 0x" << Qt::hex << functionOffset;
+#else
         qWarning() << "Is not a virtual function, function address: 0x" << hex << functionOffset;
+#endif
 
         return 0;
     }

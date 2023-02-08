@@ -11,6 +11,9 @@
 #include <QFile>
 #include <QDir>
 #include <QUrl>
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+#include <QStringConverter>
+#endif
 
 DCORE_BEGIN_NAMESPACE
 
@@ -179,7 +182,11 @@ bool DRecentManager::addItem(const QString &uri, DRecentData &data)
     }
 
     QTextStream out(&file);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    out.setEncoding(QStringConverter::Utf8);
+#else
     out.setCodec("UTF-8");
+#endif
     out << doc.toString();
     out.flush();
     file.close();
@@ -236,7 +243,11 @@ void DRecentManager::removeItems(const QStringList &list)
     }
 
     QTextStream out(&file);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    out.setEncoding(QStringConverter::Utf8);
+#else
     out.setCodec("UTF-8");
+#endif
     out << doc.toString();
     out.flush();
     file.close();
