@@ -8,6 +8,7 @@ set(UTILS_SOURCE
   ${CMAKE_CURRENT_LIST_DIR}/dexportedinterface.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dnotifysender.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dpinyin.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/dplugin.cpp
   ${CMAKE_CURRENT_LIST_DIR}/drecentmanager.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dtextencoding.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dthreadutils.cpp
