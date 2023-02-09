@@ -7,4 +7,4 @@ Name: dtkcore
 Description: Deepin Tool Kit dtkcore header files
 Version: @CMAKE_PROJECT_VERSION@
 Libs: -L${libdir} -ldtkcore
-Cflags: -I${includedir}
+Cflags: -I${includedir} -DQT_MESSAGELOGCONTEXT

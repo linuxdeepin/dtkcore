@@ -26,3 +26,5 @@ check_required_components(DtkCore)
 # Keep deprecated variables for compatibility
 set(DTKCORE_INCLUDE_DIRS ${DtkCore_INCLUDE_DIRS})
 set(DTKCORE_TOOL_DIRS ${DtkCore_TOOL_DIRS})
+
+add_definitions(-DQT_MESSAGELOGCONTEXT)
