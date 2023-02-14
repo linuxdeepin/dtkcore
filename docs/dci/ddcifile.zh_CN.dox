@@ -9,13 +9,14 @@ dci文件的结构路径如下:
 ![DCI图标结构路径](@ref dciicon-tree.png )
 
 @enum Dtk::Core::DDciFile::FileType
-@brief dci文件类型
-| 值 | 序号 | 含义 |
-|------------|----|------|
-| UnknowFile | 0 | 未知文件 |
-| File | 1 | 文件 |
-| Directory | 2 | 目录 |
-| Symlink | 3 | 软连接 |
+@var Dtk::Core::DDciFile::FileType Dtk::Core::DDciFile::UnknowFile
+@brief 未知文件
+@var Dtk::Core::DDciFile::FileType Dtk::Core::DDciFile::File
+@brief 文件
+@var Dtk::Core::DDciFile::FileType Dtk::Core::DDciFile::Directory
+@brief 目录
+@var Dtk::Core::DDciFile::FileType Dtk::Core::DDciFile::Symlink
+@brief 软链接
 
 @fn bool Dtk::Core::DDciFile::isValid()
 @brief 判断读取的dci文件是否有效

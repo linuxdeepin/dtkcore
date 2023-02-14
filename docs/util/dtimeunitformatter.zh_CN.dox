@@ -11,13 +11,14 @@
 
 @enum Dtk::Core::DTimeUnitFormatter::TimeUnits
 @brief 时间单位枚举
-@details
-| 枚举     | 值 | 含义 |
-|---------|---|------|
-| Seconds | 0 | 秒 |
-| Minute  | 1 | 分钟 |
-| Hour    | 2 | 小时 |
-| Day     | 3 | 天 |
+@var Dtk::Core::DTimeUnitFormatter::TimeUnits Dtk::Core::DTimeUnitFormatter::Seconds
+@brief 秒
+@var Dtk::Core::DTimeUnitFormatter::TimeUnits Dtk::Core::DTimeUnitFormatter::Minute
+@brief 分钟
+@var Dtk::Core::DTimeUnitFormatter::TimeUnits Dtk::Core::DTimeUnitFormatter::Hour
+@brief 小时
+@var Dtk::Core::DTimeUnitFormatter::TimeUnits Dtk::Core::DTimeUnitFormatter::Day
+@brief 天
 
 @fn QString DTimeUnitFormatter::unitStr(int unitId) const override
 @brief 获取unitId对应单位的字符串表示

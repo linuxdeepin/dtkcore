@@ -9,15 +9,18 @@
 
 @enum Dtk::Core::Logger::LogLevel
 @brief 日志等级
-@details
-| **值**   | **序号** | **含义**                             |
-|:-------:|:------:|:----------------------------------:|
-| Trace   | 0      | 追踪级别,可用于大部分不需要的记录,用于内部代码追踪         |
-| Debug   | 1      | 调试级别,用于软件的调试。                      |
-| Info    | 2      | 信息级别,可用于信息记录,这可能不仅对开发者有意义          |
-| Warning | 3      | 警告,可以用来记录你的应用程序检测到的一些非致命的警告        |
-| Error   | 4      | 错误,可能是一个较大问题,导致你的程序工作出错,但不至于崩溃         |
-| Fatal   | 5      | 致命错误，用于不可恢复的错误，在写入日志记录后立即崩溃应用程序(终止)|
+@var Dtk::Core::Logger::LogLevel Dtk::Core::Logger::Trace
+追踪级别,可用于大部分不需要的记录,用于内部代码追踪
+@var Dtk::Core::Logger::LogLevel Dtk::Core::Logger::Debug
+调试级别,用于软件的调试。
+@var Dtk::Core::Logger::LogLevel Dtk::Core::Logger::Info
+信息级别,可用于信息记录,这可能不仅对开发者有意义
+@var Dtk::Core::Logger::LogLevel Dtk::Core::Logger::Warning
+警告,可以用来记录你的应用程序检测到的一些非致命的警告
+@var Dtk::Core::Logger::LogLevel Dtk::Core::Logger::Error
+错误,可能是一个较大问题,导致你的程序工作出错,但不至于崩溃
+@var Dtk::Core::Logger::LogLevel Dtk::Core::Logger::Fatal
+致命错误，用于不可恢复的错误，在写入日志记录后立即崩溃应用程序(终止)
 
 @fn Logger Dtk::Core::Logger::Logger()
 @brief 构建Logger的实例。

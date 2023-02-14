@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 
     // 构造DConfigFile，元数据文件名example，与元数据安装目录的/usr/share/dsg/configs/APPID名(可执行文件名)对应目录/example.json，
     DConfigFile configFile("dconfigfile-example","example");
-    // 解析配置文件 
+    // 解析配置文件
     configFile.load();
 
     // 创建用户缓存
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 
     // 获取指定配置项的值，配置项可以是字符串，数组，map容器，布尔值，整型，详见example.json
     qDebug() << "canExit对应的值:" <<  configFile.value("canExit").toBool();
-    
+
     // 配置项的可见性，其余配置项标记、配置项的权限可查看文档
     qDebug() << "配置项的可见性" << configFile.meta()->visibility("canExit");
 
@@ -184,31 +184,30 @@ sudo ./dconfigfile-example
 
 @enum Dtk::Core::DConfigFile::Flag
 @brief 配置项名称
-@details
-| 值           | 序号 | 含义    |
-|-------------|----|-------|
-| NoOverride  | 0  | 存在此标记时，将表明则此配置项不可被覆盖（详见下述 override 机制）。反之，不存在此标记时表明此配置项允许被覆盖，对于此类配置项，如若其有界面设置入口，则当此项不可写时，应当隐藏或禁用界面的设置入口.  |
-| Global      | 1  | 当读写此类配置时，将忽略用户身份，无论程序使用哪个用户身份执行，读操作都将获取到同样的数据，写操作将对所有用户都生效。但是，如果对应的配置存储目录不存在或无权限写入，则忽略此标志 |
+@var Dtk::Core::DConfigFile::Flag Dtk::Core::DConfigFile::NoOverride
+@brief 存在此标记时，将表明则此配置项不可被覆盖（详见下述 override 机制）。反之，不存在此标记时表明此配置项允许被覆盖，对于此类配置项，如若其有界面设置入口，则当此项不可写时，应当隐藏或禁用界面的设置入口.
+@var Dtk::Core::DConfigFile::Flag Dtk::Core::DConfigFile::Global
+@brief 当读写此类配置时，将忽略用户身份，无论程序使用哪个用户身份执行，读操作都将获取到同样的数据，写操作将对所有用户都生效。但是，如果对应的配置存储目录不存在或无权限写入，则忽略此标志
+
 
 @enum Dtk::Core::DConfigFile::Permissions
 @brief 配置项的权限
-@details
-| 值          | 序号 | 含义    |
-|------------|----|-------|
-| ReadOnly   | 0  | 将配置项覆盖为只读 |
-| ReadWrite  | 1  | 将配置项覆盖为可读可写 |
+@var Dtk::Core::DConfigFile::Permissions Dtk::Core::DConfigFile::ReadOnly
+@brief 将配置项覆盖为只读
+@var Dtk::Core::DConfigFile::Permissions Dtk::Core::DConfigFile::ReadWrite
+@brief 将配置项覆盖为可读可写
+
 
 @enum Dtk::Core::DConfigFile::Visibility
 @brief 配置项的可见性
-@details
-| 值       | 序号 | 含义    |
-|---------|----|-------|
-| Private | 0  | 仅限程序内部使用，对外不可见。此类配置项完全由程序自己读写，可随意增删改写其含义，无需做兼容性考虑 |
-| Public  | 1  | 外部程序可使用。 此类配置项一旦发布，在兼容性版本的升级中，要保障此配置项向下兼容，简而言之，只允许在程序/库的大版本升级时才允许删除或修改此类配置项，当配置项的 permissions、visibility、flags 任意一个属性被修改则认为此配置项被修改，除此之外修改 value、name、description 属性时则不需要考虑兼容性。|
+@var Dtk::Core::DConfigFile::Visibility Dtk::Core::DConfigFile::Private
+@brief 仅限程序内部使用，对外不可见。此类配置项完全由程序自己读写，可随意增删改写其含义，无需做兼容性考虑
+@var Dtk::Core::DConfigFile::Visibility Dtk::Core::DConfigFile::Public
+@brief 外部程序可使用。 此类配置项一旦发布，在兼容性版本的升级中，要保障此配置项向下兼容，简而言之，只允许在程序/库的大版本升级时才允许删除或修改此类配置项，当配置项的 permissions、visibility、flags 任意一个属性被修改则认为此配置项被修改，除此之外修改 value、name、description 属性时则不需要考虑兼容性。
 
 @struct Dtk::Core::DConfigFile::Version
 @brief 版本信息
-@details 
+@details
 此文件的内容格式的版本。版本号使用两位数字描述，
 首位数字不同的描述文件相互之间不兼容，第二位数字不同的描述文件需满足向下兼容。
 读取此描述文件的程序要根据版本进行内容分析，当遇到不兼容的版本时，需要立即终止解析，忽略此文件，

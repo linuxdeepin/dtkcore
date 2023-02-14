@@ -15,15 +15,18 @@
 
 @enum Dtk::Core::RollingFileAppender::DatePattern
 @brief 日志频率
-@details
-| **值**             | **序号** | **含义**                          |
-|:-----------------:|:------:|:-------------------------------:|
-| MinutelyRollover  | 0      | 每分钟的日期模式字符串是`.yyyy-MM-dd-hh-mm` |
-| HourlyRollover    | 1      | 每小时的日期模式字符串是 `.yyyy-MM-dd-hh`   |
-| HalfDailyRollover | 2      | 每半天的日期模式字符串是`.yyyy-MM-dd-a`     |
-| DailyRollover     | 3      | 每天的日期模式字符串是`.yyyy-MM-dd`        |
-| WeeklyRollover    | 4      | 每周的日期模式字符串是`.'yyyy-ww`          |
-| MonthlyRollover   | 5      | 每月的日期模式字符串是`.yyyy-MM`           |
+@var Dtk::Core::RollingFileAppender::DatePattern Dtk::Core::RollingFileAppender::MinutelyRollover
+@brief 每分钟的日期模式字符串是`.yyyy-MM-dd-hh-mm`
+@var Dtk::Core::RollingFileAppender::DatePattern Dtk::Core::RollingFileAppender::HourlyRollover
+@brief 每小时的日期模式字符串是 `.yyyy-MM-dd-hh`
+@var Dtk::Core::RollingFileAppender::DatePattern Dtk::Core::RollingFileAppender::HalfDailyRollover
+@brief 每半天的日期模式字符串是`.yyyy-MM-dd-a`
+@var Dtk::Core::RollingFileAppender::DatePattern Dtk::Core::RollingFileAppender::DailyRollover
+@brief 每天的日期模式字符串是`.yyyy-MM-dd`
+@var Dtk::Core::RollingFileAppender::DatePattern Dtk::Core::RollingFileAppender::WeeklyRollover
+@brief 每周的日期模式字符串是`.'yyyy-ww`
+@var Dtk::Core::RollingFileAppender::DatePattern Dtk::Core::RollingFileAppender::MonthlyRollover
+@brief 每月的日期模式字符串是`.yyyy-MM`
 
 @fn RollingFileAppender Dtk::Core::RollingFileAppender::RollingFileAppender()
 @brief 构造函数,默认限制日志文件个数是0,默认日志文件大小是1024*1024*20=20m

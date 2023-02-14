@@ -54,97 +54,120 @@ int main(int argc, char **argv) {
 }
 ```
 
-@enum Dtk::Core::DSysInfo::ProductType dsysinfo.h
+@enum Dtk::Core::DSysInfo::ProductType
 @brief 产品信息
-@details
-| 值           | 序号 | 含义    |
-|-------------|----|-------|
-| UnknownType | 0  | 未知类型  |
-| deepin      | 1  | 深度社区版 |
-| ArchLinux   | 2  |       |
-| CentOS      | 3  |       |
-| Debian      | 4  |       |
-| Fedora      | 5  |       |
-| LinuxMint   | 6  |       |
-| Manjaro     | 7  |       |
-| openSUSE    | 8  |       |
-| SailfishOS  | 9  |       |
-| Ubuntu      | 10 |       |
-| Uos         | 11 |       |
-| Gentoo      | 12 |       |
-| NixOS       | 13 |       |
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::Deepin
+@brief 深度操作系统
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::ArchLinux
+@brief ArchLinux
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::CentOS
+@brief CentOS
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::Debian
+@brief Debian
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::Fedora
+@brief Fedora
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::LinuxMint
+@brief LinuxMint
+@var Dtj::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::Manjaro
+@brief Manjaro
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::openSUSE
+@brief openSUSE
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::SailfishOS
+@brief SailfishOS
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::Ubuntu
+@brief Ubuntu
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::Uos
+@brief UOS
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::Gentoo
+@brief Gentoo
+@var Dtk::Core::DSysInfo::ProductType Dtk::Core::DSysInfo::NixOS
+@brief NixOS
 
-
-@enum Dtk::Core::DSysInfo::DeepinType dsysinfo.h
+@enum Dtk::Core::DSysInfo::DeepinType
 @brief 深度操作系统版本
-@details
-| 值                  | 序号 | 含义                    |
-|--------------------|----|-----------------------|
-| UnknownDeepin      | 0  | 未知版本          |
-| DeepinDesktop      | 1  | deepin桌面发行版           |
-| DeepinProfessional | 2  | deepin专业版, 现为uos专业版    |
-| DeepinServer       | 3  | deepin服务器版本, 现为uos服务器版 |
-| DeepinPersonal     | 4  | deepin个人版, 现为uos家庭版    |
+@var Dtk::Core::DSysInfo::DeepinType Dtk::Core::DSysInfo::UnknownDeepin
+@brief 未知版本
+@var Dtk::Core::DSysInfo::DeepinType Dtk::Core::DSysInfo::DeepinDesktop
+@brief 桌面版
+@var Dtk::Core::DSysInfo::DeepinType Dtk::Core::DSysInfo::DeepinProfessional
+@brief deepin专业版, 现为uos专业版
+@var Dtk::Core::DSysInfo::DeepinType Dtk::Core::DSysInfo::DeepinServer
+@brief deepin服务器版本, 现为uos服务器版
+@var Dtk::Core::DSysInfo::DeepinType Dtk::Core::DSysInfo::DeepinPersonal
+@brief deepin个人版, 现为uos家庭版
 
 @enum Dtk::Core::DSysInfo::LogoType
 @brief 系统的logo类型
-@details
-| 值            | 序号 | 含义 |
-|--------------|----|----|
-| Normal       | 0  | 正常 |
-| Light        | 1  | 亮色 |
-| Symbolic     | 2  | 符号 |
-| Transparent  | 3  | 水印 |
+@var Dtk::Core::DSysInfo::LogoType Dtk::Core::DSysInfo::Normal
+@brief 正常
+@var Dtk::Core::DSysInfo::LogoType Dtk::Core::DSysInfo::Light
+@brief 亮色
+@var Dtk::Core::DSysInfo::LogoType Dtk::Core::DSysInfo::Symbolic
+@brief 符号
+@var Dtk::Core::DSysInfo::LogoType Dtk::Core::DSysInfo::Transparent
+@brief 水印
 
 @enum Dtk::Core::DSysInfo::OrgType
-@brief
-@details
-| 值            | 序号 | 含义           |
-|--------------|----|--------------|
-| Distribution | 0  | 当前版本         |
-| Distributor  | 1  | 当前发行版        |
-| Manufacturer | 2  | 当前发行版或设备的制造商 |
+@brief 组织类型
+@var Dtk::Core::DSysInfo::OrgType Dtk::Core::DSysInfo::Distribution
+@brief 当前版本
+@var Dtk::Core::DSysInfo::OrgType Dtk::Core::DSysInfo::Distributor
+@brief 当前发行版
+@var Dtk::Core::DSysInfo::OrgType Dtk::Core::DSysInfo::Manufacturer
+@brief 当前发行版或设备的制造商
 
 @enum Dtk::Core::DSysInfo::UosType
 @brief UOS版本类型
-@details
-| 值               | 序号 | 含义          |
-|-----------------|----|-------------|
-|  UosTypeUnknown | 0  | 未知版本     |
-| UosDesktop      | 1  | UOS桌面版      |
-| UosServer       | 2  | UOS服务器版     |
-| UosDevice       | 3  | UOS设备版      |
-| UosTypeCount    | 4  | 记录枚举数量   |
+@var Dtk::Core::DSysInfo::UosType Dtk::Core::DSysInfo::UosTypeUnknown
+@brief 未知版本
+@var Dtk::Core::DSysInfo::UosType Dtk::Core::DSysInfo::UosDesktop
+@brief UOS桌面版
+@var Dtk::Core::DSysInfo::UosType Dtk::Core::DSysInfo::UosServer
+@brief UOS服务器版
+@var Dtk::Core::DSysInfo::UosType Dtk::Core::DSysInfo::UosDevice
+@brief UOS设备版
+@var Dtk::Core::DSysInfo::UosType Dtk::Core::DSysInfo::UosTypeCount
+@brief 记录枚举数量
 
 @enum Dtk::Core::DSysInfo::UosEdition
 @brief 详细uos版本
-@details
-| 值                 | 序号 | 含义                  |
-|-------------------|----|---------------------|
-| UosEditionUnknown | 0  | 未知发行版           |
-| UosProfessional   | 1  | UOS专业版              |
-| UosHome           | 2  | UOS家庭版              |
-| UosCommunity      | 3  | 社区版                 |
-| UosMilitary       | 4  | *                    |
-| UosEnterprise     | 5  | UOS企业版              |
-| UosEnterpriseC    | 6  | UOS行业版            |
-| UosEuler          | 7  | UOS服务器欧拉版           |
-| UosMilitaryS      | 8  | *                    |
-| UosDeviceEdition  | 9  | UOS专用设备版            |
-| UosEducation      | 10 | UOS教育版              |
-| UosEditionCount   | 11 | 记录枚举数量              |
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosEditionUnknown
+@brief 未知版本
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosProfessional
+@brief UOS专业版
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosHome
+@brief UOS家庭版
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosCommunity
+@brief 社区版
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosMilitary
+@brief *
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosEnterprise
+@brief UOS企业版
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosEnterpriseC
+@brief UOS行业版
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosEuler
+@brief UOS服务器欧拉版
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosMilitaryS
+@brief *
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosDeviceEdition
+@brief UOS专用设备版
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosEducation
+@brief UOS教育版
+@var Dtk::Core::DSysInfo::UosEdition Dtk::Core::DSysInfo::UosEditionCount
+@brief 记录枚举数量
 
 @enum Dtk::Core::DSysInfo::UosArch
 @brief UOS使用的架构
-@details
-| 值              | 序号 | 含义     |
-|----------------|----|--------|
-| UosArchUnknown | 0  | 未知架构   |
-| UosAMD64       | 1  | x86_64 |
-| UosARM64       | 2  | arm64  |
-| UosMIPS64      | 4  | mips64 |
-| UosSW64        | 8  | sw_64  |
-
+@var Dtk::Core::DSysInfo::UosArch Dtk::Core::DSysInfo::UosArchUnknown
+@brief 未知架构
+@var Dtk::Core::DSysInfo::UosArch Dtk::Core::DSysInfo::UosAMD64
+@brief x86_64
+@var Dtk::Core::DSysInfo::UosArch Dtk::Core::DSysInfo::UosARM64
+@brief arm64
+@var Dtk::Core::DSysInfo::UosArch Dtk::Core::DSysInfo::UosMIPS64
+@brief mips64
+@var Dtk::Core::DSysInfo::UosArch Dtk::Core::DSysInfo::UosSW64
+@brief sw_64
 
 
 @fn static bool Dtk::Core::DSysInfo::isDeepin() //FIXME: 显示错乱 无法修复
