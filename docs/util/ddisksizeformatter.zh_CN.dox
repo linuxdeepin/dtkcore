@@ -11,14 +11,16 @@
 
 @enum  Dtk::Core::DDiskSizeFormatter::DiskUnits
 @brief 磁盘大小单位枚举
-@details
-| 枚举 | 值 | 含义 |
-|----|---|-----|
-| B  | 0 | 字节 |
-| K  | 1 | 千字节 |
-| M  | 2 | 兆字节 |
-| G  | 3 | 吉字节 |
-| T  | 4 | 太字节 |
+@var Dtk::Core::DDiskSizeFormatter::DiskUnits Dtk::Core::DDiskSizeFormatter::B
+@brief 字节
+@var Dtk::Core::DDiskSizeFormatter::DiskUnits Dtk::Core::DDiskSizeFormatter::K
+@brief 千字节
+@var Dtk::Core::DDiskSizeFormatter::DiskUnits Dtk::Core::DDiskSizeFormatter::M
+@brief 兆字节
+@var Dtk::Core::DDiskSizeFormatter::DiskUnits Dtk::Core::DDiskSizeFormatter::G
+@brief 吉字节
+@var Dtk::Core::DDiskSizeFormatter::DiskUnits Dtk::Core::DDiskSizeFormatter::T
+@brief 太字节|
 
 @fn QString DDiskSizeFormatter::unitStr(int unitId) const override
 @brief 获取unitId对应单位的字符串表示
