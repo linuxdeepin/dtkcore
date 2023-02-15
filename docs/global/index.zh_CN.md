@@ -1,7 +1,7 @@
 @page global global--dtk全局工具组件
 
-## DTk global：dtk全局工具类
-### dsysinfo：dtk系统信息工具类
+# DTk global：dtk全局工具类
+## dsysinfo：dtk系统信息工具类
 
 [dsysinfo.h 详细文档](dsysinfo_8h.html)<br>
 这里放一个最小化使用dsysinfo的例子:<br>
