@@ -210,9 +210,12 @@ QStringList firstLetters(const QString &words)
     }
 
     const auto &list = permutations(result);
-    const auto &dedupList = QSet<QString>{list.begin(), list.end()};
     // 首字母容易出现重复，去重
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+    const auto &dedupList = QSet<QString>{list.begin(), list.end()};
     return QStringList{dedupList.begin(), dedupList.end()};
+#endif
+    return  QSet<QString>::fromList(list).toList();
 }
 
 DCORE_END_NAMESPACE
