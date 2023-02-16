@@ -24,6 +24,7 @@
 DCORE_BEGIN_NAMESPACE
 
 Q_DECLARE_LOGGING_CATEGORY(cfLog)
+static QString NoAppId;
 
 /*!
 @~english
@@ -101,7 +102,7 @@ public:
                             const QString &name,
                             const QString &subpath)
         : DObjectPrivate(qq)
-        , appId(appId.isEmpty() ? DSGApplication::id() : appId)
+        , appId(appId)
         , name(name)
         , subpath(subpath)
     {
@@ -157,8 +158,23 @@ public:
         configCache.reset(configFile->createUserCache(getuid()));
         const QString &prefix = localPrefix();
 
-        return configFile->load(prefix) &&
-               configCache->load(prefix);
+        if (!configFile->load(prefix) || !configCache->load(prefix))
+            return false;
+
+        // generic config doesn't need to fallback to generic configration.
+        if (owner->appId == NoAppId)
+            return true;
+
+        QScopedPointer<DConfigFile> file(new DConfigFile(NoAppId, owner->name, owner->subpath));
+        const bool canFallbackToGeneric = !file->meta()->metaPath(prefix).isEmpty();
+        if (canFallbackToGeneric) {
+            QScopedPointer<DConfigCache> cache(file->createUserCache(getuid()));
+            if (file->load(prefix) && cache->load(prefix)) {
+                genericConfigFile.reset(file.take());
+                genericConfigCache.reset(cache.take());
+            }
+        }
+        return true;
     }
 
     virtual QStringList keyList() const override
@@ -168,8 +184,22 @@ public:
 
     virtual QVariant value(const QString &key, const QVariant &fallback) const override
     {
-        const QVariant &v = configFile->value(key, configCache.get());
-        return v.isValid() ? v : fallback;
+        const QVariant &vc = configFile->cacheValue(configCache.get(), key);
+        if (vc.isValid())
+            return vc;
+
+        // fallback to generic configuration, and use itself's configuration if generic isn't set.
+        if (genericConfigFile) {
+            const auto &tmp = genericConfigFile->cacheValue(genericConfigCache.get(), key);
+            if (tmp.isValid())
+                return tmp;
+        }
+        const QVariant &v = configFile->value(key);
+        if (v.isValid())
+            return v;
+        // fallback to default value of generic configuration.
+        const QVariant &vg = genericConfigFile->value(key);
+        return vg.isValid() ? vg : fallback;
     }
 
     virtual void setValue(const QString &key, const QVariant &value) override
@@ -203,6 +233,8 @@ private:
 private:
     QScopedPointer<DConfigFile> configFile;
     QScopedPointer<DConfigCache> configCache;
+    QScopedPointer<DConfigFile> genericConfigFile;
+    QScopedPointer<DConfigCache> genericConfigCache;
     DConfigPrivate* owner;
     const QByteArray envLocalPrefix = qgetenv("DSG_DCONFIG_FILE_BACKEND_LOCAL_PREFIX");
 };
@@ -217,6 +249,14 @@ FileBackend::~FileBackend()
     if (configFile) {
         configFile->save(prefix);
         configFile.reset();
+    }
+    if (genericConfigCache) {
+        genericConfigCache->save(prefix);
+        genericConfigCache.reset();
+    }
+    if (genericConfigFile) {
+        genericConfigFile->save(prefix);
+        genericConfigFile.reset();
     }
 }
 
@@ -537,10 +577,11 @@ DConfig::DConfig(const QString &name, const QString &subpath, QObject *parent)
 }
 
 DConfig::DConfig(DConfigBackend *backend, const QString &name, const QString &subpath, QObject *parent)
-    : DConfig(backend, QString(), name, subpath, parent)
+    : DConfig(backend, DSGApplication::id(), name, subpath, parent)
 {
 
 }
+
 /*!
 @~english
  * @brief Constructs the object provided by the configuration policy, specifying the application Id to which the configuration belongs.
@@ -549,15 +590,36 @@ DConfig::DConfig(DConfigBackend *backend, const QString &name, const QString &su
  * \a subpath
  * \a parent
  * @return The constructed configuration policy object, which is released by the caller
+ * @note \a appId is not empty.
  */
 DConfig *DConfig::create(const QString &appId, const QString &name, const QString &subpath, QObject *parent)
 {
+    Q_ASSERT(appId != NoAppId);
     return new DConfig(nullptr, appId, name, subpath, parent);
 }
 
 DConfig *DConfig::create(DConfigBackend *backend, const QString &appId, const QString &name, const QString &subpath, QObject *parent)
 {
+    Q_ASSERT(appId != NoAppId);
     return new DConfig(backend, appId, name, subpath, parent);
+}
+
+/*!
+ * \brief Constructs the object, and which is application.
+ * \param name
+ * \param subpath
+ * \param parent
+ * \return Dconfig object, which is released by the caller
+ * @note It's usually used for application independent, we should use DConfig::create if the configuration is a specific application.
+ */
+DConfig *DConfig::createGeneric(const QString &name, const QString &subpath, QObject *parent)
+{
+    return new DConfig(nullptr, NoAppId, name, subpath, parent);
+}
+
+DConfig *DConfig::createGeneric(DConfigBackend *backend, const QString &name, const QString &subpath, QObject *parent)
+{
+    return new DConfig(backend, NoAppId, name, subpath, parent);
 }
 
 /*!
@@ -575,8 +637,6 @@ DConfig::DConfig(DConfigBackend *backend, const QString &appId, const QString &n
     , DObject(*new DConfigPrivate(this, appId, name, subpath))
 {
     D_D(DConfig);
-
-    Q_ASSERT(!d->appId.isEmpty());
 
     qCDebug(cfLog, "Load config of appid=%s name=%s, subpath=%s",
             qPrintable(d->appId), qPrintable(d->name), qPrintable(d->subpath));

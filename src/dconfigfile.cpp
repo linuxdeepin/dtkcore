@@ -1238,7 +1238,7 @@ public:
         }
         return userCache;
     }
-    QVariant value(const QString &key, DConfigCache *userCache) const
+    QVariant cacheValue(DConfigCache *userCache, const QString &key) const
     {
         // 检查权限
         if (configMeta->permissions(key) != DConfigFile::ReadOnly) {
@@ -1250,7 +1250,13 @@ public:
                 }
             }
         }
-
+        return QVariant();
+    }
+    QVariant value(const QString &key, DConfigCache *userCache) const
+    {
+        const QVariant &v = cacheValue(userCache, key);
+        if (v.isValid())
+            return v;
         return configMeta->value(key);
     }
 
@@ -1294,8 +1300,6 @@ constexpr DConfigFile::Version DConfigFile::supportedVersion()
 DConfigFile::DConfigFile(const QString &appId, const QString &name, const QString &subpath)
     : DObject(*new DConfigFilePrivate(this, appId, name, subpath))
 {
-    Q_ASSERT(!name.isEmpty());
-
     D_D(DConfigFile);
     d->globalCache = new DConfigCacheImpl(d->configKey, InvalidUID, true);
 }
@@ -1353,7 +1357,7 @@ bool DConfigFile::save(const QString &localPrefix, QJsonDocument::JsonFormat for
 @~english
  * @brief DConfigFile::value
  * @param key Configuration name
- * @param uid User id, uid is invalid when the key is global
+ * @param userCache Specific user cache, \a userCache is unused when the key is global
  * @return
  */
 QVariant DConfigFile::value(const QString &key, DConfigCache *userCache) const
@@ -1363,11 +1367,23 @@ QVariant DConfigFile::value(const QString &key, DConfigCache *userCache) const
 }
 
 /*!
+ * \brief DConfigFile::cacheValue Get a specific user cache's value
+ * \param userCache Specific user cache, it is unused if the \a key is global configuration item
+ * \param key Configuration name
+ * \return
+ */
+QVariant DConfigFile::cacheValue(DConfigCache *userCache, const QString &key) const
+{
+    D_DC(DConfigFile);
+    return d->cacheValue(userCache, key);
+}
+
+/*!
 @~english
     @brief Sets the value in the cache
     \a key Configuration name
     \a value The value to set
-    \a uid User id at setup time
+    \a userCache Specific user cache at setup time
     \a appid Application id at setup time
     @return A value of true indicates that the new value has been reset, and false indicates that it has not been set
  */
