@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -115,6 +115,8 @@ public:
     virtual QVariant value(const QString &key) const = 0;
     virtual int serial(const QString &key) const = 0;
     virtual uint uid() const = 0;
+
+    virtual void setCachePathPrefix(const QString &prefix) = 0;
 };
 
 #ifndef QT_NO_DEBUG_STREAM
