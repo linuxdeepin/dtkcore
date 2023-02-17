@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -416,5 +416,36 @@ TEST_F(ut_DConfigFile, appIdOverrideNoAppIdUserConfiguration) {
         QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
         userCache->load(LocalPrefix);
         ASSERT_EQ(config.value("key2", userCache.get()).toString().toStdString(), "user-with-appid");
+    }
+}
+
+TEST_F(ut_DConfigFile, setCachePathPrefix) {
+
+    FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        config.globalCache()->setCachePathPrefix("/configs-global");
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+        userCache->setCachePathPrefix("/configs-user");
+        ASSERT_TRUE(userCache->load(LocalPrefix));
+        ASSERT_EQ(config.value("key2", userCache.get()), QString("125"));
+        ASSERT_EQ(config.value("key3", userCache.get()), QString("application"));
+
+        config.setValue("key2", QString("user-config"), "test", userCache.get());
+        config.setValue("key3", "global-config", "test", userCache.get());
+        config.save(LocalPrefix);
+        userCache->save(LocalPrefix);
+    }
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        config.globalCache()->setCachePathPrefix("/configs-global");
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+        userCache->setCachePathPrefix("/configs-user");
+        ASSERT_TRUE(userCache->load(LocalPrefix));
+
+        ASSERT_EQ(config.value("key2", userCache.get()), QString("user-config"));
+        ASSERT_EQ(config.value("key3", userCache.get()), QString("global-config"));
     }
 }

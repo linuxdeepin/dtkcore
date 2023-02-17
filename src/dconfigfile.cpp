@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -957,6 +957,14 @@ DConfigMetaImpl::~DConfigMetaImpl()
     @return
 */
 
+/*!
+@~english
+    @fn void setCachePathPrefix(const QString &prefix) = 0;
+    @brief Set cache's prefix path, it's access permissions is considered by caller,
+and it needs to distinguish the paths of different caches by caller.
+    @param prefix cache's prefix path.
+*/
+
 class Q_DECL_HIDDEN DConfigCacheImpl : public DConfigCache {
 public:
     DConfigCacheImpl(const DConfigKey &configKey, const uint uid, bool global);
@@ -979,20 +987,30 @@ public:
         return values.keyList();
     }
 
-    inline static QString applicationCacheDir(const QString &prefix, const QString &suffix,
-                                              uint userid, const QString &appId) {
-        // If target user is current user, then get the home path by environment variable first.
-        const QString &homePath = (getuid() == userid) ? DStandardPaths::homePath()
-                                                       : DStandardPaths::homePath(userid);
-        if (homePath.isEmpty()) {
-            return QString();
+    inline QString applicationCacheDir(const QString &localPrefix, const QString &suffix) const
+    {
+        QString prefix(cachePrefix);
+        if (prefix.isEmpty()) {
+            // If target user is current user or system user, then get the home path by environment variable first.
+            QString homePath;
+            if (userid == InvalidUID || (getuid() == userid)) {
+                homePath = DStandardPaths::homePath();
+            } else {
+                homePath = DStandardPaths::homePath(getuid());
+            }
+
+            if (homePath.isEmpty())
+                return QString();
+
+            // fallback to default application cache directory.
+            prefix = homePath + QStringLiteral("/.config/dsg/configs");
         }
-        const QString userHomeConfigDir = homePath + QStringLiteral("/.config/dsg/configs") + suffix;
-        return prefix + userHomeConfigDir + QDir::separator() + appId;
+        return QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix + suffix, configKey.appId));
     }
 
-    inline QString applicationCacheDir(const QString &prefix) const {
-        return applicationCacheDir(prefix, QString(), userid, configKey.appId);
+    inline QString applicationCacheDir(const QString &localPrefix) const
+    {
+        return applicationCacheDir(localPrefix, QString());
     }
 
     inline QString cacheDir(const QString &basePath) {
@@ -1000,23 +1018,28 @@ public:
         return dir.filePath(configKey.fileName + FILE_SUFFIX);
     }
 
-    inline QString globalCacheDir(const QString &prefix) const {
-        // TODO `DSG_APP_DATA` is not set and `appid` is not captured in `DStandardPaths::path`.
-        QString appDataDir = DStandardPaths::path(DStandardPaths::DSG::AppData);
-        if (appDataDir.isEmpty()) {
+    inline QString globalCacheDir(const QString &localPrefix) const {
+        QString prefix(cachePrefix);
+        if (prefix.isEmpty()) {
+            // TODO `DSG_APP_DATA` is not set and `appid` is not captured in `DStandardPaths::path`.
+            QString appDataDir = DStandardPaths::path(DStandardPaths::DSG::AppData);
+            if (appDataDir.isEmpty()) {
 #ifdef D_DSG_APP_DATA_FALLBACK
-            appDataDir = QStringLiteral(D_DSG_APP_DATA_FALLBACK);
-            QFileInfo tmp(appDataDir);
-            if (!tmp.exists() && !tmp.isSymLink() && !QDir::current().mkpath(appDataDir)) {
-                qCDebug(cfLog, "Not found a valid DSG_APP_DATA directory");
-                return QString();
-            }
+                appDataDir = QStringLiteral(D_DSG_APP_DATA_FALLBACK);
+                QFileInfo tmp(appDataDir);
+                if (!tmp.exists() && !tmp.isSymLink() && !QDir::current().mkpath(appDataDir)) {
+                    qCDebug(cfLog, "Not found a valid DSG_APP_DATA directory");
+                    return QString();
+                }
 #else
-            return QString();
+                return QString();
 #endif
+            }
+            // fallback to default global cache directory.
+            prefix = QString("%1/configs").arg(appDataDir);
         }
 
-        return QDir::cleanPath(QString("%1/%2/configs/%3").arg(prefix, appDataDir, configKey.appId));
+        return QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix, configKey.appId));
     }
 
     QString getCacheDir(const QString &localPrefix = QString())
@@ -1027,7 +1050,7 @@ public:
                 return dir;
 
             // Not supported the global config, fallback the config cache data to user directory.
-            return applicationCacheDir(localPrefix, "-fake-global", getuid(), configKey.appId);
+            return applicationCacheDir(localPrefix, "-fake-global");
         } else {
             return applicationCacheDir(localPrefix);
         }
@@ -1065,8 +1088,14 @@ public:
 
     bool save(const QString &localPrefix, QJsonDocument::JsonFormat format, bool sync) override;
 
+    virtual void setCachePathPrefix(const QString &prefix) override
+    {
+        cachePrefix = prefix;
+    }
+
     DConfigKey configKey;
     DConfigInfo values;
+    QString cachePrefix;
     uint userid;
     bool global;
     bool cacheChanged = false;

@@ -419,4 +419,8 @@ sudo ./dconfigfile-example
 @brief 用户标识,为全局缓存时,uid为非用户标识的特定值
 @return
 
+@fn virtual void setCachePathPrefix(const QString &prefix) = 0
+@brief 指定缓存位置前缀，缓存访问所需的权限及区分不同缓存的位置由调用者考虑，其默认值参考配置策略规范
+@param[in] prefix 缓存位置的前缀
+
 */
