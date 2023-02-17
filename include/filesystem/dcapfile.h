@@ -5,7 +5,7 @@
 #ifndef DCAPFILE_H
 #define DCAPFILE_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 
 #include <DObject>
 #include <QDir>

@@ -4,7 +4,7 @@
 
 #ifndef DTIMEDLOOP_H
 #define DTIMEDLOOP_H
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 #include <DObject>
 
 #include <QEventLoop>

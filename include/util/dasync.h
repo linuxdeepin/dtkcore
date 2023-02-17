@@ -4,7 +4,7 @@
 
 #ifndef DASYNC_H
 #define DASYNC_H
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 
 #include <QQueue>
 #include <QMutex>

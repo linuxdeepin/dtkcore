@@ -5,7 +5,7 @@
 #ifndef DSYSINFO_H
 #define DSYSINFO_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 
 #include <QLocale>
 

@@ -5,7 +5,7 @@
 #ifndef DCONFIG_H
 #define DCONFIG_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 #include <DObject>
 
 #include <QObject>

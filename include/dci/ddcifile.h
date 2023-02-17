@@ -6,7 +6,7 @@
 
 #ifndef DTK_NO_PROJECT
 #include <DObject>
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 #else
 #define DCORE_BEGIN_NAMESPACE
 #define DCORE_END_NAMESPACE

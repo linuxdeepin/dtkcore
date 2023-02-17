@@ -5,7 +5,7 @@
 #ifndef DTRASHMANAGER_H
 #define DTRASHMANAGER_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 #include <DObject>
 
 #include <QObject>

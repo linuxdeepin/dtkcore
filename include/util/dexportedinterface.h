@@ -5,7 +5,7 @@
 #ifndef DEXPORTEDINTERFACE_H
 #define DEXPORTEDINTERFACE_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 #include <dobject.h>
 
 #include <QObject>

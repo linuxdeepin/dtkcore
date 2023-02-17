@@ -5,7 +5,7 @@
 #ifndef DTEXTENCODING_H
 #define DTEXTENCODING_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 
 #include <QString>
 #include <QByteArray>

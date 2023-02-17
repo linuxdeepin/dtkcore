@@ -5,7 +5,7 @@
 #ifndef DTHREADUTILS_H
 #define DTHREADUTILS_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 #include <QObject>
 #include <QSemaphore>
 #include <QThread>

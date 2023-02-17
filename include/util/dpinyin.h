@@ -5,7 +5,7 @@
 #ifndef DPINYIN_H
 #define DPINYIN_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 
 #include <QHash>
 

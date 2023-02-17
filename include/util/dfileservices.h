@@ -5,7 +5,7 @@
 #ifndef DFILESERVICES_H
 #define DFILESERVICES_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 
 #include <QUrl>
 

@@ -5,7 +5,7 @@
 #ifndef DCONFIGFILE_H
 #define DCONFIGFILE_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 #include <DObject>
 #include <QStringList>
 #include <QFlags>

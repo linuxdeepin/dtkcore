@@ -5,7 +5,7 @@
 #ifndef DVTABLEHOOK_H
 #define DVTABLEHOOK_H
 
-#include <dtkcore_global.h>
+#include "dtkcore_global.h"
 
 #include <QObject>
 #include <QSet>
