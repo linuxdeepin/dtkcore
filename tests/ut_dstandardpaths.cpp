@@ -49,3 +49,30 @@ TEST_F(ut_DStandardPaths, testDStandardPathsStandardLocations)
     QStringList dirs = DStandardPaths::standardLocations(QStandardPaths::DesktopLocation);
     ASSERT_TRUE(dirs.contains("/tmp/etc"));
 }
+
+TEST_F(ut_DStandardPaths, testDStandardPathsXDGPath)
+{
+    QString home = DStandardPaths::homePath();
+    QString dataHome = DStandardPaths::path(DStandardPaths::XDG::DataHome);
+    ASSERT_TRUE( (getenv("XDG_DATA_HOME") == dataHome) || (home + "/.local/share") == dataHome );
+    QString configHome = DStandardPaths::path(DStandardPaths::XDG::ConfigHome);
+    ASSERT_TRUE( getenv("XDG_CONFIG_HOME") == configHome || (home + "/.config") == configHome );
+    QString cacheHome = DStandardPaths::path(DStandardPaths::XDG::CacheHome);
+    ASSERT_TRUE( getenv("XDG_CACHE_HOME") == cacheHome || (home + "/.cache" == cacheHome) );
+    QString rtTime = DStandardPaths::path(DStandardPaths::XDG::RuntimeTime);
+    ASSERT_TRUE( getenv("XDG_RUNTIME_DIR") == rtTime || (QStringLiteral("/run/user/") + QString::number(getuid())) == rtTime );
+}
+
+TEST_F(ut_DStandardPaths, testDStandardPathsDSGPath)
+{
+    QByteArray env1 = qgetenv("DSG_DATA_DIRS");
+    if(env1.isEmpty())
+        qputenv("DSG_DATA_DIRS", "/tmp/DSGDATADIRS");
+    QByteArray env2 = qgetenv("DSG_APP_DATA");
+    if(env2.isEmpty())
+        qputenv("DSG_APP_DATA", "/tmp/DSGAPPDATA");
+    QString datadir = DStandardPaths::path(DStandardPaths::DSG::DataDir);
+    QString appdata = DStandardPaths::path(DStandardPaths::DSG::AppData);
+    ASSERT_TRUE( (getenv("DSG_DATA_DIRS") == datadir) || "/tmp/DSGDATADIRS" == appdata );
+    ASSERT_TRUE( getenv("DSG_APP_DATA") == appdata || "/tmp/DSGAPPDATA" == datadir );
+}
