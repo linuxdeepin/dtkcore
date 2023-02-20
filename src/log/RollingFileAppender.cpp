@@ -162,11 +162,6 @@ void RollingFileAppender::computeRollOverTime()
         break;
     case HalfDailyRollover:
     {
-        int hour = nowTime.hour();
-        if (hour >=  12)
-            hour = 12;
-        else
-            hour = 0;
         start = QDateTime(nowDate, nowTime);
         m_rollOverTime = start.addSecs(60*60*12);
     }
@@ -179,6 +174,7 @@ void RollingFileAppender::computeRollOverTime()
         break;
     case WeeklyRollover:
     {
+        // Weekly and Monthly 'start' time is changed, very different to 'now' time
         // Qt numbers the week days 1..7. The week starts on Monday.
         // Change it to being numbered 0..6, starting with Sunday.
         int day = nowDate.dayOfWeek();
@@ -200,8 +196,6 @@ void RollingFileAppender::computeRollOverTime()
     }
 
     m_rollOverSuffix = start.toString(m_datePatternString);
-    Q_ASSERT_X(now.toString(m_datePatternString) == m_rollOverSuffix,
-               "DailyRollingFileAppender::computeRollOverTime()", "File name changes within interval");
     Q_ASSERT_X(m_rollOverSuffix != m_rollOverTime.toString(m_datePatternString),
                "DailyRollingFileAppender::computeRollOverTime()", "File name does not change with rollover");
 }
