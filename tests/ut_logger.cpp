@@ -104,25 +104,8 @@ TEST_F(ut_Logger, testRegisterAppender)
     QString format = consoleAppener->format();
     consoleAppener->setFormat("[%{file}: %{line} %{type:-7}] <%{function}> %{message}\n");
     dTrace("testRegisterAppender");
-
-    RollingFileAppender *rollingFileAppender = new RollingFileAppender("/tmp/rollLog");
-    if (rollingFileAppender->detailsLevel() > Logger::Trace)
-        rollingFileAppender->setDetailsLevel(Logger::Trace);
-    gLogger->registerAppender(rollingFileAppender);
-    rollingFileAppender->setDatePattern("'.'yyyy-MM-dd-hh-mm");
-    ASSERT_TRUE(rollingFileAppender->datePatternString() == "'.'yyyy-MM-dd-hh-mm");
-    rollingFileAppender->setLogFilesLimit(2);
-    ASSERT_TRUE(rollingFileAppender->logFilesLimit() == 2);
-    rollingFileAppender->setDatePattern(RollingFileAppender::MinutelyRollover);
-    ASSERT_TRUE(rollingFileAppender->datePattern() == RollingFileAppender::MinutelyRollover);
-    dTrace("testRegisterAppender");
-    rollingFileAppender->setDatePattern(RollingFileAppender::HourlyRollover);
-    ASSERT_TRUE(rollingFileAppender->datePattern() == RollingFileAppender::HourlyRollover);
-    dTrace("testRegisterAppender");
-    rollingFileAppender->setDatePattern(RollingFileAppender::HalfDailyRollover);
-    ASSERT_TRUE(rollingFileAppender->datePattern() == RollingFileAppender::HalfDailyRollover);
-    dTrace("testRegisterAppender");
 }
+
 
 TEST_F(ut_Logger, testRegisterCategoryAppender)
 {
@@ -159,4 +142,48 @@ TEST_F(ut_Logger, testSetDefaultCategory)
 TEST_F(ut_Logger, testDefaultCategory)
 {
     ASSERT_EQ(m_logger->defaultCategory(), "");
+}
+
+TEST_F(ut_Logger, testRollingFileAppender)
+{
+    Logger* gLogger = Logger::globalInstance();
+
+    RollingFileAppender *rfa = new RollingFileAppender("/tmp/rollLog");
+
+    if (rfa->detailsLevel() > Logger::Trace)
+        rfa->setDetailsLevel(Logger::Trace);
+
+    gLogger->registerAppender(rfa);
+
+    rfa->setLogFilesLimit(2);
+    ASSERT_TRUE(rfa->logFilesLimit() == 2);
+
+
+    rfa->setDatePattern("'.'yyyy-MM-dd-hh-mm");
+    ASSERT_TRUE(rfa->datePattern() == RollingFileAppender::MinutelyRollover);
+    ASSERT_TRUE(rfa->datePatternString() == "'.'yyyy-MM-dd-hh-mm");
+
+    rfa->setDatePattern("'.'yyyy-MM-dd-hh");
+    ASSERT_TRUE(rfa->datePattern() == RollingFileAppender::HourlyRollover);
+    ASSERT_TRUE(rfa->datePatternString() == "'.'yyyy-MM-dd-hh");
+
+    // pattern string set to default
+    rfa->setDatePattern(RollingFileAppender::HalfDailyRollover);
+    ASSERT_TRUE(rfa->datePattern() == RollingFileAppender::HalfDailyRollover);
+    ASSERT_TRUE(rfa->datePatternString() == "'.'yyyy-MM-dd-hh-mm-ss-zzz");
+
+    rfa->setDatePattern("'.'yyyy-MM-dd");
+    ASSERT_TRUE(rfa->datePattern() == RollingFileAppender::DailyRollover);
+    ASSERT_TRUE(rfa->datePatternString() == "'.'yyyy-MM-dd");
+
+    // pattern string set to default
+    rfa->setDatePattern(RollingFileAppender::WeeklyRollover);
+    ASSERT_TRUE(rfa->datePattern() == RollingFileAppender::WeeklyRollover);
+    ASSERT_TRUE(rfa->datePatternString() == "'.'yyyy-MM-dd-hh-mm-ss-zzz");
+
+    rfa->setDatePattern("'.'yyyy-MM");
+    ASSERT_TRUE(rfa->datePattern() == RollingFileAppender::MonthlyRollover);
+    ASSERT_TRUE(rfa->datePatternString() == "'.'yyyy-MM");
+
+    // dTrace("testRegisterAppender");
 }
