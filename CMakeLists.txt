@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.10)
 
-set (DVERSION "5.6.4" CACHE STRING "define project version")
+set (DVERSION "5.6.6" CACHE STRING "define project version")
 
 project (DtkCore
   VERSION ${DVERSION}
