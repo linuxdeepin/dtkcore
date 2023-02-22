@@ -214,8 +214,9 @@ QStringList firstLetters(const QString &words)
 #if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
     const auto &dedupList = QSet<QString>{list.begin(), list.end()};
     return QStringList{dedupList.begin(), dedupList.end()};
+#else
+    return QSet<QString>::fromList(list).toList();
 #endif
-    return  QSet<QString>::fromList(list).toList();
 }
 
 DCORE_END_NAMESPACE
