@@ -220,17 +220,17 @@ TEST_F(ut_DCI, DDciFile) {
         dciFile.writeFile("/b2", "");
         dciFile.writeFile("/a11.txt", "");
         const auto &list = dciFile.list("/", true);
-        ASSERT_EQ(list, (QStringList{"a2.txt", "a11.txt", "b01", "b2"}));
+        ASSERT_EQ(list, (QStringList{"a11.txt", "a2.txt", "b01", "b2"}));
 
         dciFile.writeFile("/b01/222", "");
         dciFile.link("/b01/33", "/b01/1111");
         dciFile.writeFile("/b01/33", "");
-        ASSERT_EQ(dciFile.list("/b01", true), (QStringList{"33", "222", "1111"}));
+        ASSERT_EQ(dciFile.list("/b01", true), (QStringList{"1111", "222", "33"}));
 
         ASSERT_TRUE(dciFile.rename("/a11.txt", "/b01/200"));
         ASSERT_TRUE(dciFile.copy("/a2.txt", "/b01/200.txt"));
         ASSERT_EQ(dciFile.list("/", true), (QStringList{"a2.txt", "b01", "b2"}));
-        ASSERT_EQ(dciFile.list("/b01", true), (QStringList{"33", "200", "200.txt", "222", "1111"}));
+        ASSERT_EQ(dciFile.list("/b01", true), (QStringList{"1111", "200", "200.txt", "222", "33"}));
     }
 }
 
