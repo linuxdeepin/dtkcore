@@ -118,9 +118,7 @@ QString DStandardPaths::homePath()
     if (!home.isEmpty())
         return QString::fromLocal8Bit(home);
 
-    struct passwd *pw = getpwuid(getuid());
-    const char *homedir = pw->pw_dir;
-    return QString::fromLocal8Bit(homedir);
+    return homePath(getuid());
 }
 
 QString DStandardPaths::path(DStandardPaths::XDG type)
