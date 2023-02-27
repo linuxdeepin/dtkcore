@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 # dbus
-set(CMAKE_CXX_FLAGS "-fno-access-control -ldl")
+set(CMAKE_CXX_FLAGS "-fno-access-control")
 add_compile_options(-fsanitize=address)
 add_link_options(-fsanitize=address)
 add_definitions(-DPREFIX="${CMAKE_PREFIX_PATH}")
@@ -113,6 +113,7 @@ if(LINUX)
     -lm 
     -lgcov
     -lvtabletest
+    -ldl
   )
 
   if(${QT_VERSION_MAJOR} STREQUAL "5")
