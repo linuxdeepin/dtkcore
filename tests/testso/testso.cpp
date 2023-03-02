@@ -4,9 +4,9 @@
 
 #include "testso.h"
 
-bool TestClass::A::test(int v)
+char TestClass::A::test(int v)
 {
     qDebug() << Q_FUNC_INFO << this << v;
 
-    return false;
+    return 'a';
 }
