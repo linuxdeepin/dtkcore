@@ -31,28 +31,27 @@ void ut_DVtableHook::TearDown()
 using namespace TestClass;
 DCORE_USE_NAMESPACE
 
-static bool test(A *obj, int v)
+static char test(A *obj, int v)
 {
     qDebug() << Q_FUNC_INFO << obj << v;
-    return true;
+    return 'x';
 }
 
-static bool test2(A *obj, int v, bool v2)
+static char test2(A *obj, int v, bool v2)
 {
     qDebug() << Q_FUNC_INFO << obj << v << v2;
-    return v2;
+    return 'y';
 }
 
 TEST_F(ut_DVtableHook, objectFun2ObjectFun)
 {
     A *a = new A();
     B *b = new B();
-
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(a, &A::test, b, &B::test));
     ASSERT_TRUE(DVtableHook::hasVtable(a));
-    ASSERT_TRUE(a->test(0));
+    ASSERT_EQ(a->test(0), 'b');
     DVtableHook::resetVfptrFun(a, &A::test);
-    ASSERT_TRUE(!a->test(0));
+    ASSERT_EQ(a->test(0), 'a');
     delete a;
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
     delete b;
@@ -62,7 +61,7 @@ TEST_F(ut_DVtableHook, objectFun2Fun)
 {
     A *a = new A();
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(a, &A::test, &test));
-    ASSERT_TRUE(a->test(1));
+    ASSERT_EQ(a->test(1), 'x');
     DVtableHook::resetVtable(a);
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
 
@@ -73,7 +72,7 @@ TEST_F(ut_DVtableHook, objectFun2StdFun)
 {
     A *a = new A();
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(a, &A::test, std::bind(&test2, std::placeholders::_1, std::placeholders::_2, true)));
-    ASSERT_TRUE(a->test(2));
+    ASSERT_EQ(a->test(2), 'y');
     DVtableHook::resetVtable(a);
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
     // not support
@@ -88,18 +87,18 @@ TEST_F(ut_DVtableHook, objectFun2StdFun)
 TEST_F(ut_DVtableHook, objectFun2LambdaFun)
 {
     A *a = new A();
-    auto lambda1 = [a](A *obj, int v) {
+    auto lambda1 = [](A *obj, int v) {
         qDebug() << Q_FUNC_INFO << obj << v;
-        return a == obj;
+        return '1';
     };
-    auto lambda2 = [a](A *obj, int v) {
+    auto lambda2 = [](A *obj, int v) {
         qDebug() << Q_FUNC_INFO << obj << v;
-        return a != obj;
+        return '2';
     };
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(a, &A::test, lambda1));
-    ASSERT_TRUE(a->test(3));
+    ASSERT_EQ(a->test(3), '1');
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(a, &A::test, lambda2));
-    ASSERT_TRUE(!a->test(3));
+    ASSERT_EQ(a->test(3), '2');
     DVtableHook::resetVtable(a);
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
     delete a;
@@ -111,7 +110,7 @@ TEST_F(ut_DVtableHook, fun2ObjectFun)
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, b, &B::test));
     A *a = new A();
     ASSERT_TRUE(DVtableHook::getVtableOfObject(a) == DVtableHook::getVtableOfClass<A>());
-    ASSERT_TRUE(a->test(4));
+    ASSERT_EQ(a->test(4), 'b');
     delete a;
     delete b;
 }
@@ -120,7 +119,7 @@ TEST_F(ut_DVtableHook, fun2Fun)
 {
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, &test));
     A *a = new A();
-    ASSERT_TRUE(a->test(5));
+    ASSERT_EQ(a->test(5), 'x');
     delete a;
 }
 
@@ -128,7 +127,7 @@ TEST_F(ut_DVtableHook, fun2StdFun)
 {
     A *a = new A();
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, std::bind(&test2, std::placeholders::_1, std::placeholders::_2, true)));
-    ASSERT_TRUE(a->test(6));
+    ASSERT_EQ(a->test(6), 'y');
     DVtableHook::resetVtable(a);
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
     delete a;
@@ -137,13 +136,27 @@ TEST_F(ut_DVtableHook, fun2StdFun)
 TEST_F(ut_DVtableHook, fun2LambdaFun)
 {
     A *a = new A();
-    auto lambda = [a](A *obj, int v) {
+    auto lambda = [](A *obj, int v) {
         qDebug() << Q_FUNC_INFO << obj << v;
-        return a == obj;
+        return 'z';
     };
     ASSERT_TRUE(DVtableHook::overrideVfptrFun(&A::test, lambda));
-    ASSERT_TRUE(a->test(7));
+    ASSERT_EQ(a->test(7), 'z');
     DVtableHook::resetVtable(a);
     ASSERT_TRUE(!DVtableHook::hasVtable(a));
     delete a;
+}
+
+TEST_F(ut_DVtableHook, testRTTI)
+{
+    A *c1 = new C();
+    auto original = typeid(*c1).name();
+    auto lambda3 = [](C *obj, int v) {
+        qDebug() << Q_FUNC_INFO << obj << v;
+        return '3';
+    };
+    ASSERT_TRUE(DVtableHook::overrideVfptrFun(dynamic_cast<C *>(c1), &C::test, lambda3));
+    ASSERT_EQ(c1->test(0), '3');
+    ASSERT_EQ(typeid(*c1).name(), original);
+    delete c1;
 }

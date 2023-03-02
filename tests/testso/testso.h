@@ -4,25 +4,34 @@
 
 #include <QDebug>
 
-namespace TestClass {
-class A
+namespace TestClass {  // test case use multiple inheritance
+struct A
 {
-public:
-    virtual bool test(int v);
-
+    int aa;
+    virtual char test(int v);
     virtual ~A() {}
 };
 
-class B
+struct B
 {
-public:
-    virtual bool test(int v)
+    int bx;
+    virtual char test(int v)
     {
         qDebug() << Q_FUNC_INFO << v;
 
-        return true;
+        return 'b';
     }
 
     virtual ~B() {}
+};
+
+struct C : public A, public B
+{
+    int cx;
+    char test(int v) override
+    {
+        qDebug() << Q_FUNC_INFO << v;
+        return 'c';
+    }
 };
 }  // namespace TestClass

@@ -10,11 +10,17 @@
 #include <QObject>
 #include <QSet>
 #include <QDebug>
-
+#include <QLoggingCategory>
 #include <functional>
 #include <type_traits>
 
 DCORE_BEGIN_NAMESPACE
+
+#ifndef QT_DEBUG
+inline Q_LOGGING_CATEGORY(vtableHook, "dtk.vtableHook", QtInfoMsg);
+#else
+inline Q_LOGGING_CATEGORY(vtableHook, "dtk.vtableHook");
+#endif
 
 class LIBDTKCORESHARED_EXPORT DVtableHook
 {
@@ -27,8 +33,12 @@ public:
     static inline int getVtableSize(quintptr **obj)
     {
         quintptr *begin = *obj;
-        while(*begin) ++begin;
-        return begin - *obj;
+        while (true) {
+            if ((int64_t)*begin == 0 or (int64_t)*begin < QSysInfo::WordSize)  // offset will grater than 8 bytes(64 bit)
+                break;
+            ++begin;
+        }
+        return begin - *obj + 2; // for offset and rtti info
     }
 
     static inline quintptr *getVtableOfObject(const void *obj)
@@ -44,11 +54,7 @@ public:
 
         quintptr *vfptr_t1 = reinterpret_cast<quintptr*>(resolve(vtable_symbol.constData()));
 
-        if (!vfptr_t1)
-            return nullptr;
-
-        // symbol address + 2 * sizeof(quintptr) = virtal table start address
-        return vfptr_t1 + 2;
+        return vfptr_t1 ? adjustToEntry(vfptr_t1) : nullptr;
     }
 
     static int getDestructFunIndex(quintptr **obj, std::function<void(void)> destoryObjFun);
@@ -107,7 +113,7 @@ public:
     {
         typedef QtPrivate::FunctionPointer<Fun1> FunInfo1;
         // 检查析构函数是否为虚
-        class OverrideDestruct : public FunInfo1::Object { ~OverrideDestruct() override;};
+        class OverrideDestruct : public FunInfo1::Object { ~OverrideDestruct() override;}; //TODO: we can use std::has_virtual_destructor
 
         if (!ensureVtable((void*)t1, std::bind(&_destory_helper<typename FunInfo1::Object>, t1))) {
             return false;
@@ -176,7 +182,14 @@ public:
 
         if (fun1_offset < 0 || fun1_offset > UINT_LEAST16_MAX)
             return false;
-
+        if (!isFinalClass(vfptr_t1)) {
+            vfptr_t1 = (quintptr *)adjustThis(vfptr_t1);
+            if (!vfptr_t1) {
+                qCWarning(vtableHook) << "The type of target object isn't the last item of inheritance chain and can't adjust pointer "
+                          "'This' to correct address, abort. " << vfptr_t1;
+                return false;
+            }
+        }
         quintptr *vfun = vfptr_t1 + fun1_offset / sizeof(quintptr);
 
         if (forceWrite)
@@ -194,9 +207,8 @@ public:
         static inline StdFunType fun(StdFunType f, bool check = true) {
             static StdFunType fun = f;
             static bool initialized = false;
-            if (initialized && check) {
-                qWarning("The StdFunWrap is dirty! Don't use std::bind(use lambda functions).");
-            }
+            if (initialized && check)
+                qCWarning(vtableHook, "The StdFunWrap is dirty! Don't use std::bind(use lambda functions).");
             initialized = true;
             return fun;
         }
@@ -311,7 +323,7 @@ public:
         rvf.oldFun = DVtableHook::resetVfptrFun((void*)obj, fun_offset);
 
         if (!rvf.oldFun) {
-            qWarning() << "Reset the function failed, object:" << obj;
+            qCWarning(vtableHook) << "Reset the function failed, object: " << obj;
             abort();
         }
 
@@ -322,6 +334,24 @@ public:
 private:
     static bool copyVtable(quintptr **obj);
     static bool clearGhostVtable(const void *obj);
+    static bool isFinalClass(quintptr *obj);
+    static quintptr **adjustThis(quintptr *obj);
+
+    template <typename T>
+    static T adjustToTop(T obj)  // vtableTop: vtable start address, Usually refers to offset_to_top
+    {
+        // this function should'n be called when entry is parent entry
+        using fundamentalType = typename std::remove_cv<typename std::remove_pointer<T>::type>::type;
+        return obj - static_cast<fundamentalType>(2);  // vtable start address  = vtable entry - 2
+    }
+
+    template <typename T>
+    static T adjustToEntry(T obj)  // vtableEntry: is located after rtti in the virtual table
+    {
+        // this function should'n be called when entry is parent entry
+        using fundamentalType = typename std::remove_cv<typename std::remove_pointer<T>::type>::type;
+        return obj + static_cast<fundamentalType>(2);  // vtable entry = vtable start address + 2
+    }
 
     template<typename T>
     static void _destory_helper(const T *obj) {
