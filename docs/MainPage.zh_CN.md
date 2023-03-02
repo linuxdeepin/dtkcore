@@ -23,8 +23,8 @@ target_link_libraries(
 )
 ```
 
-以上示例仅为最小示例，并不能单独作为camke项目使用，需要你自己添加其他的cmake模块，如Qt的cmake模块，以及你自己的cmake模块.
-@note 注意：dtkcore的QMake模块会自动引入Qt5的QMake模块，所以不需要再次引入Qt5的QMake模块,但是在使用cmake的时候必须手动引入Qtcore的CMake模块
+以上示例仅为最小示例，并不能单独作为CMake项目使用，需要你自己添加其他的CMake模块，如Qt的CMake模块，以及你自己的CMake模块.
+@note 注意：dtkcore的QMake模块会自动引入Qt5的QMake模块，所以不需要再次引入Qt5的QMake模块,但是在使用CMake的时候必须手动引入Qtcore的CMake模块
 
 ## 文档
 
