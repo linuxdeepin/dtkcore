@@ -18,7 +18,9 @@ class DCapManager : public QObject, public DObject
     D_DECLARE_PRIVATE(DCapManager)
 public:
     static DCapManager *instance();
+    QT_DEPRECATED_X("This api will no longer take effect, please use DCapDir or DCapFile")
     static void registerFileEngine();
+    QT_DEPRECATED_X("This api will no longer take effect, please use DCapDir or DCapFile")
     static void unregisterFileEngine();
 
     void appendPath(const QString &path);

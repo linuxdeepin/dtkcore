@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "dcapfsfileengine_p.h"
 #include "filesystem/dcapmanager.h"
 #include "filesystem/dcapfile.h"
 
@@ -36,7 +35,6 @@ void ut_DCapFSFileEngine::SetUp()
      manager = DCapManager::instance();
      manager->removePath("/tmp");
      manager->appendPath(TMPCAP_PATH);
-     manager->registerFileEngine();
 
      file = new QFile(nullptr);
      QDir dir(TMPCAP_PATH);
@@ -46,7 +44,6 @@ void ut_DCapFSFileEngine::SetUp()
 
 void ut_DCapFSFileEngine::TearDown()
 {
-    manager->unregisterFileEngine();
     manager->appendPath("/tmp");
     delete file;
     QDir dir(TMPCAP_PATH);
@@ -54,7 +51,7 @@ void ut_DCapFSFileEngine::TearDown()
         ASSERT_TRUE(dir.removeRecursively());
 }
 
-TEST_F(ut_DCapFSFileEngine, testSubDirCanReadWrite)
+/*TEST_F(ut_DCapFSFileEngine, testSubDirCanReadWrite)
 {
     manager->appendPath("/usr/share/");
     ASSERT_FALSE(DCapFSFileEngine("").canReadWrite("/tmp/usr/share/file0"));
@@ -220,7 +217,7 @@ TEST_F(ut_DCapFSFileEngine, testDCapDirEntry)
     ASSERT_TRUE(dir.entryList(QDir::Files).length() == 10);
     manager->removePath(TMPCAP_PATH);
     ASSERT_TRUE(dir.entryList(QDir::Files).length() == 0);
-}
+}*/
 
 TEST(ut_DCapFileAndDir, testDCapFileOpen)
 {
