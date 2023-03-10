@@ -104,20 +104,10 @@ DCapManager *DCapManager::instance()
 
 void DCapManager::registerFileEngine()
 {
-    // FIXME: When qt is compiled with Relocatable feature, a dead loop occurs due to the unreasonable implementation of
-    // dcapfsfileengine, temporarily suppressing the error with the following solution
-    qDebug() << "register cap fileEngine";  // initialize some global static variables
-    if (globalHandler)
-        return;
-    globalHandler = new DCapFSFileEngineHandler;
 }
 
 void DCapManager::unregisterFileEngine()
 {
-    if (!globalHandler)
-        return;
-    delete globalHandler;
-    globalHandler = nullptr;
 }
 
 void DCapManager::appendPath(const QString &path)
