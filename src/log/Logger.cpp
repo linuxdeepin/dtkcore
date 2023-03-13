@@ -508,7 +508,6 @@ public:
     QList<AbstractAppender*> appenders;
     mutable QMutex loggerMutex;
 
-    QMap<QString, bool> categories;
     QMultiMap<QString, AbstractAppender*> categoryAppenders;
     QString defaultCategory;
 
@@ -822,13 +821,8 @@ void Logger::registerCategoryAppender(const QString &category, AbstractAppender 
  */
 void Logger::logToGlobalInstance(const QString &category, bool logToGlobal)
 {
-    Q_D(Logger);
-    if (this == globalInstance()) {
-        QMutexLocker locker(&d->loggerMutex);
-        d->categories.insert(category, logToGlobal);
-    } else {
-        globalInstance()->logToGlobalInstance(category, logToGlobal);
-    }
+    Q_UNUSED(category)
+    Q_UNUSED(logToGlobal)
 }
 
 /*!
@@ -985,24 +979,18 @@ void Logger::write(const QDateTime &time, Logger::LogLevel level, const char *fi
 
     bool wasWritten = false;
     bool isGlobalInstance = this == globalInstance();
-    bool linkedToGlobal = isGlobalInstance && d->categories.value(logCategory, false);
 
     if (!logCategory.isNull()) {
         QList<AbstractAppender*> appenders = d->categoryAppenders.values(logCategory);
-        if (appenders.length() == 0) {
-            if (logCategory != d->defaultCategory && !linkedToGlobal && !fromLocalInstance)
-                std::cerr << "No appenders assotiated with category " << qPrintable(logCategory) << std::endl;
-        } else {
-            for (AbstractAppender* appender : appenders)
-                appender->write(time, level, file, line, func, logCategory, msg);
 
+        for (AbstractAppender* appender : appenders)
+            appender->write(time, level, file, line, func, logCategory, msg);
+        if (!appenders.isEmpty())
             wasWritten = true;
-        }
     }
 
-    // the default category is linked to the main logger appenders
-    // global logger instance also writes all linked categories to the main appenders
-    if (logCategory.isNull() || logCategory == d->defaultCategory || linkedToGlobal) {
+    // if we can't find the corresponding category, log will be appended to all Appenders.
+    if (!wasWritten) {
         if (!d->appenders.isEmpty()) {
             for (AbstractAppender* appender : d->appenders)
                 appender->write(time, level, file, line, func, logCategory, msg);

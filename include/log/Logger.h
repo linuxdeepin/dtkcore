@@ -41,7 +41,7 @@ public:
     void registerAppender(AbstractAppender *appender);
     void registerCategoryAppender(const QString &category, AbstractAppender *appender);
 
-    void logToGlobalInstance(const QString &category, bool logToGlobal = false);
+    QT_DEPRECATED_X("no longer take effect") void logToGlobalInstance(const QString &category, bool logToGlobal = false);
 
     void setDefaultCategory(const QString &category);
     QString defaultCategory() const;
