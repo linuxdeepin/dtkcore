@@ -2,20 +2,23 @@
 pkgname=dtkcore-git
 pkgver=5.5.23.r5.g74f86b0
 pkgrel=1
+sourcename=dtkcore
+sourcetars=("$sourcename"_"$pkgver".tar.xz)
+sourcedir="$sourcename"
 pkgdesc='DTK core modules'
 arch=('x86_64' 'aarch64')
 url="https://github.com/linuxdeepin/dtkcore"
 license=('LGPL3')
-depends=('dconf' 'deepin-desktop-base-git' 'python' 'gsettings-qt' 'lshw')
-makedepends=('git' 'qt5-tools' 'dtkcommon-git' 'ninja' 'cmake' 'doxygen' 'uchardet' 'icu' 'systemd')
+depends=('dconf' 'deepin-desktop-base-git' 'gsettings-qt' 'dtkcommon-git' 'lshw' 'uchardet' 'icu' 'systemd')
+makedepends=('git' 'qt5-tools' 'ninja' 'cmake' 'doxygen')
 conflicts=('dtkcore')
 provides=('dtkcore')
 groups=('deepin-git')
-source=('source.tar.gz')
+source=("${sourcetars[@]}")
 sha512sums=('SKIP')
 
 build() {
-  cd $deepin_source_name
+  cd $sourcedir
   cmake -GNinja \
       -DMKSPECS_INSTALL_DIR=lib/qt/mkspecs/modules/\
       -DBUILD_DOCS=ON \
@@ -30,6 +33,6 @@ build() {
 }
 
 package() {
-  cd $deepin_source_name
+  cd $sourcedir
   DESTDIR="$pkgdir" ninja install
 }
