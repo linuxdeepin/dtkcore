@@ -182,14 +182,7 @@ public:
 
         if (fun1_offset < 0 || fun1_offset > UINT_LEAST16_MAX)
             return false;
-        if (!isFinalClass(vfptr_t1)) {
-            vfptr_t1 = (quintptr *)adjustThis(vfptr_t1);
-            if (!vfptr_t1) {
-                qCWarning(vtableHook) << "The type of target object isn't the last item of inheritance chain and can't adjust pointer "
-                          "'This' to correct address, abort. " << vfptr_t1;
-                return false;
-            }
-        }
+
         quintptr *vfun = vfptr_t1 + fun1_offset / sizeof(quintptr);
 
         if (forceWrite)
@@ -334,8 +327,6 @@ public:
 private:
     static bool copyVtable(quintptr **obj);
     static bool clearGhostVtable(const void *obj);
-    static bool isFinalClass(quintptr *obj);
-    static quintptr **adjustThis(quintptr *obj);
 
     template <typename T>
     static T adjustToTop(T obj)  // vtableTop: vtable start address, Usually refers to offset_to_top
