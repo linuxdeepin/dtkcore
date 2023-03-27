@@ -283,9 +283,7 @@ quintptr DVtableHook::originalFun(const void *obj, quintptr functionOffset)
         qCWarning(vtableHook) << "Not override the object virtual table: " << obj;
         return 0;
     }
-    if (!isFinalClass((quintptr *)*_obj))
-        _obj = adjustThis((quintptr *)*_obj);  // adjust to correct position
-    Q_CHECK_PTR(_obj);
+
     int vtable_size = getVtableSize(_obj);
     // 获取obj对象原本虚表的入口
     quintptr *vfptr_t2 = (quintptr*)(*_obj)[vtable_size - 1];
@@ -296,19 +294,6 @@ quintptr DVtableHook::originalFun(const void *obj, quintptr functionOffset)
     }
 
     return *(vfptr_t2 + functionOffset / sizeof(quintptr));
-}
-
-bool DVtableHook::isFinalClass(quintptr *obj)
-{
-    return *(obj - 2) == 0 ? true : false; // adjust pointer from Vtable Entry to Vtable start address, there are offset_to_top and rtti pointer.
-}
-
-quintptr **DVtableHook::adjustThis(quintptr *obj)
-{
-    qint64 offset = *(quintptr*)(obj - 2);
-    if (offset > 0)  // invalid offset
-        return nullptr;
-    return (quintptr **)(obj + offset);  // if obj isn't the last item in the inheritance chain, we should adjust pointer 'This' manually.
 }
 
 #if defined(Q_OS_LINUX)
