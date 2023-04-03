@@ -1,3 +1,9 @@
+dtkcore (5.6.9) unstable; urgency=medium
+
+  * Release 5.6.9
+
+ -- Deepin Packages Builder <packages@deepin.com>  Mon, 03 Apr 2023 09:48:07 +0800
+
 dtkcore (5.6.8) unstable; urgency=medium
 
   * Release 5.6.8
