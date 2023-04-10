@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2017 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2017 - 2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -555,7 +555,9 @@ bool DSysInfo::isDeepin()
 bool DSysInfo::isDDE()
 {
     if (!DSysInfo::isDeepin()) {
-        return qgetenv("XDG_SESSION_DESKTOP") == "deepin";
+        const QByteArray &xsd = qgetenv("XDG_SESSION_DESKTOP");
+        return !xsd.compare("deepin", Qt::CaseInsensitive) ||
+                !xsd.compare("DDE", Qt::CaseInsensitive);
     }
 
     siGlobal->ensureDeepinInfo();
