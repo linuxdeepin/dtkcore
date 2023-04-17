@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2022 Uniontech Software Technology Co.,Ltd.
+# SPDX-FileCopyrightText: 2022 - 2023 Uniontech Software Technology Co.,Ltd.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -30,9 +30,9 @@ add_definitions(-DDSG_DATA_DIR=\"${DSG_DATA_DIR}\")
 # COMMONID    - working for common.
 #
 # e.g:
-# dconfig_meta_files(APPID dconfigexample BASE ./configs FILES ./configs/example.json ./configs/a/example.json)
+# dtk_add_config_meta_files(APPID dconfigexample BASE ./configs FILES ./configs/example.json ./configs/a/example.json)
 #
-function(dconfig_meta_files)
+function(dtk_add_config_meta_files)
     set(oneValueArgs BASE APPID COMMONID)
     set(multiValueArgs FILES)
 
@@ -65,9 +65,9 @@ endfunction()
 # META_NAME   - override for the meta configure.
 #
 # e.g :
-#dconfig_override_files(APPID dconfigexample BASE ./configs META_NAME example  FILES ./configs/dconf-example.override.json ./configs/a/dconf-example.override.a.json)
+#dtk_add_config_override_files(APPID dconfigexample BASE ./configs META_NAME example  FILES ./configs/dconf-example.override.json ./configs/a/dconf-example.override.a.json)
 #
-function(dconfig_override_files)
+function(dtk_add_config_override_files)
     set(options)
     set(oneValueArgs BASE APPID META_NAME)
     set(multiValueArgs FILES)
@@ -90,4 +90,12 @@ function(dconfig_override_files)
             install(FILES "${_current_FILE}" DESTINATION ${DSG_DATA_DIR}/configs/overrides/${OVERRIDEITEM_META_NAME}/${SUBPATH})
         endif()
     endforeach()
+endfunction()
+
+# deprecated since dtk6
+function(dconfig_meta_files)
+    dtk_add_config_meta_files(${ARGV})
+endfunction()
+function(dconfig_override_files)
+    dtk_add_config_override_files(${ARGV})
 endfunction()
