@@ -49,11 +49,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE            # 添加需要链接的
     dtkcore
 )
 
-# dconfig_meta_files函数，部署一些"meta"的配置。
-# 函数定义在dtkcommon的cmake目录下
+# dtk_add_config_meta_files函数，部署一些"meta"的配置。
+# 函数定义在dtkcore的cmake目录下
 # APPID 应用的ID
 # FILES 需要部署的文件。
-dconfig_meta_files(
+dtk_add_config_meta_files(
     APPID ${PROJECT_NAME}
     FILES ./config/example.json
 )
