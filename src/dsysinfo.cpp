@@ -1054,7 +1054,7 @@ QString DSysInfo::cpuModelName()
         QStringList env = QProcess::systemEnvironment();
         env << "LC_ALL=C"; // Add an environment variable
         lscpu.setEnvironment(env);
-        lscpu.start("/usr/bin/lscpu");
+        lscpu.start("lscpu");
         if (lscpu.waitForFinished(3000)) {
             const QMap<QString, QString> map = siGlobal->parseInfoContent(lscpu.readAll());
             if (map.contains("Model name")) {
