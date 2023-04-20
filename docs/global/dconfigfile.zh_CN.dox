@@ -363,6 +363,16 @@ sudo ./dconfigfile-example
 @param[in] key 配置项名称
 @return
 
+@fn static QStringList genericMetaDirs(const QString &localPrefix = QString())
+@brief 获取应用无关配置存储的目录
+@param[in] localPrefix 配置的目录前缀
+@return 返回应用无关配置存储的目录列表
+
+@fn static QStringList applicationMetaDirs(const QString &localPrefix, const QString &appId)
+@brief 获取应用配置存储的目录
+@param[in] localPrefix 配置的目录前缀
+@param[in] appId 应用唯一标识
+@return 返回存储应用配置的目录列表
 */
 
 /*!

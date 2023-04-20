@@ -97,6 +97,8 @@ public:
     virtual QStringList allOverrideDirs(const bool useAppId, const QString &prefix = QString()) const = 0;
 
     virtual QVariant value(const QString &key) const = 0;
+    static QStringList genericMetaDirs(const QString &localPrefix = QString());
+    static QStringList applicationMetaDirs(const QString &localPrefix, const QString &appId);
 };
 
 class LIBDTKCORESHARED_EXPORT DConfigCache {
