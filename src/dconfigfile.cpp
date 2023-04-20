@@ -221,6 +221,27 @@ inline static QString getUserName(const uint uid) {
 
 DConfigMeta::~DConfigMeta() {}
 
+QStringList DConfigMeta::genericMetaDirs(const QString &localPrefix)
+{
+    QStringList paths;
+    // lower priority is higher.
+    for (auto item: DStandardPaths::paths(DStandardPaths::DSG::DataDir)) {
+        paths.prepend(QDir::cleanPath(QString("%1/%2/configs").arg(localPrefix, item)));
+    }
+    return paths;
+}
+
+QStringList DConfigMeta::applicationMetaDirs(const QString &localPrefix, const QString &appId)
+{
+    QStringList paths;
+    const auto &dataPaths = genericMetaDirs(localPrefix);
+    paths.reserve(dataPaths.size());
+    for (auto item : dataPaths) {
+        paths << QString("%1/%2").arg(item, appId);
+    }
+    return paths;
+}
+
 Dtk::Core::DConfigCache::~DConfigCache() {}
 
 struct DConfigKey {
@@ -617,32 +638,12 @@ public:
         return values.value(key);
     }
 
-    inline QStringList applicationMetaDirs(const QString &prefix) const
-    {
-        QStringList paths;
-        // lower priority is higher.
-        const auto &dataPaths = DStandardPaths::paths(DStandardPaths::DSG::DataDir);
-        paths.reserve(dataPaths.size());
-        for (auto item : dataPaths) {
-            paths.prepend(QDir::cleanPath(QString("%1/%2/configs/%3").arg(prefix, item, configKey.appId)));
-        }
-        return paths;
-    }
-
-    inline static QStringList genericMetaDirs(const QString &prefix) {
-        QStringList paths;
-        for (auto item: DStandardPaths::paths(DStandardPaths::DSG::DataDir)) {
-            paths.prepend(QDir::cleanPath(QString("%1/%2/configs").arg(prefix, item)));
-        }
-        return paths;
-    }
-
     QString metaPath(const QString &localPrefix, bool *useAppId) const override
     {
         bool useAppIdForOverride = true;
 
         QString path;
-        const QStringList &applicationMetas = applicationMetaDirs(localPrefix);
+        const QStringList &applicationMetas = applicationMetaDirs(localPrefix, configKey.appId);
         for (auto iter = applicationMetas.rbegin(); iter != applicationMetas.rend(); iter++) {
             path = getFile(*iter, configKey.subpath, configKey.fileName + FILE_SUFFIX);
             if (!path.isEmpty())
