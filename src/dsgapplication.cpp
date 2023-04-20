@@ -14,21 +14,24 @@ static inline QByteArray getSelfAppId() {
     QByteArray selfId = qgetenv("DSG_APP_ID");
     if (!selfId.isEmpty())
         return selfId;
-    selfId = DSGApplication::getId(QCoreApplication::applicationPid());
-    if (selfId.isEmpty() && !qEnvironmentVariableIsSet("DTK_DISABLED_FALLBACK_APPID")) {
-        selfId = QCoreApplication::applicationName().toLocal8Bit();
-    }
-    Q_ASSERT(!selfId.isEmpty());
-    if (selfId.isEmpty()) {
-        qt_assert("The application ID is empty", __FILE__, __LINE__);
-    }
-    return selfId;
+    return DSGApplication::getId(QCoreApplication::applicationPid());
 }
 
 QByteArray DSGApplication::id()
 {
     static QByteArray selfId = getSelfAppId();
-    return selfId;
+    if (!selfId.isEmpty())
+        return selfId;
+    QByteArray result = selfId;
+    if (!qEnvironmentVariableIsSet("DTK_DISABLED_FALLBACK_APPID")) {
+        result = QCoreApplication::applicationName().toLocal8Bit();
+    }
+    Q_ASSERT(!result.isEmpty());
+    if (result.isEmpty()) {
+        qt_assert("The application ID is empty", __FILE__, __LINE__);
+    }
+
+    return result;
 }
 
 QByteArray DSGApplication::getId(qint64)
