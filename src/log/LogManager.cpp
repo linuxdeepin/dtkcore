@@ -7,8 +7,24 @@
 #include <ConsoleAppender.h>
 #include <RollingFileAppender.h>
 #include <JournalAppender.h>
+#include "dstandardpaths.h"
 
 DCORE_BEGIN_NAMESPACE
+
+// Courtesy qstandardpaths_unix.cpp
+static void appendOrganizationAndApp(QString &path)
+{
+#ifndef QT_BOOTSTRAPPED
+    const QString org = QCoreApplication::organizationName();
+    if (!org.isEmpty())
+        path += QLatin1Char('/') + org;
+    const QString appName = QCoreApplication::applicationName();
+    if (!appName.isEmpty())
+        path += QLatin1Char('/') + appName;
+#else
+    Q_UNUSED(path);
+#endif
+}
 
 /*!
 @~english
@@ -86,14 +102,14 @@ QString DLogManager::getlogFilePath()
     //No longer set the default log path (and mkdir) when constructing now, instead set the default value if it's empty when getlogFilePath is called.
     //Fix the problem that the log file is still created in the default path when the log path is set manually.
     if (DLogManager::instance()->m_logPath.isEmpty()) {
-        if (QDir::homePath() == QDir::rootPath()) {
-            qWarning() << "unable to locate the cache directory."
-                       << "logfile path is empty, the log will not be written.\r\n"
-                       << (qgetenv("HOME").isEmpty() ? "the HOME environment variable not set" : "");
+        if (DStandardPaths::homePath().isEmpty()) {
+            qWarning() << "Unable to locate the cache directory, cannot acquire home directory, and the log will not be written to file..";
             return QString();
         }
 
-        QString cachePath = QStandardPaths::standardLocations(QStandardPaths::CacheLocation).at(0);
+        QString cachePath(DStandardPaths::path(DStandardPaths::XDG::CacheHome));
+        appendOrganizationAndApp(cachePath);
+
         if (!QDir(cachePath).exists()) {
             QDir(cachePath).mkpath(cachePath);
         }
