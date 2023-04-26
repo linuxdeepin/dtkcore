@@ -14,5 +14,8 @@ int main(int argc, char **argv)
 #endif
     DLogManager::registerConsoleAppender();
     dDebug() << "this is a debug message";
+    qWarning() << "it is a Warning";
+    qInfo() << "it is an Info";
+    qCritical() << "it is a tracing";
     return app.exec();
 }

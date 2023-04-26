@@ -10,6 +10,26 @@
 
 DCORE_BEGIN_NAMESPACE
 
+inline static QString formattedLevelWithColor(Logger::LogLevel level, QString &msg) {
+    switch (level) {
+    case Logger::Trace:
+        return QString("\x1b[94m%1\x1b[0m").arg(msg);
+    case Logger::Debug:
+        return QString("\x1b[36m%1\x1b[0m").arg(msg);
+    case Logger::Info:
+        return QString("\x1b[32m%1\x1b[0m").arg(msg);
+    case Logger::Warning:
+        return QString("\x1b[33m%1\x1b[0m").arg(msg);
+    case Logger::Error:
+        return QString("\x1b[31m%1\x1b[0m").arg(msg);
+    case Logger::Fatal:
+        return QString("\x1b[35m%1\x1b[0m").arg(msg);
+    default:
+        break;
+    }
+    return msg;
+}
+
 /*!
 @~english
   \class Dtk::Core::AbstractStringAppender
@@ -292,6 +312,12 @@ QByteArray AbstractStringAppender::qCleanupFuncinfo(const char *name)
     return info;
 }
 
+QString AbstractStringAppender::formattedString(const QDateTime &time, Logger::LogLevel level,
+                                                const char *file, int line, const char *func,
+                                                const QString &category, const QString &msg ) const {
+    return formattedString(time, level, file, line, func, category, msg, false);
+}
+
 /*!
 @~english
   \brief Returns the string to record to the logging target, formatted according to the format().
@@ -302,13 +328,15 @@ QByteArray AbstractStringAppender::qCleanupFuncinfo(const char *name)
   The \a func parameter indicates the function name to output.
   The \a category parameter indicates the log category.
   The \a msg parameter indicates the output message.
+  The \a withcolor parameter indicates wether to add color to output
 
   \sa format()
   \sa setFormat(const QString&)
  */
 QString AbstractStringAppender::formattedString(const QDateTime &time, Logger::LogLevel level,
                                                 const char *file, int line, const char *func,
-                                                const QString &category, const QString &msg) const
+                                                const QString &category, const QString &msg,
+                                                bool withcolor) const
 {
     QString f = format();
     const int size = f.size();
@@ -375,15 +403,27 @@ QString AbstractStringAppender::formattedString(const QDateTime &time, Logger::L
             } else if (command == QLatin1String("type")) {
                 // Log level
                 chunk = Logger::levelToString(level);
+                if (withcolor) {
+                    chunk = formattedLevelWithColor(level, chunk);
+                }
             }  else if (command == QLatin1String("Type")) {
                 // Uppercased log level
                 chunk = Logger::levelToString(level).toUpper();
+                if (withcolor) {
+                    chunk = formattedLevelWithColor(level, chunk);
+                }
             } else if (command == QLatin1String("typeOne")) {
                 // One letter log level
                 chunk = Logger::levelToString(level).left(1).toLower();
+                if (withcolor) {
+                    chunk = formattedLevelWithColor(level, chunk);
+                }
             } else if (command == QLatin1String("TypeOne")) {
                 // One uppercase letter log level
                 chunk = Logger::levelToString(level).left(1).toUpper();
+                if (withcolor) {
+                    chunk = formattedLevelWithColor(level, chunk);
+                }
             } else if (command == QLatin1String("File")) {
                 // Filename
                 chunk = QLatin1String(file);

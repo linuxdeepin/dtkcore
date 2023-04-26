@@ -23,6 +23,8 @@ public:
 protected:
     QString formattedString(const QDateTime &time, Logger::LogLevel level, const char *file, int line,
                             const char *func, const QString &category, const QString &msg) const;
+    QString formattedString(const QDateTime &time, Logger::LogLevel level, const char *file, int line,
+                            const char *func, const QString &category, const QString &msg, bool withcolor) const;
 
 private:
     static QByteArray qCleanupFuncinfo(const char*);
