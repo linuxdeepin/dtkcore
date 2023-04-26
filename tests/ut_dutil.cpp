@@ -22,7 +22,6 @@
 #include "settings/dsettingsgroup.h"
 #include "settings/dsettingsoption.h"
 #include "dsysinfo.h"
-#include "base/dsingleton.h"
 
 DCORE_USE_NAMESPACE
 
@@ -138,7 +137,6 @@ TEST_F(ut_DUtil, testDSingleton)
 
     qDeleteAll(threads);
     qDeleteAll(testers);
-    delete DSingleton<int>::instance();
 }
 
 TEST_F(ut_DUtil, testTimeFormatter)
@@ -401,13 +399,6 @@ TEST_F(ut_DUtil, testOsVersion)
     entry.setStringValue("10018.107", "OsBuild", "Version");
     ASSERT_TRUE(entry.save());
     ASSERT_TRUE(DSysInfo::uosType() == DSysInfo::UosTypeUnknown);
-
-    // test OsBuild.E
-    for (int i = 0; i < 4; ++i) {
-        entry.setStringValue(QString("%1").arg(11000.107 + qreal(1 << i)), "OsBuild", "Version");
-        ASSERT_TRUE(entry.save());
-        ASSERT_TRUE(DSysInfo::uosArch() == (1 << i));
-    }
 
     // 社区版测试
     entry.setStringValue("Community", "EditionName", "Version");

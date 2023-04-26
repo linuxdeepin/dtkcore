@@ -583,7 +583,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
 
     QSet<QString> annotations;
     for (const QDBusIntrospection::Interface *interface : interfaces) {
-        for (const auto method : interface->methods) {
+        for (const auto &method : interface->methods) {
             for (int i(0); i != method.outputArgs.size(); ++i) {
                 const QDBusIntrospection::Argument &arg = method.outputArgs[i];
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -609,7 +609,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
             }
         }
 
-        for (const auto property : interface->properties) {
+        for (const auto &property : interface->properties) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
             if (QDBusMetaType::signatureToMetaType(property.type.toLatin1()).id() != QMetaType::Type::UnknownType)
 #else
@@ -660,7 +660,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
 
         // private class member
         cs << "    // begin member variables" << endl;
-        for (const auto property : interface->properties) {
+        for (const auto &property : interface->properties) {
             QByteArray type = qtTypeName(property.type, property.annotations);
             cs << "    " << type << " " << property.name << ';' << endl;
         }
@@ -722,7 +722,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
             cs << "void " << className << "::onPropertyChanged(const QString &propName, const QVariant &value)" << endl;
             cs << "{" << endl;
 
-            for (const auto property : interface->properties) {
+            for (const auto &property : interface->properties) {
                 char first = property.name[0].toLatin1();
                 QString name = property.name;
                 name[0] = QChar(first & ~0x20);

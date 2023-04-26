@@ -4,7 +4,6 @@
 
 #include "dcapfile.h"
 #include "dobject_p.h"
-#include "dcapmanager.h"
 #include "private/dcapfsfileengine_p.h"
 
 #include <private/qdir_p.h>
@@ -87,7 +86,7 @@ QString DCapFile::readLink() const
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
 QString DCapFile::symLinkTarget() const
 {
-    return readLink();
+    return QFile::symLinkTarget();
 }
 #endif
 

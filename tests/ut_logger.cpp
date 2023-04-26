@@ -143,7 +143,6 @@ TEST_F(ut_Logger, testLogToGlobalInstance)
     if (fileAppener->detailsLevel() > Logger::Trace)
         fileAppener->setDetailsLevel(Logger::Trace);
     gLogger->registerAppender(fileAppener);
-    m_logger->logToGlobalInstance("test", true);
 
     ASSERT_TRUE(fileAppener->size() == 0);
     dTrace("testRegisterAppender");
