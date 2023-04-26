@@ -17,14 +17,14 @@ MultiSingletonTester::MultiSingletonTester(QObject *parent)
 
 void MultiSingletonTester::run()
 {
-    Singleton::instance()->count.ref();
+    Singleton::ref().count.ref();
 }
 
 int MultiSingletonTester::count() const
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    return Singleton::instance()->count.loadRelaxed();
+    return Singleton::ref().count.loadRelaxed();
 #else
-    return Singleton::instance()->count.load();
+    return Singleton::ref().count.load();
 #endif
 }

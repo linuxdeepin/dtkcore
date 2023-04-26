@@ -243,7 +243,7 @@ bool DSysInfoPrivate::ensureOsVersion()
     ok = (osbs.size() >= 2 && osbs.value(0).size() == 5);
     D_ASSET_EXIT(ok, "OsBuild version invalid!");
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     const QStringList &left = osbs.value(0).split(QString(), Qt::SkipEmptyParts);
 #else
     const QStringList &left = osbs.value(0).split(QString(), QString::SkipEmptyParts);
@@ -1050,11 +1050,17 @@ QString DSysInfo::cpuModelName()
 
     // Get the cpu info by executing lscpu command
     if (siGlobal->cpuModelName.isEmpty()) {
+        const auto &lscpu_command = QStandardPaths::findExecutable("lscpu");
+        if (lscpu_command.isEmpty()) {
+            qWarning() << "lscpu not found";
+            return QString();
+        }
         QProcess lscpu;
         QStringList env = QProcess::systemEnvironment();
         env << "LC_ALL=C"; // Add an environment variable
         lscpu.setEnvironment(env);
-        lscpu.start("/usr/bin/lscpu");
+        lscpu.setProgram(lscpu_command);
+        lscpu.start();
         if (lscpu.waitForFinished(3000)) {
             const QMap<QString, QString> map = siGlobal->parseInfoContent(lscpu.readAll());
             if (map.contains("Model name")) {
@@ -1198,7 +1204,7 @@ QDateTime DSysInfo::shutdownTime()
         const QByteArray data = lastx.readLine(1024);
         //shutdown system down  4.19.0-amd64-des Fri Sep 30 17:53:17 2022 - Sat Oct  8 08:32:47 2022 (7+14:39)
         if (data.startsWith("shutdown")) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
             QString timeFmt = QString(data).split(' ', Qt::SkipEmptyParts).mid(4, 5).join(' ');
 #else
             QString timeFmt = QString(data).split(' ', QString::SkipEmptyParts).mid(4, 5).join(' ');

@@ -621,7 +621,7 @@ Logger::~Logger()
 
     QMutexLocker appendersLocker(&d->loggerMutex);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     QSet<AbstractAppender *> appenderList{d->appenders.begin(), d->appenders.end()};
     for (const auto v : d->categoryAppenders.values()) {
         appenderList.insert(v);

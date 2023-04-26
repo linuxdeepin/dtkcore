@@ -79,19 +79,19 @@ LibICU::LibICU()
         icuuc = nullptr;
     };
 
-#define INIT_FUNCTION(Name)                                                                                                      \
+#define INIT_ICUUC(Name)                                                                                                      \
     Name = reinterpret_cast<decltype(Name)>(icuuc->resolve(#Name));                                                              \
     if (!Name) {                                                                                                                 \
         initFunctionError();                                                                                                     \
         return;                                                                                                                  \
     }
 
-    INIT_FUNCTION(ucsdet_open);
-    INIT_FUNCTION(ucsdet_close);
-    INIT_FUNCTION(ucsdet_setText);
-    INIT_FUNCTION(ucsdet_detectAll);
-    INIT_FUNCTION(ucsdet_getName);
-    INIT_FUNCTION(ucsdet_getConfidence);
+    INIT_ICUUC(ucsdet_open);
+    INIT_ICUUC(ucsdet_close);
+    INIT_ICUUC(ucsdet_setText);
+    INIT_ICUUC(ucsdet_detectAll);
+    INIT_ICUUC(ucsdet_getName);
+    INIT_ICUUC(ucsdet_getConfidence);
 }
 
 LibICU::~LibICU()
@@ -156,19 +156,19 @@ Libuchardet::Libuchardet()
         uchardet = nullptr;
     };
 
-#define INIT_FUNCTION(Name)                                                                                                      \
+#define INIT_UCHARDET(Name)                                                                                                      \
     Name = reinterpret_cast<decltype(Name)>(uchardet->resolve(#Name));                                                           \
     if (!Name) {                                                                                                                 \
         initFunctionError();                                                                                                     \
         return;                                                                                                                  \
     }
 
-    INIT_FUNCTION(uchardet_new);
-    INIT_FUNCTION(uchardet_delete);
-    INIT_FUNCTION(uchardet_handle_data);
-    INIT_FUNCTION(uchardet_data_end);
-    INIT_FUNCTION(uchardet_reset);
-    INIT_FUNCTION(uchardet_get_charset);
+    INIT_UCHARDET(uchardet_new);
+    INIT_UCHARDET(uchardet_delete);
+    INIT_UCHARDET(uchardet_handle_data);
+    INIT_UCHARDET(uchardet_data_end);
+    INIT_UCHARDET(uchardet_reset);
+    INIT_UCHARDET(uchardet_get_charset);
 }
 
 Libuchardet::~Libuchardet()

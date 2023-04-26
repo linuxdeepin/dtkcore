@@ -71,8 +71,6 @@ static QStringList defaultWriteablePaths() {
     return paths;
 }
 
-static DCapFSFileEngineHandler *globalHandler = nullptr;
-
 class DCapManagerPrivate : public DObjectPrivate
 {
     D_DECLARE_PUBLIC(DCapManager)

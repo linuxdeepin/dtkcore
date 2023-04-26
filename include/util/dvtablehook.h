@@ -180,7 +180,7 @@ public:
         quintptr fun1_offset = toQuintptr(&fun1);
         quintptr fun2_offset = toQuintptr(&fun2);
 
-        if (fun1_offset < 0 || fun1_offset > UINT_LEAST16_MAX)
+        if (fun1_offset > UINT_LEAST16_MAX)
             return false;
         if (!isFinalClass(vfptr_t1)) {
             vfptr_t1 = (quintptr *)adjustThis(vfptr_t1);
