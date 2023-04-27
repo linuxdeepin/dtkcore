@@ -8,6 +8,8 @@
 #include <QThread>
 #include <QMetaObject>
 #include <QCoreApplication>
+#include <type_traits>
+#include <cstring>
 
 namespace DUtil
 {
@@ -32,16 +34,21 @@ inline void TimerSingleShot(int msec,  Func1 slot)
 template <class T>
 void SecureErase(T *p, size_t size)
 {
-    memset(p, 0, size);
+    static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value,
+                  "try to erase content of raw pointer, but type T isn't suitable");
+
+    std::memset(p, 0, size);
 }
 
 template <class T>
 void SecureErase(T &obj)
 {
+    static_assert(std::is_default_constructible<typename T::value_type>::value,
+                  "container's value type must have a default constructor.");
+
     for (typename T::iterator i = obj.begin(); i != obj.end(); ++i) {
-        *i = 0;
+        *i = typename T::value_type{};
     }
-    obj.clear();
 }
 
 }
