@@ -7,6 +7,9 @@
 
 // STL
 #include <iostream>
+extern "C" {
+#include <unistd.h>
+}
 
 DCORE_BEGIN_NAMESPACE
 
@@ -64,7 +67,8 @@ void ConsoleAppender::ignoreEnvironmentPattern(bool ignore)
 void ConsoleAppender::append(const QDateTime &time, Logger::LogLevel level, const char *file, int line,
                              const char *func, const QString &category, const QString &msg)
 {
-    std::cerr << qPrintable(formattedString(time, level, file, line, func, category, msg, true));
+    bool isAtty = isatty(STDERR_FILENO);
+    std::cerr << qPrintable(formattedString(time, level, file, line, func, category, msg, isAtty));
 }
 
 DCORE_END_NAMESPACE
