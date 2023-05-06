@@ -65,7 +65,7 @@ Copyright: None
 License: CC0-1.0
 
 # others
-Files: src/util/resources/dpinyin.dict
+Files: src/util/resources/dpinyin.dict tests/data/LGPLv3.txt
 Copyright: None
 License: CC0-1.0
 

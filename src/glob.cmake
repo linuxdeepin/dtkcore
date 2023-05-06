@@ -2,6 +2,7 @@ set(OUTER_SOURCE
   ${CMAKE_CURRENT_LIST_DIR}/dconfig.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dsgapplication.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dsysinfo.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/dlicenseinfo.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dsecurestring.cpp
   ${CMAKE_CURRENT_LIST_DIR}/ddesktopentry.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dtkcore_global.cpp
@@ -11,6 +12,7 @@ set(OUTER_HEADER
   ${CMAKE_CURRENT_LIST_DIR}/../include/global/dconfig.h
   ${CMAKE_CURRENT_LIST_DIR}/../include/global/dsgapplication.h
   ${CMAKE_CURRENT_LIST_DIR}/../include/global/dsysinfo.h
+  ${CMAKE_CURRENT_LIST_DIR}/../include/global/dlicenseinfo.h
   ${CMAKE_CURRENT_LIST_DIR}/../include/global/dsecurestring.h
   ${CMAKE_CURRENT_LIST_DIR}/../include/global/ddesktopentry.h
 )
