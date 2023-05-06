@@ -36,6 +36,7 @@
 #include "settings/dsettingsoption.h"
 #include "dsysinfo.h"
 #include "base/dsingleton.h"
+#include "dlicenseinfo.h"
 
 DCORE_USE_NAMESPACE
 
@@ -479,6 +480,27 @@ TEST_F(ut_DUtil, testOsVersion)
     ASSERT_TRUE(DSysInfo::udpateVersion() == QStringLiteral(""));
 
     QFile::remove("/tmp/etc/os-version");
+}
+
+TEST_F(ut_DUtil, testLicense)
+{
+    DLicenseInfo licenseInfo;
+    QString jsonContent = u8R"([
+                                {
+                                    "name": "dtk",
+                                    "version": "5.6.8",
+                                    "copyright": "Copyright 2023 THe Uniontech Company Ltd. All rights reserved.",
+                                    "license": "LGPLv3"
+                                }
+                                ]
+                              )";
+    licenseInfo.setLicenseSearchPath(":/data/");
+
+    ASSERT_TRUE(licenseInfo.loadContent(jsonContent.toLatin1()));
+    EXPECT_EQ(licenseInfo.componentInfos().count(), 1);
+    ASSERT_TRUE(licenseInfo.loadFile(":/data/example-license.json"));
+    EXPECT_EQ(licenseInfo.componentInfos().count(), 1);
+    ASSERT_FALSE(licenseInfo.licenseContent("LGPLv3").isEmpty());
 }
 
 TEST_F(ut_DUtil, testDDesktopEntry)

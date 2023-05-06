@@ -8,5 +8,7 @@
         <file>data/dconf-global.meta.json</file>
         <file>data/dconf-global.override.json</file>
         <file>data/dconf-example_other_app_configure.meta.json</file>
+        <file>data/LGPLv3.txt</file>
+        <file>data/example-license.json</file>
     </qresource>
 </RCC>

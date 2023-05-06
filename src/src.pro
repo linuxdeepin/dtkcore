@@ -14,14 +14,16 @@ HEADERS += $$PWD/dtkcore_global.h \
     dconfig.h \
     dsysinfo.h \
     dsecurestring.h \
-    ddesktopentry.h
+    ddesktopentry.h \
+    dlicenseinfo.h
 
 SOURCES += \
     dconfig.cpp \
     dsysinfo.cpp \
     dsecurestring.cpp \
     ddesktopentry.cpp \
-    dtkcore_global.cpp
+    dtkcore_global.cpp \
+    dlicenseinfo.cpp
 
 linux: {
     HEADERS += \
@@ -64,7 +66,8 @@ includes.files += \
     $$PWD/DSecureString \
     $$PWD/DDesktopEntry \
     $$PWD/DConfigFile \
-    $$PWD/DConfig
+    $$PWD/DConfig \
+    $$PWD/DLicenseInfo
 
 # ----------------------------------------------
 # install config
