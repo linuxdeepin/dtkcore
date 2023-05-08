@@ -1,3 +1,11 @@
+dtkcore (5.6.11) unstable; urgency=medium
+
+  * Release 5.6.11
+  * add color to ConsoleAppender
+  * remove build warning
+  
+ -- Deepin Packages Builder <packages@deepin.com>  Mon, 08 May 2023 11:48:45 +0800
+
 dtkcore (5.6.10) unstable; urgency=medium
 
   * Release 5.6.10
