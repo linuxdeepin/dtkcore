@@ -1085,6 +1085,9 @@ qint64 DSysInfo::memoryInstalledSize()
 #ifdef Q_OS_LINUX
     // Getting Memory Installed Size
     // TODO: way to not dept on lshw?
+    if (siGlobal->memoryInstalledSize >= 0) {
+        return siGlobal->memoryInstalledSize;
+    }
     if (!QStandardPaths::findExecutable("lshw").isEmpty()) {
         QProcess lshw;
 
