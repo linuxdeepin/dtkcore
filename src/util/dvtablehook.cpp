@@ -296,6 +296,18 @@ quintptr DVtableHook::originalFun(const void *obj, quintptr functionOffset)
     return *(vfptr_t2 + functionOffset / sizeof(quintptr));
 }
 
+bool DVtableHook::isFinalClass(quintptr *obj)
+{
+    Q_UNUSED(obj);
+    return true;
+}
+
+quintptr **DVtableHook::adjustThis(quintptr *obj)
+{
+    Q_UNUSED(obj);
+    return nullptr;
+}
+
 #if defined(Q_OS_LINUX)
 static int readProtFromPsm(quintptr adr, size_t length)
 {
