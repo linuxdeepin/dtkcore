@@ -310,6 +310,17 @@ TEST_F(ut_DConfigFile, fileOverride) {
     }
 }
 
+TEST_F(ut_DConfigFile, fileOverrideNoExistItem) {
+
+    FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
+    FileCopyGuard guard2(":/data/dconf-example.override.noexistitem.json", QString("%1/%2.json").arg(overridePath, FILE_NAME));
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        ASSERT_FALSE(config.meta()->keyList().contains("noexistitem"));
+    }
+}
+
 TEST_F(ut_DConfigFile, noAppIdWithGlobalConfiguration) {
 
     FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(noAppidMetaPath, FILE_NAME));
