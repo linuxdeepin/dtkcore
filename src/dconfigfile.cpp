@@ -371,6 +371,11 @@ public:
         return values.keys();
     }
 
+    inline bool contains(const QString &key) const
+    {
+        return values.contains(key);
+    }
+
     inline void remove(const QString &key)
     {
         values.remove(key);
@@ -745,6 +750,10 @@ public:
                 auto i = contents.constBegin();
 
                 for (; i != contents.constEnd(); ++i) {
+                    if (!values.contains(i.key())) {
+                        qCWarning(cfLog, "The meta doesn't contain the override key: \"%s\".", qPrintable(i.key()));
+                        continue;
+                    }
                     // 检查是否允许 override
                     if (values.flags(i.key()) & DConfigFile::NoOverride)
                         continue;

@@ -10,5 +10,6 @@
         <file>data/dconf-example_other_app_configure.meta.json</file>
         <file>data/LGPLv3.txt</file>
         <file>data/example-license.json</file>
+        <file>data/dconf-example.override.noexistitem.json</file>
     </qresource>
 </RCC>
