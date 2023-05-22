@@ -68,11 +68,21 @@ DDBusData::DDBusData()
 
 }
 
+QDBusPendingCall DDBusData::asyncCallWithArguments(const QString &method, const QVariantList &arguments, const QString &iface)
+{
+    // When creating a QDBusAbstractInterface, Qt will try to invoke introspection into this dbus path;
+    // This is costing in some cases when introspection is not ready;
+    // Cause this is an asynchronous method, it'd be better not to wait for anything, just leave this to caller;
+    // Use QDBusMessage to invoke directly instead of creating a QDBusInterface.
+    const QString calledInterface = iface.isEmpty() ? interface : iface;
+    QDBusMessage methodCall = QDBusMessage::createMethodCall(service, path, calledInterface, method);
+    methodCall.setArguments(arguments);
+    return connection.asyncCall(methodCall);
+}
+
 QDBusPendingCall DDBusCaller::call()
 {
-    QDBusInterface iface(m_dbusData->service, m_dbusData->path, m_dbusData->interface, m_dbusData->connection);
-
-    return iface.asyncCallWithArgumentList(m_methodName, m_arguments);
+    return m_dbusData->asyncCallWithArguments(m_methodName, m_arguments);
 }
 
 DDBusCaller::DDBusCaller(const QString &method, std::shared_ptr<DDBusData> data)
@@ -83,9 +93,8 @@ DDBusCaller::DDBusCaller(const QString &method, std::shared_ptr<DDBusData> data)
 
 QDBusPendingCall DDBusProperty::get()
 {
-    QDBusInterface iface(m_dbusData->service, m_dbusData->path, QStringLiteral("org.freedesktop.DBus.Properties"), m_dbusData->connection);
-
-    return iface.asyncCallWithArgumentList(QStringLiteral("Get"), { QVariant::fromValue(m_dbusData->interface), QVariant::fromValue(m_propertyName) });
+    QVariantList args{QVariant::fromValue(m_dbusData->interface), QVariant::fromValue(m_propertyName)};
+    return m_dbusData->asyncCallWithArguments(QStringLiteral("Get"), args, QStringLiteral("org.freedesktop.DBus.Properties"));
 }
 
 DDBusProperty::DDBusProperty(const QString &property, std::shared_ptr<DDBusData> data)

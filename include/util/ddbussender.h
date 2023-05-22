@@ -18,6 +18,7 @@ class LIBDTKCORESHARED_EXPORT DDBusData
 {
 public:
     DDBusData();
+    QDBusPendingCall asyncCallWithArguments(const QString &method, const QVariantList &arguments, const QString &iface = QString());
 
     QString service;
     QString path;
@@ -73,11 +74,8 @@ private:
 template <typename T>
 QDBusPendingCall DDBusProperty::set(const T &value)
 {
-    QDBusInterface iface(m_dbusData->service, m_dbusData->path, QStringLiteral("org.freedesktop.DBus.Properties"), m_dbusData->connection);
-
-    const QVariantList args = { QVariant::fromValue(m_dbusData->interface), QVariant::fromValue(m_propertyName), QVariant::fromValue(QDBusVariant(value)) };
-
-    return iface.asyncCallWithArgumentList(QStringLiteral("Set"), args);
+    QVariantList args{QVariant::fromValue(m_dbusData->interface), QVariant::fromValue(m_propertyName), QVariant::fromValue(QDBusVariant(value))};
+    return m_dbusData->asyncCallWithArguments(QStringLiteral("Set"), args, QStringLiteral("org.freedesktop.DBus.Properties"));
 }
 
 class LIBDTKCORESHARED_EXPORT DDBusSender
