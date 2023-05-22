@@ -27,10 +27,7 @@ set (FEATURES_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/qt${QT_VERSION_MAJOR}/mkspecs
 set (CONFIG_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/DtkCore" CACHE STRING "Install dir for cmake config files")
 
 set (BUILD_EXAMPLES ON CACHE BOOL "Build examples")
-option(BUILD_VERSION "buildversion" "0")
-if(NOT BUILD_VERSION)
-  set(BUILD_VERSION "0")
-endif()
+set (BUILD_VERSION "0" CACHE STRING "buildversion")
 
 if(UNIX AND NOT APPLE)
   set(LINUX TRUE)

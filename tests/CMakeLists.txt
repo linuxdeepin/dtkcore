@@ -10,7 +10,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_FLAGS "-fno-access-control")
 add_compile_options(-fsanitize=address)
 add_link_options(-fsanitize=address)
-add_definitions(-DPREFIX="${CMAKE_PREFIX_PATH}")
+add_definitions(-DPREFIX="${CMAKE_INSTALL_PREFIX}")
 add_definitions(-DOS_VERSION_TEST_FILE="/tmp/etc/os-version")
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
@@ -34,7 +34,7 @@ if("${QT_VERSION_MAJOR}" STREQUAL "6")
   find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core5Compat)
 endif()
 
-# start base 
+# start base
 include(../src/base/base.cmake)
 
 # end base
@@ -46,15 +46,15 @@ include(../src/dci/dci.cmake)
 #start filesystem
 include(../src/filesystem/filesystem.cmake)
 #end filesystem
-# start log 
+# start log
 include(../src/log/log.cmake)
 #end log
-# start settings 
+# start settings
 include(../src/settings/settings.cmake)
 #message(${settings_SRC})
 #end settings
 
-#start utils 
+#start utils
 
 # TODO match linux and others
 include(../src/util/util.cmake)
@@ -68,19 +68,19 @@ include(../src/glob.cmake)
 # for test.so
 add_subdirectory(./testso)
 
-# test 
+# test
 file(GLOB TEST_HEADER
-  ut_.*h 
+  ut_.*h
 )
 file(GLOB TEST_SOURCE
-  *.cpp 
+  *.cpp
 )
 
 if("${QT_VERSION_MAJOR}" STREQUAL "6")
   list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_LIST_DIR}/ut_gsettingsbackend.cpp")
 endif()
 
-set(test_SRC 
+set(test_SRC
   ${TEST_HEADER}
   ${TEST_SOURCE}
 )
@@ -91,7 +91,7 @@ if(LINUX)
     ${base_SRCS}
     ${dci_SRCS}
     ${filesystem_SRCS}
-    ${log_SRCS}	
+    ${log_SRCS}
     ${settings_SRC}
     ${utils_SRC}
     ${glob_SRC}
@@ -110,7 +110,7 @@ if(LINUX)
     Qt${QT_VERSION_MAJOR}::Test
     ${GTEST_LIBRARIES}
     -lpthread
-    -lm 
+    -lm
     -lgcov
     -lvtabletest
     -ldl
@@ -179,7 +179,7 @@ else()
     Qt${QT_VERSION_MAJOR}::Test
     ${GTEST_LIBRARIES}
     -lpthread
-    -lm 
+    -lm
     -lgcov
     -lvtabletest
   )
