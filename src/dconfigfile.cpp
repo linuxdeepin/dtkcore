@@ -36,6 +36,15 @@ Q_LOGGING_CATEGORY(cfLog, "dtk.dsg.config");
 
 #define FILE_SUFFIX QLatin1String(".json")
 
+// subpath must be a subdirectory of the dir.
+inline static bool subpathIsValid(const QString &subpath, const QDir &dir)
+{
+    if (subpath.isEmpty())
+        return true;
+
+    const QDir subDir(dir.filePath(subpath.mid(1)));
+    return subDir.canonicalPath().startsWith(dir.canonicalPath());
+}
 /*!
 @~english
   \internal
@@ -52,6 +61,10 @@ inline QString getFile(const QString &baseDir, const QString &subpath, const QSt
             qPrintable(baseDir), qPrintable(subpath), qPrintable(name));
 
     const QDir base_dir(baseDir);
+    if (!subpathIsValid(subpath, base_dir)) {
+        qCDebug(cfLog, "subpath is invalid in the base dir:\"%s\", subpath:\"%s\".", qPrintable(baseDir), qPrintable(subpath));
+        return QString();
+    }
     QDir target_dir = base_dir;
 
     if (!subpath.isEmpty())
@@ -831,6 +844,9 @@ public:
             const QDir base_dir(QDir::cleanPath(dir));
 
             if (!base_dir.exists())
+                continue;
+
+            if (!subpathIsValid(configKey.subpath, base_dir))
                 continue;
 
             QDir target_dir = base_dir;
