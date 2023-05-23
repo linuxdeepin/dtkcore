@@ -1,0 +1,10 @@
+name: report update status
+on: [check_suite, check_run, status]
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check event
+        run: |
+          echo '${{ toJson(github.event) }}'
