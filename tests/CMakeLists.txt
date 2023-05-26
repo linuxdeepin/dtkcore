@@ -76,6 +76,11 @@ file(GLOB TEST_SOURCE
   *.cpp
 )
 
+file(GLOB FackDBus
+  "./fakedbus/*.h"
+  "./fakedbus/*.cpp"
+)
+
 if("${QT_VERSION_MAJOR}" STREQUAL "6")
   list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_LIST_DIR}/ut_gsettingsbackend.cpp")
 endif()
@@ -83,6 +88,7 @@ endif()
 set(test_SRC
   ${TEST_HEADER}
   ${TEST_SOURCE}
+  ${FackDBus}
 )
 
 # end test
