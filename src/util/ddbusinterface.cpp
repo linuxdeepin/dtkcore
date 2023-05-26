@@ -24,6 +24,22 @@ static const QString &PropertiesInterface = QStringLiteral("org.freedesktop.DBus
 static const QString &PropertiesChanged = QStringLiteral("PropertiesChanged");
 static const char *PropertyName = "propname";
 
+static QVariant demarshall(const QMetaProperty &metaProperty, const QVariant &value)
+{
+    // if the value is the same with parent one, return value
+    if (value.userType() == metaProperty.userType())
+        return value;
+
+    // unwrap the value with parent one
+    QVariant result = QVariant(metaProperty.userType(), nullptr);
+    if (value.userType() == qMetaTypeId<QDBusArgument>()) {
+        QDBusArgument dbusArg = value.value<QDBusArgument>();
+        QDBusMetaType::demarshall(dbusArg, metaProperty.userType(), result.data());
+    }
+
+    return result;
+}
+
 DDBusInterfacePrivate::DDBusInterfacePrivate(DDBusInterface *interface, QObject *parent)
     : QObject(interface)
     , m_parent(parent)
@@ -228,8 +244,23 @@ QVariant DDBusInterface::property(const char *propName)
     QDBusMessage msg = QDBusMessage::createMethodCall(service(), path(), PropertiesInterface, QStringLiteral("Get"));
     msg << interface() << originalPropname(propName, d->m_suffix);
     QDBusPendingReply<QVariant> prop = connection().asyncCall(msg);
-    if (prop.value().isValid())
-        return prop.value();
+    if (prop.value().isValid()) {
+        // if there is no parent, return value
+        if (!parent()) {
+            qWarning() << "you use it without parent, and if the value is not valid, you may get nothing";
+            return prop.value();
+        }
+        auto metaObject = parent()->metaObject();
+        QVariant propresult = prop.value();
+        int i = metaObject->indexOfProperty(propName);
+        if (i != -1) {
+            QMetaProperty metaProperty = metaObject->property(i);
+            // try to use property in parent to unwrap the value
+            propresult = demarshall(metaProperty, propresult);
+            d->m_propertyMap.insert(propName, propresult);
+        }
+        return propresult;
+    }
 
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(prop, this);
     watcher->setProperty(PropertyName, propName);
