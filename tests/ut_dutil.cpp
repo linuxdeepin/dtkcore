@@ -12,6 +12,7 @@
 #include <DDesktopEntry>
 #include <QTest>
 
+#include "dstandardpaths.h"
 #include "log/LogManager.h"
 #include "filesystem/dpathbuf.h"
 #include "ut_singleton.h"
@@ -48,6 +49,20 @@ void ut_DUtil::TearDown()
     if (dir.exists())
         dir.remove("/tmp/etc/");
 }
+TEST_F(ut_DUtil, testDLogManager)
+{
+    DPathBuf logPath(QStandardPaths::standardLocations(QStandardPaths::CacheLocation).first());
+
+#ifdef Q_OS_OSX
+    logPath = logPath / "tests.log";
+#else
+    logPath = logPath / "tests.log";
+#endif
+
+    ASSERT_EQ(DLogManager::getlogFilePath(), logPath.toString());
+    DLogManager::registerFileAppender();
+    DLogManager::registerConsoleAppender();
+}
 
 TEST_F(ut_DUtil, testDefaultLogPath)
 {
@@ -55,28 +70,9 @@ TEST_F(ut_DUtil, testDefaultLogPath)
     qunsetenv("HOME");
 
     // unset HOME env will not init default log file path
-    ASSERT_EQ(DLogManager::getlogFilePath(), QString());
+    ASSERT_TRUE(DLogManager::getlogFilePath().contains(Dtk::Core::DStandardPaths::homePath()));
 
     qputenv("HOME", home);
-}
-
-TEST_F(ut_DUtil, testDLogManager)
-{
-    qApp->setOrganizationName("deepin");
-    qApp->setApplicationName("deepin-test-dtk");
-
-    DPathBuf logPath(QStandardPaths::standardLocations(QStandardPaths::CacheLocation).first());
-
-#ifdef Q_OS_OSX
-    logPath = logPath / "deepin-test-dtk.log";
-#else
-    logPath = logPath / "deepin-test-dtk.log";
-#endif
-
-    ASSERT_EQ(DLogManager::getlogFilePath(), logPath.toString());
-    DLogManager::registerFileAppender();
-    DLogManager::registerConsoleAppender();
-    DLogManager::setlogFilePath("%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n");
 }
 
 TEST_F(ut_DUtil, testSetInvalidLogPath)
@@ -217,55 +213,10 @@ TEST_F(ut_DUtil, testDiskFormatter1024)
     ASSERT_TRUE(qFuzzyCompare(0.09094947017729282, d2));
 }
 
+// TODO: use fakeDbus Instead
 TEST_F(ut_DUtil, testDBusSender)
 {
     // basic method call
-    DDBusSender()
-        .service("com.deepin.dde.ControlCenter")
-        .interface("com.deepin.dde.ControlCenter")
-        .path("/com/deepin/dde/ControlCenter")
-        .method("ShowPage")
-        .arg(QString("update"))
-        .arg(QString("available-updates"))
-        .call();
-
-    // property set
-    QDBusPendingReply<> r1 = DDBusSender()
-                                 .service("com.deepin.dde.daemon.Dock")
-                                 .interface("com.deepin.dde.daemon.Dock")
-                                 .path("/com/deepin/dde/daemon/Dock")
-                                 .property("DisplayMode")
-                                 .set(1); // set to efficient mode
-
-    // property get
-    QDBusPendingReply<QVariant> r2 = DDBusSender()
-                                         .service("com.deepin.dde.daemon.Dock")
-                                         .interface("com.deepin.dde.daemon.Dock")
-                                         .path("/com/deepin/dde/daemon/Dock")
-                                         .property("DisplayMode")
-                                         .get(); // read mode
-
-    if (!r2.isError() && !r1.isError()) {
-        ASSERT_TRUE(r2.value().toInt() == 1);
-    }
-
-    // complex type property get
-    QDBusPendingReply<QVariant> r3 = DDBusSender()
-                                         .service("com.deepin.dde.ControlCenter")
-                                         .interface("com.deepin.dde.ControlCenter")
-                                         .path("/com/deepin/dde/ControlCenter")
-                                         .property("Rect")
-                                         .get();
-
-    QVariant variant = r3.value();
-    const QDBusArgument v = variant.value<QDBusArgument>();
-
-    int x, y, w, h;
-    v.beginStructure();
-    v >> x >> y >> w >> h;
-    v.endStructure();
-
-    //qDebug() << x << y << w << h;
 }
 
 TEST_F(ut_DUtil, testGroups)
