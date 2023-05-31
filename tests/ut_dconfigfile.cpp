@@ -460,3 +460,28 @@ TEST_F(ut_DConfigFile, setCachePathPrefix) {
         ASSERT_EQ(config.value("key3", userCache.get()), QString("global-config"));
     }
 }
+
+TEST_F(ut_DConfigFile, setSubpath) {
+
+    FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+    }
+    {
+        DConfigFile config(APP_ID, FILE_NAME, "/a/b");
+        ASSERT_TRUE(config.load(LocalPrefix));
+    }
+    {
+        DConfigFile config(APP_ID, FILE_NAME, "/a/b/..");
+        ASSERT_TRUE(config.load(LocalPrefix));
+    }
+    {
+        DConfigFile config(APP_ID, FILE_NAME, "/../a/b");
+        ASSERT_FALSE(config.load(LocalPrefix));
+    }
+    {
+        DConfigFile config(APP_ID, FILE_NAME, "/a/b/../../..");
+        ASSERT_FALSE(config.load(LocalPrefix));
+    }
+}
