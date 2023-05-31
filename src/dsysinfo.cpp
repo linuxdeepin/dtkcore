@@ -608,8 +608,10 @@ QString DSysInfo::deepinCopyright()
  */
 DSysInfo::UosType DSysInfo::uosType()
 {
+#ifndef OS_VERSION_TEST_FILE
     if (!DSysInfo::isDeepin())
         return UosTypeUnknown;
+#endif
     siGlobal->ensureOsVersion();
 
     UosType ost = UosTypeUnknown;

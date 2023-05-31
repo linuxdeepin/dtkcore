@@ -9,6 +9,7 @@
 #include <QUrl>
 #include <QSignalSpy>
 #include <QTest>
+#include <QTemporaryFile>
 #include "filesystem/dfilewatcher.h"
 #include "filesystem/dfilewatchermanager.h"
 
@@ -26,10 +27,6 @@ protected:
 void ut_DFileWatcherManager::SetUp()
 {
     fileWatcherManager = new DFileWatcherManager(nullptr);
-    QFile file("/tmp/test");
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
-    file.close();
 }
 
 void ut_DFileWatcherManager::TearDown()
@@ -38,27 +35,27 @@ void ut_DFileWatcherManager::TearDown()
         delete fileWatcherManager;
         fileWatcherManager = nullptr;
     }
-    QFile file("/tmp/test");
-    if (file.exists())
-        file.remove();
-    QFile file1("/tmp/test1");
-    if (file1.exists())
-        file1.remove();
 }
 
 TEST_F(ut_DFileWatcherManager, testDFileWatcherManagerAdd)
 {
-    auto watcher = fileWatcherManager->add("/tmp/test");
+    QTemporaryFile tmpfile;
+    if (!tmpfile.open())
+        return;
+
+    auto watcher = fileWatcherManager->add(tmpfile.fileName());
     if (!watcher->startWatcher())
         return;
 
     // test fileDeleted signal
     QSignalSpy spy(watcher, &DBaseFileWatcher::fileDeleted);
-    QFile file("/tmp/test");
-    if (file.exists())
-        file.remove();
+
+    if (tmpfile.exists())
+        tmpfile.remove();
     ASSERT_TRUE(QTest::qWaitFor([&spy]() { return spy.count() >= 1; }, 1000));
     ASSERT_TRUE(spy.count() >= 1);
+
+    watcher->stopWatcher();
 }
 
 TEST_F(ut_DFileWatcherManager, testDFileWatcherManagerRemove)

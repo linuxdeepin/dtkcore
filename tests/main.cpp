@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
     app.setApplicationName("tests");
+    app.setOrganizationName("deepin");
     DTimedLoop loop;
 
     testing::InitGoogleTest(&argc, argv);
