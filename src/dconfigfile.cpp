@@ -43,7 +43,7 @@ inline static bool subpathIsValid(const QString &subpath, const QDir &dir)
         return true;
 
     const QDir subDir(dir.filePath(subpath.mid(1)));
-    return subDir.canonicalPath().startsWith(dir.canonicalPath());
+    return subDir.absolutePath().startsWith(dir.absolutePath());
 }
 /*!
 @~english
