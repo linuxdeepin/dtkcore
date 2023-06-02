@@ -24,6 +24,12 @@ static const QString &PropertiesInterface = QStringLiteral("org.freedesktop.DBus
 static const QString &PropertiesChanged = QStringLiteral("PropertiesChanged");
 static const char *PropertyName = "propname";
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    #define PropType(metaProperty) metaProperty.metaType()
+#else
+    #define PropType(metaProperty) metaProperty.userType()
+#endif
+
 static QVariant demarshall(const QMetaProperty &metaProperty, const QVariant &value)
 {
     // if the value is the same with parent one, return value
@@ -31,10 +37,12 @@ static QVariant demarshall(const QMetaProperty &metaProperty, const QVariant &va
         return value;
 
     // unwrap the value with parent one
-    QVariant result = QVariant(metaProperty.userType(), nullptr);
+    QVariant result = QVariant(PropType(metaProperty), nullptr);
+
+
     if (value.userType() == qMetaTypeId<QDBusArgument>()) {
         QDBusArgument dbusArg = value.value<QDBusArgument>();
-        QDBusMetaType::demarshall(dbusArg, metaProperty.userType(), result.data());
+        QDBusMetaType::demarshall(dbusArg, PropType(metaProperty), result.data());
     }
 
     return result;
