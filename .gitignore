@@ -21,9 +21,6 @@ build*/
 *.qm
 
 src/DtkCores
-src/dtkcore_config.h
-cmake/DtkCore/DtkCoreConfig.cmake
-src/qt_lib_d*.pri
 
 bin/
 .qmake*
@@ -31,11 +28,10 @@ Makefile
 
 cmake/DtkCore*
 .cache
-DtkCoreConfig.cmake
-dtkcore.pc
-qt_lib_dtkcore.pri
+*.pc
+*.pri
 dtkcore_config.h
-CMakeLists.txt.user
+*.user
 
 #tools
 .vscode

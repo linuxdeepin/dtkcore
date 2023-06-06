@@ -1,6 +1,4 @@
 #cmake_minimum_required(VERSION 3.5)
-set(LIBNAME dtkcore)
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -17,10 +15,6 @@ if(LINUX)
   find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBus)
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
       pkg_check_modules(QGSettings REQUIRED IMPORTED_TARGET gsettings-qt) #Dtk6 removed.
-  endif()
-
-  if("${QT_VERSION_MAJOR}" STREQUAL "6")
-    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core5Compat)
   endif()
 
   if(BUILD_WITH_SYSTEMD)
@@ -60,7 +54,7 @@ include(util/util.cmake)
 include(glob.cmake)
 #endGLOG
 if(LINUX)
-  add_library(${LIBNAME} SHARED
+  add_library(${LIB_NAME} SHARED
     ${base_SRCS}
     ${dci_SRCS}
     ${filesystem_SRCS}
@@ -70,35 +64,30 @@ if(LINUX)
     ${glob_SRC}
   )
   target_link_libraries(
-    ${LIBNAME} PUBLIC
+    ${LIB_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::DBus
     Qt${QT_VERSION_MAJOR}::Xml
   )
-  target_link_libraries(${LIBNAME} PRIVATE
+  target_link_libraries(${LIB_NAME} PRIVATE
     ICU::uc
     Qt${QT_VERSION_MAJOR}::CorePrivate
     uchardet
   )
-  if("${QT_VERSION_MAJOR}" STREQUAL "6")
-    target_link_libraries(${LIBNAME} PRIVATE
-      Qt${QT_VERSION_MAJOR}::Core5Compat #TODO: [QTextCodec] : should remove this dependencies
-    )
-  endif()
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
-    target_link_libraries(${LIBNAME} PRIVATE
+    target_link_libraries(${LIB_NAME} PRIVATE
       PkgConfig::QGSettings
     )
   endif()
   if(BUILD_WITH_SYSTEMD)
-    target_link_libraries(${LIBNAME} PRIVATE
+    target_link_libraries(${LIB_NAME} PRIVATE
       PkgConfig::Systemd
     )
     add_definitions(-DBUILD_WITH_SYSTEMD)
   endif()
 
 else()
-  add_library(${LIBNAME} SHARED
+  add_library(${LIB_NAME} SHARED
     ${base_SRCS}
     ${dci_SRCS}
     ${filesystem_SRCS}
@@ -108,35 +97,30 @@ else()
     ${glob_SRC}
   )
   target_link_libraries(
-    ${LIBNAME} PUBLIC
+    ${LIB_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Xml
   )
-  target_link_libraries(${LIBNAME} PRIVATE
+  target_link_libraries(${LIB_NAME} PRIVATE
     ICU::uc
     Qt${QT_VERSION_MAJOR}::CorePrivate
     uchardet
   )
-  if("${QT_VERSION_MAJOR}" STREQUAL "6")
-    target_link_libraries(${LIBNAME} PRIVATE
-      Qt${QT_VERSION_MAJOR}::Core5Compat
-    )
-  endif()
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
-    target_link_libraries(${LIBNAME} PRIVATE
+    target_link_libraries(${LIB_NAME} PRIVATE
       PkgConfig::QGSettings
     )
   endif()
 endif()
-set_target_properties(${LIBNAME} PROPERTIES
+set_target_properties(${LIB_NAME} PROPERTIES
   VERSION ${CMAKE_PROJECT_VERSION}
   SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR}
   EXPORT_NAME Core
 )
-target_include_directories(${LIBNAME} PRIVATE
+target_include_directories(${LIB_NAME} PRIVATE
   ${uchardet_INCLUDE_DIRS}
 )
-target_include_directories(${LIBNAME} PUBLIC
+target_include_directories(${LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/util>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/dci>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/log>
@@ -149,11 +133,11 @@ target_include_directories(${LIBNAME} PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 )
 
-target_include_directories(${LIBNAME} INTERFACE
+target_include_directories(${LIB_NAME} INTERFACE
   $<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>
 )
 
-target_link_directories(${LIBNAME} INTERFACE
+target_link_directories(${LIB_NAME} INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${LIBRARY_INSTALL_DIR}>
 )
@@ -185,11 +169,11 @@ endif()
 
 install(FILES ${TOINSTALLSETTINGS} DESTINATION "${INCLUDE_INSTALL_DIR}")
 install(DIRECTORY ../include/util/ DESTINATION "${INCLUDE_INSTALL_DIR}" FILES_MATCHING PATTERN "*.h")
-install(TARGETS ${LIBNAME} EXPORT DtkCoreTargets
+install(TARGETS ${LIB_NAME} EXPORT ${DtkCore}Targets
  DESTINATION ${LIBRARY_INSTALL_DIR})
 
-install(EXPORT DtkCoreTargets
-  FILE DtkCoreTargets.cmake
-  NAMESPACE Dtk::
+install(EXPORT ${DtkCore}Targets
+  FILE ${DtkCore}Targets.cmake
+  NAMESPACE Dtk${DTK_VERSION_MAJOR}::
   DESTINATION ${CONFIG_CMAKE_INSTALL_DIR}
 )

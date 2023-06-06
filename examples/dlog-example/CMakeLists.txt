@@ -1,16 +1,16 @@
-set(BINNAME dlog)
+set(BIN_NAME dlog${DTK_VERSION_MAJOR})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBus)
 
-add_executable(${BINNAME}
+add_executable(${BIN_NAME}
   main.cpp
 )
 
 target_link_libraries(
-  ${BINNAME} PRIVATE
+  ${BIN_NAME} PRIVATE
   Qt${QT_VERSION_MAJOR}::DBus
-  dtkcore
+  ${LIB_NAME}
 )
-target_include_directories(${BINNAME} PUBLIC
+target_include_directories(${BIN_NAME} PUBLIC
   ../../include/
 )

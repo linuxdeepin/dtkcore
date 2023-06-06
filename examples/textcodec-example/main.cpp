@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
     const QStringList args = parser.positionalArguments();
     if (args.isEmpty()) {
         parser.showHelp();
-        return 0;
     }
 
     const QStringList fileArgs = parser.positionalArguments();
