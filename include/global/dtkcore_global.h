@@ -47,8 +47,18 @@
 #define D_DECL_DEPRECATED_X(text) Q_DECL_HIDDEN
 #define D_DECL_DEPRECATED Q_DECL_HIDDEN
 #else
+#ifdef __GNUC__
+#if __GNUC__ < 13
+#define D_DECL_DEPRECATED __attribute__((__deprecated__))
+#define D_DECL_DEPRECATED_X(text) __attribute__((__deprecated__(text)))
+#else
 #define D_DECL_DEPRECATED Q_DECL_DEPRECATED
 #define D_DECL_DEPRECATED_X Q_DECL_DEPRECATED_X
+#endif
+#else
+#define D_DECL_DEPRECATED Q_DECL_DEPRECATED
+#define D_DECL_DEPRECATED_X Q_DECL_DEPRECATED_X
+#endif
 #endif
 
 #define DTK_VERSION_CHECK(major, minor, patch, build) ((major<<24)|(minor<<16)|(patch<<8)|build)
