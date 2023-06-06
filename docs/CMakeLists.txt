@@ -1,7 +1,6 @@
 cmake_minimum_required (VERSION 3.10)
 
 find_package (Doxygen REQUIRED)
-
 set (QCH_INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/qt${QT_VERSION_MAJOR}/doc CACHE STRING "QCH install location")
 
 set (DOXYGEN_GENERATE_HTML YES CACHE STRING "Doxygen HTML output")
@@ -11,7 +10,7 @@ set (DOXYGEN_FILE_PATTERNS *.cpp *.h *.zh_CN.md *.zh_CN.dox CACHE STRING "Doxyge
 set (DOXYGEN_PROJECT_NUMBER ${CMAKE_PROJECT_VERSION} CACHE STRING "") # Should be the same as this project is using.
 set (DOXYGEN_EXTRACT_STATIC YES)
 set (DOXYGEN_OUTPUT_LANGUAGE "Chinese")
-set (DOXYGEN_QHG_LOCATION "qhelpgenerator")
+set (DOXYGEN_QHG_LOCATION "qhelpgenerator" CACHE STRING "Doxygen QHG path")
 set (DOXYGEN_QHP_NAMESPACE "org.deepin.dtk.core")
 set (DOXYGEN_QCH_FILE "dtkcore.qch")
 set (DOXYGEN_QHP_VIRTUAL_FOLDER "dtkcore")

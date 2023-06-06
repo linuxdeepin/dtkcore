@@ -1,4 +1,5 @@
-set(BIN_NAME dtk-settings)
+set(TARGET_NAME dtk-settings)
+set(BIN_NAME ${TARGET_NAME}${DTK_VERSION_MAJOR})
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Xml)
@@ -15,7 +16,7 @@ target_link_libraries(
   ${BIN_NAME} PRIVATE
   Qt${QT_VERSION_MAJOR}::Core
   Qt${QT_VERSION_MAJOR}::Xml
-  dtkcore
+  ${LIB_NAME}
 )
 
 if(${QT_VERSION_MAJOR} STREQUAL "5")
@@ -36,4 +37,5 @@ target_include_directories( ${BIN_NAME} PUBLIC
   ../../include/filesystem/
   ../../include/
 )
+set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME ${TARGET_NAME})
 install(TARGETS ${BIN_NAME} DESTINATION "${TOOL_INSTALL_DIR}")

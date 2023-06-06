@@ -23,7 +23,7 @@ variables:
     -DBUILD_EXAMPLES=OFF \
     -DBUILD_DOCS=OFF \
     -DBUILD_TESTING=OFF \
-    -DVERSION=${VERSION}
+    -DDTK_VERSION=${VERSION}
 
 build:
   kind: cmake

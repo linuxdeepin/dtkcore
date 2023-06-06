@@ -1,4 +1,6 @@
-set(BIN_NAME deepin-os-release)
+set(TARGET_NAME deepin-os-release)
+set(BIN_NAME ${TARGET_NAME}${DTK_VERSION_MAJOR})
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_AUTOMOC ON)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
@@ -25,6 +27,7 @@ target_include_directories(${BIN_NAME} PUBLIC
   ../../include/base/
   ../../include/global/
 )
+set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME ${TARGET_NAME})
 install(TARGETS ${BIN_NAME} DESTINATION "${TOOL_INSTALL_DIR}")
 
 #end dci

@@ -12,15 +12,28 @@ dtkcore 是一个基于Qt的C++库，它提供了一些常用的工具类，以�
 现在的dtkcore>=5.6版本使用CMake来管理各个模块，所以使用dtkcore时，需要先安装CMake(CMake>=3.10),然后需要在你的CMake项目中引入dtkcore的CMake模块，如下：
 
 ```cmake
-find_package(DtkCore REQUIRED)
+find_package(Dtk6Core REQUIRED)
 
-target_include_directories(
-    ${DtkCore_INCLUDE_DIRS}
+target_link_libraries(<target>
+    Dtk6::Core
 )
+```
 
-target_link_libraries(
-    ${DtkCore_LIBRARIES}
-)
+```qmake
+QT += dtkcore
+```
+
+```bash
+pkg-config --cflags --libs dtk6core
+
+# pkgconfig find Dtk6Core in qmake
+# CONFIG += link_pkgconfig
+# PKGCONFIG += dtk6core
+
+# pkgconfig find Dtk6Core in cmake
+# find_package(PkgConfig REQUIRED)
+# pkg_check_modules(Dtk6Core REQUIRED IMPORTED_TARGET dtk6core)
+# target_link_libraries(<target> PkgConfig::Dtk6Core )
 ```
 
 以上示例仅为最小示例，并不能单独作为CMake项目使用，需要你自己添加其他的CMake模块，如Qt的CMake模块，以及你自己的CMake模块.

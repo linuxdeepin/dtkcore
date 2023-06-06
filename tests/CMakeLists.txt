@@ -1,4 +1,4 @@
-set(BIN_NAME "ut-${PROJECT_NAME}")
+set(BIN_NAME "ut-${LIB_NAME}")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -29,10 +29,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Xml)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Concurrent)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
 find_package(GTest REQUIRED)
-
-if("${QT_VERSION_MAJOR}" STREQUAL "6")
-  find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core5Compat)
-endif()
 
 # start base
 include(../src/base/base.cmake)
@@ -66,6 +62,7 @@ include(../src/glob.cmake)
 #endglob
 
 # for test.so
+set(TEST_SO_NAME vtabletest${DTK_VERSION_MAJOR})
 add_subdirectory(./testso)
 
 # test
@@ -104,7 +101,7 @@ if(LINUX)
     ${test_SRC}
     ./data.qrc
   )
-  add_dependencies(${BIN_NAME} vtabletest)
+  add_dependencies(${BIN_NAME} ${TEST_SO_NAME})
   target_link_libraries(
     ${BIN_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Gui
@@ -118,7 +115,7 @@ if(LINUX)
     -lpthread
     -lm
     -lgcov
-    -lvtabletest
+    -l${TEST_SO_NAME}
     -ldl
   )
 
@@ -136,11 +133,6 @@ if(LINUX)
     )
   endif()
 
-  if("${QT_VERSION_MAJOR}" STREQUAL "6")
-    target_link_libraries(${BIN_NAME} PRIVATE
-      Qt${QT_VERSION_MAJOR}::Core5Compat
-    )
-  endif()
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(${BIN_NAME} PRIVATE -fprofile-instr-generate -ftest-coverage)
   endif()
@@ -174,7 +166,7 @@ else()
     ${test_SRC}
     ./data.qrc
   )
-  add_dependencies(${BIN_NAME} vtabletest)
+  add_dependencies(${BIN_NAME} ${TEST_SO_NAME})
   target_link_libraries(
     ${BIN_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Gui
@@ -187,7 +179,7 @@ else()
     -lpthread
     -lm
     -lgcov
-    -lvtabletest
+    -l${TEST_SO_NAME}
   )
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(${BIN_NAME} PRIVATE -fprofile-instr-generate -ftest-coverage)

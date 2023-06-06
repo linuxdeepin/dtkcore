@@ -1,4 +1,4 @@
-find_package(DtkCore REQUIRED)
+find_package(Dtk@DTK_VERSION_MAJOR@Core REQUIRED)
 
 set (DTK_SETTINGS_TOOLS_EXECUTABLE ${DtkCore_TOOL_DIRS}/dtk-settings)
 
