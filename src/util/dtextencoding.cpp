@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2022-2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -6,8 +6,12 @@
 
 #include <QtMath>
 #include <QFile>
-#include <QTextCodec>
 #include <QLibrary>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QStringConverter>
+#else
+#include <QTextCodec>
+#endif
 
 #include <climits>
 #include <unicode/ucsdet.h>
@@ -79,7 +83,7 @@ LibICU::LibICU()
         icuuc = nullptr;
     };
 
-#define INIT_ICUUC(Name)                                                                                                      \
+#define INIT_ICUUC(Name)                                                                                                         \
     Name = reinterpret_cast<decltype(Name)>(icuuc->resolve(#Name));                                                              \
     if (!Name) {                                                                                                                 \
         initFunctionError();                                                                                                     \
@@ -241,10 +245,17 @@ QByteArray DTextEncoding::detectTextEncoding(const QByteArray &content)
     }
 
     if (charset.isEmpty()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        std::optional<QStringConverter::Encoding> encoding = QStringConverter::encodingForData(content);
+        if (encoding) {
+            return QStringConverter::nameForEncoding(encoding.value());
+        }
+#else
         QTextCodec *codec = QTextCodec::codecForUtfText(content);
         if (codec) {
             return codec->name();
         }
+#endif
     }
 
     // Use default encoding.
@@ -278,6 +289,16 @@ QByteArray DTextEncoding::detectFileEncoding(const QString &fileName, bool *isOk
 bool DTextEncoding::convertTextEncoding(
     QByteArray &content, QByteArray &outContent, const QByteArray &toEncoding, const QByteArray &fromEncoding, QString *errString)
 {
+    return convertTextEncodingEx(content, outContent, toEncoding, fromEncoding, errString);
+}
+
+bool DTextEncoding::convertTextEncodingEx(QByteArray &content,
+                                          QByteArray &outContent,
+                                          const QByteArray &toEncoding,
+                                          const QByteArray &fromEncoding,
+                                          QString *errString,
+                                          int *convertedBytes)
+{
     if (content.isEmpty() || fromEncoding == toEncoding) {
         return true;
     }
@@ -297,7 +318,7 @@ bool DTextEncoding::convertTextEncoding(
     // iconv set errno when failed.
     iconv_t handle = iconv_open(toEncoding.data(), contentEncoding.data());
     if (reinterpret_cast<iconv_t>(-1) != handle) {
-        size_t inBytesLeft = static_cast<size_t>(content.size()) + 1;
+        size_t inBytesLeft = static_cast<size_t>(content.size());
         char *inbuf = content.data();
         size_t outBytesLeft = inBytesLeft * 4;
         char *outbuf = new char[outBytesLeft];
@@ -306,19 +327,28 @@ bool DTextEncoding::convertTextEncoding(
         size_t maxBufferSize = outBytesLeft;
 
         size_t ret = iconv(handle, &inbuf, &inBytesLeft, &outbuf, &outBytesLeft);
-        int converError = 0;
+        int convertError = 0;
         if (static_cast<size_t>(-1) == ret) {
-            converError = errno;
+            convertError = errno;
+            int converted = content.size() - inBytesLeft;
+            if (convertedBytes) {
+                *convertedBytes = converted;
+            }
+
             if (errString) {
-                switch (converError) {
+                switch (convertError) {
                     case EILSEQ:
-                        *errString = QStringLiteral("An invalid multibyte sequence has been encountered in the input.");
+                        *errString = QString("An invalid multibyte sequence has been encountered in the input."
+                                             "Converted byte index: %1")
+                                         .arg(converted);
                         break;
                     case EINVAL:
-                        *errString = QStringLiteral("An incomplete multibyte sequence has been encountered in the input.");
+                        *errString = QString("An incomplete multibyte sequence has been encountered in the input. "
+                                             "Converted byte index: %1")
+                                         .arg(converted);
                         break;
                     case E2BIG:
-                        *errString = QStringLiteral("There is not sufficient room at *outbuf.");
+                        *errString = QString("There is not sufficient room at *outbuf. Converted byte index: %1").arg(converted);
                         break;
                     default:
                         break;
@@ -327,18 +357,13 @@ bool DTextEncoding::convertTextEncoding(
         }
         iconv_close(handle);
 
-        // For other error, user decides to keep or remove converted text.
-        if (EILSEQ == converError) {
-            delete[] bufferHeader;
-            return false;
-        } else {
-            // Use iconv converted byte count.
-            size_t realConvertSize = maxBufferSize - outBytesLeft - 1;
-            outContent = QByteArray(bufferHeader, realConvertSize);
+        // Use iconv converted byte count.
+        size_t realConvertSize = maxBufferSize - outBytesLeft;
+        outContent = QByteArray(bufferHeader, realConvertSize);
 
-            delete[] bufferHeader;
-            return true;
-        }
+        delete[] bufferHeader;
+        // For errors, user decides to keep or remove converted text.
+        return 0 == convertError;
 
     } else {
         if (EINVAL == errno && errString) {

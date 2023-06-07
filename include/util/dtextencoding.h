@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2022-2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -23,6 +23,12 @@ public:
                                     const QByteArray &toEncoding,
                                     const QByteArray &fromEncoding = QByteArray(),
                                     QString *errString = nullptr);
+    static bool convertTextEncodingEx(QByteArray &content,
+                                      QByteArray &outContent,
+                                      const QByteArray &toEncoding,
+                                      const QByteArray &fromEncoding = QByteArray(),
+                                      QString *errString = nullptr,
+                                      int *convertedBytes = nullptr);
     static bool convertFileEncoding(const QString &fileName,
                                     const QByteArray &toEncoding,
                                     const QByteArray &fromEncoding = QByteArray(),
