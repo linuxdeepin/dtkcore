@@ -123,7 +123,11 @@ TEST_F(ut_DFileWatcher, testDFileSystemWatcherFileMoved)
     if (!fileWatcher->startWatcher()) return;
 
     ASSERT_TRUE(fileWatcher->startWatcher());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileMoved);
+#else
+    QSignalSpy spy(fileWatcher, &DBaseFileWatcher::fileDeleted);
+#endif
     QString oldFile("/tmp/etc/test");
     QString newFile("/tmp/etc/test1");
     QFile::rename(oldFile, newFile);
