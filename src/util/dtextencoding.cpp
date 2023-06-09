@@ -29,17 +29,17 @@ public:
     bool isValid();
     bool detectEncoding(const QByteArray &content, QByteArrayList &charset);
 
-    UCharsetDetector *(*ucsdet_open)(UErrorCode *status);
-    void (*ucsdet_close)(UCharsetDetector *ucsd);
-    void (*ucsdet_setText)(UCharsetDetector *ucsd, const char *textIn, int32_t len, UErrorCode *status);
-    const UCharsetMatch **(*ucsdet_detectAll)(UCharsetDetector *ucsd, int32_t *matchesFound, UErrorCode *status);
-    const char *(*ucsdet_getName)(const UCharsetMatch *ucsm, UErrorCode *status);
-    int32_t (*ucsdet_getConfidence)(const UCharsetMatch *ucsm, UErrorCode *status);
+    UCharsetDetector *(*icu_ucsdet_open)(UErrorCode *status);
+    void (*icu_ucsdet_close)(UCharsetDetector *ucsd);
+    void (*icu_ucsdet_setText)(UCharsetDetector *ucsd, const char *textIn, int32_t len, UErrorCode *status);
+    const UCharsetMatch **(*icu_ucsdet_detectAll)(UCharsetDetector *ucsd, int32_t *matchesFound, UErrorCode *status);
+    const char *(*icu_ucsdet_getName)(const UCharsetMatch *ucsm, UErrorCode *status);
+    int32_t (*icu_ucsdet_getConfidence)(const UCharsetMatch *ucsm, UErrorCode *status);
 
 private:
     QLibrary *icuuc = nullptr;
 
-    Q_DISABLE_COPY(LibICU);
+    Q_DISABLE_COPY(LibICU)
 };
 
 class Libuchardet
@@ -61,7 +61,7 @@ public:
 private:
     QLibrary *uchardet = nullptr;
 
-    Q_DISABLE_COPY(Libuchardet);
+    Q_DISABLE_COPY(Libuchardet)
 };
 
 Q_GLOBAL_STATIC(LibICU, LibICUInstance);
@@ -84,12 +84,13 @@ LibICU::LibICU()
     };
 
 #define INIT_ICUUC(Name)                                                                                                         \
-    Name = reinterpret_cast<decltype(Name)>(icuuc->resolve(#Name));                                                              \
-    if (!Name) {                                                                                                                 \
+    icu_##Name = reinterpret_cast<decltype(icu_##Name)>(icuuc->resolve(#Name));                                                  \
+    if (!icu_##Name) {                                                                                                           \
         initFunctionError();                                                                                                     \
         return;                                                                                                                  \
     }
 
+    // Note: use prefix 'icu' to avoid "disabled expansion of recursive macro" warning.
     INIT_ICUUC(ucsdet_open);
     INIT_ICUUC(ucsdet_close);
     INIT_ICUUC(ucsdet_setText);
@@ -113,35 +114,35 @@ bool LibICU::isValid()
 bool LibICU::detectEncoding(const QByteArray &content, QByteArrayList &charset)
 {
     UErrorCode status = U_ZERO_ERROR;
-    UCharsetDetector *detector = ucsdet_open(&status);
+    UCharsetDetector *detector = icu_ucsdet_open(&status);
     if (U_FAILURE(status)) {
         return false;
     }
 
-    ucsdet_setText(detector, content.data(), content.size(), &status);
+    icu_ucsdet_setText(detector, content.data(), content.size(), &status);
     if (U_FAILURE(status)) {
-        ucsdet_close(detector);
+        icu_ucsdet_close(detector);
         return false;
     }
 
     int32_t matchCount = 0;
-    const UCharsetMatch **charsetMatch = ucsdet_detectAll(detector, &matchCount, &status);
+    const UCharsetMatch **charsetMatch = icu_ucsdet_detectAll(detector, &matchCount, &status);
     if (U_FAILURE(status)) {
-        ucsdet_close(detector);
+        icu_ucsdet_close(detector);
         return false;
     }
 
-    int recrodCount = qMin(3, matchCount);
-    for (int i = 0; i < recrodCount; i++) {
-        const char *encoding = ucsdet_getName(charsetMatch[i], &status);
+    int recordCount = qMin(3, matchCount);
+    for (int i = 0; i < recordCount; i++) {
+        const char *encoding = icu_ucsdet_getName(charsetMatch[i], &status);
         if (U_FAILURE(status)) {
-            ucsdet_close(detector);
+            icu_ucsdet_close(detector);
             return false;
         }
         charset << QByteArray(encoding);
     }
 
-    ucsdet_close(detector);
+    icu_ucsdet_close(detector);
     return true;
 }
 
@@ -192,7 +193,7 @@ QByteArray Libuchardet::detectEncoding(const QByteArray &content)
     QByteArray charset;
 
     uchardet_t handle = uchardet_new();
-    if (0 == uchardet_handle_data(handle, content.data(), content.size())) {
+    if (0 == uchardet_handle_data(handle, content.data(), static_cast<size_t>(content.size()))) {
         uchardet_data_end(handle);
         charset = QByteArray(uchardet_get_charset(handle));
     }
@@ -217,8 +218,6 @@ QByteArray selectCharset(const QByteArray &charset, const QByteArrayList &icuCha
             return icuCharsetList[0].contains(charset) ? icuCharsetList[0] : charset;
         }
     }
-
-    return QByteArray();
 }
 
 QByteArray DTextEncoding::detectTextEncoding(const QByteArray &content)
@@ -277,7 +276,7 @@ QByteArray DTextEncoding::detectFileEncoding(const QString &fileName, bool *isOk
     }
 
     // At most 64Kb data.
-    QByteArray content = file.read(qMin<int>(file.size(), USHRT_MAX));
+    QByteArray content = file.read(qMin<int>(static_cast<int>(file.size()), USHRT_MAX));
     file.close();
 
     if (isOk) {
@@ -330,7 +329,7 @@ bool DTextEncoding::convertTextEncodingEx(QByteArray &content,
         int convertError = 0;
         if (static_cast<size_t>(-1) == ret) {
             convertError = errno;
-            int converted = content.size() - inBytesLeft;
+            int converted = content.size() - static_cast<int>(inBytesLeft);
             if (convertedBytes) {
                 *convertedBytes = converted;
             }
@@ -359,7 +358,7 @@ bool DTextEncoding::convertTextEncodingEx(QByteArray &content,
 
         // Use iconv converted byte count.
         size_t realConvertSize = maxBufferSize - outBytesLeft;
-        outContent = QByteArray(bufferHeader, realConvertSize);
+        outContent = QByteArray(bufferHeader, static_cast<int>(realConvertSize));
 
         delete[] bufferHeader;
         // For errors, user decides to keep or remove converted text.
@@ -372,8 +371,6 @@ bool DTextEncoding::convertTextEncodingEx(QByteArray &content,
 
         return false;
     }
-
-    return true;
 }
 
 bool DTextEncoding::convertFileEncoding(const QString &fileName,
