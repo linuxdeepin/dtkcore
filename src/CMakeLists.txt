@@ -72,12 +72,12 @@ if(LINUX)
   target_link_libraries(
     ${LIBNAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::CorePrivate
     Qt${QT_VERSION_MAJOR}::DBus
     Qt${QT_VERSION_MAJOR}::Xml
   )
   target_link_libraries(${LIBNAME} PRIVATE
     ICU::uc
-    Qt${QT_VERSION_MAJOR}::CorePrivate
     uchardet
   )
   if("${QT_VERSION_MAJOR}" STREQUAL "6")

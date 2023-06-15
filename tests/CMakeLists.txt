@@ -83,6 +83,7 @@ file(GLOB FackDBus
 
 if("${QT_VERSION_MAJOR}" STREQUAL "6")
   list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_LIST_DIR}/ut_gsettingsbackend.cpp")
+  list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_LIST_DIR}/ut_dasync.cpp")
 endif()
 
 set(test_SRC

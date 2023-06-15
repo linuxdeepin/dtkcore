@@ -40,10 +40,17 @@ else()
   )
 endif()
 file(GLOB UTILS_HEADER
-  ${CMAKE_CURRENT_LIST_DIR}/../../include/util/*
+  ${PROJECT_SOURCE_DIR}/include/util/*.h
   ${CMAKE_CURRENT_LIST_DIR}/ddbusinterface_p.h
   ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedpendingcallwatcher_p.h
 )
+
+if("${QT_VERSION_MAJOR}" STREQUAL "6")
+  list(REMOVE_ITEM UTILS_SOURCE "${CMAKE_CURRENT_LIST_DIR}/dtimedloop.cpp")
+  list(REMOVE_ITEM UTILS_HEADER "${PROJECT_SOURCE_DIR}/include/util/dtimedloop.h") # no longer be used
+  list(REMOVE_ITEM UTILS_HEADER "${PROJECT_SOURCE_DIR}/include/util/dasync.h")
+endif()
+
 set(utils_SRC 
   ${UTILS_HEADER}
   ${UTILS_SOURCE}

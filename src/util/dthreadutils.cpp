@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2020 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2020 - 2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -6,6 +6,7 @@
 
 DCORE_BEGIN_NAMESPACE
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 namespace DThreadUtil {
 FunctionCallProxy::FunctionCallProxy(QThread *thread)
 {
@@ -41,6 +42,67 @@ void FunctionCallProxy::proxyCall(QSemaphore *s, QThread *thread, QObject *targe
     proxy.callInLiveThread(s, target ? target : &proxy, &fun);
     s->acquire();
 }
-} // end namespace DThreadUtil
 
+}
+#else
+class Q_DECL_HIDDEN Caller : public QObject
+{
+public:
+    explicit Caller()
+        : QObject()
+    {
+    }
+
+    bool event(QEvent *event) override
+    {
+        if (event->type() == DThreadUtils::eventType) {
+            auto ev = static_cast<DThreadUtils::AbstractCallEvent *>(event);
+            ev->call();
+            return true;
+        }
+
+        return QObject::event(event);
+    }
+};
+
+DThreadUtils::DThreadUtils(QThread *thread)
+    : m_thread(thread)
+    , threadContext(nullptr)
+{
+}
+
+DThreadUtils::~DThreadUtils()
+{
+    delete threadContext.loadRelaxed();
+}
+
+DThreadUtils &DThreadUtils::gui()
+{
+    static auto global = DThreadUtils(QCoreApplication::instance()->thread());
+    return global;
+}
+
+QThread *DThreadUtils::thread() const noexcept
+{
+    return m_thread;
+}
+
+QObject *DThreadUtils::ensureThreadContextObject()
+{
+    QObject *context;
+    if (!threadContext.loadRelaxed()) {
+        context = new Caller();
+        context->moveToThread(m_thread);
+        if (!threadContext.testAndSetRelaxed(nullptr, context)) {
+            context->moveToThread(nullptr);
+            delete context;
+        }
+    }
+
+    context = threadContext.loadRelaxed();
+    Q_ASSERT(context);
+
+    return context;
+}
+#endif
 DCORE_END_NAMESPACE
