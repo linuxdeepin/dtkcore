@@ -6,7 +6,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBus)
 
 add_executable(${BIN_NAME}
-  qdbusxml2cpp.cpp 
+  qdbusxml2cpp.cpp
 )
 
 target_link_libraries(
@@ -15,6 +15,22 @@ target_link_libraries(
   Qt${QT_VERSION_MAJOR}::Core
   Qt${QT_VERSION_MAJOR}::DBusPrivate
 )
-set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME ${TARGET_NAME})
-install(TARGETS ${BIN_NAME} DESTINATION "${TOOL_INSTALL_DIR}")
 
+set_target_properties(
+  ${BIN_NAME} PROPERTIES
+  OUTPUT_NAME ${TARGET_NAME}
+  EXPORT_NAME Xml2Cpp
+)
+
+install(
+  TARGETS ${BIN_NAME}
+  EXPORT DtkToolsTargets
+  DESTINATION ${TOOL_INSTALL_DIR}
+)
+
+install(
+  EXPORT DtkToolsTargets
+  FILE DtkToolsTargets.cmake
+  NAMESPACE Dtk${DTK_VERSION_MAJOR}::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}Tools"
+)
