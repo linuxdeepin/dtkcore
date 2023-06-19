@@ -29,7 +29,6 @@ private Q_SLOTS:
 public:
     QObject *m_parent;
     QString m_suffix;
-    QVariantMap m_propertyMap;
     bool m_serviceValid;
 
     DDBusInterface *q_ptr;
