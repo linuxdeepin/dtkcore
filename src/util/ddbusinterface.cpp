@@ -72,7 +72,7 @@ void DDBusInterfacePrivate::updateProp(const char *propName, const QVariant &val
 {
     if (!m_parent)
         return;
-    m_propertyMap.insert(propName, value);
+
     const QMetaObject *metaObj = m_parent->metaObject();
     const char *typeName(value.typeName());
     void *data = const_cast<void *>(value.data());
@@ -246,8 +246,6 @@ inline QString originalPropname(const char *propname, QString suffix)
 QVariant DDBusInterface::property(const char *propName)
 {
     Q_D(DDBusInterface);
-    if (d->m_propertyMap.contains(propName))
-        return d->m_propertyMap.value(propName);
 
     QDBusMessage msg = QDBusMessage::createMethodCall(service(), path(), PropertiesInterface, QStringLiteral("Get"));
     msg << interface() << originalPropname(propName, d->m_suffix);
@@ -265,7 +263,6 @@ QVariant DDBusInterface::property(const char *propName)
             QMetaProperty metaProperty = metaObject->property(i);
             // try to use property in parent to unwrap the value
             propresult = demarshall(metaProperty, propresult);
-            d->m_propertyMap.insert(propName, propresult);
         }
         return propresult;
     }
@@ -273,8 +270,6 @@ QVariant DDBusInterface::property(const char *propName)
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(prop, this);
     watcher->setProperty(PropertyName, propName);
     connect(watcher, &QDBusPendingCallWatcher::finished, d, &DDBusInterfacePrivate::onAsyncPropertyFinished);
-    if (d->m_propertyMap.contains(propName))
-        return d->m_propertyMap.value(propName);
 
     return QVariant();
 }
