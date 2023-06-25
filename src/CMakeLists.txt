@@ -9,10 +9,9 @@ set(CMAKE_AUTORCC ON)
 set (DSG_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" CACHE STRING "PREFIX of DSG_DATA_DIRS")
 add_definitions(-DPREFIX="${DSG_PREFIX_PATH}")
 add_definitions(-DLIBDTKCORE_LIBRARY)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core DBus Xml)
+find_package(PkgConfig REQUIRED)
 if(LINUX)
-  find_package(PkgConfig REQUIRED)
-  find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBus)
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
       pkg_check_modules(QGSettings REQUIRED IMPORTED_TARGET gsettings-qt) #Dtk6 removed.
   endif()
@@ -21,11 +20,11 @@ if(LINUX)
     pkg_check_modules(Systemd REQUIRED IMPORTED_TARGET libsystemd)
   endif()
 endif()
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Xml)
 
 # start text encoding
 find_package(ICU REQUIRED COMPONENTS uc)
-pkg_check_modules(uchardet REQUIRED uchardet)
+find_package(Iconv REQUIRED)
+pkg_check_modules(uchardet REQUIRED IMPORTED_TARGET uchardet)
 # end text encoding
 
 # start base
@@ -53,27 +52,30 @@ include(util/util.cmake)
 #GLOB
 include(glob.cmake)
 #endGLOG
+
+add_library(${LIB_NAME} SHARED
+  ${base_SRCS}
+  ${dci_SRCS}
+  ${filesystem_SRCS}
+  ${log_SRCS}
+  ${settings_SRC}
+  ${utils_SRC}
+  ${glob_SRC}
+)
+target_link_libraries(
+  ${LIB_NAME} PUBLIC
+  Qt${QT_VERSION_MAJOR}::Core
+  Qt${QT_VERSION_MAJOR}::DBus
+  Qt${QT_VERSION_MAJOR}::Xml
+)
+target_link_libraries(${LIB_NAME} PRIVATE
+  ICU::uc
+  Qt${QT_VERSION_MAJOR}::CorePrivate
+  PkgConfig::uchardet
+  Iconv
+)
+
 if(LINUX)
-  add_library(${LIB_NAME} SHARED
-    ${base_SRCS}
-    ${dci_SRCS}
-    ${filesystem_SRCS}
-    ${log_SRCS}
-    ${settings_SRC}
-    ${utils_SRC}
-    ${glob_SRC}
-  )
-  target_link_libraries(
-    ${LIB_NAME} PUBLIC
-    Qt${QT_VERSION_MAJOR}::Core
-    Qt${QT_VERSION_MAJOR}::DBus
-    Qt${QT_VERSION_MAJOR}::Xml
-  )
-  target_link_libraries(${LIB_NAME} PRIVATE
-    ICU::uc
-    Qt${QT_VERSION_MAJOR}::CorePrivate
-    uchardet
-  )
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
     target_link_libraries(${LIB_NAME} PRIVATE
       PkgConfig::QGSettings
@@ -85,40 +87,12 @@ if(LINUX)
     )
     add_definitions(-DBUILD_WITH_SYSTEMD)
   endif()
-
-else()
-  add_library(${LIB_NAME} SHARED
-    ${base_SRCS}
-    ${dci_SRCS}
-    ${filesystem_SRCS}
-    ${log_SRCS}
-    ${settings_SRC}
-    ${utils_SRC}
-    ${glob_SRC}
-  )
-  target_link_libraries(
-    ${LIB_NAME} PUBLIC
-    Qt${QT_VERSION_MAJOR}::Core
-    Qt${QT_VERSION_MAJOR}::Xml
-  )
-  target_link_libraries(${LIB_NAME} PRIVATE
-    ICU::uc
-    Qt${QT_VERSION_MAJOR}::CorePrivate
-    uchardet
-  )
-  if("${QT_VERSION_MAJOR}" STREQUAL "5")
-    target_link_libraries(${LIB_NAME} PRIVATE
-      PkgConfig::QGSettings
-    )
-  endif()
 endif()
+
 set_target_properties(${LIB_NAME} PROPERTIES
   VERSION ${CMAKE_PROJECT_VERSION}
   SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR}
   EXPORT_NAME Core
-)
-target_include_directories(${LIB_NAME} PRIVATE
-  ${uchardet_INCLUDE_DIRS}
 )
 target_include_directories(${LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/util>
