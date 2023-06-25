@@ -1,3 +1,27 @@
+dtkcore (5.6.13) unstable; urgency=medium
+
+  * feat: DConfig add check for no existed item when override
+  * fix(cmake): wrong use of option and wrong macro
+  * fix: calling delay in DDBusSender(Issue: https://github.com/linuxdeepin/developer-center/issues/4415)
+  * feat: DConfig add check for subpath(Issue: #54)
+  * feat: DConfig exports metadir's implementation(Issue: #10)
+  * fix(dccinterface): fix cannot get the right type
+  * fix: DConfig's `subpathIsValid` produces error
+  * fix(ut): failed ut
+  * fix(build): build faild on Qt6
+  * fix: fix build failed due to gcc compiler bug
+  * fix: ut_dfilewater failed on Qt6
+  * fix: DTextEncoding ut failed in Qt6.
+  * fix: fix DTextEncoding warnings.
+  * feat: support dtk6core build
+  * feat: add DThreadUtils class
+  * fix: move Qt CorePrivate to target private link
+  * fix: qdbusxml2cpp-fix not in path
+  * chore: remove ddbusinterface property cache
+  * chore: remove libdtkcommon depends
+
+ -- Deepin Packages Builder <packages@deepin.org>  Sun, 25 Jun 2023 14:40:49 +0800
+
 dtkcore (5.6.12) unstable; urgency=medium
 
   * Release 5.6.12
