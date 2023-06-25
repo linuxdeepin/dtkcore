@@ -27,7 +27,7 @@ protected:
                         int line,
                         const char *func,
                         const QString &category,
-                        const QString &msg);
+                        const QString &msg) override;
 
 private:
     bool m_ignoreEnvPattern;
