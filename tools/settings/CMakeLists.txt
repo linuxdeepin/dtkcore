@@ -5,8 +5,12 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Xml)
 
 if(${QT_VERSION_MAJOR} STREQUAL "5")
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(QGSettings REQUIRED IMPORTED_TARGET gsettings-qt)
+  if(LINUX)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(QGSettings REQUIRED IMPORTED_TARGET gsettings-qt)
+  elseif(APPLE)
+    find_package(PkgConfig REQUIRED)
+  endif()
 endif()
 
 add_executable(${BIN_NAME}
@@ -22,7 +26,7 @@ target_link_libraries(
 if(${QT_VERSION_MAJOR} STREQUAL "5")
 target_link_libraries(
   ${BIN_NAME} PRIVATE
-  PkgConfig::QGSettings
+  # PkgConfig::QGSettings
 )
 endif()
 
