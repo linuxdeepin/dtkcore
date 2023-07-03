@@ -31,7 +31,7 @@ public:
     bool exists() const;
     static bool exists(const QString &fileName);
 
-#if QT_DEPRECATED_SINCE(5, 13)
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
     D_DECL_DEPRECATED_X("Use QFile::symLinkTarget() instead")
     QString readLink() const;
 #endif

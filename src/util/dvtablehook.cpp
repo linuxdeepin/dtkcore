@@ -296,6 +296,7 @@ quintptr DVtableHook::originalFun(const void *obj, quintptr functionOffset)
     return *(vfptr_t2 + functionOffset / sizeof(quintptr));
 }
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 bool DVtableHook::isFinalClass(quintptr *obj)
 {
     Q_UNUSED(obj);
@@ -307,6 +308,7 @@ quintptr **DVtableHook::adjustThis(quintptr *obj)
     Q_UNUSED(obj);
     return nullptr;
 }
+#endif
 
 #if defined(Q_OS_LINUX)
 static int readProtFromPsm(quintptr adr, size_t length)

@@ -5,8 +5,12 @@ set(OUTER_SOURCE
   ${CMAKE_CURRENT_LIST_DIR}/dlicenseinfo.cpp
   ${CMAKE_CURRENT_LIST_DIR}/dsecurestring.cpp
   ${CMAKE_CURRENT_LIST_DIR}/ddesktopentry.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/dtkcore_global.cpp
 )
+
+if (NOT DTK_VERSION_MAJOR)
+    list(APPEND OUTER_SOURCE ${CMAKE_CURRENT_LIST_DIR}/dtkcore_global.cpp)
+endif()
+
 set(OUTER_HEADER
   ${CMAKE_CURRENT_LIST_DIR}/../include/global/dtkcore_global.h
   ${CMAKE_CURRENT_LIST_DIR}/../include/global/dconfig.h

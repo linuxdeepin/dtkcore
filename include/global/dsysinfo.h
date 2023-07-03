@@ -140,7 +140,9 @@ public:
     // uos version interface
     static UosType uosType();
     static UosEdition uosEditionType();
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
     Q_DECL_DEPRECATED_X("Use arch() instead") static UosArch uosArch();
+#endif
     static QString uosProductTypeName(const QLocale &locale = QLocale::system());
     static QString uosSystemName(const QLocale &locale = QLocale::system());
     static QString uosEditionName(const QLocale &locale = QLocale::system());
@@ -152,16 +154,18 @@ public:
     static QString buildVersion(); // xyzs
 #endif
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
     Q_DECL_DEPRECATED_X("Use distributionInfoPath() instead") static QString deepinDistributionInfoPath();
+    Q_DECL_DEPRECATED_X("Use distributionOrgName() instead") static QString deepinDistributorName();
+    Q_DECL_DEPRECATED_X("Use distributionOrgWebsite() instead") static QPair<QString, QString> deepinDistributorWebsite();
+    Q_DECL_DEPRECATED_X("Use distributionOrgLogo() instead") static QString deepinDistributorLogo(LogoType type = Normal, const QString & fallback = QString());
+#endif
     static QString distributionInfoPath();
     static QString distributionInfoSectionName(OrgType type);
 
     static QString distributionOrgName(OrgType type = Distribution, const QLocale &locale = QLocale::system());
-    Q_DECL_DEPRECATED_X("Use deepinDistributionOrgName() instead") static QString deepinDistributorName();
     static QPair<QString, QString> distributionOrgWebsite(OrgType type = Distribution);
-    Q_DECL_DEPRECATED_X("Use deepinDistributionOrgWebsite() instead") static QPair<QString, QString> deepinDistributorWebsite();
     static QString distributionOrgLogo(OrgType orgType = Distribution, LogoType type = Normal, const QString & fallback = QString());
-    Q_DECL_DEPRECATED_X("Use deepinDistributionOrgLogo() instead") static QString deepinDistributorLogo(LogoType type = Normal, const QString & fallback = QString());
 
     static QString operatingSystemName();
     static ProductType productType();

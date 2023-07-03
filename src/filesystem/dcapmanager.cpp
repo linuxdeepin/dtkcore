@@ -100,6 +100,7 @@ DCapManager *DCapManager::instance()
     return capManager;
 }
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 void DCapManager::registerFileEngine()
 {
 }
@@ -107,6 +108,7 @@ void DCapManager::registerFileEngine()
 void DCapManager::unregisterFileEngine()
 {
 }
+#endif
 
 void DCapManager::appendPath(const QString &path)
 {

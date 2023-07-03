@@ -673,6 +673,7 @@ DSysInfo::UosEdition DSysInfo::uosEditionType()
     return ospt;
 }
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 /*!
 @~english
    \brief Architecture information (using bit flags of a byte)
@@ -684,6 +685,7 @@ DSysInfo::UosArch DSysInfo::uosArch()
 
     return static_cast<UosArch>(siGlobal->osBuild.E);
 }
+#endif
 
 static QString getUosVersionValue(const QString &key, const QLocale &locale)
 {
@@ -845,10 +847,12 @@ QString DSysInfo::buildVersion()
 }
 #endif
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 QString DSysInfo::deepinDistributionInfoPath()
 {
     return distributionInfoPath();
 }
+#endif
 
 QString DSysInfo::distributionInfoPath()
 {
@@ -892,11 +896,12 @@ QString DSysInfo::distributionOrgName(DSysInfo::OrgType type, const QLocale &loc
     return siGlobal->distributionInfo->localizedValue("Name", locale, distributionInfoSectionName(type), fallback);
 }
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 QString DSysInfo::deepinDistributorName()
 {
     return distributionOrgName(Distributor);
 }
-
+#endif
 /*!
 @~english
   \return the organization website name and url.
@@ -920,10 +925,12 @@ QPair<QString, QString> DSysInfo::distributionOrgWebsite(DSysInfo::OrgType type)
     };
 }
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 QPair<QString, QString> DSysInfo::deepinDistributorWebsite()
 {
     return distributionOrgWebsite(Distributor);
 }
+#endif
 
 /*!
 @~english
@@ -952,10 +959,12 @@ QString DSysInfo::distributionOrgLogo(DSysInfo::OrgType orgType, DSysInfo::LogoT
     return QString();
 }
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 QString DSysInfo::deepinDistributorLogo(DSysInfo::LogoType type, const QString &fallback)
 {
     return distributionOrgLogo(Distributor, type, fallback);
 }
+#endif
 
 DSysInfo::ProductType DSysInfo::productType()
 {

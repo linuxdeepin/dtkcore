@@ -91,9 +91,23 @@ install(FILES cmake/DtkTools/DtkSettingsToolsMacros.cmake
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}Tools"
     RENAME Dtk${DTK_VERSION_MAJOR}SettingsToolsMacros.cmake)
 
-install(FILES cmake/DtkDConfig/DtkDConfigConfig.cmake
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}DConfig"
-    RENAME Dtk${DTK_VERSION_MAJOR}DConfigConfig.cmake)
+if (NOT DTK_VERSION_MAJOR)
+    set(DCONFIG_DEPRECATED_FUNCS [=[
+# deprecated since dtk6
+function(dconfig_meta_files)
+    dtk_add_config_meta_files(${ARGV})
+endfunction()
+function(dconfig_override_files)
+    dtk_add_config_override_files(${ARGV})
+endfunction()]=])
+endif()
+
+configure_package_config_file(cmake/DtkDConfig/DtkDConfigConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkDConfig/Dtk${DTK_VERSION_MAJOR}DConfigConfig.cmake
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}DConfig"
+    PATH_VARS TOOL_INSTALL_DIR)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkDConfig/Dtk${DTK_VERSION_MAJOR}DConfigConfig.cmake
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}DConfig")
 
 configure_package_config_file(misc/DtkCoreConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/${DtkCore}Config.cmake
