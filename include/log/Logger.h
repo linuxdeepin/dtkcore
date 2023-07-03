@@ -40,9 +40,9 @@ public:
 
     void registerAppender(AbstractAppender *appender);
     void registerCategoryAppender(const QString &category, AbstractAppender *appender);
-
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
     QT_DEPRECATED_X("no longer take effect") void logToGlobalInstance(const QString &category, bool logToGlobal = false);
-
+#endif
     void setDefaultCategory(const QString &category);
     QString defaultCategory() const;
 

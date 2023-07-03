@@ -802,6 +802,7 @@ void Logger::registerCategoryAppender(const QString &category, AbstractAppender 
                      "] appender that was already registered" << std::endl;
 }
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 /*!
 @~english
   @brief Links some logging category with the global logger instance appenders.
@@ -824,6 +825,7 @@ void Logger::logToGlobalInstance(const QString &category, bool logToGlobal)
     Q_UNUSED(category)
     Q_UNUSED(logToGlobal)
 }
+#endif
 
 /*!
 @~english

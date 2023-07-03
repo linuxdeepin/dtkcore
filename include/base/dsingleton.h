@@ -45,13 +45,14 @@ template <class T>
 class LIBDTKCORESHARED_EXPORT DSingleton
 {
 public:
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
     QT_DEPRECATED_X("Use ref")
     static inline T *instance()
     {
         static T  *_instance = new T;
         return _instance;
     }
-
+#endif
     static T& ref()
     {
         static T instance;

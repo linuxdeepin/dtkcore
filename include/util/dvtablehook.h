@@ -327,8 +327,10 @@ public:
 private:
     static bool copyVtable(quintptr **obj);
     static bool clearGhostVtable(const void *obj);
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
     Q_DECL_DEPRECATED static bool isFinalClass(quintptr *obj);
     Q_DECL_DEPRECATED static quintptr **adjustThis(quintptr *obj);
+#endif
 
     template <typename T>
     static T adjustToTop(T obj)  // vtableTop: vtable start address, Usually refers to offset_to_top

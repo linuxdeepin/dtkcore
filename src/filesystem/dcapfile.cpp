@@ -74,6 +74,7 @@ bool DCapFile::exists(const QString &fileName)
     return DCapFile(fileName).exists();
 }
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 QString DCapFile::readLink() const
 {
     D_DC(DCapFile);
@@ -82,6 +83,7 @@ QString DCapFile::readLink() const
 
     return QFile::symLinkTarget();
 }
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
 QString DCapFile::symLinkTarget() const

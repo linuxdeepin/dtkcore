@@ -64,7 +64,9 @@
 #define DTK_VERSION_CHECK(major, minor, patch, build) ((major<<24)|(minor<<16)|(patch<<8)|build)
 #define DTK_VERSION DTK_VERSION_CHECK(DTK_VERSION_MAJOR, DTK_VERSION_MINOR, DTK_VERSION_PATCH, DTK_VERSION_BUILD)
 
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 extern "C" {
 int LIBDTKCORESHARED_EXPORT dtkVersion();
 const LIBDTKCORESHARED_EXPORT char *dtkVersionString();
 }
+#endif
