@@ -36,3 +36,6 @@ dtkcore_config.h
 #tools
 .vscode
 .idea
+
+# Ignore Doxygen theme files
+docs/doxygen-theme/
