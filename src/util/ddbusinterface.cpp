@@ -76,7 +76,17 @@ void DDBusInterfacePrivate::updateProp(const char *propName, const QVariant &val
     const QMetaObject *metaObj = m_parent->metaObject();
     const char *typeName(value.typeName());
     void *data = const_cast<void *>(value.data());
-    if (value.canConvert<QDBusArgument>()) {
+    int propertyIndex = metaObj->indexOfProperty(propName);
+    QVariant result = value;
+
+    // TODO: it now cannot convert right, Like QMap
+    // if there is property, then try to convert with property
+    if (propertyIndex != -1) {
+        QMetaProperty metaProperty = metaObj->property(propertyIndex);
+        result = demarshall(metaProperty, value);
+        data = const_cast<void *>(result.data());
+        typeName = result.typeName();
+    } else if (value.canConvert<QDBusArgument>()) {
         auto dbusType = qvariant_cast<QDBusArgument>(value);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         auto dbusMetaType = QDBusMetaType::signatureToMetaType(dbusType.currentSignature().toUtf8());
