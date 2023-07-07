@@ -148,6 +148,17 @@ QString DStandardPaths::path(DStandardPaths::XDG type)
             return QString::fromLocal8Bit(path);
         return QStringLiteral("/run/user/") + QString::number(getuid());
     }
+    case XDG::StateHome: {
+        const QByteArray &path = qgetenv("XDG_STATE_HOME");
+        if (!path.isEmpty())
+            return QString::fromLocal8Bit(path);
+#ifdef Q_OS_LINUX
+        return homePath() + QStringLiteral("/.local/state");
+#else
+        // TODO: handle it on mac
+        return QString();
+#endif
+    }
     }
     return QString();
 }
