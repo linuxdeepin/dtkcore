@@ -142,7 +142,7 @@ QString DStandardPaths::path(DStandardPaths::XDG type)
             return QString::fromLocal8Bit(path);
         return homePath() + QStringLiteral("/.config");
     }
-    case XDG::RuntimeTime: {
+    case XDG::RuntimeDir: {
         const QByteArray &path = qgetenv("XDG_RUNTIME_DIR");
         if (!path.isEmpty())
             return QString::fromLocal8Bit(path);
