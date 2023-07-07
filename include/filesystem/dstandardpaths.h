@@ -33,7 +33,10 @@ public:
         DataHome,
         ConfigHome,
         CacheHome,
-        RuntimeTime
+        RuntimeDir,
+#if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
+        RuntimeTime [[deprecated("Use RuntimeDir Instead")]] = RuntimeDir
+#endif
     };
 
     enum class DSG {
