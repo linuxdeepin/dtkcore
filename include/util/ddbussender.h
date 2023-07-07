@@ -89,6 +89,7 @@ public:
     DDBusCaller method(const QString &method);
     DDBusProperty property(const QString &property);
 
+    static DDBusSender system();
 private:
     DDBusSender type(const QDBusConnection::BusType busType);
 
