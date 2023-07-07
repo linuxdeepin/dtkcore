@@ -151,7 +151,7 @@
         如果新目录存在, 则返回true;否则返回false
         请注意, 如果新目录不存在, 则不执行逻辑`cd()`操作
 
-@fn QStringList Dtk::Core::DCapDir::entryList(Filters filters = NoFilter,  SortFlags sort = NoSort)
+@fn QStringList Dtk::Core::DCapDir::entryList(Filters filters = NoFilter,  SortFlags sort = NoSort) const
 @brief 返回目录中所有文件和目录的名称列表
 @details 这些名称根据以前使用`setNameFilters()` 和`setFilter()`
         设置的名称和属性筛选器排序, 并根据使用`setSorting() 设置的标志进行排序。<br>
