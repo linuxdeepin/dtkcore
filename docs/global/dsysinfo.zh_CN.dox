@@ -244,7 +244,7 @@ int main(int argc, char **argv) {
 @note 此方法仅在 linux 平台下可用
 
 @fn static QString Dtk::Core::DSysInfo::distributionInfoPath ()
-@brie 返回 distribution 文件地址 一般在`/usr/share/deepin/`目录下
+@brief 返回 distribution 文件地址 一般在`/usr/share/deepin/`目录下
 
 @fn static QString Dtk::Core::DSysInfo::distributionInfoSectionName(OrgType type)
 @brief 返回 distribution.info 文件中 SectionName 字段的值

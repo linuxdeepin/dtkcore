@@ -110,12 +110,12 @@
 @brief 写入日志记录。
         将带有所提供参数的日志记录写给所有注册的应用
 @param[in] time 时间戳
-@param[in] logLevel 日志记录等级
+@param[in] level 日志记录等级
 @param[in] file 目标文件名
 @param[in] line 要输出的行数
 @param[in] func 输出的函数名称
 @param[in] category 日志类别
-@param[in] message 输出信息
+@param[in] msg 输出信息
 @note 使用`Logger::Fatal`日志级别记录日志记录将导致调用STL `abort()`函数,
         这将中断你的软件的运行并Core dump
 @sa Logger::LogLevel
@@ -128,12 +128,12 @@
 @sa  Logger::write(const QDateTime &time, LogLevel level,
                                 const char *file, int line,const char *func,
                                 const char *category, const QString &msg)
-@param[in] logLevel 日志记录等级
+@param[in] level 日志记录等级
 @param[in] file 目标文件名
 @param[in] line 要输出的行数
 @param[in] func 输出的函数名称
 @param[in] category 日志类别
-@param[in] message 输出信息
+@param[in] msg 输出信息
 
 @fn QDebug Dtk::Core::Logger::write(LogLevel level, const char *file,
                 int line,const char *func, const char *category)
@@ -153,7 +153,7 @@
 @sa  Logger::write(const QDateTime &time, LogLevel level,
                                 const char *file, int line,const char *func,
                                 const char *category, const QString &msg)
-@param[in] logLevel 日志记录等级
+@param[in] level 日志记录等级
 @param[in] file 目标文件名
 @param[in] line 要输出的行数
 @param[in] func 输出的函数名称
