@@ -48,7 +48,7 @@ static QStringList defaultWriteablePaths() {
         paths.append(path);
     }
 
-    for (int i = 0; i <= static_cast<int>(DStandardPaths::XDG::RuntimeTime); ++i) {
+    for (int i = 0; i <= static_cast<int>(DStandardPaths::XDG::RuntimeDir); ++i) {
         const QString &path = DStandardPaths::path(DStandardPaths::XDG(i));
         if (path.isEmpty())
             continue;
