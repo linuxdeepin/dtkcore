@@ -36,6 +36,13 @@ DDBusProperty DDBusSender::property(const QString &property)
     return DDBusProperty(property, m_dbusData);
 }
 
+DDBusSender DDBusSender::system()
+{
+    DDBusSender self;
+    self.type(QDBusConnection::SystemBus);
+    return self;
+}
+
 DDBusSender DDBusSender::path(const QString &path)
 {
     m_dbusData->path = path;

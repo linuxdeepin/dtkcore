@@ -81,4 +81,9 @@
 @details 确保在调用该方法之前, service, path和interface都已经被正确设置
 @param[in] property 访问属性名
 @return DDBusProperty 属性操作对象
+
+@fn static DDBusSender DDBusSender::system()
+@brief 获取 systembus 访问的能力
+@details DDBusSender 默认使用 sessionbus ，此接口提供 systembus 的访问能力
+@return DDBusSender 可以访问 systembus 的 sender 对象
 */
