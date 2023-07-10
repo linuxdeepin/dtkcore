@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
+set -e
 
 BUILD_DIR=`pwd`/../build/tests/
 HTML_DIR=${BUILD_DIR}/html
