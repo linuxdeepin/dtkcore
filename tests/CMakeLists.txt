@@ -1,4 +1,5 @@
-set(BIN_NAME "ut-${LIB_NAME}")
+# 方便 test 脚本中调用
+set(BIN_NAME "ut-DtkCore")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
