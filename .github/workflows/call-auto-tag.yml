@@ -13,4 +13,7 @@ concurrency:
 jobs:
   auto_tag:
     uses: linuxdeepin/.github/.github/workflows/auto-tag.yml@master
-    secrets: inherit
+    secrets:
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+      TRANSIFEX_API_TOKEN: ${{ secrets.TRANSIFEX_API_TOKEN }}
