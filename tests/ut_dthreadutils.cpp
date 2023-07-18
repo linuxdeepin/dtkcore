@@ -88,21 +88,37 @@ protected:
     DThreadUtils *m_threadutil{nullptr};
 };
 
-class QWorker : public QObject{
+class QWorker : public QObject {
     Q_OBJECT
 public:
     explicit QWorker(QObject *parent = nullptr):QObject(parent){}
     ~QWorker() = default;
 public Q_SLOTS:
     int testFunc(int i, double j) {
-        int r = i + j;
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        int r =qFloor(i + j);
+        wait();
         emit testFuncTrigger(r);
-        return i + j; 
+        return r;
+    }
+
+    void setWaitForSecs(int sec){
+        m_waitSecs = sec;
+    }
+    void wait() {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_cv.wait_for(lock,  std::chrono::seconds(m_waitSecs));
+    }
+
+    void notifyOne() {
+        m_cv.notify_one();
     }
 
 Q_SIGNALS:
     void testFuncTrigger(int v);
+private:
+    std::mutex m_mutex;
+    std::condition_variable m_cv;
+    int m_waitSecs = 2;
 };
 
 class CallableObject{
@@ -111,12 +127,13 @@ public:
     CallableObject() = default;
     ~CallableObject() = default;
 
-    QString operator()(const QString& str){
+    QString operator()(const QString &str){
         s += str;
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
         return s;
     }
 
-    QString testFunc(const QString& str){
+    QString testFunc(const QString &){
         return s;
     }
 
@@ -124,7 +141,7 @@ private:
     QString s{"CallableObject: "};
 };
 
-TEST_F(ut_DThreadUtils,testThread)
+TEST_F(ut_DThreadUtils, testThread)
 {
     auto tmp = m_threadutil->thread();
     EXPECT_EQ(tmp, t);
@@ -133,11 +150,12 @@ TEST_F(ut_DThreadUtils,testThread)
 TEST_F(ut_DThreadUtils, testRunWithQObj)
 {
     QWorker w;
-    QSignalSpy spy(&w,SIGNAL(testFuncTrigger(int)));
+    QSignalSpy spy(&w, &QWorker::testFuncTrigger);
     auto result = m_threadutil->run(&w, &QWorker::testFunc, 10, 24.6);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
     EXPECT_TRUE(result.isStarted());
     EXPECT_TRUE(result.isRunning());
+    w.notifyOne();
     result.waitForFinished();
     EXPECT_TRUE(result.isFinished());
     auto raw = result.result();
@@ -147,28 +165,26 @@ TEST_F(ut_DThreadUtils, testRunWithQObj)
 
 TEST_F(ut_DThreadUtils,testRunWithLambda)
 {
-    const QString& ref = "long ref";
-    int num = 10;
     auto threadId1 = std::this_thread::get_id();
-    auto result = m_threadutil->run([&num](decltype(threadId1) id){
-        EXPECT_NE(std::this_thread::get_id(),id);
+    auto result = m_threadutil->run([](decltype(threadId1) id){
+        EXPECT_NE(std::this_thread::get_id(), id);
         return true;
-    },threadId1);
+    }, threadId1);
     result.waitForFinished();
     auto raw = result.result();
     EXPECT_TRUE(raw);
 }
 
-TEST_F(ut_DThreadUtils,testRunWithCallableObj){
+TEST_F(ut_DThreadUtils,testRunWithCallableObj)
+{
     CallableObject obj;
     QString tmp{"Hello"};
-    const auto& ref = tmp;
-    auto result1 = m_threadutil->run(obj,tmp);
+    auto result1 = m_threadutil->run(obj, tmp);
     result1.waitForFinished();
     auto raw1 = result1.result();
     EXPECT_EQ(raw1, QString{"CallableObject: Hello"});
 
-    auto result2 = m_threadutil->run(&obj,&CallableObject::testFunc, tmp);
+    auto result2 = m_threadutil->run(&obj, &CallableObject::testFunc, tmp);
     result2.waitForFinished();
     auto raw2 = result2.result();
     EXPECT_EQ(raw2, QString{"CallableObject: "});
@@ -177,6 +193,7 @@ TEST_F(ut_DThreadUtils,testRunWithCallableObj){
 TEST_F(ut_DThreadUtils, testExecWithQObj)
 {
     QWorker w;
+    w.setWaitForSecs(0);
     QSignalSpy spy(&w, SIGNAL(testFuncTrigger(int)));
     auto result = m_threadutil->exec(&w, &QWorker::testFunc, 10, 24.6);
     EXPECT_EQ(result, 34);
@@ -185,15 +202,12 @@ TEST_F(ut_DThreadUtils, testExecWithQObj)
 
 TEST_F(ut_DThreadUtils, testExecWithLambda)
 {
-    const QString &ref = "long ref";
-    int num = 10;
     auto threadId1 = std::this_thread::get_id();
-    auto result = m_threadutil->exec(
-        [&num](decltype(threadId1) id) {
+    auto result = m_threadutil->exec (
+        [](decltype(threadId1) id) {
             EXPECT_NE(std::this_thread::get_id(), id);
             return true;
-        },
-        threadId1);
+        }, threadId1);
     EXPECT_TRUE(result);
 }
 
@@ -201,7 +215,6 @@ TEST_F(ut_DThreadUtils, testExecWithCallableObj)
 {
     CallableObject obj;
     QString tmp{"Hello"};
-    const auto &ref = tmp;
     auto result1 = m_threadutil->exec(obj, tmp);
     EXPECT_EQ(result1, QString{"CallableObject: Hello"});
 
@@ -213,6 +226,7 @@ TEST_F(ut_DThreadUtils, testDirectlyInvoke)
 {
     DThreadUtils tu(QThread::currentThread());
     QWorker w;
+    w.setWaitForSecs(0);
     QSignalSpy spy(&w, SIGNAL(testFuncTrigger(int)));
     auto result = tu.run(&w, &QWorker::testFunc, 10, 24.6);
     auto raw = result.result();  // no wait
@@ -225,12 +239,12 @@ TEST_F(ut_DThreadUtils, testCancel)
     CallableObject obj;
     QString tmp{"Hello"};
     int cancelCounter{0};
-    const auto &ref = tmp;
     auto result1 = m_threadutil->run(obj, tmp);
     auto cancelResult = result1.onCanceled([&cancelCounter]() {
         cancelCounter += 1;
         return QString{"failed"};
     });
+
     result1.cancel();
     EXPECT_FALSE(result1.isFinished());
     EXPECT_FALSE(result1.isValid());

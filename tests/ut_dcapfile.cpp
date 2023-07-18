@@ -20,7 +20,7 @@ DCORE_USE_NAMESPACE
 
 #define TMPCAP_PATH "/tmp/cap"
 
-class ut_DCapFSFileEngine : public testing::Test
+class ut_DCapFile : public testing::Test
 {
 protected:
     void SetUp() override;
@@ -30,7 +30,7 @@ protected:
     QFile *file;
 };
 
-void ut_DCapFSFileEngine::SetUp()
+void ut_DCapFile::SetUp()
 {
      manager = DCapManager::instance();
      manager->removePath("/tmp");
@@ -42,7 +42,7 @@ void ut_DCapFSFileEngine::SetUp()
          ASSERT_TRUE(dir.mkdir(TMPCAP_PATH));
 }
 
-void ut_DCapFSFileEngine::TearDown()
+void ut_DCapFile::TearDown()
 {
     manager->appendPath("/tmp");
     delete file;
@@ -51,173 +51,17 @@ void ut_DCapFSFileEngine::TearDown()
         ASSERT_TRUE(dir.removeRecursively());
 }
 
-/*TEST_F(ut_DCapFSFileEngine, testSubDirCanReadWrite)
+TEST(ut_DCapManager, paths)
 {
-    manager->appendPath("/usr/share/");
-    ASSERT_FALSE(DCapFSFileEngine("").canReadWrite("/tmp/usr/share/file0"));
-    manager->removePath("/usr/share/");
+    auto size = DCapManager::instance()->paths().size();
+    EXPECT_TRUE(size > 0);
+
+    DCapManager::instance()->appendPaths({"/path/to/myCap"});
+    EXPECT_TRUE(DCapManager::instance()->paths().contains("/path/to/myCap"));
+
+    DCapManager::instance()->removePaths({"/path/to/myCap"});
+    EXPECT_FALSE(DCapManager::instance()->paths().contains("/path/to/myCap"));
 }
-
-TEST_F(ut_DCapFSFileEngine, testDCapFileOpenFile)
-{
-    file->setFileName("/tmp/file0");
-    bool open = file->open(QIODevice::WriteOnly);
-    ASSERT_FALSE(open);  // path `/tmp` has removed from setup.
-
-    QDir dir(TMPCAP_PATH);
-    ASSERT_TRUE(dir.exists());
-    if (!dir.exists("subdir"))
-        ASSERT_TRUE(dir.mkdir("subdir"));
-    ASSERT_TRUE(dir.cd("subdir"));
-    file->close();
-    file->setFileName(dir.path() + "/file0");  // path: /tmp/etc/subdir/file0
-    ASSERT_TRUE(file->open(QIODevice::WriteOnly));
-}
-
-TEST_F(ut_DCapFSFileEngine, testDCapFileRename)
-{
-    file->setFileName(TMPCAP_PATH"/file0");
-    bool open = file->open(QIODevice::WriteOnly);
-    ASSERT_TRUE(open);  // Default path contains the `/tmp` path.
-    file->close();
-
-    ASSERT_TRUE(file->rename(TMPCAP_PATH"/file1"));
-    ASSERT_FALSE(file->rename("/tmp/file1"));
-
-    QDir dir(TMPCAP_PATH);
-    if (!dir.exists("subdir"))
-        ASSERT_TRUE(dir.mkdir("subdir"));
-    ASSERT_TRUE(file->rename(TMPCAP_PATH"/subdir/file0"));
-}
-
-TEST_F(ut_DCapFSFileEngine, testDCapFileRemove)
-{
-    file->setFileName(TMPCAP_PATH"/test");
-    ASSERT_TRUE(file->open(QFile::WriteOnly));
-    file->close();
-    ASSERT_TRUE(file->exists());
-    ASSERT_TRUE(file->remove());
-    ASSERT_FALSE(file->exists());
-
-    QDir dir(TMPCAP_PATH);
-    if (!dir.exists("subdir"))
-        ASSERT_TRUE(dir.mkdir("subdir"));
-
-    manager->appendPath(TMPCAP_PATH"/subdir");  // create a new subdir file.
-    ASSERT_FALSE(manager->paths().contains(TMPCAP_PATH"/subdir"));  // already has /tmp/cap
-    QFile f(TMPCAP_PATH"/subdir/test");
-    ASSERT_TRUE(f.open(QFile::WriteOnly));
-    f.close();
-    ASSERT_TRUE(f.exists());
-
-    file->setFileName(TMPCAP_PATH"/subdir/test");
-    ASSERT_TRUE(file->remove());
-
-    manager->appendPath("/tmp");
-    ASSERT_TRUE(manager->paths().contains("/tmp"));
-    file->setFileName("/tmp/file0");
-    bool open = file->open(QIODevice::WriteOnly);
-    ASSERT_TRUE(open);
-    manager->removePath("/tmp");
-    ASSERT_FALSE(manager->paths().contains("/tmp"));
-    ASSERT_FALSE(file->remove());
-}
-
-TEST_F(ut_DCapFSFileEngine, testDCapFileLink)
-{
-    file->setFileName(TMPCAP_PATH"/test");
-    ASSERT_TRUE(file->open(QFile::WriteOnly));
-    file->close();
-    ASSERT_TRUE(file->exists());
-    ASSERT_TRUE(file->link(TMPCAP_PATH"/test1"));
-    ASSERT_FALSE(file->link("/tmp/test1"));
-
-    QDir dir(TMPCAP_PATH);
-    if (!dir.exists("subdir"))
-        ASSERT_TRUE(dir.mkdir("subdir"));
-    ASSERT_TRUE(file->link(TMPCAP_PATH"/subdir/test1"));
-
-    ASSERT_TRUE(file->remove());  // clean the file.
-}
-
-TEST_F(ut_DCapFSFileEngine, testDCapFileCopy)
-{
-    file->setFileName(TMPCAP_PATH"/test");
-    ASSERT_TRUE(file->open(QFile::WriteOnly));
-    file->write("test");
-    file->close();
-    ASSERT_TRUE(file->exists());
-    ASSERT_TRUE(file->copy(TMPCAP_PATH"/test2"));
-    ASSERT_TRUE(file->copy("/tmp/test2"));
-    ASSERT_FALSE(QFileInfo::exists(TMPCAP_PATH"/subdir/test2"));
-
-    QDir dir(TMPCAP_PATH);
-    if (!dir.exists("subdir"))
-        ASSERT_TRUE(dir.mkdir("subdir"));
-    ASSERT_TRUE(file->copy(TMPCAP_PATH"/subdir/test2"));
-    ASSERT_TRUE(QFileInfo::exists(TMPCAP_PATH"/subdir/test2"));
-}
-
-TEST_F(ut_DCapFSFileEngine, testDCapFileResize)
-{
-    file->setFileName(TMPCAP_PATH"/test");
-    ASSERT_TRUE(file->open(QFile::WriteOnly));
-    file->write("test");
-    file->close();
-    ASSERT_TRUE(file->exists());
-    ASSERT_TRUE(file->resize(10));
-    ASSERT_EQ(file->size(), 10);
-
-    QDir dir(TMPCAP_PATH);
-    if (!dir.exists("subdir"))
-        ASSERT_TRUE(dir.mkdir("subdir"));
-
-    QFile f(TMPCAP_PATH"/subdir/test");
-    ASSERT_TRUE(f.open(QFile::WriteOnly));
-    f.write("test");
-    f.close();
-    ASSERT_TRUE(f.exists());
-
-    file->setFileName(TMPCAP_PATH"/subdir/test");
-    ASSERT_TRUE(file->resize(10));
-
-    DCapManager::instance()->appendPath("/tmp");
-
-    f.setFileName("/tmp/test");
-    ASSERT_TRUE(f.open(QFile::WriteOnly));
-    f.write("test");
-    f.close();
-    ASSERT_TRUE(f.exists());
-    DCapManager::instance()->removePath("/tmp");
-
-    file->setFileName("/tmp/test");
-    ASSERT_FALSE(file->resize(10));
-    file->remove();}
-
-TEST_F(ut_DCapFSFileEngine, testDCapDirEntry)
-{
-    auto createFiles = [this](const QString & path, int count) {
-        for (int i = 0; i < count; ++i) {
-            file->setFileName(QString(path) + "/test" + QString::number(i));
-            ASSERT_TRUE(file->open(QFile::WriteOnly));
-            file->close();
-            ASSERT_TRUE(file->exists());
-        }
-    };
-
-    createFiles(TMPCAP_PATH, 10);
-    QDir dir(TMPCAP_PATH);
-    ASSERT_TRUE(dir.entryList(QDir::Files).length() == 10);
-
-    if (!dir.exists("subdir"))
-        ASSERT_TRUE(dir.mkdir("subdir"));
-
-    dir.setPath(TMPCAP_PATH"/subdir");
-    createFiles(TMPCAP_PATH"/subdir", 10);
-    ASSERT_TRUE(dir.entryList(QDir::Files).length() == 10);
-    manager->removePath(TMPCAP_PATH);
-    ASSERT_TRUE(dir.entryList(QDir::Files).length() == 0);
-}*/
 
 TEST(ut_DCapFileAndDir, testDCapFileOpen)
 {

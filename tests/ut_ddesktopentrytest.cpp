@@ -109,3 +109,10 @@ TEST_F(ut_DesktopEntry, ParseFile)
     //qDebug() << desktopFile->save();
     //qDebug() << fileName;
 }
+
+TEST_F(ut_DesktopEntry, escape)
+{
+    QString slash("\\\\");
+    ASSERT_TRUE(DDesktopEntry::escapeExec(slash) == slash);
+    ASSERT_TRUE(DDesktopEntry::unescapeExec(slash) == slash);
+}
