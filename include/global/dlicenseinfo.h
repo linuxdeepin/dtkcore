@@ -5,6 +5,8 @@
 #ifndef DLICENSEINFO_H
 #define DLICENSEINFO_H
 
+#include <QVector>
+
 #include <dtkcore_global.h>
 #include <dobject.h>
 
