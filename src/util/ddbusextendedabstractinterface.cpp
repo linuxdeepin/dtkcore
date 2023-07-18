@@ -382,7 +382,7 @@ void DDBusExtendedAbstractInterface::onAsyncSetPropertyFinished(QDBusPendingCall
 
     // Resetting the property to its previous value after sending the
     // finished signal
-    if (reply.isError()) {
+    if (!reply.isError()) {
         m_lastExtendedError = QDBusError();
         Q_EMIT propertyChanged(watcher->asyncProperty(), watcher->previousValue());
     }
