@@ -9,6 +9,7 @@
 
 #include <gtest/gtest.h>
 #include "test_helper.hpp"
+#include "backend/dsettingsdconfigbackend.h"
 
 DCORE_USE_NAMESPACE
 
@@ -31,7 +32,7 @@ protected:
         backendType.restore();
         dsgDataDir.restore();
     }
-    virtual void SetUp() override;
+    virtual void SetUp() override {}
     virtual void TearDown() override;
 
     static EnvGuard backendType;
@@ -176,4 +177,32 @@ TEST_F(ut_DConfig, noAppidWirteConfig) {
     }
 }
 
-void ut_DConfig::SetUp() {}
+TEST_F(ut_DConfig, DSettingsDConfigBackend)
+{
+    FileCopyGuard guard(":/data/dconf-example.meta.json", metaFilePath);
+    {
+        DSettingsDConfigBackend backend(FILE_NAME);
+        QStringList keyList{ QString("key2"), QString("canExit") };
+        for (auto item : keyList) {
+            ASSERT_TRUE(backend.keys().contains(item));
+        }
+    }
+
+    {
+        DSettingsDConfigBackend backend(FILE_NAME);
+        ASSERT_EQ(backend.getOption("key2").toString(), QString("125"));
+    }
+
+    {
+
+        DConfig config(FILE_NAME);
+        config.setValue("key2", "126");
+        // save cache file
+    }
+
+    {
+        // reload cache file
+        DSettingsDConfigBackend backend(FILE_NAME);
+        ASSERT_EQ(backend.getOption("key2").toString(), QString("126"));
+    }
+}

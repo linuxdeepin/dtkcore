@@ -6,6 +6,8 @@
 #include <ddbusinterface.h>
 
 #include "fakedbus/fakedbusservice.h"
+#include <QTest>
+#include <QSignalSpy>
 
 using Dtk::Core::DDBusInterface;
 
@@ -40,4 +42,11 @@ TEST_F(ut_DDBusInterface, TestProperty)
 
     auto strproperty = qvariant_cast<QString>(m_testInterface->property("strProperty"));
     EXPECT_EQ(strproperty, m_testservice->strproperty());
+}
+
+TEST_F(ut_DDBusInterface, suffix)
+{
+    EXPECT_EQ(m_testInterface->suffix(), "");
+    m_testInterface->setSuffix("-suffix");
+    EXPECT_EQ(m_testInterface->suffix(), "-suffix");
 }
