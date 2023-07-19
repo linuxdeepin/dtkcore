@@ -287,8 +287,13 @@ public:
     {
         DConfigFile::Permissions p = DConfigFile::ReadOnly;
         const auto &tmp = values[key][QLatin1String("permissions")].toString();
-        if (tmp == QLatin1String("readwrite"))
+        if (tmp == QLatin1String("readwrite")) {
             p = DConfigFile::ReadWrite;
+        } else if (tmp == QLatin1String("authorizedreadonly")) {
+            p = DConfigFile::AuthorizedReadOnly;
+        } else if (tmp == QLatin1String("authorizedreadwrite")) {
+            p = DConfigFile::AuthorizedReadWrite;
+        }
 
         return p;
     }
