@@ -31,6 +31,24 @@
 #define OS_VERSION_FILE OS_VERSION_TEST_FILE
 #endif
 
+#ifndef LSB_RELEASE_TEST_FILE
+#define LSB_RELEASE_FILE "/etc/lsb-release"
+#else
+#define LSB_RELEASE_FILE LSB_RELEASE_TEST_FILE
+#endif
+
+#ifndef OS_RELEASE_TEST_FILE
+#define OS_RELEASE_FILE "/etc/os-release"
+#else
+#define OS_RELEASE_FILE OS_RELEASE_TEST_FILE
+#endif
+
+#ifndef DEEPIN_VERSION_TEST_FILE
+#define DEEPIN_VERSION_FILE "/etc/deepin-version"
+#else
+#define DEEPIN_VERSION_FILE DEEPIN_VERSION_TEST_FILE
+#endif
+
 DCORE_BEGIN_NAMESPACE
 
 class Q_DECL_HIDDEN DSysInfoPrivate
@@ -146,10 +164,14 @@ bool DSysInfoPrivate::splitA_BC_DMode()
 
 void DSysInfoPrivate::ensureDeepinInfo()
 {
+#ifndef DEEPIN_VERSION_TEST_FILE
     if (static_cast<int>(deepinType) >= 0)
         return;
+#else
+    deepinTypeMap.clear(); // clear cache for test
+#endif
 
-    QFile file("/etc/deepin-version");
+    QFile file(DEEPIN_VERSION_FILE);
 
     if (!file.open(QFile::ReadOnly)) {
         deepinType = DSysInfo::UnknownDeepin;
@@ -193,9 +215,10 @@ void DSysInfoPrivate::ensureDeepinInfo()
             deepinCopyright = QString::fromUtf8(key_value.second);
         }
 
-        if (!deepinTypeMap.isEmpty() && !deepinEdition.isEmpty() && !deepinCopyright.isEmpty()) {
-            break;
-        }
+        // deepinTypeMap may not parse finished(multi language) but !deepinTypeMap.isEmpty()
+//        if (!deepinTypeMap.isEmpty() && !deepinEdition.isEmpty() && !deepinCopyright.isEmpty()) {
+//            break;
+//        }
     }
 
     file.close();
@@ -359,6 +382,12 @@ static bool readEtcFile(DSysInfoPrivate *info, const char *filename,
     quint8 valid_data_count = 0;
     char buf[1024];
 
+#ifdef OS_RELEASE_TEST_FILE
+    // for test clear cache
+    info->productTypeString.clear();
+    info->productType = DSysInfo::UnknownType;
+#endif
+
     while (valid_data_count < 3) {
         int buf_length = file.readLine(buf, sizeof(buf));
 
@@ -396,7 +425,7 @@ static bool readEtcFile(DSysInfoPrivate *info, const char *filename,
 
 static bool readOsRelease(DSysInfoPrivate *info)
 {
-    if (!readEtcFile(info, "/etc/os-release", "ID=", "VERSION_ID=", "PRETTY_NAME="))
+    if (!readEtcFile(info, OS_RELEASE_FILE, "ID=", "VERSION_ID=", "PRETTY_NAME="))
         return readEtcFile(info, "/usr/lib/os-release", "ID=", "VERSION_ID=", "PRETTY_NAME=");
 
     return true;
@@ -404,15 +433,17 @@ static bool readOsRelease(DSysInfoPrivate *info)
 
 static bool readLsbRelease(DSysInfoPrivate *info)
 {
-    return readEtcFile(info, "/etc/lsb-release", "DISTRIB_ID=", "DISTRIB_RELEASE=", "DISTRIB_DESCRIPTION=");
+    return readEtcFile(info, LSB_RELEASE_FILE, "DISTRIB_ID=", "DISTRIB_RELEASE=", "DISTRIB_DESCRIPTION=");
 }
 #endif
 
 void DSysInfoPrivate::ensureReleaseInfo()
 {
+#ifndef OS_RELEASE_TEST_FILE // Always re-read the file when testing
     if (productType >= 0) {
         return;
     }
+#endif
 
 #ifdef Q_OS_LINUX
     readOsRelease(this);
@@ -857,7 +888,8 @@ QString DSysInfo::deepinDistributionInfoPath()
 QString DSysInfo::distributionInfoPath()
 {
 #ifdef Q_OS_LINUX
-    return "/usr/share/deepin/distribution.info";
+    // return "/usr/share/deepin/distribution.info";
+    return QStandardPaths::locate(QStandardPaths::GenericDataLocation, "deepin/distribution.info");
 #else
     return QDir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)).filePath("deepin-distribution.info");
 #endif // Q_OS_LINUX
