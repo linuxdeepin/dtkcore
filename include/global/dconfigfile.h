@@ -35,7 +35,9 @@ public:
 
     enum Permissions {
         ReadOnly,
-        ReadWrite
+        ReadWrite,
+        AuthorizedReadOnly,
+        AuthorizedReadWrite,
     };
 
     enum Visibility {
