@@ -1131,10 +1131,8 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
 
     cacheChanged = false;
     const QString &dir = getCacheDir(localPrefix);
-    const QString &homePath = (getuid() == userid) ? DStandardPaths::homePath() : DStandardPaths::homePath(userid);
-
-    if (dir.isEmpty() || !QDir().exists(homePath)) {
-        qCInfo(cfLog, "Failed on saving, the config cache directory is empty for the user[%d] or user homePath is not exist, "
+    if (dir.isEmpty()) {
+        qCWarning(cfLog, "Falied on saveing, the config cache directory is empty for the user[%d], "
                          "the current user[%d].", userid, getuid());
         return false;
     }
