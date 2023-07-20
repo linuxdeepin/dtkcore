@@ -989,7 +989,7 @@ public:
         // If target user is current user, then get the home path by environment variable first.
         const QString &homePath = (getuid() == userid) ? DStandardPaths::homePath()
                                                        : DStandardPaths::homePath(userid);
-        if (homePath.isEmpty()) {
+        if (homePath.isEmpty() || !QDir().exists(homePath)) {
             return QString();
         }
         const QString userHomeConfigDir = homePath + QStringLiteral("/.config/dsg/configs") + suffix;
@@ -1132,7 +1132,7 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
     cacheChanged = false;
     const QString &dir = getCacheDir(localPrefix);
     if (dir.isEmpty()) {
-        qCWarning(cfLog, "Falied on saveing, the config cache directory is empty for the user[%d], "
+        qCWarning(cfLog, "Failed on saving, the config cache directory is empty for the user[%d], "
                          "the current user[%d].", userid, getuid());
         return false;
     }
@@ -1144,7 +1144,7 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
     }
 
     if (!cache.open(QIODevice::WriteOnly)) {
-        qCWarning(cfLog, "Falied on saveing data when open file: \"%s\", error message: \"%s\"",
+        qCWarning(cfLog, "Failed on saving data when open file: \"%s\", error message: \"%s\"",
                   qPrintable(cache.fileName()), qPrintable(cache.errorString()));
         return false;
     }
