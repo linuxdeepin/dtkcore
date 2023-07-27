@@ -1,3 +1,27 @@
+dtkcore (5.6.14) unstable; urgency=medium
+
+  * chore: function need to be marked as override
+  * chore: ignore doxygen-theme folder
+    Thanks to Skye-rs
+  * chore: change OUTPUT_DIR variable in cmake
+  * chore: remove unused pro files
+  * refactor!: deprecate some interfaces in dtk6
+  * fix: updateProp cannot convert to property type
+  * fix: typo in xdg
+  * chore: reduce compilation warnings
+    Thanks to SPUER(Issue: #96)
+  * chore(dcapmanager): RuntimeTime -> RuntimeDir
+  * chore: Sync by https://github.com/linuxdeepin/.github/commit/559e91167d4919644f37bbcf123eb0651c1528ea(Influence: none)
+  * chore: make test-recoverage.sh runable again
+  * chore: add ut for DDbusSender
+  * feat: add systembus send support
+  * fix: internalPropSet nerver emit propertyChanged
+  * chore: should include QVector headers
+  * chore: dsysinfo tweak
+  * chore: add some unit test
+
+ -- Deepin Packages Builder <packages@deepin.org>  Thu, 27 Jul 2023 06:56:33 +0000
+
 dtkcore (5.6.13) unstable; urgency=medium
 
   * feat: DConfig add check for no existed item when override
