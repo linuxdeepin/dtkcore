@@ -5,51 +5,37 @@
 #define DLOGGER_DEFINE_H
 
 #include "dtkcore_global.h"
+#include <QLoggingCategory>
 
 DCORE_BEGIN_NAMESPACE
 
 class Logger;
-class CuteMessageLogger;
-class LoggerTimingHelper;
+class DLogHelper;
 LIBDTKCORESHARED_EXPORT Logger *loggerInstance();
-#define logger loggerInstance()
+#define dlogger loggerInstance()
 
-#define dTrace   CuteMessageLogger(loggerInstance(), Logger::Trace,   __FILE__, __LINE__, Q_FUNC_INFO).write
-#define dDebug   CuteMessageLogger(loggerInstance(), Logger::Debug,   __FILE__, __LINE__, Q_FUNC_INFO).write
-#define dInfo    CuteMessageLogger(loggerInstance(), Logger::Info,    __FILE__, __LINE__, Q_FUNC_INFO).write
-#define dWarning CuteMessageLogger(loggerInstance(), Logger::Warning, __FILE__, __LINE__, Q_FUNC_INFO).write
-#define dError   CuteMessageLogger(loggerInstance(), Logger::Error,   __FILE__, __LINE__, Q_FUNC_INFO).write
-#define dFatal   CuteMessageLogger(loggerInstance(), Logger::Fatal,   __FILE__, __LINE__, Q_FUNC_INFO).write
+#define DLOG_CTX(category) QMessageLogContext(__FILE__, __LINE__, Q_FUNC_INFO, category)
 
-#define dCDebug(category)   CuteMessageLogger(loggerInstance(), Logger::Debug,   __FILE__, __LINE__, Q_FUNC_INFO, category).write()
-#define dCInfo(category)    CuteMessageLogger(loggerInstance(), Logger::Info,    __FILE__, __LINE__, Q_FUNC_INFO, category).write()
-#define dCWarning(category) CuteMessageLogger(loggerInstance(), Logger::Warning, __FILE__, __LINE__, Q_FUNC_INFO, category).write()
-#define dCError(category)   CuteMessageLogger(loggerInstance(), Logger::Error,   __FILE__, __LINE__, Q_FUNC_INFO, category).write()
-#define dCFatal(category)   CuteMessageLogger(loggerInstance(), Logger::Fatal,   __FILE__, __LINE__, Q_FUNC_INFO, category).write()
+// include DLog or dloghelper.h
+#define dTrace            DLogHelper(Logger::Trace,   DLOG_CTX("default")).write
+#define dDebug            DLogHelper(Logger::Debug,   DLOG_CTX("default")).write
+#define dInfo             DLogHelper(Logger::Info,    DLOG_CTX("default")).write
+#define dWarning          DLogHelper(Logger::Warning, DLOG_CTX("default")).write
+#define dError            DLogHelper(Logger::Error,   DLOG_CTX("default")).write
+#define dFatal            DLogHelper(Logger::Fatal,   DLOG_CTX("default")).write
 
-#define dTraceTime  LoggerTimingHelper loggerTimingHelper(loggerInstance(), Logger::Trace, __FILE__, __LINE__, Q_FUNC_INFO); loggerTimingHelper.start
-#define dDebugTime  LoggerTimingHelper loggerTimingHelper(loggerInstance(), Logger::Debug, __FILE__, __LINE__, Q_FUNC_INFO); loggerTimingHelper.start
-#define dInfoTime   LoggerTimingHelper loggerTimingHelper(loggerInstance(), Logger::Info,  __FILE__, __LINE__, Q_FUNC_INFO); loggerTimingHelper.start
+#define dCDebug(category)   DLogHelper(Logger::Debug,   DLOG_CTX(category)).write()
+#define dCInfo(category)    DLogHelper(Logger::Info,    DLOG_CTX(category)).write()
+#define dCWarning(category) DLogHelper(Logger::Warning, DLOG_CTX(category)).write()
+#define dCError(category)   DLogHelper(Logger::Error,   DLOG_CTX(category)).write()
+#define dCFatal(category)   DLogHelper(Logger::Fatal,   DLOG_CTX(category)).write()
+
+#define dTraceTime  DLogHelper helper(Logger::Trace,   DLOG_CTX("default")); helper.timing
+#define dDebugTime  DLogHelper helper(Logger::Debug,   DLOG_CTX("default")); helper.timing
+#define dInfoTime   DLogHelper helper(Logger::Info,   DLOG_CTX("default")); helper.timing
 
 #define dAssert(cond)        ((!(cond)) ? loggerInstance()->writeAssert(__FILE__, __LINE__, Q_FUNC_INFO, #cond) : qt_noop())
 #define dAssertX(cond, msg)  ((!(cond)) ? loggerInstance()->writeAssert(__FILE__, __LINE__, Q_FUNC_INFO, msg) : qt_noop())
-
-#define dCategory(category) \
-    private:\
-    Logger* loggerInstance()\
-    {\
-        static Logger customLoggerInstance(category);\
-        return &customLoggerInstance;\
-    }\
-
-#define dGlobalCategory(category) \
-    private:\
-    Logger* loggerInstance()\
-    {\
-        static Logger customLoggerInstance(category);\
-        customLoggerInstance.logToGlobalInstance(category, true);\
-        return &customLoggerInstance;\
-    }\
 
 DCORE_END_NAMESPACE
 

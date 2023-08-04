@@ -26,9 +26,9 @@ DCORE_BEGIN_NAMESPACE
 
 /*!
 @~english
-  \macro Dtk::Core::logger
+  \macro Dtk::Core::dlogger
   \relates Dtk::Core::Logger
-  \keyword Dtk::Core::logger
+  \keyword Dtk::Core::dlogger
 
   @brief Macro returning the current instance of Logger object
 
@@ -38,7 +38,7 @@ DCORE_BEGIN_NAMESPACE
   Example:
   \code
   ConsoleAppender* consoleAppender = new ConsoleAppender;
-  logger->registerAppender(consoleAppender);
+  dlogger->registerAppender(consoleAppender);
   \endcode
 
   @sa Dtk::Core::Logger::globalInstance()
@@ -248,7 +248,7 @@ DCORE_BEGIN_NAMESPACE
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dCategory()
 
-  @brief Create logger instance inside your custom class to log all messages to the specified \a category
+  @brief Create dlogger instance inside your custom class to log all messages to the specified \a category
 
   This macro is used to pass all log messages inside your custom class to the specific \a category.
   You must include this macro inside your class declaration (similarly to the Q_OBJECT macro).
@@ -258,8 +258,8 @@ DCORE_BEGIN_NAMESPACE
   Thus, any call to loggerInstance() (for example, inside dTrace() macro) will return the local Logger object,
   so any logging message will be directed to the default category.
 
-  @note This macro does not register any appender to the newly created logger instance. You should register
-  logger appenders manually, inside your class.
+  @note This macro does not register any appender to the newly created dlogger instance. You should register
+  dlogger appenders manually, inside your class.
 
   Usage example:
   \code
@@ -272,7 +272,7 @@ DCORE_BEGIN_NAMESPACE
 
   CustomClass::CustomClass(QObject* parent) : QObject(parent)
   {
-    logger->registerAppender(new FileAppender("custom_category_log"));
+    dlogger->registerAppender(new FileAppender("custom_category_log"));
     dTrace() << "Trace to the custom category log";
   }
   \endcode
@@ -289,13 +289,13 @@ DCORE_BEGIN_NAMESPACE
   \relates Dtk::Core::Logger
   \keyword Dtk::Core::dGlobalCategory()
 
-  @brief Create logger instance inside your custom class to log all messages both to the specified \a category and to
-  the global logger instance.
+  @brief Create dlogger instance inside your custom class to log all messages both to the specified \a category and to
+  the global dlogger instance.
 
-  This macro is similar to dCategory(), but also passes all log messages to the global logger instance appenders.
-  It is equal to defining the local \a category logger using dCategory macro and calling:
+  This macro is similar to dCategory(), but also passes all log messages to the global dlogger instance appenders.
+  It is equal to defining the local \a category dlogger using dCategory macro and calling:
   \code
-  logger->logToGlobalInstance(logger->defaultCategory(), true);
+  dlogger->logToGlobalInstance(dlogger->defaultCategory(), true);
   \endcode
 
   @sa Dtk::Core::dCategory
@@ -423,13 +423,13 @@ DCORE_BEGIN_NAMESPACE
 
   @brief Very simple but rather powerful component which may be used for logging your application activities.
 
-  Global logger instance created on a first access to it (e.g. registering appenders, calling a dDebug() macro
+  Global dlogger instance created on a first access to it (e.g. registering appenders, calling a dDebug() macro
   etc.) registers itself as a Qt default message handler and captures all the qDebug/dWarning/qCritical output.
 
   @note Qt 4 qDebug set of macro doesn't support capturing source function name, file name or line number so we
         recommend to use dDebug() and other Logger macros instead.
 
-  @sa Dtk::Core::logger
+  @sa Dtk::Core::dlogger
  */
 
 class LogDevice : public QIODevice
@@ -483,21 +483,12 @@ private:
     const char *m_category;
 };
 
-// Forward declarations
-//static void cleanupLoggerGlobalInstance();
-
-//#if QT_VERSION >= 0x050000
-//static void qtLoggerMessageHandler(QtMsgType, const QMessageLogContext& context, const QString &msg);
-//#else
-//static void qtLoggerMessageHandler(QtMsgType type, const char *msg);
-//#endif
-
 /*!
 @~english
   \internal
 
   LoggerPrivate class implements the Singleton pattern in a thread-safe way. It contains a static pointer to the
-  global logger instance protected by QReadWriteLock
+  global dlogger instance protected by QReadWriteLock
  */
 class LoggerPrivate
 {
@@ -582,8 +573,8 @@ static void qtLoggerMessageHandler(QtMsgType type, const char *msg)
 @~english
   @brief Construct the instance of Logger.
 
-  If you're only using one global instance of logger you wouldn't probably need to use this constructor manually.
-  Consider using [logger](@ref logger) macro instead to access the logger instance
+  If you're only using one global instance of dlogger you wouldn't probably need to use this constructor manually.
+  Consider using [dlogger](@ref dlogger) macro instead to access the dlogger instance
  */
 Logger::Logger()
     : d_ptr(new LoggerPrivate)
@@ -594,10 +585,10 @@ Logger::Logger()
 
 /*!
 @~english
-  @brief Construct the instance of Logger and set logger default category.
+  @brief Construct the instance of Logger and set dlogger default category.
 
-  If you're only using one global instance of logger you wouldn't probably need to use this constructor manually.
-  Consider using logger macro instead to access the logger instance and call setDefaultCategory method.
+  If you're only using one global instance of dlogger you wouldn't probably need to use this constructor manually.
+  Consider using dlogger macro instead to access the dlogger instance and call setDefaultCategory method.
 
   @sa Logger()
   @sa setDefaultCategory()
@@ -612,7 +603,7 @@ Logger::Logger(const QString &defaultCategory)
 @~english
   @brief Destroy the instance of Logger.
 
-  You probably wouldn't need to use this function directly. Global instance of logger will be destroyed automatically
+  You probably wouldn't need to use this function directly. Global instance of dlogger will be destroyed automatically
   at the end of your QCoreApplication execution
  */
 Logger::~Logger()
@@ -642,9 +633,9 @@ Logger::~Logger()
 @~english
   @brief Returns the global instance of Logger.
 
-  In a most cases you shouldn't use this function directly. Consider using [logger](@ref logger) macro instead.
+  In a most cases you shouldn't use this function directly. Consider using [dlogger](@ref dlogger) macro instead.
 
-  @sa Dtk::Core::logger
+  @sa Dtk::Core::dlogger
  */
 Logger *Logger::globalInstance()
 {
@@ -773,7 +764,7 @@ void Logger::registerAppender(AbstractAppender *appender)
   writing to the default category, or using special dCDebug(), dCWarning() etc. macros),
   Logger writes the log message only to the list of registered category appenders.
 
-  You can call logToGlobalInstance() to pass all category log messages to the global logger instance appenders
+  You can call logToGlobalInstance() to pass all category log messages to the global dlogger instance appenders
   (registered using registerAppender()).
   If no category appenders with specific name was registered to the Logger,
   it falls back to logging into the \c std::cerr STL stream, both with simple warning message.
@@ -805,16 +796,16 @@ void Logger::registerCategoryAppender(const QString &category, AbstractAppender 
 #if DTK_VERSION < DTK_VERSION_CHECK(6, 0, 0, 0)
 /*!
 @~english
-  @brief Links some logging category with the global logger instance appenders.
+  @brief Links some logging category with the global dlogger instance appenders.
 
-  If set to true, all log messages to the specified category appenders will also be written to the global logger instance appenders,
+  If set to true, all log messages to the specified category appenders will also be written to the global dlogger instance appenders,
   registered using registerAppender().
 
   By default, all messages to the specific category are written only to the specific category appenders
   (registered using registerCategoryAppender()).
 
   @param category Category name
-  @param logToGlobal Link or onlink the category from global logger instance appender
+  @param logToGlobal Link or onlink the category from global dlogger instance appender
 
   @sa globalInstance
   @sa registerAppender
@@ -831,7 +822,7 @@ void Logger::logToGlobalInstance(const QString &category, bool logToGlobal)
 @~english
   @brief Sets default logging category.
 
-  All log messages to this category appenders will also be written to general logger instance appenders (registered
+  All log messages to this category appenders will also be written to general dlogger instance appenders (registered
   using [registerAppender](@ref registerAppender) method), and vice versa.
   In particular, any calls to the dDebug() macro will be treated as category logging,
   so you needn't to specify category name using dCDebug() macro.
@@ -1001,13 +992,13 @@ void Logger::write(const QDateTime &time, Logger::LogLevel level, const char *fi
         } else {
             static bool noAppendersWarningShown = false;
             if (!noAppendersWarningShown) {
-                std::cerr << "No appenders registered with logger" << std::endl;
+                std::cerr << "No appenders registered with dlogger" << std::endl;
                 noAppendersWarningShown = true;
             }
         }
     }
 
-    // local logger instances send category messages to the global instance
+    // local dlogger instances send category messages to the global instance
     if (!logCategory.isNull() && !isGlobalInstance)
         globalInstance()->write(time, level, file, line, func, logCategory.toLatin1(), msg, true);
 
@@ -1023,60 +1014,44 @@ void Logger::write(const QDateTime &time, Logger::LogLevel level, const char *fi
     }
 }
 
-void CuteMessageLogger::write(const char *msg, ...) const
+Logger* loggerInstance()
 {
-    va_list va;
-    va_start(va, msg);
-    m_l->write(m_level, m_file, m_line, m_function, m_category, QString::vasprintf(msg, va));
-    va_end(va);
+    return Logger::globalInstance();
 }
 
-void CuteMessageLogger::write(const QString &msg) const
+class D_DECL_DEPRECATED CuteMessageLogger
 {
-    m_l->write(m_level, m_file, m_line, m_function, m_category, msg);
+    Q_DISABLE_COPY(CuteMessageLogger)
+public:
+    Q_DECL_CONSTEXPR CuteMessageLogger(Logger *, Logger::LogLevel ,
+                                       const char *, int , const char *)
+    {
+    }
+
+
+    Q_DECL_CONSTEXPR CuteMessageLogger(Logger *l, Logger::LogLevel, const char *,
+                                       int, const char *, const char *)
+    {
+    }
+    void write(const char *msg, ...) const;
+    void write(const QString &msg) const;
+    QDebug write() const;
+
+};
+
+void CuteMessageLogger::write(const char */*msg*/, ...) const
+{
+    write();
+}
+
+void CuteMessageLogger::write(const QString &/*msg*/) const
+{
+    write();
 }
 
 QDebug CuteMessageLogger::write() const
 {
-    return m_l->write(m_level, m_file, m_line, m_function, m_category);
-}
-
-void LoggerTimingHelper::start(const char *msg, ...)
-{
-    va_list va;
-    va_start(va, msg);
-    m_block = QString::vasprintf(msg, va);
-    va_end(va);
-
-    m_time.start();
-}
-
-void LoggerTimingHelper::start(const QString &msg)
-{
-    m_block = msg;
-    m_time.start();
-}
-
-LoggerTimingHelper::~LoggerTimingHelper()
-{
-    QString message;
-    if (m_block.isEmpty())
-        message = QString(QLatin1String("Function %1 finished in ")).arg(AbstractStringAppender::stripFunctionName(m_function));
-    else
-        message = QString(QLatin1String("\"%1\" finished in ")).arg(m_block);
-
-    int elapsed = m_time.elapsed();
-    if (elapsed >= 10000)
-        message += QString(QLatin1String("%1 s.")).arg(elapsed / 1000);
-    else
-        message += QString(QLatin1String("%1 ms.")).arg(elapsed);
-
-    m_logger->write(m_logLevel, m_file, m_line, m_function, nullptr, message);
-}
-
-Logger* loggerInstance()
-{
-    return Logger::globalInstance();
+    return QDebug(QtWarningMsg) << "DEPRECATED! rebuild your application with lastest DtkCore";
 }
 
 DCORE_END_NAMESPACE

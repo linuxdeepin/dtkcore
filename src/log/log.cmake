@@ -9,6 +9,8 @@ set(LOG_SOURCE
   ${CMAKE_CURRENT_LIST_DIR}/AbstractStringAppender.cpp
   ${CMAKE_CURRENT_LIST_DIR}/AbstractAppender.cpp
   ${CMAKE_CURRENT_LIST_DIR}/LogManager.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/dloghelper.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/rollingfilesink_p.h
 )
 
 if(BUILD_WITH_SYSTEMD AND UNIX AND NOT APPLE)

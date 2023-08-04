@@ -6,3 +6,4 @@
 #include "AbstractStringAppender.h"
 #include "AbstractAppender.h"
 #include "JournalAppender.h"
+#include "dloghelper.h"

@@ -12,12 +12,10 @@
 
 DCORE_BEGIN_NAMESPACE
 
-class ConsoleAppender;
-class RollingFileAppender;
-class JournalAppender;
-
+class DLogManagerPrivate;
 class LIBDTKCORESHARED_EXPORT DLogManager
 {
+    Q_DISABLE_COPY(DLogManager)
 public:
     static void registerConsoleAppender();
     static void registerFileAppender();
@@ -34,13 +32,6 @@ public:
     static void setLogFormat(const QString &format);
 
 private:
-//TODO: move it to private class (DTK6)
-    QString m_format;
-    QString m_logPath;
-    ConsoleAppender* m_consoleAppender;
-    RollingFileAppender* m_rollingFileAppender;
-    JournalAppender* m_journalAppender;
-
     void initConsoleAppender();
     void initRollingFileAppender();
     void initJournalAppender();
@@ -52,8 +43,9 @@ private:
     }
     explicit DLogManager();
     ~DLogManager();
-    DLogManager(const DLogManager &);
-    DLogManager & operator = (const DLogManager &);
+
+    QScopedPointer<DLogManagerPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(DLogManager)
 };
 
 DCORE_END_NAMESPACE

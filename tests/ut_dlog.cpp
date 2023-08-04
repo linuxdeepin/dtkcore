@@ -37,10 +37,3 @@ TEST(ut_DLogManager, testSetInvalidLogPath)
     // set log file path to a dir is not supported
     ASSERT_NE(DLogManager::getlogFilePath(), tmp);
 }
-
-TEST(ut_DLogManager, format)
-{
-    QString fmt = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} %{message}\n";
-    DLogManager::setLogFormat(fmt);
-    ASSERT_EQ(DLogManager::instance()->m_format, fmt);
-}

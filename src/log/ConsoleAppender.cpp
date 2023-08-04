@@ -3,7 +3,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 // Local
+
 #include "ConsoleAppender.h"
+
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 // STL
 #include <iostream>
@@ -33,20 +37,23 @@ ConsoleAppender::ConsoleAppender()
     : AbstractStringAppender()
     ,m_ignoreEnvPattern(false)
 {
-    setFormat("[%{type:-7}] <%{function}> %{message}\n");
+    if (!spdlog::get("console")) {
+        auto clogger = spdlog::stdout_color_mt("console");
+        clogger->set_level(spdlog::level::level_enum(detailsLevel()));
+    }
 }
 
 
 QString ConsoleAppender::format() const
 {
     const QString envPattern = QString::fromLocal8Bit(qgetenv("QT_MESSAGE_PATTERN"));
-   return (m_ignoreEnvPattern || envPattern.isEmpty()) ? AbstractStringAppender::format() : (envPattern + "\n");
+    return (m_ignoreEnvPattern || envPattern.isEmpty()) ? AbstractStringAppender::format() : (envPattern + "\n");
 }
 
 
 void ConsoleAppender::ignoreEnvironmentPattern(bool ignore)
 {
-   m_ignoreEnvPattern = ignore;
+    m_ignoreEnvPattern = ignore;
 }
 
 /*!
@@ -67,8 +74,12 @@ void ConsoleAppender::ignoreEnvironmentPattern(bool ignore)
 void ConsoleAppender::append(const QDateTime &time, Logger::LogLevel level, const char *file, int line,
                              const char *func, const QString &category, const QString &msg)
 {
-    bool isAtty = isatty(STDERR_FILENO);
-    std::cerr << qPrintable(formattedString(time, level, file, line, func, category, msg, isAtty));
+    auto clogger = spdlog::get("console");
+    Q_ASSERT(clogger);
+    clogger->set_level(spdlog::level::level_enum(detailsLevel()));
+
+    const auto &formatted = formattedString(time, level, file, line, func, category, msg, true);
+    clogger->log(spdlog::level::level_enum(level), formatted.toStdString());
 }
 
 DCORE_END_NAMESPACE
