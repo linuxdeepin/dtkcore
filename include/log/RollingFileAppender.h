@@ -35,9 +35,9 @@ class LIBDTKCORESHARED_EXPORT RollingFileAppender : public FileAppender
 
     DatePattern datePattern() const;
     void setDatePattern(DatePattern datePattern);
-    void setDatePattern(const QString &datePattern);
+    QT_DEPRECATED_X("use setDatePattern(DatePattern)") void setDatePattern(const QString &datePattern);
 
-    QString datePatternString() const;
+    QT_DEPRECATED_X("use datePattern(DatePattern)") QString datePatternString() const;
 
     void setLogFilesLimit(int limit);
     int logFilesLimit() const;

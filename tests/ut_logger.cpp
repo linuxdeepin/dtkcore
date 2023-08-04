@@ -5,12 +5,22 @@
 #include <gtest/gtest.h>
 #include <QFile>
 #include <QLocale>
+#include <QTemporaryFile>
+
 #include "log/Logger.h"
+#include "log/dloghelper.h"
 #include "log/FileAppender.h"
 #include "log/ConsoleAppender.h"
 #include "log/RollingFileAppender.h"
 
 DCORE_USE_NAMESPACE
+
+static QString tmpFileName()
+{
+    QTemporaryFile tmp;
+    tmp.open();
+    return tmp.fileName();
+}
 
 class ut_Logger: public testing::Test
 {
@@ -87,8 +97,7 @@ TEST_F(ut_Logger, testGlobalInstance)
 TEST_F(ut_Logger, testRegisterAppender)
 {
     Logger* gLogger = Logger::globalInstance();
-
-    FileAppender *fileAppener = new FileAppender("/tmp/log");
+    FileAppender *fileAppener = new FileAppender(tmpFileName());
     if (fileAppener->detailsLevel() > Logger::Trace)
         fileAppener->setDetailsLevel(Logger::Trace);
     gLogger->registerAppender(fileAppener);
@@ -109,8 +118,8 @@ TEST_F(ut_Logger, testRegisterAppender)
     if (rollingFileAppender->detailsLevel() > Logger::Trace)
         rollingFileAppender->setDetailsLevel(Logger::Trace);
     gLogger->registerAppender(rollingFileAppender);
-    rollingFileAppender->setDatePattern("'.'yyyy-MM-dd-hh-mm");
-    ASSERT_TRUE(rollingFileAppender->datePatternString() == "'.'yyyy-MM-dd-hh-mm");
+//    rollingFileAppender->setDatePattern("'.'yyyy-MM-dd-hh-mm");
+//    ASSERT_TRUE(rollingFileAppender->datePatternString() == "'.'yyyy-MM-dd-hh-mm");
     rollingFileAppender->setLogFilesLimit(2);
     ASSERT_TRUE(rollingFileAppender->logFilesLimit() == 2);
     rollingFileAppender->setDatePattern(RollingFileAppender::MinutelyRollover);
@@ -127,19 +136,19 @@ TEST_F(ut_Logger, testRegisterAppender)
 TEST_F(ut_Logger, testRegisterCategoryAppender)
 {
     Logger* gLogger = Logger::globalInstance();
-    FileAppender *fileAppener = new FileAppender("/tmp/log");
+    FileAppender *fileAppener = new FileAppender(tmpFileName());
     if (fileAppener->detailsLevel() > Logger::Trace)
         fileAppener->setDetailsLevel(Logger::Trace);
-    gLogger->registerCategoryAppender("test", fileAppener);
+    gLogger->registerCategoryAppender("testRegisterCategoryAppender", fileAppener);
     ASSERT_TRUE(fileAppener->size() == 0);
-    dCDebug("test") << "testRegisterAppender";
+    dCDebug("testRegisterCategoryAppender") << "testRegisterCategoryAppender";
     ASSERT_TRUE(fileAppener->size() != 0);
 }
 
 TEST_F(ut_Logger, testLogToGlobalInstance)
 {
     Logger* gLogger = Logger::globalInstance();
-    FileAppender *fileAppener = new FileAppender("/tmp/log");
+    FileAppender *fileAppener = new FileAppender(tmpFileName());
     if (fileAppener->detailsLevel() > Logger::Trace)
         fileAppener->setDetailsLevel(Logger::Trace);
     gLogger->registerAppender(fileAppener);
@@ -151,8 +160,8 @@ TEST_F(ut_Logger, testLogToGlobalInstance)
 
 TEST_F(ut_Logger, testSetDefaultCategory)
 {
-    m_logger->setDefaultCategory("test");
-    ASSERT_EQ(m_logger->defaultCategory(), "test");
+    m_logger->setDefaultCategory("testSetDefaultCategory");
+    ASSERT_EQ(m_logger->defaultCategory(), "testSetDefaultCategory");
 }
 
 TEST_F(ut_Logger, testDefaultCategory)

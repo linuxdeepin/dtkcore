@@ -7,7 +7,6 @@
 #include <QString>
 #include <QDebug>
 #include <QDateTime>
-#include <QElapsedTimer>
 
 #include "dloggerdefs.h"
 
@@ -61,89 +60,6 @@ private:
                const QString &msg, bool fromLocalInstance);
     Q_DECLARE_PRIVATE(Logger)
     LoggerPrivate *d_ptr;
-};
-
-
-class LIBDTKCORESHARED_EXPORT CuteMessageLogger
-{
-    Q_DISABLE_COPY(CuteMessageLogger)
-
-public:
-    Q_DECL_CONSTEXPR CuteMessageLogger(Logger *l, Logger::LogLevel level,
-                                       const char *file, int line, const char *func)
-        : m_l(l),
-          m_level(level),
-          m_file(file),
-          m_line(line),
-          m_function(func),
-          m_category(nullptr)
-    {}
-
-    Q_DECL_CONSTEXPR CuteMessageLogger(Logger *l, Logger::LogLevel level, const char *file,
-                                       int line, const char *func, const char *category)
-        : m_l(l),
-          m_level(level),
-          m_file(file),
-          m_line(line),
-          m_function(func),
-          m_category(category)
-    {}
-
-    void write(const char *msg, ...) const
-#if defined(Q_CC_GNU) && !defined(__INSURE__)
-    #if defined(Q_CC_MINGW) && !defined(Q_CC_CLANG)
-        __attribute__((format(gnu_printf, 2, 3)));
-    #else
-        __attribute__((format(printf, 2, 3)));
-    #endif
-#endif
-
-    void write(const QString &msg) const;
-    QDebug write() const;
-
-private:
-    Logger *m_l;
-    Logger::LogLevel m_level;
-    const char *m_file;
-    int m_line;
-    const char *m_function;
-    const char *m_category;
-};
-
-class LIBDTKCORESHARED_EXPORT LoggerTimingHelper
-{
-    Q_DISABLE_COPY(LoggerTimingHelper)
-public:
-    inline explicit LoggerTimingHelper(Logger *l, Logger::LogLevel level,
-                                       const char *file, int line, const char *func)
-        : m_logger(l),
-          m_logLevel(level),
-          m_file(file),
-          m_line(line),
-          m_function(func)
-    {}
-
-    void start(const char *msg, ...)
-#if defined(Q_CC_GNU) && !defined(__INSURE__)
-    #if defined(Q_CC_MINGW) && !defined(Q_CC_CLANG)
-        __attribute__((format(gnu_printf, 2, 3)));
-    #else
-        __attribute__((format(printf, 2, 3)));
-    #endif
-#endif
-
-    void start(const QString &msg = QString());
-
-    ~LoggerTimingHelper();
-
-private:
-    Logger *m_logger;
-    QElapsedTimer m_time;
-    Logger::LogLevel m_logLevel;
-    const char *m_file;
-    int m_line;
-    const char *m_function;
-    QString m_block;
 };
 
 DCORE_END_NAMESPACE

@@ -5,6 +5,9 @@
 // Local
 #include "win32/OutputDebugAppender.h"
 
+#include <spdlog/sinks/msvc_sink.h>
+#include <spdlog/spdlog.h>
+
 // STL
 #include <windows.h>
 
@@ -41,8 +44,16 @@ void OutputDebugAppender::append(const QDateTime &time,
                                  const QString &category,
                                  const QString &msg)
 {
-    QString s = formattedString(time, level, file, line, function, category, msg);
-    OutputDebugStringW((LPCWSTR) s.utf16());
+    auto msvclogger = spdlog::get("msvc");
+    if (!msvclogger)
+        msvclogger = spdlog::create<spdlog::sinks::msvc_sink_mt>("msvc", true);
+
+    Q_ASSERT(msvclogger);
+
+    msvclogger->set_level(spdlog::level::level_enum(detailsLevel()));
+    const auto &formatted = formattedString(time, level, file, line, func, category, msg);
+    msvclogger->log(spdlog::level::level_enum(level), formatted.toStdString());
+    msvclogger->flush();
 }
 
 DCORE_END_NAMESPACE

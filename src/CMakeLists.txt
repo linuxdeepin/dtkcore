@@ -41,6 +41,7 @@ include(filesystem/filesystem.cmake)
 #end filesystem
 # start log
 include(log/log.cmake)
+find_package(spdlog REQUIRED)
 #end log
 # start settings
 include(settings/settings.cmake)
@@ -73,6 +74,7 @@ if(LINUX)
     ICU::uc
     Qt${QT_VERSION_MAJOR}::CorePrivate
     uchardet
+    spdlog::spdlog
   )
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
     target_link_libraries(${LIB_NAME} PRIVATE
@@ -105,6 +107,7 @@ else()
     ICU::uc
     Qt${QT_VERSION_MAJOR}::CorePrivate
     uchardet
+    spdlog::spdlog
   )
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
     target_link_libraries(${LIB_NAME} PRIVATE
@@ -117,6 +120,7 @@ set_target_properties(${LIB_NAME} PROPERTIES
   SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR}
   EXPORT_NAME Core
 )
+
 target_include_directories(${LIB_NAME} PRIVATE
   ${uchardet_INCLUDE_DIRS}
 )

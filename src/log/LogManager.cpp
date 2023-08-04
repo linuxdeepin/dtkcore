@@ -9,6 +9,8 @@
 #include <JournalAppender.h>
 #include "dstandardpaths.h"
 
+#include "spdlog/spdlog.h"
+
 DCORE_BEGIN_NAMESPACE
 
 // Courtesy qstandardpaths_unix.cpp
@@ -26,6 +28,26 @@ static void appendOrganizationAndApp(QString &path)
 #endif
 }
 
+#define DEFAULT_FMT "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}"
+
+class DLogManagerPrivate {
+public:
+    explicit DLogManagerPrivate(DLogManager *q)
+        : m_format(DEFAULT_FMT)
+        , q_ptr(q)
+    {
+    }
+
+    QString m_format;
+    QString m_logPath;
+    ConsoleAppender* m_consoleAppender = nullptr;
+    RollingFileAppender* m_rollingFileAppender = nullptr;
+    JournalAppender* m_journalAppender = nullptr;
+
+    DLogManager *q_ptr = nullptr;
+    Q_DECLARE_PUBLIC(DLogManager)
+
+};
 /*!
 @~english
   \class Dtk::Core::DLogManager
@@ -35,30 +57,34 @@ static void appendOrganizationAndApp(QString &path)
  */
 
 DLogManager::DLogManager()
+    :d_ptr(new DLogManagerPrivate(this))
 {
-    m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
+    spdlog::set_automatic_registration(true);
+    spdlog::set_pattern("%v");
 }
 
 void DLogManager::initConsoleAppender(){
-    m_consoleAppender = new ConsoleAppender;
-    m_consoleAppender->setFormat(m_format);
-    logger->registerAppender(m_consoleAppender);
+    Q_D(DLogManager);
+    d->m_consoleAppender = new ConsoleAppender;
+    d->m_consoleAppender->setFormat(d->m_format);
+    dlogger->registerAppender(d->m_consoleAppender);
 }
 
 void DLogManager::initRollingFileAppender(){
-    m_rollingFileAppender = new RollingFileAppender(getlogFilePath());
-    m_rollingFileAppender->setFormat(m_format);
-    m_rollingFileAppender->setLogFilesLimit(5);
-    m_rollingFileAppender->setDatePattern(RollingFileAppender::DailyRollover);
-    logger->registerAppender(m_rollingFileAppender);
+    Q_D(DLogManager);
+    d->m_rollingFileAppender = new RollingFileAppender(getlogFilePath());
+    d->m_rollingFileAppender->setFormat(d->m_format);
+    d->m_rollingFileAppender->setLogFilesLimit(5);
+    d->m_rollingFileAppender->setDatePattern(RollingFileAppender::DailyRollover);
+    dlogger->registerAppender(d->m_rollingFileAppender);
 }
-
 
 void DLogManager::initJournalAppender()
 {
 #if (defined BUILD_WITH_SYSTEMD && defined Q_OS_LINUX)
-    m_journalAppender = new JournalAppender();
-    logger->registerAppender(m_journalAppender);
+    Q_D(DLogManager);
+    d->m_journalAppender = new JournalAppender();
+    dlogger->registerAppender(d->m_journalAppender);
 #endif
 }
 
@@ -101,7 +127,7 @@ QString DLogManager::getlogFilePath()
 {
     //No longer set the default log path (and mkdir) when constructing now, instead set the default value if it's empty when getlogFilePath is called.
     //Fix the problem that the log file is still created in the default path when the log path is set manually.
-    if (DLogManager::instance()->m_logPath.isEmpty()) {
+    if (DLogManager::instance()->d_func()->m_logPath.isEmpty()) {
         if (DStandardPaths::homePath().isEmpty()) {
             qWarning() << "Unable to locate the cache directory, cannot acquire home directory, and the log will not be written to file..";
             return QString();
@@ -113,10 +139,10 @@ QString DLogManager::getlogFilePath()
         if (!QDir(cachePath).exists()) {
             QDir(cachePath).mkpath(cachePath);
         }
-        DLogManager::instance()->m_logPath = DLogManager::instance()->joinPath(cachePath, QString("%1.log").arg(qApp->applicationName()));
+        instance()->d_func()->m_logPath = instance()->joinPath(cachePath, QString("%1.log").arg(qApp->applicationName()));
     }
 
-    return QDir::toNativeSeparators(DLogManager::instance()->m_logPath);
+    return QDir::toNativeSeparators(DLogManager::instance()->d_func()->m_logPath);
 }
 
 /*!
@@ -131,13 +157,13 @@ void DLogManager::setlogFilePath(const QString &logFilePath)
     if (info.exists() && !info.isFile())
         qWarning() << "invalid file path:" << logFilePath << " is not a file";
     else
-        DLogManager::instance()->m_logPath = logFilePath;
+        DLogManager::instance()->d_func()->m_logPath = logFilePath;
 }
 
 void DLogManager::setLogFormat(const QString &format)
 {
     //m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
-    DLogManager::instance()->m_format = format;
+    DLogManager::instance()->d_func()->m_format = format;
 }
 
 QString DLogManager::joinPath(const QString &path, const QString &fileName){
@@ -147,7 +173,7 @@ QString DLogManager::joinPath(const QString &path, const QString &fileName){
 
 DLogManager::~DLogManager()
 {
-
+    spdlog::shutdown();
 }
 
 DCORE_END_NAMESPACE

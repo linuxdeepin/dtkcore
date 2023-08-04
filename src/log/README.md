@@ -47,10 +47,10 @@ int main(int argc, char* argv[])
     // 1.3 log to stdout and file
     // DLogManager::registerFileAppender();
     // DLogManager::registerConsoleAppender();
-    // 2 Register your own logger format;
+    // 2 Register your own dlogger format;
     //  ConsoleAppender* consoleAppender = new ConsoleAppender;
     //  consoleAppender->setFormat("[%{type:-7}] <%{Function}> %{message}\n");
-    //  logger->registerAppender(consoleAppender);
+    //  dlogger->registerAppender(consoleAppender);
     dInfo("Starting the application");
     int result = 1;
     dWarning() << "Something went wrong." << "Result code is" << result;

@@ -4,10 +4,18 @@
 
 #include "FileAppender.h"
 
+#include <QFileInfo>
+
+#include "rollingfilesink_p.h"
+
 #include <iostream>
 
 DCORE_BEGIN_NAMESPACE
 
+std::string loggerName(const QFile &logFile)
+{
+    return QFileInfo(logFile).fileName().toStdString();
+}
 /*!
 @~english
   @class Dtk::Core::FileAppender
@@ -52,29 +60,36 @@ QString FileAppender::fileName() const
 void FileAppender::setFileName(const QString &s)
 {
     QMutexLocker locker(&m_logFileMutex);
-    if (m_logFile.isOpen())
-        m_logFile.close();
+
+    if (s == m_logFile.fileName())
+        return;
+
+    closeFile();
 
     m_logFile.setFileName(s);
+
+    if (!spdlog::get(loggerName(s)))
+        rolling_logger_mt(loggerName(s),
+                                  m_logFile.fileName().toStdString(),
+                                  1024 * 1024 * 20, 0);
 }
 
 qint64 FileAppender::size() const
 {
+    QMutexLocker locker(&m_logFileMutex);
+
+    if (auto *bs = get_sink<rolling_file_sink_mt>(loggerName(m_logFile))){
+        return qint64(bs->filesize());
+    }
+
     return m_logFile.size();
 }
 
-
 bool FileAppender::openFile()
 {
-    bool isOpen = m_logFile.isOpen();
-    if (!isOpen) {
-        isOpen = m_logFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text);
-        if (isOpen)
-            m_logStream.setDevice(&m_logFile);
-        else
-            std::cerr << "<FileAppender::append> Cannot open the log file " << qPrintable(m_logFile.fileName()) << std::endl;
-    }
-    return isOpen;
+    auto fl = spdlog::get(loggerName(m_logFile));
+
+    return fl.get();
 }
 
 /*!
@@ -96,21 +111,19 @@ bool FileAppender::openFile()
 void FileAppender::append(const QDateTime &time, Logger::LogLevel level, const char *file, int line,
                           const char *func, const QString &category, const QString &msg)
 {
-    QMutexLocker locker(&m_logFileMutex);
 
-    if (openFile())
-    {
-        m_logStream << formattedString(time, level, file, line, func, category, msg);
-        m_logStream.flush();
-        m_logFile.flush();
-    }
+    if (!openFile())
+        return;
+
+    auto fl = spdlog::get(loggerName(m_logFile));
+    const auto &formatted = formattedString(time, level, file, line, func, category, msg);
+    fl->log(spdlog::level::level_enum(level), formatted.toStdString());
+    fl->flush();
 }
-
 
 void FileAppender::closeFile()
 {
-    QMutexLocker locker(&m_logFileMutex);
-    m_logFile.close();
+    spdlog::drop(loggerName(m_logFile));
 }
 
 DCORE_END_NAMESPACE
