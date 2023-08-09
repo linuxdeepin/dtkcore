@@ -13,9 +13,20 @@ int main(int argc, char **argv)
     DLogManager::registerJournalAppender();
 #endif
     DLogManager::registerConsoleAppender();
-    dDebug() << "this is a debug message";
-    qWarning() << "it is a Warning";
-    qInfo() << "it is an Info";
-    qCritical() << "it is a tracing";
+    dDebug() << "Anything that can possibly go wrong, will go wrong. ";
+    qWarning() << "FBI Warning: Code smells.";
+    qInfo() << "Why dark mode? Because light attracts bugs";
+    qCritical() << "You Should Never Run `sudo rm -rf /`";
+
+    {
+        dDebugTime("Test the running time of a code block");
+        QTimer timer;
+        timer.setInterval(500);
+        QEventLoop loop;
+        QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+        timer.start();
+        loop.exec();
+    }
+
     return app.exec();
 }
