@@ -1,3 +1,9 @@
+dtkcore (5.6.15) unstable; urgency=medium
+
+  * chore: dlog example tweak
+
+ -- Yixue Wang <wangyixue@deepin.org>  Fri, 11 Aug 2023 13:42:20 +0800
+
 dtkcore (5.6.14) unstable; urgency=medium
 
   * chore: function need to be marked as override
@@ -49,7 +55,7 @@ dtkcore (5.6.13) unstable; urgency=medium
 dtkcore (5.6.12) unstable; urgency=medium
 
   * Release 5.6.12
-  * add DLicenseInfo 
+  * add DLicenseInfo
   * cached memoryInstalledSize
   * FIX developer-center#4348
 
@@ -60,7 +66,7 @@ dtkcore (5.6.11) unstable; urgency=medium
   * Release 5.6.11
   * add color to ConsoleAppender
   * remove build warning
-  
+
  -- Deepin Packages Builder <packages@deepin.com>  Mon, 08 May 2023 11:48:45 +0800
 
 dtkcore (5.6.10) unstable; urgency=medium
@@ -150,6 +156,6 @@ dtkcore (2.0.8) unstable; urgency=medium
 
 dtkcore (0.3.3-1) unstable; urgency=medium
 
-  * Initial release 
+  * Initial release
 
  -- Deepin Packages Builder <packages@deepin.com>  Mon, 10 Oct 2016 16:58:07 +0800
