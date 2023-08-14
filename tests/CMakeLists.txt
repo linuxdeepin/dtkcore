@@ -12,10 +12,6 @@ set(CMAKE_CXX_FLAGS "-fno-access-control")
 add_compile_options(-fsanitize=address)
 add_link_options(-fsanitize=address)
 add_definitions(-DPREFIX="${CMAKE_INSTALL_PREFIX}")
-add_definitions(-DOS_VERSION_TEST_FILE="/tmp/etc/os-version")
-add_definitions(-DLSB_RELEASE_TEST_FILE="/tmp/etc/lsb-release")
-add_definitions(-DOS_RELEASE_TEST_FILE="/tmp/etc/os-release")
-add_definitions(-DDEEPIN_VERSION_TEST_FILE="/tmp/etc/deepin-version")
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 if(LINUX)
@@ -34,36 +30,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Concurrent)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
 find_package(GTest REQUIRED)
 
-# start base
-include(../src/base/base.cmake)
-
-# end base
-
-# start dci
-include(../src/dci/dci.cmake)
-#end dci
-
-#start filesystem
-include(../src/filesystem/filesystem.cmake)
-#end filesystem
-# start log
-include(../src/log/log.cmake)
-#end log
-# start settings
-include(../src/settings/settings.cmake)
-#message(${settings_SRC})
-#end settings
-
-#start utils
-
-# TODO match linux and others
-include(../src/util/util.cmake)
-#end utils
-
-#GLOB
-include(../src/glob.cmake)
-
-#endglob
 
 # for test.so
 set(TEST_SO_NAME vtabletest${DTK_VERSION_MAJOR})
@@ -96,13 +62,6 @@ set(test_SRC
 # end test
 if(LINUX)
   add_executable(${BIN_NAME}
-    ${base_SRCS}
-    ${dci_SRCS}
-    ${filesystem_SRCS}
-    ${log_SRCS}
-    ${settings_SRC}
-    ${utils_SRC}
-    ${glob_SRC}
     ${test_SRC}
     ./data.qrc
   )
@@ -117,6 +76,7 @@ if(LINUX)
     Qt${QT_VERSION_MAJOR}::Concurrent
     Qt${QT_VERSION_MAJOR}::Test
     ${GTEST_LIBRARIES}
+    ${LIB_NAME}
     -lpthread
     -lm
     -lgcov
@@ -138,12 +98,6 @@ if(LINUX)
     )
   endif()
 
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    target_compile_options(${BIN_NAME} PRIVATE -fprofile-instr-generate -ftest-coverage)
-  endif()
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(${BIN_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
-  endif()
   target_link_directories(${BIN_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/testso/)
   target_include_directories(${BIN_NAME} PUBLIC
     ../include/util/
@@ -161,13 +115,6 @@ if(LINUX)
   )
 else()
   add_executable(${BIN_NAME}
-    ${base_SRCS}
-    ${dci_SRCS}
-    ${filesystem_SRCS}
-    ${log_SRCS}
-    ${settings_SRC}
-    ${utils_SRC}
-    ${glob_SRC}
     ${test_SRC}
     ./data.qrc
   )
@@ -181,17 +128,12 @@ else()
     Qt${QT_VERSION_MAJOR}::Concurrent
     Qt${QT_VERSION_MAJOR}::Test
     ${GTEST_LIBRARIES}
+    ${LIB_NAME}
     -lpthread
     -lm
-    -lgcov
     -l${TEST_SO_NAME}
   )
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    target_compile_options(${BIN_NAME} PRIVATE -fprofile-instr-generate -ftest-coverage)
-  endif()
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(${BIN_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
-  endif()
+
   target_link_directories(${BIN_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/testso/)
   target_include_directories( ${BIN_NAME} PUBLIC
     ../include/util/
