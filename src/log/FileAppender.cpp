@@ -116,6 +116,8 @@ void FileAppender::append(const QDateTime &time, Logger::LogLevel level, const c
         return;
 
     auto fl = spdlog::get(loggerName(m_logFile));
+    fl->set_level(spdlog::level::level_enum(detailsLevel()));
+
     const auto &formatted = formattedString(time, level, file, line, func, category, msg);
     fl->log(spdlog::level::level_enum(level), formatted.toStdString());
     fl->flush();
