@@ -23,8 +23,7 @@ if(LINUX)
   endif()
 endif()
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Xml)
-
-find_package(Dtk${DTK_VERSION_MAJOR} REQUIRED)
+find_package(DtkBuildHelper REQUIRED)
 
 # start text encoding
 find_package(ICU REQUIRED COMPONENTS uc)
