@@ -9,6 +9,7 @@ set(CMAKE_AUTORCC ON)
 set (DSG_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" CACHE STRING "PREFIX of DSG_DATA_DIRS")
 add_definitions(-DPREFIX="${DSG_PREFIX_PATH}")
 add_definitions(-DLIBDTKCORE_LIBRARY)
+
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 if(LINUX)
   find_package(PkgConfig REQUIRED)
@@ -22,6 +23,8 @@ if(LINUX)
   endif()
 endif()
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Xml)
+
+find_package(Dtk${DTK_VERSION_MAJOR} REQUIRED)
 
 # start text encoding
 find_package(ICU REQUIRED COMPONENTS uc)
@@ -144,6 +147,19 @@ target_include_directories(${LIB_NAME} INTERFACE
 target_link_directories(${LIB_NAME} INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${LIBRARY_INSTALL_DIR}>
+)
+
+set(EnableCov CACHE BOOL OFF)
+if (EnableCov)
+    dtk_setup_code_coverage(${LIB_NAME})
+endif()
+
+dtk_check_and_add_definitions(${LIB_NAME}
+    DEFS
+    OS_VERSION_TEST_FILE
+    LSB_RELEASE_TEST_FILE
+    OS_RELEASE_TEST_FILE
+    DEEPIN_VERSION_TEST_FILE
 )
 
 set(TOINSTALLBASE
