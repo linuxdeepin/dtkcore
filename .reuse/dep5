@@ -10,7 +10,7 @@ Source: https://github.com/linuxdeepin/dtkcore
 # License: ...
 
 # ci
-Files: .github/* *.yml *.yaml .obs/*
+Files: .github/* *.yml *.yaml .obs/* .syncexclude
 Copyright: None
 License: CC0-1.0
 
