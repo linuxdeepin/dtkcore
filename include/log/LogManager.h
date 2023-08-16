@@ -6,7 +6,7 @@
 #ifndef LOGMANAGER_H
 #define LOGMANAGER_H
 
-#include <QtCore>
+#include <QScopedPointer>
 
 #include "dtkcore_global.h"
 

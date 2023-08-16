@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <QtCore>
 #include "LogManager.h"
 #include <Logger.h>
 #include <ConsoleAppender.h>
