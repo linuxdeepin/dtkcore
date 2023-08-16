@@ -4,6 +4,8 @@
 
 #include <DLog>
 #include <QCoreApplication>
+#include <QTimer>
+
 DCORE_USE_NAMESPACE
 
 int main(int argc, char **argv)
