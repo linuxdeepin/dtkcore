@@ -10,7 +10,19 @@ set (DOXYGEN_FILE_PATTERNS *.cpp *.h *.zh_CN.md *.zh_CN.dox CACHE STRING "Doxyge
 set (DOXYGEN_PROJECT_NUMBER ${CMAKE_PROJECT_VERSION} CACHE STRING "") # Should be the same as this project is using.
 set (DOXYGEN_EXTRACT_STATIC YES)
 set (DOXYGEN_OUTPUT_LANGUAGE "Chinese")
-set (DOXYGEN_QHG_LOCATION "qhelpgenerator" CACHE STRING "Doxygen QHG path")
+
+if("${QT_VERSION_MAJOR}" STREQUAL "5")
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Help)
+else()
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS ToolsTools)
+endif()
+get_target_property(_qhelpgenerator_location Qt${QT_VERSION_MAJOR}::qhelpgenerator IMPORTED_LOCATION)
+
+if("${_qhelpgenerator_location}" STREQUAL "")
+    set(_qhelpgenerator_location "qhelpgenerator")
+endif()
+set (DOXYGEN_QHG_LOCATION ${_qhelpgenerator_location} CACHE STRING "Doxygen QHG path")
+
 set (DOXYGEN_QHP_NAMESPACE "org.deepin.dtk.core")
 set (DOXYGEN_QCH_FILE "dtkcore.qch")
 set (DOXYGEN_QHP_VIRTUAL_FOLDER "dtkcore")
