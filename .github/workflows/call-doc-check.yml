@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   check_job:
-    uses: linuxdeepin/.github/.github/workflows/doc-check.yml@master
+    uses: peeweep-test/dtk/.github/workflows/doc-check.yml@master
     secrets:
       APP_ID: ${{ secrets.APP_ID }}
       APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
