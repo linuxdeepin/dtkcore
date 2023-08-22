@@ -1,3 +1,17 @@
+dtkcore (5.6.16) unstable; urgency=medium
+
+  * fix: FileAppender log level not set
+  * chore: ut linked dtkcore instead of source code
+  * chore: tweak CMakeLists
+  * chore: support Qt 6.4 build
+  * chore: qch docs tweak
+  * chore: add DtkBuildHelper depends
+  * chore: console with color at tty
+  * fix: missing dependency qttools5-dev
+  * feat: add synchronization workflow
+
+ -- Deepin Packages Builder <packages@deepin.org>  Tue, 22 Aug 2023 06:13:45 +0000
+
 dtkcore (5.6.15) unstable; urgency=medium
 
   * chore: dlog example tweak
