@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.13)
 
-set (DTK_VERSION "5.6.12" CACHE STRING "define project version")
+set (DTK_VERSION "5.6.15" CACHE STRING "define project version")
 project (DtkCore
   VERSION ${DTK_VERSION}
   DESCRIPTION "DTK Core module"
