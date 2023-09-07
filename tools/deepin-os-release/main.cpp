@@ -54,6 +54,9 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     parser.process(app);
 
+    if (argc < 2)
+        parser.showHelp();
+
     if (parser.isSet(option_all)) {
         printf("Computer Name: %s\n", qPrintable(DSysInfo::computerName()));
         printf("CPU Model: %s x %d\n", qPrintable(DSysInfo::cpuModelName()), QThread::idealThreadCount());
