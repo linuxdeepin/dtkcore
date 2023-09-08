@@ -1,3 +1,9 @@
+dtkcore (5.6.17) unstable; urgency=medium
+
+  * Release 5.6.17
+
+ -- Deepin Packages Builder <packages@deepin.org>  Fri, 08 Sep 2023 15:12:36 +0800
+
 dtkcore (5.6.16) unstable; urgency=medium
 
   * fix: FileAppender log level not set
