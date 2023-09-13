@@ -22,6 +22,7 @@ public:
     virtual void setValue(const QString &/*key*/, const QVariant &/*value*/) = 0;
     virtual void reset(const QString &key) { setValue(key, QVariant());}
     virtual QString name() const {return QString("");}
+    virtual bool isDefaultValue(const QString &/*key*/) const { return true; }
 };
 
 class DConfigPrivate;
@@ -53,6 +54,7 @@ public:
     QStringList keyList() const;
 
     bool isValid() const;
+    bool isDefaultValue(const QString &key) const;
     QVariant value(const QString &key, const QVariant &fallback = QVariant()) const;
     void setValue(const QString &key, const QVariant &value);
     void reset(const QString &key);

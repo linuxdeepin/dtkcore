@@ -69,6 +69,14 @@
 @sa DBusBackend::name()
 @sa QSettingBackend::name()
 
+@fn bool Dtk::Core::DConfigBackend::isDefaultValue(const QString &key)
+@brief 检测指定配置项名称对应的值是否为默认值。
+@param[in] key 配置项名称
+@sa DConfig::isDefaultValue()
+@sa FileBackend::isDefaultValue()
+@sa DBusBackend::isDefaultValue()
+@sa QSettingBackend::isDefaultValue()
+
 @class Dtk::Core::QSettingBackend dconfig.h
 @brief QSetting后端,继承自DConfigBackend抽象接口,并实现了虚函数。
 @sa DConfigBackend
@@ -347,6 +355,10 @@ sudo make install
 
 @fn bool Dtk::Core::DConfig::isValid()
 @brief 判断此后端是否可用
+
+@fn bool Dtk::Core::DConfig::isDefaultValue(const QString &key)
+@brief 检测指定配置项名称对应的值是否为默认值。
+@param[in] key 配置项名称
 
 @fn QVariant Dtk::Core::DConfig::value(const QString &key, const QVariant &fallback)
 @brief 根据配置项名称获得对应值

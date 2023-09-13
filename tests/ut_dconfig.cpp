@@ -206,3 +206,23 @@ TEST_F(ut_DConfig, DSettingsDConfigBackend)
         ASSERT_EQ(backend.getOption("key2").toString(), QString("126"));
     }
 }
+
+TEST_F(ut_DConfig, isDefaultValue) {
+
+    FileCopyGuard guard(":/data/dconf-example.meta.json", metaFilePath);
+    {
+        DConfig config(FILE_NAME);
+        ASSERT_EQ(config.isDefaultValue("key2"), true);
+    }
+    {
+        DConfig config(FILE_NAME);
+        config.setValue("key2", "126");
+        EXPECT_EQ(config.isDefaultValue("key2"), false);
+    }
+    {
+        DConfig config(FILE_NAME);
+        config.setValue("key2", "126");
+        config.reset("key2");
+        EXPECT_EQ(config.isDefaultValue("key2"), true);
+    }
+}
