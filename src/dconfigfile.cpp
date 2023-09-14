@@ -1092,6 +1092,7 @@ public:
     inline void remove(const QString &key) override
     {
         values.remove(key);
+        cacheChanged = true;
     }
     bool setValue(const QString &key, const QVariant &value, const int serial, const uint uid, const QString &appid) override
     {

@@ -212,8 +212,7 @@ public:
 
     virtual void reset(const QString &key) override
     {
-        const auto &originValue = configFile->meta()->value(key);
-        setValue(key, originValue);
+        setValue(key, QVariant());
     }
 
     virtual QString name() const override
