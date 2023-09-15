@@ -35,8 +35,8 @@ struct rolling_filename_calculator
     // Create filename for the form basename.ext.YYYY-MM-DD-HH-MM-SS
     static filename_t calc_filename(const filename_t &filename, const tm &now_tm)
     {
-#if SPDLOG_VERSION < SPDLOG_VERSION_CHECK(1,9,0)
-        std::conditional<std::is_same<filename_t::value_type, char>::value, fmt::memory_buffer, fmt::wmemory_buffer>::type w;
+#if SPDLOG_VERSION < SPDLOG_VERSION_CHECK(1,10,0)
+        std::conditional<std::is_same<filename_t::value_type, char>::value, spdlog::memory_buf_t, spdlog::wmemory_buf_t>::type w;
         fmt::format_to(w, SPDLOG_FILENAME_T("{}.{:04d}-{:02d}-{:02d}-{:02d}-{:02d}-{:02d}"), filename,
                        now_tm.tm_year + 1900, now_tm.tm_mon + 1, now_tm.tm_mday,
                        now_tm.tm_hour, now_tm.tm_min, now_tm.tm_sec);
