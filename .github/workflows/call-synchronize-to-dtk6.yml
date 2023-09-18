@@ -14,5 +14,6 @@ jobs:
     secrets: inherit
     with:
       dest_repo: linuxdeepin/dtk6core
+      source_repo: ${{ github.event.pull_request.head.repo.full_name }}
       source_ref: ${{ github.event.pull_request.head.ref }}
       pull_number: ${{ github.event.pull_request.number }}
