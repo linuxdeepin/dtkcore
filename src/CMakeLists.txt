@@ -6,10 +6,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-set (DSG_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}" CACHE STRING "PREFIX of DSG_DATA_DIRS")
-add_definitions(-DPREFIX="${DSG_PREFIX_PATH}")
-add_definitions(-DLIBDTKCORE_LIBRARY)
-
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 if(LINUX)
   find_package(PkgConfig REQUIRED)
@@ -121,6 +117,15 @@ set_target_properties(${LIB_NAME} PROPERTIES
   VERSION ${CMAKE_PROJECT_VERSION}
   SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR}
   EXPORT_NAME Core
+)
+
+target_compile_definitions(${LIB_NAME} PUBLIC
+    PREFIX="${DSG_PREFIX_PATH}"
+    DSYSINFO_PREFIX="${DSYSINFO_PREFIX}"
+)
+
+target_compile_definitions(${LIB_NAME} PRIVATE
+    LIBDTKCORE_LIBRARY
 )
 
 target_include_directories(${LIB_NAME} PRIVATE

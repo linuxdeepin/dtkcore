@@ -14,12 +14,7 @@ export ASAN_OPTIONS="halt_on_error=0"
 # back to project directroy
 cd ..
 
-osv_def="-DOS_VERSION_TEST_FILE=\"/tmp/etc/os-version\""
-lsb_def="-DLSB_RELEASE_TEST_FILE=\"/tmp/etc/lsb-release\""
-os_def="-DOS_RELEASE_TEST_FILE=\"/tmp/etc/os-release\""
-dpv_def="-DDEEPIN_VERSION_TEST_FILE=\"/tmp/etc/deepin-version\""
-
-cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_EXAMPLE=OFF -DBUILD_DOCS=OFF -DEnableCov=ON ${osv_def} ${lsb_def} ${os_def} ${dpv_def}
+cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=OFF -DEnableCov=ON -DDSYSINFO_PREFIX=/tmp
 
 cmake --build build -j$(nproc)
 
