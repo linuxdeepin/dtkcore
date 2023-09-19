@@ -36,7 +36,11 @@ struct rolling_filename_calculator
     static filename_t calc_filename(const filename_t &filename, const tm &now_tm)
     {
 #if SPDLOG_VERSION < SPDLOG_VERSION_CHECK(1,10,0)
+    #if SPDLOG_VERSION < SPDLOG_VERSION_CHECK(1,4,0)
+        std::conditional<std::is_same<filename_t::value_type, char>::value, fmt::basic_memory_buffer<char, 250>, fmt::basic_string_view<wchar_t>>::type w;
+    #else
         std::conditional<std::is_same<filename_t::value_type, char>::value, spdlog::memory_buf_t, spdlog::wmemory_buf_t>::type w;
+    #endif
         fmt::format_to(w, SPDLOG_FILENAME_T("{}.{:04d}-{:02d}-{:02d}-{:02d}-{:02d}-{:02d}"), filename,
                        now_tm.tm_year + 1900, now_tm.tm_mon + 1, now_tm.tm_mday,
                        now_tm.tm_hour, now_tm.tm_min, now_tm.tm_sec);
