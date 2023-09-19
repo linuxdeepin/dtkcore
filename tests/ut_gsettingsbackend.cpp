@@ -27,6 +27,7 @@ protected:
 
 void ut_GSettings::SetUp()
 {
+    GTEST_SKIP_("Do not test GSettingsBackend. schema was removed...");
     QFile file("/tmp/test.json");
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;

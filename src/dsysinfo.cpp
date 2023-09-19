@@ -25,29 +25,15 @@
 #include <unistd.h>
 #endif
 
-#ifndef OS_VERSION_TEST_FILE
-#define OS_VERSION_FILE "/etc/os-version"
-#else
-#define OS_VERSION_FILE OS_VERSION_TEST_FILE
-#endif
+#define OS_VERSION_FILE     DSYSINFO_PREFIX"/etc/os-version"
+#define LSB_RELEASE_FILE    DSYSINFO_PREFIX"/etc/lsb-release"
+#define OS_RELEASE_FILE     DSYSINFO_PREFIX"/etc/os-release"
+#define DEEPIN_VERSION_FILE DSYSINFO_PREFIX"/etc/deepin-version"
 
-#ifndef LSB_RELEASE_TEST_FILE
-#define LSB_RELEASE_FILE "/etc/lsb-release"
-#else
-#define LSB_RELEASE_FILE LSB_RELEASE_TEST_FILE
-#endif
-
-#ifndef OS_RELEASE_TEST_FILE
-#define OS_RELEASE_FILE "/etc/os-release"
-#else
-#define OS_RELEASE_FILE OS_RELEASE_TEST_FILE
-#endif
-
-#ifndef DEEPIN_VERSION_TEST_FILE
-#define DEEPIN_VERSION_FILE "/etc/deepin-version"
-#else
-#define DEEPIN_VERSION_FILE DEEPIN_VERSION_TEST_FILE
-#endif
+static inline bool inTest()
+{
+    return !QLatin1String(DSYSINFO_PREFIX).isEmpty();
+}
 
 DCORE_BEGIN_NAMESPACE
 
@@ -164,12 +150,11 @@ bool DSysInfoPrivate::splitA_BC_DMode()
 
 void DSysInfoPrivate::ensureDeepinInfo()
 {
-#ifndef DEEPIN_VERSION_TEST_FILE
-    if (static_cast<int>(deepinType) >= 0)
+    if (static_cast<int>(deepinType) >= 0 && !inTest())
         return;
-#else
-    deepinTypeMap.clear(); // clear cache for test
-#endif
+
+    if (inTest())
+        deepinTypeMap.clear(); // clear cache for test
 
     QFile file(DEEPIN_VERSION_FILE);
 
@@ -242,10 +227,8 @@ void DSysInfoPrivate::ensureDeepinInfo()
 
 bool DSysInfoPrivate::ensureOsVersion()
 {
-#ifndef OS_VERSION_TEST_FILE // Always re-read the file when testing
-    if (osBuild.A > 0)
+    if (osBuild.A > 0 && !inTest())
         return true;
-#endif
 
     DDesktopEntry entry(OS_VERSION_FILE);
     bool ok = false;
@@ -382,11 +365,12 @@ static bool readEtcFile(DSysInfoPrivate *info, const char *filename,
     quint8 valid_data_count = 0;
     char buf[1024];
 
-#ifdef OS_RELEASE_TEST_FILE
-    // for test clear cache
-    info->productTypeString.clear();
-    info->productType = DSysInfo::UnknownType;
-#endif
+
+    if (inTest()) {
+        // for test clear cache
+        info->productTypeString.clear();
+        info->productType = DSysInfo::UnknownType;
+    }
 
     while (valid_data_count < 3) {
         int buf_length = file.readLine(buf, sizeof(buf));
@@ -426,7 +410,7 @@ static bool readEtcFile(DSysInfoPrivate *info, const char *filename,
 static bool readOsRelease(DSysInfoPrivate *info)
 {
     if (!readEtcFile(info, OS_RELEASE_FILE, "ID=", "VERSION_ID=", "PRETTY_NAME="))
-        return readEtcFile(info, "/usr/lib/os-release", "ID=", "VERSION_ID=", "PRETTY_NAME=");
+        return readEtcFile(info, DSYSINFO_PREFIX"/usr/lib/os-release", "ID=", "VERSION_ID=", "PRETTY_NAME=");
 
     return true;
 }
@@ -439,11 +423,9 @@ static bool readLsbRelease(DSysInfoPrivate *info)
 
 void DSysInfoPrivate::ensureReleaseInfo()
 {
-#ifndef OS_RELEASE_TEST_FILE // Always re-read the file when testing
-    if (productType >= 0) {
+    if (productType >= 0 && !inTest()) {
         return;
     }
-#endif
 
 #ifdef Q_OS_LINUX
     readOsRelease(this);
@@ -639,10 +621,9 @@ QString DSysInfo::deepinCopyright()
  */
 DSysInfo::UosType DSysInfo::uosType()
 {
-#ifndef OS_VERSION_TEST_FILE
-    if (!DSysInfo::isDeepin())
+    if (!DSysInfo::isDeepin() && !inTest())
         return UosTypeUnknown;
-#endif
+
     siGlobal->ensureOsVersion();
 
     UosType ost = UosTypeUnknown;

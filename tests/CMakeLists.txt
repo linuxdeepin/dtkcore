@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_FLAGS "-fno-access-control")
 add_compile_options(-fsanitize=address)
 add_link_options(-fsanitize=address)
-add_definitions(-DPREFIX="${CMAKE_INSTALL_PREFIX}")
+
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
@@ -59,6 +59,11 @@ set(test_SRC
 add_executable(${BIN_NAME}
     ${test_SRC}
     ./data.qrc
+)
+
+target_compile_definitions(${BIN_NAME} PUBLIC
+    PREFIX="${DSG_PREFIX_PATH}"
+    DSYSINFO_PREFIX="${DSYSINFO_PREFIX}"
 )
 
 add_dependencies(${BIN_NAME} ${TEST_SO_NAME})

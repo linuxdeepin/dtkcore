@@ -16,6 +16,10 @@ add_executable(${BIN_NAME}
   ${dci_SRCS}
   main.cpp
 )
+
+target_compile_definitions(${BIN_NAME} PUBLIC
+    DSYSINFO_PREFIX="${DSYSINFO_PREFIX}")
+
 target_link_libraries(${BIN_NAME} PRIVATE
   Qt${QT_VERSION_MAJOR}::Core
   Qt${QT_VERSION_MAJOR}::CorePrivate

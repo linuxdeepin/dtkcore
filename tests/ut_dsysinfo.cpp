@@ -13,7 +13,20 @@
 
 DCORE_USE_NAMESPACE
 
-TEST(ut_DSysInfo, testOsVersion)
+class ut_DSysInfo : public testing::Test
+{
+protected:
+    void SetUp() override {
+        if (QLatin1String(DSYSINFO_PREFIX).isEmpty()) {
+            GTEST_SKIP_("DSYSINFO_PREFIX not defined...");
+        }
+    }
+    void TearDown() override {
+
+    }
+};
+
+TEST_F(ut_DSysInfo, testOsVersion)
 {
     FileGuard guard("/tmp/etc/os-version");
     DDesktopEntry entry(guard.fileName());
@@ -195,7 +208,7 @@ TEST(ut_DSysInfo, testOsVersion)
     ASSERT_TRUE(DSysInfo::udpateVersion() == QStringLiteral(""));
 }
 
-TEST(ut_DSysInfo, testdistributionInfo)
+TEST_F(ut_DSysInfo, testdistributionInfo)
 {
     FileGuard fg("/tmp/share/deepin/distribution.info");
     DDesktopEntry entry(fg.fileName());
@@ -228,7 +241,7 @@ TEST(ut_DSysInfo, testdistributionInfo)
     guard.restore();
 }
 
-TEST(ut_DSysInfo, osRelease)
+TEST_F(ut_DSysInfo, osRelease)
 {
     FileGuard fg("/tmp/etc/os-release");
     DDesktopEntry entry(fg.fileName());
@@ -262,7 +275,7 @@ TEST(ut_DSysInfo, osRelease)
     }
 }
 
-TEST(ut_DSysInfo, isDDE)
+TEST_F(ut_DSysInfo, isDDE)
 {
     FileGuard fg("/tmp/etc/os-release");
     DDesktopEntry entry(fg.fileName());
@@ -309,7 +322,7 @@ TEST(ut_DSysInfo, isDDE)
 
 }
 
-TEST(ut_DSysInfo, deepinVersion)
+TEST_F(ut_DSysInfo, deepinVersion)
 {
     FileGuard fg("/tmp/etc/deepin-version");
     DDesktopEntry entry(fg.fileName());
@@ -359,7 +372,7 @@ TEST(ut_DSysInfo, deepinVersion)
     ASSERT_FALSE(DSysInfo::isCommunityEdition());
 }
 
-TEST(ut_DSysInfo, other)
+TEST_F(ut_DSysInfo, other)
 {
     qDebug() << DSysInfo::computerName();
     qDebug() << DSysInfo::memoryInstalledSize();
