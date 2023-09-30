@@ -32,7 +32,7 @@
 #=============================================================================
 
 function(DTK_CREATE_I18N_FROM_JSON _generated_file_list _input_json_file _output_cpp_file_name)
-    set (generated_file_list) # 0(failed) or 1(successed) files in the list.
+    set (generated_file_list) # 0(failed) or 1(succeeded) files in the list.
 
     get_filename_component(_input_json_abs_path ${_input_json_file} ABSOLUTE)
     get_filename_component(_input_json_abs_dir ${_input_json_abs_path} DIRECTORY)
@@ -46,7 +46,7 @@ function(DTK_CREATE_I18N_FROM_JSON _generated_file_list _input_json_file _output
         list(APPEND generated_file_list ${_output_cpp_abs_path})
     else ()
         message (WARNING "The dtk-settings tools could not be found at ${DTK_SETTINGS_TOOLS_EXECUTABLE}")
-        message (WARNING "Package distributor may create a seprated package for tools like `libdtkcore-bin`.")
+        message (WARNING "Package distributor may create a separated package for tools like `libdtkcore-bin`.")
     endif ()
 
     set(${_generated_file_list} ${generated_file_list} PARENT_SCOPE)
