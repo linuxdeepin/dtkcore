@@ -8,6 +8,7 @@
 #include <QSet>
 #include <QTextStream>
 #include <QMap>
+#include <QDebug>
 
 DCORE_BEGIN_NAMESPACE
 
@@ -80,7 +81,7 @@ static QString toned(const QString &str, ToneStyle ts)
             newStr.replace(c, cv.left(1));
             break;
         case TS_ToneNum:
-            newStr.replace(c, cv.left(1)).append(cv.mid(1));
+            newStr.replace(c, cv);
             break;
         default:
             break;
@@ -117,10 +118,27 @@ static QStringList permutations(const QList<QStringList> &pyList)
 
     result = permutations(pyList.value(0), pyList.value(1));
 
-    for (int i = 2; i < pyList.size(); ++i)
+    for (int i = 2; i < pyList.size(); ++i) {
         result = permutations(result, pyList.value(i));
 
+        // 限制返回的大小，
+        if (result.size() > 0xFFFF) {
+            qWarning() << "Warning: Too many combinations have exceeded the limit\n";
+            break;
+        }
+    }
+
     return result;
+}
+
+static QStringList deduplication(const QStringList &list)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+    const auto &dedupList = QSet<QString>{list.begin(), list.end()};
+    return QStringList{dedupList.begin(), dedupList.end()};
+#else
+    return QSet<QString>::fromList(list).toList();
+#endif
 }
 
 /*!
@@ -182,7 +200,7 @@ QStringList pinyin(const QString &words, ToneStyle ts, bool *ok)
         }
     }
 
-    return permutations(pyList);
+    return deduplication(permutations(pyList));
 }
 
 /*!
@@ -209,14 +227,7 @@ QStringList firstLetters(const QString &words)
         result << pys;
     }
 
-    const auto &list = permutations(result);
-    // 首字母容易出现重复，去重
-#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
-    const auto &dedupList = QSet<QString>{list.begin(), list.end()};
-    return QStringList{dedupList.begin(), dedupList.end()};
-#else
-    return QSet<QString>::fromList(list).toList();
-#endif
+    return deduplication(permutations(result));
 }
 
 DCORE_END_NAMESPACE

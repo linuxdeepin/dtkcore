@@ -3,9 +3,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <QCoreApplication>
-#include "dpinyin.h"
 #include <QCommandLineParser>
+#include <QElapsedTimer>
 #include <iostream>
+
+#include "dpinyin.h"
 
 DCORE_USE_NAMESPACE
 
@@ -52,16 +54,20 @@ int main(int argc, char **argv)
     else if (!tones.compare("numtones"))
         ts = TS_ToneNum;
 
+    QElapsedTimer timer;
+    timer.start();
+
+    qint64 size = -1;
     if (cp.isSet(letters)) {
         const auto &ls = firstLetters(words);
         printf("%s\n", qPrintable(ls.join("\n")));
-        std:: cout << "total size: " << ls.size() << std::endl;
-        return 0;
+        size =  ls.size();
+    } else {
+        const auto &py = pinyin(words, ts);
+        printf("%s\n", qPrintable(py.join("\n")));
+        size =  py.size();
     }
 
-    const auto &py = pinyin(words, ts);
-    printf("%s\n", qPrintable(py.join("\n")));
-    std::cout << "total size: " << py.size() << std::endl;
-
-    return 0;//a.exec();
+    std:: cout << "Total size: " << size << ", time:" << timer.elapsed() << " ms" << std::endl;
+    return 0;
 }
