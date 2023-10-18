@@ -336,6 +336,8 @@ public:
                 flags |= DConfigFile::NoOverride;
             } else if (flag == QLatin1String("global")) {
                 flags |= DConfigFile::Global;
+            } else if (flag == QLatin1String("user-public")) {
+                flags |= DConfigFile::UserPublic;
             }
         }
 

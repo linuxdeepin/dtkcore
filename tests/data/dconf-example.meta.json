@@ -87,6 +87,16 @@
       "name": "array value type",
       "permissions": "readwrite",
       "visibility": "public"
+    },
+    "publicConfig": {
+      "value": true,
+      "serial": 0,
+      "flags": ["user-public"],
+      "name": "public configure",
+      "name[zh_CN]": "我是公开的配置",
+      "description": "I am public configure",
+      "permissions": "readwrite",
+      "visibility": "private"
     }
   }
 }
