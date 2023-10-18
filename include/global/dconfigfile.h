@@ -28,7 +28,8 @@ class LIBDTKCORESHARED_EXPORT DConfigFile : public DObject{
 public:
     enum Flag {
         NoOverride = 1 << 0,
-        Global = 1 << 1
+        Global = 1 << 1,
+        UserPublic = 1 << 2
     };
     Q_DECLARE_FLAGS(Flags, Flag)
 

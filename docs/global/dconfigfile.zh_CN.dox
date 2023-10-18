@@ -108,6 +108,16 @@ dtk_add_config_meta_files(
           "name": "map",
           "permissions": "readwrite",
           "visibility": "public"
+        },
+        "publicConfig": {
+          "value": true,
+          "serial": 0,
+          "flags": ["user-public"],
+          "name": "public configure",
+          "name[zh_CN]": "我是公开的配置",
+          "description": "I am public configure",
+          "permissions": "readwrite",
+          "visibility": "private"
         }
     }
 }
@@ -188,6 +198,8 @@ sudo ./dconfigfile-example
 @brief 存在此标记时，将表明则此配置项不可被覆盖（详见下述 override 机制）。反之，不存在此标记时表明此配置项允许被覆盖，对于此类配置项，如若其有界面设置入口，则当此项不可写时，应当隐藏或禁用界面的设置入口.
 @var Dtk::Core::DConfigFile::Flag Dtk::Core::DConfigFile::Global
 @brief 当读写此类配置时，将忽略用户身份，无论程序使用哪个用户身份执行，读操作都将获取到同样的数据，写操作将对所有用户都生效。但是，如果对应的配置存储目录不存在或无权限写入，则忽略此标志
+@var Dtk::Core::DConfigFile::Flag Dtk::Core::DConfigFile::UserPublic
+@brief 该类配置项允许被其他用户访问
 
 
 @enum Dtk::Core::DConfigFile::Permissions

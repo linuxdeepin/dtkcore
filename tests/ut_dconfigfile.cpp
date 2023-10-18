@@ -485,3 +485,14 @@ TEST_F(ut_DConfigFile, setSubpath) {
         ASSERT_FALSE(config.load(LocalPrefix));
     }
 }
+
+TEST_F(ut_DConfigFile, userPublic) {
+
+    FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        ASSERT_TRUE(config.meta()->flags("publicConfig").testFlag(DConfigFile::UserPublic));
+        ASSERT_FALSE(config.meta()->flags("canExit").testFlag(DConfigFile::UserPublic));
+    }
+}
