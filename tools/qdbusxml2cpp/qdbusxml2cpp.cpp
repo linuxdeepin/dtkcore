@@ -255,7 +255,11 @@ static QString moc(const QString &name)
         return retval;
 
     retval.truncate(retval.length() - 1); // drop the h in .h
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    retval = QString("moc_%1cpp").arg(retval);
+#else
     retval += QLatin1String("moc");
+#endif
     return retval;
 }
 
@@ -343,7 +347,7 @@ static QByteArray qtTypeName(const QString &signature, const QDBusIntrospection:
     }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    return QVariant{type}.toByteArray();
+    return type.name();
 #else
     return QVariant::typeToName(QVariant::Type(type));
 #endif
