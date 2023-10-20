@@ -24,13 +24,13 @@ set_target_properties(
 
 install(
   TARGETS ${BIN_NAME}
-  EXPORT DtkToolsTargets
+  EXPORT Dtk${DTK_VERSION_MAJOR}ToolsTargets
   DESTINATION ${TOOL_INSTALL_DIR}
 )
 
 install(
-  EXPORT DtkToolsTargets
-  FILE DtkToolsTargets.cmake
+  EXPORT Dtk${DTK_VERSION_MAJOR}ToolsTargets
+  FILE Dtk${DTK_VERSION_MAJOR}ToolsTargets.cmake
   NAMESPACE Dtk${DTK_VERSION_MAJOR}::
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}Tools"
 )
