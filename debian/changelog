@@ -1,3 +1,11 @@
+dtkcore (5.6.19) unstable; urgency=medium
+
+  * fix: Type error for qdbusxml2cpp
+  * fix: correct Dtk6SettingsToolsMacros.cmake path
+  * chore: add flag UserPublic(Issue: https://github.com/linuxdeepin/developer-center/issues/5928)
+
+ -- Deepin Packages Builder <packages@deepin.org>  Mon, 23 Oct 2023 07:33:19 +0000
+
 dtkcore (5.6.18) unstable; urgency=medium
 
   * fix: Can't clear cache when reset for DConfig in FileBackend
