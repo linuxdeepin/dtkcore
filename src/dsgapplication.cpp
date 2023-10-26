@@ -1,11 +1,27 @@
-// SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2022-2023 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "dsgapplication.h"
 
+#include <sys/syscall.h>
+#include <unistd.h>
+
 #include <QByteArray>
 #include <QCoreApplication>
+#include <QDebug>
+#include <QDBusUnixFileDescriptor>
+#include <QDBusReply>
+#include <QRegularExpression>
+#include <QLoggingCategory>
+
+#include <DDBusInterface>
+
+#ifdef QT_DEBUG
+Q_LOGGING_CATEGORY(dsgApp, "dtk.core.dsg")
+#else
+Q_LOGGING_CATEGORY(dsgApp, "dtk.core.dsg", QtInfoMsg)
+#endif
 
 DCORE_BEGIN_NAMESPACE
 
@@ -34,10 +50,26 @@ QByteArray DSGApplication::id()
     return result;
 }
 
-QByteArray DSGApplication::getId(qint64)
+QByteArray DSGApplication::getId(qint64 pid)
 {
-    // TODO(zccrs): Call the org.desktopspec.ApplicationManager DBus service
-    return nullptr;
+    int pidfd = syscall(SYS_pidfd_open, pid, 0);
+    if (pidfd < 0) {
+        qCWarning(dsgApp) << "pidfd open failed:" << strerror(errno);
+        return QByteArray();
+    }
+
+    DDBusInterface infc("org.desktopspec.ApplicationManager1",
+                        "/org/desktopspec/ApplicationManager1",
+                        "org.desktopspec.ApplicationManager1");
+
+    QDBusReply<QString> reply = infc.call("Identify", QVariant::fromValue(QDBusUnixFileDescriptor(pidfd)));
+
+    if (!reply.isValid()) {
+        qCWarning(dsgApp) << "Identify from AM failed." << reply.error().message();
+        return QByteArray();
+    }
+
+    return reply.value().toLatin1();
 }
 
 DCORE_END_NAMESPACE
