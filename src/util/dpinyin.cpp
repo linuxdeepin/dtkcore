@@ -133,12 +133,12 @@ static QStringList permutations(const QList<QStringList> &pyList)
 
 static QStringList deduplication(const QStringList &list)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
-    const auto &dedupList = QSet<QString>{list.begin(), list.end()};
-    return QStringList{dedupList.begin(), dedupList.end()};
-#else
-    return QSet<QString>::fromList(list).toList();
-#endif
+    QStringList result;
+    for (const QString &item : list)
+        if (!result.contains(item))
+            result.append(item);
+
+    return result;
 }
 
 /*!
