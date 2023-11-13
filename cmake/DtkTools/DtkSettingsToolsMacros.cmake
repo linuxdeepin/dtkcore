@@ -37,7 +37,7 @@ function(DTK_CREATE_I18N_FROM_JSON _generated_file_list _input_json_file _output
     get_filename_component(_input_json_abs_path ${_input_json_file} ABSOLUTE)
     get_filename_component(_input_json_abs_dir ${_input_json_abs_path} DIRECTORY)
     set (_output_cpp_abs_path ${_input_json_abs_dir}/${_output_cpp_file_name})
-    
+
     if (DTK_SETTINGS_TOOLS_FOUND)
         add_custom_command(OUTPUT ${_output_cpp_abs_path}
             COMMAND ${DTK_SETTINGS_TOOLS_EXECUTABLE}

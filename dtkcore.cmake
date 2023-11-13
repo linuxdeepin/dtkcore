@@ -93,6 +93,9 @@ install(FILES cmake/DtkTools/DtkSettingsToolsMacros.cmake
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}Tools"
     RENAME Dtk${DTK_VERSION_MAJOR}SettingsToolsMacros.cmake)
 
+install(FILES cmake/DtkTools/DtkDBusMacros.cmake
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}Tools")
+
 if (NOT DTK_VERSION_MAJOR)
     set(DCONFIG_DEPRECATED_FUNCS [=[
 # deprecated since dtk6
