@@ -9,5 +9,6 @@ endif ()
 
 include("${CMAKE_CURRENT_LIST_DIR}/Dtk@DTK_VERSION_MAJOR@SettingsToolsMacros.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/Dtk@DTK_VERSION_MAJOR@ToolsTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/DtkDBusMacros.cmake")
 
 get_target_property(DTK_XML2CPP Dtk@DTK_VERSION_MAJOR@::Xml2Cpp LOCATION)
