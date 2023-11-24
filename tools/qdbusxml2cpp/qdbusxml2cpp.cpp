@@ -38,6 +38,7 @@ static QString inputFile;
 static bool skipNamespaces;
 static bool verbose;
 static bool includeMocs;
+static bool skipIncludeAnnotations;
 static QString commandLine;
 static QStringList includes;
 static QStringList wantedInterfaces;
@@ -56,6 +57,7 @@ static const char help[] =
     "  -N               Don't use namespaces\n"
     "  -p <filename>    Write the proxy code to <filename>\n"
     "  -v               Be verbose.\n"
+    "  -S               Skip include annotation headers from \"types/\".\n"
     "  -V               Show the program version and quit.\n"
     "\n"
     "If the file name given to the options -a and -p does not end in .cpp or .h, the\n"
@@ -157,6 +159,9 @@ static void parseCmdLine(QStringList args)
 
         case 'N':
             skipNamespaces = true;
+            break;
+        case 'S':
+            skipIncludeAnnotations = true;
             break;
 
         case '?':
@@ -625,9 +630,11 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
         }
     }
 
-    for (const QString &annotation : annotations) {
-        if (annotation.indexOf('<') == -1) {
-            hs << "#include \"types/" << annotation.toLower() << ".h\"" << endl;
+    if (!skipIncludeAnnotations) {
+        for (const QString &annotation : annotations) {
+            if (annotation.indexOf('<') == -1) {
+                hs << "#include \"types/" << annotation.toLower() << ".h\"" << endl;
+            }
         }
     }
     hs << endl;
