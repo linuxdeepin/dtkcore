@@ -1,3 +1,14 @@
+dtkcore (5.6.20) unstable; urgency=medium
+
+  * feat: add utils function
+  * chore: Implement DSGApplication::getId
+  * feat(dstandardpaths): add XDG_STATE_HOME
+  * chore: keep order when deduplication
+  * fix: log files limit not work
+  * chore: add dtk dbus generate function
+
+ -- Deepin Packages Builder <packages@deepin.org>  Tue, 28 Nov 2023 05:40:53 +0000
+
 dtkcore (5.6.19) unstable; urgency=medium
 
   * fix: Type error for qdbusxml2cpp
