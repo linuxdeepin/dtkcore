@@ -14,6 +14,7 @@
 #include <QDBusReply>
 #include <QRegularExpression>
 #include <QLoggingCategory>
+#include <QDBusConnectionInterface>
 
 #include <DDBusInterface>
 
@@ -31,6 +32,19 @@ static inline QByteArray getSelfAppId() {
     if (!selfId.isEmpty())
         return selfId;
     return DSGApplication::getId(QCoreApplication::applicationPid());
+}
+
+static bool isServiceActivatable(const QString &service)
+{
+    if (!QDBusConnection::sessionBus().interface()->isServiceRegistered(service))
+        return false;
+
+     const QDBusReply<QStringList> activatableNames = QDBusConnection::sessionBus().interface()->
+             callWithArgumentList(QDBus::AutoDetect,
+             QLatin1String("ListActivatableNames"),
+             QList<QVariant>());
+
+     return activatableNames.value().contains(service);
 }
 
 QByteArray DSGApplication::id()
@@ -52,6 +66,11 @@ QByteArray DSGApplication::id()
 
 QByteArray DSGApplication::getId(qint64 pid)
 {
+    if (!isServiceActivatable("org.desktopspec.ApplicationManager1")) {
+        qCInfo(dsgApp) << "Can't getId from AM for the " << pid << ", because AM is unavailable.";
+        return QByteArray();
+    }
+
     int pidfd = syscall(SYS_pidfd_open, pid, 0);
     if (pidfd < 0) {
         qCWarning(dsgApp) << "pidfd open failed:" << strerror(errno);
@@ -69,7 +88,9 @@ QByteArray DSGApplication::getId(qint64 pid)
         return QByteArray();
     }
 
-    return reply.value().toLatin1();
+    const QByteArray appId = reply.value().toLatin1();
+    qCInfo(dsgApp) << "AppId is fetched from AM, and value is " << appId;
+    return appId;
 }
 
 DCORE_END_NAMESPACE
