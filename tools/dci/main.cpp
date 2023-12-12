@@ -125,7 +125,7 @@ bool exportTo(const QString &dciFile, const QString &targetDir) {
         return false;
 
     QMap<QString, QString> pathMap;
-    if (!copyFilesFromDci(&dci, newDir, "/", pathMap))
+    if (!copyFilesFromDci(&dci, QDir(newDir).absolutePath(), "/", pathMap))
         return false;
 
     // link to real source
