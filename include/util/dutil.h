@@ -89,14 +89,14 @@ inline QString unescapeFromObjectPath(const QString &str)
 
 inline QString getAppIdFromAbsolutePath(const QString &path)
 {
-    decltype(auto) desktopSuffix = u8".desktop";
+    static QString desktopSuffix{u8".desktop"};
     const auto &appDirs = QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation);
     if (!path.endsWith(desktopSuffix) or
         !std::any_of(appDirs.cbegin(), appDirs.constEnd(), [&path](const QString &dir) { return path.startsWith(dir); })) {
         return {};
     }
 
-    auto tmp = path.chopped(sizeof(desktopSuffix) - 1);
+    auto tmp = path.chopped(desktopSuffix.size() - 1);
     auto components = tmp.split(QDir::separator(), Qt::SkipEmptyParts);
     auto location = std::find(components.cbegin(), components.cend(), "applications");
     if (location == components.cend()) {
