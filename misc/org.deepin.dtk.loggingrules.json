@@ -1,0 +1,16 @@
+{
+    "magic": "dsg.config.meta",
+    "version": "1.0",
+    "contents": {
+        "rules": {
+            "value": "",
+            "serial": 0,
+            "name": "The logging rules of dtk applications",
+            "name[zh_CN]": "日志输出的规则配置",
+            "description": "Configure the category and level of log output",
+            "description[zh_CN]": "配置日志输出的类别和等级",
+            "permissions": "readwrite",
+            "visibility": "public"
+        }
+    }
+}

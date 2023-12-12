@@ -92,6 +92,8 @@ write_basic_package_version_file(
     VERSION ${DVERSION}
     COMPATIBILITY SameMajorVersion
 )
+install(FILES misc/org.deepin.dtk.loggingrules.json DESTINATION share/dsg/configs/)
+
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfig.cmake DESTINATION ${CONFIG_CMAKE_INSTALL_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DtkCoreConfigVersion.cmake DESTINATION ${CONFIG_CMAKE_INSTALL_DIR})
 

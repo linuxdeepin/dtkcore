@@ -3,12 +3,17 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "LogManager.h"
+#include "dconfig.h"
+
 #include <Logger.h>
 #include <ConsoleAppender.h>
 #include <RollingFileAppender.h>
 #include <JournalAppender.h>
 
 DCORE_BEGIN_NAMESPACE
+
+#define RULES_KEY ("rules")
+Q_GLOBAL_STATIC_WITH_ARGS(DConfig, _d_dconfig, ("org.deepin.dtk.loggingrules"));
 
 /*!
 @~english
@@ -21,6 +26,30 @@ DCORE_BEGIN_NAMESPACE
 DLogManager::DLogManager()
 {
     m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
+
+    /* QT_LOGGING_RULES环境变量设置日志的优先级最高，会与dconfig的设置冲突，
+     * 此处记录该环境变量的值然后unset掉，如果未使用dconfig进行设置则使用该环境变量的值。*/
+    QByteArray logRules = qgetenv("QT_LOGGING_RULES");
+    qunsetenv("QT_LOGGING_RULES");
+
+    if (!logRules.isEmpty()) {
+        QLoggingCategory::setFilterRules(logRules.replace(";", "\n"));
+    }
+
+    if (_d_dconfig->isValid()) {
+        auto updateLoggingRules = [](const QString & key) {
+            if (key != RULES_KEY)
+                return;
+
+            const QVariant &var = _d_dconfig->value(RULES_KEY);
+            if (var.isValid() && !var.toString().isEmpty()) {
+                QLoggingCategory::setFilterRules(var.toString().replace(";", "\n"));
+            }
+        };
+
+        updateLoggingRules(RULES_KEY);
+        QObject::connect(_d_dconfig, &DConfig::valueChanged, _d_dconfig, updateLoggingRules);
+    }
 }
 
 void DLogManager::initConsoleAppender(){
