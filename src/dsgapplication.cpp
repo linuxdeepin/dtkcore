@@ -18,7 +18,6 @@ static inline QByteArray getSelfAppId() {
     if (selfId.isEmpty() && !qEnvironmentVariableIsSet("DTK_DISABLED_FALLBACK_APPID")) {
         selfId = QCoreApplication::applicationName().toLocal8Bit();
     }
-    Q_ASSERT(!selfId.isEmpty());
     if (selfId.isEmpty()) {
         qt_assert("The application ID is empty", __FILE__, __LINE__);
     }

@@ -26,29 +26,32 @@ Q_GLOBAL_STATIC_WITH_ARGS(DConfig, _d_dconfig, ("org.deepin.dtk.loggingrules"));
 DLogManager::DLogManager()
 {
     m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
+    if (qApp) {
+        /* QT_LOGGING_RULES环境变量设置日志的优先级最高，会与dconfig的设置冲突，
+         * 此处记录该环境变量的值然后unset掉，如果未使用dconfig进行设置则使用该环境变量的值。*/
+        QByteArray logRules = qgetenv("QT_LOGGING_RULES");
+        qunsetenv("QT_LOGGING_RULES");
 
-    /* QT_LOGGING_RULES环境变量设置日志的优先级最高，会与dconfig的设置冲突，
-     * 此处记录该环境变量的值然后unset掉，如果未使用dconfig进行设置则使用该环境变量的值。*/
-    QByteArray logRules = qgetenv("QT_LOGGING_RULES");
-    qunsetenv("QT_LOGGING_RULES");
+        if (!logRules.isEmpty()) {
+            QLoggingCategory::setFilterRules(logRules.replace(";", "\n"));
+        }
 
-    if (!logRules.isEmpty()) {
-        QLoggingCategory::setFilterRules(logRules.replace(";", "\n"));
-    }
+        if (_d_dconfig->isValid()) {
+            auto updateLoggingRules = [](const QString & key) {
+                if (key != RULES_KEY)
+                    return;
 
-    if (_d_dconfig->isValid()) {
-        auto updateLoggingRules = [](const QString & key) {
-            if (key != RULES_KEY)
-                return;
+                const QVariant &var = _d_dconfig->value(RULES_KEY);
+                if (var.isValid() && !var.toString().isEmpty()) {
+                    QLoggingCategory::setFilterRules(var.toString().replace(";", "\n"));
+                }
+            };
 
-            const QVariant &var = _d_dconfig->value(RULES_KEY);
-            if (var.isValid() && !var.toString().isEmpty()) {
-                QLoggingCategory::setFilterRules(var.toString().replace(";", "\n"));
-            }
-        };
-
-        updateLoggingRules(RULES_KEY);
-        QObject::connect(_d_dconfig, &DConfig::valueChanged, _d_dconfig, updateLoggingRules);
+            updateLoggingRules(RULES_KEY);
+            QObject::connect(_d_dconfig, &DConfig::valueChanged, _d_dconfig, updateLoggingRules);
+        }
+    } else {
+        qWarning() << "qApp is null, DlogManager must be used after application construst.";
     }
 }
 
