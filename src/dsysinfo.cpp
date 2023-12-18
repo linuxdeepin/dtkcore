@@ -17,6 +17,7 @@
 #include <QStandardPaths>
 #include <QDateTime>
 #include <QRegularExpression>
+#include <QLoggingCategory>
 #include <qmath.h>
 
 #ifdef Q_OS_LINUX
@@ -32,6 +33,12 @@
 #endif
 
 DCORE_BEGIN_NAMESPACE
+
+#ifdef QT_DEBUG
+Q_LOGGING_CATEGORY(logSysInfo, "dtk.dsysinfo")
+#else
+Q_LOGGING_CATEGORY(logSysInfo, "dtk.dsysinfo", QtInfoMsg)
+#endif
 
 class Q_DECL_HIDDEN DSysInfoPrivate
 {
@@ -1087,18 +1094,35 @@ qint64 DSysInfo::memoryInstalledSize()
         }
 
         const QByteArray &lshwInfoJson = lshw.readAllStandardOutput();
-        QJsonArray lshwResultArray = QJsonDocument::fromJson(lshwInfoJson).array();
-        if (!lshwResultArray.isEmpty()) {
-            QJsonValue memoryHwInfo = lshwResultArray.first();
-            QString id = memoryHwInfo.toObject().value("id").toString();
-            Q_ASSERT(id == "memory");
-            siGlobal->memoryInstalledSize = memoryHwInfo.toObject().value("size").toDouble(); // TODO: check "units" is "bytes" ?
+
+        QJsonParseError error;
+        auto doc = QJsonDocument::fromJson(lshwInfoJson, &error);
+        if (error.error != QJsonParseError::NoError) {
+            qCWarning(logSysInfo(), "parse failed, expect json doc from lshw command");
+            return -1;
+        }
+
+        if (!doc.isArray()) {
+            qCWarning(logSysInfo(), "parse failed, expect array");
+            return -1;
+        }
+
+        QJsonArray lshwResultArray = doc.array();
+        for (const QJsonValue value : lshwResultArray) {
+            QJsonObject obj = value.toObject();
+            if (obj.contains("id") && obj.value("id").toString() == "memory") {
+                siGlobal->memoryInstalledSize = obj.value("size").toDouble(); // TODO: check "units" is "bytes" ?
+                break;
+            }
         }
     }
 
+    Q_ASSERT(siGlobal->memoryInstalledSize > 0);
+
     return siGlobal->memoryInstalledSize;
-#endif
+#else
     return -1;
+#endif
 }
 
 /*!
