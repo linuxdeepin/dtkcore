@@ -17,7 +17,6 @@
 DCORE_BEGIN_NAMESPACE
 
 #define RULES_KEY ("rules")
-Q_GLOBAL_STATIC_WITH_ARGS(DConfig, _d_dconfig, ("org.deepin.dtk.loggingrules"));
 
 // Courtesy qstandardpaths_unix.cpp
 static void appendOrganizationAndApp(QString &path)
@@ -43,12 +42,19 @@ public:
         , q_ptr(q)
     {
     }
+    ~DLogManagerPrivate() {
+        if (m_loggingRulesConfig) {
+            delete m_loggingRulesConfig;
+            m_loggingRulesConfig = nullptr;
+        }
+    }
 
     QString m_format;
     QString m_logPath;
     ConsoleAppender* m_consoleAppender = nullptr;
     RollingFileAppender* m_rollingFileAppender = nullptr;
     JournalAppender* m_journalAppender = nullptr;
+    DConfig* m_loggingRulesConfig = nullptr;
 
     DLogManager *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(DLogManager)
@@ -67,30 +73,6 @@ DLogManager::DLogManager()
 {
     spdlog::set_automatic_registration(true);
     spdlog::set_pattern("%v");
-
-    /* QT_LOGGING_RULES环境变量设置日志的优先级最高，会与dconfig的设置冲突，
-     * 此处记录该环境变量的值然后unset掉，如果未使用dconfig进行设置则使用该环境变量的值。*/
-    QByteArray logRules = qgetenv("QT_LOGGING_RULES");
-    qunsetenv("QT_LOGGING_RULES");
-
-    if (!logRules.isEmpty()) {
-        QLoggingCategory::setFilterRules(logRules.replace(";", "\n"));
-    }
-
-    if (_d_dconfig->isValid()) {
-        auto updateLoggingRules = [](const QString & key) {
-            if (key != RULES_KEY)
-                return;
-
-            const QVariant &var = _d_dconfig->value(RULES_KEY);
-            if (var.isValid() && !var.toString().isEmpty()) {
-                QLoggingCategory::setFilterRules(var.toString().replace(";", "\n"));
-            }
-        };
-
-        updateLoggingRules(RULES_KEY);
-        QObject::connect(_d_dconfig, &DConfig::valueChanged, _d_dconfig, updateLoggingRules);
-    }
 }
 
 void DLogManager::initConsoleAppender(){
@@ -142,6 +124,56 @@ void DLogManager::registerFileAppender() {
 void DLogManager::registerJournalAppender()
 {
     DLogManager::instance()->initJournalAppender();
+}
+
+void DLogManager::initLoggingRules(const QString &appId)
+{
+    if (appId.isEmpty()) {
+        qWarning() << "App id is empty, logging rules won't take effect";
+        return;
+    }
+
+    // QT_LOGGING_RULES环境变量设置日志的优先级最高
+    // QLoggingRegistry 初始化时会获取 QT_LOGGING_RULES 的值并保存，后续重置了环境变量 QLoggingRegistry 不会进行同步
+    // 需要在 QLoggingRegistry 初始化之前重置 QT_LOGGING_RULES 的值
+    QByteArray logRules = qgetenv("QT_LOGGING_RULES");
+    qunsetenv("QT_LOGGING_RULES");
+
+    if (!logRules.isEmpty()) {
+        QLoggingCategory::setFilterRules(logRules.replace(";", "\n"));
+    }
+
+    Q_D(DLogManager);
+    d->m_loggingRulesConfig = DConfig::create(appId, "org.deepin.dtk.loggingrules");
+    if (!d->m_loggingRulesConfig) {
+        qWarning() << "Create logging rules dconfig object failed, logging rules won't take effect";
+        return;
+    }
+
+    if (!d->m_loggingRulesConfig->isValid()) {
+        qWarning() << "Logging rules config is invalid, please check `appId` arg is correct";
+        delete d->m_loggingRulesConfig;
+        d->m_loggingRulesConfig = nullptr;
+        return;
+    }
+
+    auto updateLoggingRules = [d](const QString & key) {
+        if (key != RULES_KEY)
+            return;
+
+        const QVariant &var = d->m_loggingRulesConfig->value(RULES_KEY);
+        if (var.isValid() && !var.toString().isEmpty()) {
+            QLoggingCategory::setFilterRules(var.toString().replace(";", "\n"));
+        }
+    };
+
+    updateLoggingRules(RULES_KEY);
+    QObject::connect(d->m_loggingRulesConfig, &DConfig::valueChanged, d->m_loggingRulesConfig, updateLoggingRules);
+}
+
+void DLogManager::registerLoggingRulesWatcher(const QString &appId)
+{
+    DLogManager::instance()->initLoggingRules(appId);
 }
 
 /*!
