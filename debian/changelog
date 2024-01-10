@@ -1,3 +1,9 @@
+dtkcore (5.6.22) unstable; urgency=medium
+
+  * Release 5.6.22
+
+ -- Deepin Packages Builder <packages@deepin.org>  Wed, 10 Jan 2024 02:30:59 +0000
+
 dtkcore (5.6.21) unstable; urgency=medium
 
   * fix: app blocked when AM is unavailable
