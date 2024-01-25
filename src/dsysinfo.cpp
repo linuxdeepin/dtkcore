@@ -157,7 +157,7 @@ bool DSysInfoPrivate::splitA_BC_DMode()
 
 void DSysInfoPrivate::ensureDeepinInfo()
 {
-    if (static_cast<int>(deepinType) >= 0 && !inTest())
+    if (static_cast<int>(deepinType) > 0 && !inTest())
         return;
 
     if (inTest())
@@ -430,7 +430,7 @@ static bool readLsbRelease(DSysInfoPrivate *info)
 
 void DSysInfoPrivate::ensureReleaseInfo()
 {
-    if (productType >= 0 && !inTest()) {
+    if (productType > 0 && !inTest()) {
         return;
     }
 
