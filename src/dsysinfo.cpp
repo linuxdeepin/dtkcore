@@ -153,7 +153,7 @@ bool DSysInfoPrivate::splitA_BC_DMode()
 
 void DSysInfoPrivate::ensureDeepinInfo()
 {
-    if (static_cast<int>(deepinType) >= 0)
+    if (static_cast<int>(deepinType) > 0)
         return;
 
     QFile file("/etc/deepin-version");
@@ -417,7 +417,7 @@ static bool readLsbRelease(DSysInfoPrivate *info)
 
 void DSysInfoPrivate::ensureReleaseInfo()
 {
-    if (productType >= 0) {
+    if (productType > 0) {
         return;
     }
 
