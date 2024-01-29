@@ -38,7 +38,8 @@ public:
         DeepinDesktop,
         DeepinProfessional,
         DeepinServer,
-        DeepinPersonal
+        DeepinPersonal,
+        DeepinMilitary
     };
 
     enum LogoType {
