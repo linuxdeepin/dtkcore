@@ -227,6 +227,8 @@ void DSysInfoPrivate::ensureDeepinInfo()
         deepinType = DSysInfo::DeepinServer;
     } else if (deepin_type == "Personal") {
         deepinType = DSysInfo::DeepinPersonal;
+    } else if (deepin_type == "Military") {
+        deepinType = DSysInfo::DeepinMilitary;
     } else {
         deepinType = DSysInfo::UnknownDeepin;
     }
