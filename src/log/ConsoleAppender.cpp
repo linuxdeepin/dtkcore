@@ -38,7 +38,7 @@ DCORE_BEGIN_NAMESPACE
 
 ConsoleAppender::ConsoleAppender()
     : AbstractStringAppender()
-    ,m_ignoreEnvPattern(false)
+    , m_ignoreEnvPattern(false)
 {
     if (!spdlog::get("console")) {
         auto clogger = spdlog::stdout_color_mt("console");
