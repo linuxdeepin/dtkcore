@@ -311,6 +311,11 @@ QString AbstractStringAppender::formattedString(const QDateTime &time, Logger::L
                                                 const QString &category, const QString &msg) const
 {
     QString f = format();
+
+    // dtkcore无法正确解析Qt的日志格式，dtk默认的日志格式并未和Qt统一，解析方式需要兼容两种不同的格式。
+    if (f.contains(QLatin1String("time ")))
+        f.replace(f.indexOf(' ', f.indexOf(QLatin1String("time")) + QLatin1String("time").size()), 1, QLatin1String("}{"));
+
     const int size = f.size();
 
     QString result;

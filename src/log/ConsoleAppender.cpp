@@ -28,7 +28,7 @@ DCORE_BEGIN_NAMESPACE
 
 ConsoleAppender::ConsoleAppender()
     : AbstractStringAppender()
-    ,m_ignoreEnvPattern(false)
+    , m_ignoreEnvPattern(false)
 {
     setFormat("[%{type:-7}] <%{function}> %{message}\n");
 }
