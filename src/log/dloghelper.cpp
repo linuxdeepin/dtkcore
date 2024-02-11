@@ -9,9 +9,6 @@
 #include <QElapsedTimer>
 #include <private/qobject_p.h>
 
-#include <iostream>
-
-
 DCORE_BEGIN_NAMESPACE
 
 class DLogHelperPrivate : public QObjectPrivate {

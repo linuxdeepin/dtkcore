@@ -4,8 +4,6 @@
 
 #include <QCoreApplication>
 
-#include <iostream>
-
 #include <QDebug>
 #include <QFile>
 #include <QCommandLineParser>

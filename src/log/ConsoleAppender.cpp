@@ -10,7 +10,6 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 // STL
-#include <iostream>
 extern "C" {
 #include <unistd.h>
 }

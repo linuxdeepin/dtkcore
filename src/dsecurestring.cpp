@@ -4,7 +4,6 @@
 
 #include "dsecurestring.h"
 #include "dutil.h"
-#include <cstring>
 
 DCORE_BEGIN_NAMESPACE
 

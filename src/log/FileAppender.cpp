@@ -8,8 +8,6 @@
 
 #include "rollingfilesink_p.h"
 
-#include <iostream>
-
 DCORE_BEGIN_NAMESPACE
 
 std::string loggerName(const QFile &logFile)
