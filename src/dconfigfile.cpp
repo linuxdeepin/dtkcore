@@ -45,6 +45,13 @@ inline static bool subpathIsValid(const QString &subpath, const QDir &dir)
     const QDir subDir(dir.filePath(subpath.mid(1)));
     return subDir.absolutePath().startsWith(dir.absolutePath());
 }
+// name must be a valid filename.
+inline static bool isValidFilename(const QString& filename)
+{
+    static const QRegularExpression regex("^[\\w\\-\\.\\ ]+$");
+    QRegularExpressionMatch match = regex.match(filename);
+    return match.hasMatch();
+}
 /*!
 @~english
   \internal
@@ -682,6 +689,10 @@ public:
 
     bool load(const QString &localPrefix) override
     {
+        if (!isValidFilename(configKey.fileName)) {
+            qCWarning(cfLog, "Name is invalid, filename=%s", qPrintable(configKey.fileName));
+            return false;
+        }
         bool useAppIdForOverride = true;
         QString path = metaPath(localPrefix, &useAppIdForOverride);
         if (path.isEmpty()) {

@@ -496,3 +496,24 @@ TEST_F(ut_DConfigFile, userPublic) {
         ASSERT_FALSE(config.meta()->flags("canExit").testFlag(DConfigFile::UserPublic));
     }
 }
+
+class ut_DConfigFileCheckName : public ut_DConfigFile, public ::testing::WithParamInterface<std::tuple<QString, bool>>
+{
+
+};
+
+TEST_P(ut_DConfigFileCheckName, checkName)
+{
+    const auto [fileName, isValid] = GetParam();
+    FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, fileName));
+    DConfigFile config(APP_ID, fileName);
+    ASSERT_EQ(config.load(LocalPrefix), isValid);
+}
+INSTANTIATE_TEST_SUITE_P(checkName, ut_DConfigFileCheckName,
+                         ::testing::Values(
+                             std::tuple{QString("org-foo"), true},
+                             std::tuple{QString("org foo"), true},
+                             std::tuple{QString("org.foo2"), true},
+                             std::tuple{QString("org/foo"), false},
+                             std::tuple{QString("./org-foo"), false},
+                             std::tuple{QString("../configs/org-foo"), false}));
