@@ -49,6 +49,8 @@ public:
     static DConfig *createGeneric(DConfigBackend *backend, const QString &name, const QString &subpath = QString(),
                                   QObject *parent = nullptr);
 
+    static void setAppId(const QString &appId);
+
     QString backendName() const;
 
     QStringList keyList() const;

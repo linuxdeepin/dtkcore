@@ -100,6 +100,7 @@ DConfigBackend::~DConfigBackend()
 {
 }
 
+static QString _globalAppId;
 class Q_DECL_HIDDEN DConfigPrivate : public DObjectPrivate
 {
 public:
@@ -600,7 +601,7 @@ DConfig::DConfig(const QString &name, const QString &subpath, QObject *parent)
 }
 
 DConfig::DConfig(DConfigBackend *backend, const QString &name, const QString &subpath, QObject *parent)
-    : DConfig(backend, DSGApplication::id(), name, subpath, parent)
+    : DConfig(backend, _globalAppId.isEmpty() ? DSGApplication::id() : _globalAppId, name, subpath, parent)
 {
 
 }
@@ -643,6 +644,20 @@ DConfig *DConfig::createGeneric(const QString &name, const QString &subpath, QOb
 DConfig *DConfig::createGeneric(DConfigBackend *backend, const QString &name, const QString &subpath, QObject *parent)
 {
     return new DConfig(backend, NoAppId, name, subpath, parent);
+}
+
+/*!
+ * \brief Explicitly specify application Id for config.
+ * \param appId
+ * @note It's should be called before QCoreApplication constructed.
+ */
+void DConfig::setAppId(const QString &appId)
+{
+    if (!_globalAppId.isEmpty()) {
+        qCWarning(cfLog, "`setAppId`should only be called once.");
+    }
+    _globalAppId = appId;
+    qCDebug(cfLog, "Explicitly specify application Id as appId=%s for config.", qPrintable(appId));
 }
 
 /*!

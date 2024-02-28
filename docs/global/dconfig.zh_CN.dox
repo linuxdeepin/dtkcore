@@ -344,6 +344,11 @@ sudo make install
 @param[in] parent 父对象
 @note 调用者只构造backend,由DConfig释放。
 
+@fn static void DConfig::setAppId(const QString &appId)
+@brief 显示指定应用Id,不采用DSGApplication::id()作为应用Id
+@param[in] appId 配置文件所属的应用Id
+@note 需要在QCoreApplication构造前设置。
+
 @fn QString Dtk::Core::DConfig::backendName()
 @brief 配置策略后端名称
 @return 配置策略后端名称
