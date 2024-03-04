@@ -1,4 +1,4 @@
-@page dic dci--dci图标工具类
+@page dci dci--dci图标工具类
 # DTk dci：dci工具类
 
 关于dtkcore提供的dci工具见：[DCI](group__dci.html#files) <br>
