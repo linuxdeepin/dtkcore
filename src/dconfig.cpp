@@ -398,7 +398,8 @@ public:
         auto reply = config->isDefaultValue(key);
         reply.waitForFinished();
         if (reply.isError()) {
-            qWarning() << "Wrong when calling `isDefaultValue`, key:" << key << ", error message:" << reply.error().message();
+            qWarning() << "Failed to call `isDefaultValue`, key:" << key
+                       << ", error message:" << reply.error().message();
             return false;
         }
         return reply.value();
@@ -406,12 +407,20 @@ public:
 
     virtual void setValue(const QString &key, const QVariant &value) override
     {
-        config->setValue(key, QDBusVariant(value));
+        auto reply = config->setValue(key, QDBusVariant(value));
+        reply.waitForFinished();
+        if (reply.isError())
+            qCWarning(cfLog) << "Failed to setValue for the key:" << key
+                             << ", error message:" << reply.error();
     }
 
     virtual void reset(const QString &key) override
     {
-        config->reset(key);
+        auto reply = config->reset(key);
+        reply.waitForFinished();
+        if (reply.isError())
+            qCWarning(cfLog) << "Failed to reset for the key:" << key
+                             << ", error message:" << reply.error();
     }
 
     virtual QString name() const override
