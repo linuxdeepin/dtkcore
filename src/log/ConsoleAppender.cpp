@@ -7,6 +7,9 @@
 #include "ConsoleAppender.h"
 
 #include <spdlog/spdlog.h>
+#include <spdlog/spdlog-inl.h>
+#include <spdlog/details/registry.h>
+#include <spdlog/details/registry-inl.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 // STL
