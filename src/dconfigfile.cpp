@@ -52,6 +52,12 @@ inline static bool isValidFilename(const QString& filename)
     QRegularExpressionMatch match = regex.match(filename);
     return match.hasMatch();
 }
+inline static bool isValidAppId(const QString& appId)
+{
+    if (appId.contains(' '))
+        return false;
+    return isValidFilename(appId);
+}
 /*!
 @~english
   \internal
@@ -689,6 +695,10 @@ public:
 
     bool load(const QString &localPrefix) override
     {
+        if (!isValidAppId(configKey.appId)) {
+            qCWarning(cfLog, "AppId is invalid, appId=%s", qPrintable(configKey.appId));
+            return false;
+        }
         if (!isValidFilename(configKey.fileName)) {
             qCWarning(cfLog, "Name is invalid, filename=%s", qPrintable(configKey.fileName));
             return false;
