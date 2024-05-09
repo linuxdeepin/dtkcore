@@ -517,3 +517,24 @@ INSTANTIATE_TEST_SUITE_P(checkName, ut_DConfigFileCheckName,
                              std::tuple{QString("org/foo"), false},
                              std::tuple{QString("./org-foo"), false},
                              std::tuple{QString("../configs/org-foo"), false}));
+
+class ut_DConfigFileCheckAppId : public ut_DConfigFile, public ::testing::WithParamInterface<std::tuple<QString, bool>>
+{
+
+};
+
+TEST_P(ut_DConfigFileCheckAppId, checkAppId)
+{
+    const auto [appId, isValid] = GetParam();
+    FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2/%3.json").arg(noAppidMetaPath, appId, FILE_NAME));
+    DConfigFile config(appId, FILE_NAME);
+    ASSERT_EQ(config.load(LocalPrefix), isValid);
+}
+INSTANTIATE_TEST_SUITE_P(checkAppId, ut_DConfigFileCheckAppId,
+                         ::testing::Values(
+                             std::tuple{QString("org-foo"), true},
+                             std::tuple{QString("org foo"), false},
+                             std::tuple{QString("org.foo2"), true},
+                             std::tuple{QString("org/foo"), false},
+                             std::tuple{QString("./org-foo"), false},
+                             std::tuple{QString("../configs/org-foo"), false}));
