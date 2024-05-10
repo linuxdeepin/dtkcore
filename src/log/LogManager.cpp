@@ -2,18 +2,117 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <QtCore>
 #include "LogManager.h"
 #include "dconfig.h"
-
+#include <DSGApplication>
 #include <Logger.h>
 #include <ConsoleAppender.h>
 #include <RollingFileAppender.h>
 #include <JournalAppender.h>
+#include "dstandardpaths.h"
 
 DCORE_BEGIN_NAMESPACE
 
 #define RULES_KEY ("rules")
+// Courtesy qstandardpaths_unix.cpp
+static void appendOrganizationAndApp(QString &path)
+{
+#ifndef QT_BOOTSTRAPPED
+    const QString org = QCoreApplication::organizationName();
+    if (!org.isEmpty())
+        path += QLatin1Char('/') + org;
+    const QString appName = QCoreApplication::applicationName();
+    if (!appName.isEmpty())
+        path += QLatin1Char('/') + appName;
+#else
+    Q_UNUSED(path);
+#endif
+}
 
+#define DEFAULT_FMT "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}"
+
+class DLogManagerPrivate {
+public:
+    explicit DLogManagerPrivate(DLogManager *q)
+        : m_format(DEFAULT_FMT)
+        , q_ptr(q)
+    {
+    }
+
+    DConfig *createDConfig(const QString &appId);
+    void initLoggingRules();
+    void updateLoggingRules();
+
+    QString m_format;
+    QString m_logPath;
+    ConsoleAppender* m_consoleAppender = nullptr;
+    RollingFileAppender* m_rollingFileAppender = nullptr;
+    JournalAppender* m_journalAppender = nullptr;
+    QScopedPointer<DConfig> m_dsgConfig;
+    QScopedPointer<DConfig> m_fallbackConfig;
+
+    DLogManager *q_ptr = nullptr;
+    Q_DECLARE_PUBLIC(DLogManager)
+
+};
+
+DConfig *DLogManagerPrivate::createDConfig(const QString &appId)
+{
+    if (appId.isEmpty())
+        return nullptr;
+
+    DConfig *config = DConfig::create(appId, "org.deepin.dtk.preference");
+    if (!config->isValid()) {
+        qWarning() << "Logging rules config is invalid, please check `appId` [" << appId << "]arg is correct";
+        delete config;
+        config = nullptr;
+        return nullptr;
+    }
+
+    QObject::connect(config, &DConfig::valueChanged, config, [this](const QString &key) {
+        if (key != RULES_KEY)
+            return;
+
+        updateLoggingRules();
+    });
+
+    return config;
+}
+
+void DLogManagerPrivate::initLoggingRules()
+{
+    if (qEnvironmentVariableIsSet("DTK_DISABLED_LOGGING_RULES"))
+        return;
+
+    // 1. 未指定 fallbackId 时，以 dsgAppId 为准
+    QString dsgAppId = DSGApplication::id();
+    m_dsgConfig.reset(createDConfig(dsgAppId));
+
+    QString fallbackId = qgetenv("DTK_LOGGING_FALLBACK_APPID");
+    // 2. fallbackId 和 dsgAppId 非空且不等时，都创建和监听变化
+    if (!fallbackId.isEmpty() && fallbackId != dsgAppId)
+        m_fallbackConfig.reset(createDConfig(fallbackId));
+
+    // 3. 默认值和非默认值时，非默认值优先
+    updateLoggingRules();
+}
+
+void DLogManagerPrivate::updateLoggingRules()
+{
+    QVariant var;
+    // 4. 优先看 dsgConfig 是否默认值，其次 fallback 是否默认值
+    if (m_dsgConfig && !m_dsgConfig->isDefaultValue(RULES_KEY)) {
+        var = m_dsgConfig->value(RULES_KEY);
+    } else if (m_fallbackConfig && !m_fallbackConfig->isDefaultValue(RULES_KEY)) {
+        var = m_fallbackConfig->value(RULES_KEY);
+    } else {
+        var = m_dsgConfig->value(RULES_KEY);
+    }
+
+    if (var.isValid())
+        QLoggingCategory::setFilterRules(var.toString().replace(";", "\n"));
+}
 /*!
 @~english
   \class Dtk::Core::DLogManager
@@ -23,32 +122,33 @@ DCORE_BEGIN_NAMESPACE
  */
 
 DLogManager::DLogManager()
-    : m_loggingRulesConfig(nullptr)
+    :d_ptr(new DLogManagerPrivate(this))
 {
-    m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
+    d_ptr->initLoggingRules();
 }
 
-
 void DLogManager::initConsoleAppender(){
-    m_consoleAppender = new ConsoleAppender;
-    m_consoleAppender->setFormat(m_format);
-    logger->registerAppender(m_consoleAppender);
+    Q_D(DLogManager);
+    d->m_consoleAppender = new ConsoleAppender;
+    d->m_consoleAppender->setFormat(d->m_format);
+    logger->registerAppender(d->m_consoleAppender);
 }
 
 void DLogManager::initRollingFileAppender(){
-    m_rollingFileAppender = new RollingFileAppender(getlogFilePath());
-    m_rollingFileAppender->setFormat(m_format);
-    m_rollingFileAppender->setLogFilesLimit(5);
-    m_rollingFileAppender->setDatePattern(RollingFileAppender::DailyRollover);
-    logger->registerAppender(m_rollingFileAppender);
+    Q_D(DLogManager);
+    d->m_rollingFileAppender = new RollingFileAppender(getlogFilePath());
+    d->m_rollingFileAppender->setFormat(d->m_format);
+    d->m_rollingFileAppender->setLogFilesLimit(5);
+    d->m_rollingFileAppender->setDatePattern(RollingFileAppender::DailyRollover);
+    logger->registerAppender(d->m_consoleAppender);
 }
-
 
 void DLogManager::initJournalAppender()
 {
 #if (defined BUILD_WITH_SYSTEMD && defined Q_OS_LINUX)
-    m_journalAppender = new JournalAppender();
-    logger->registerAppender(m_journalAppender);
+    Q_D(DLogManager);
+    d->m_journalAppender = new JournalAppender();
+    logger->registerAppender(d->m_consoleAppender);
 #endif
 }
 
@@ -78,55 +178,6 @@ void DLogManager::registerJournalAppender()
     DLogManager::instance()->initJournalAppender();
 }
 
-void DLogManager::initLoggingRules(const QString &appId)
-{
-    if (appId.isEmpty()) {
-        qWarning() << "App id is empty, logging rules won't take effect";
-        return;
-    }
-
-    // QT_LOGGING_RULES环境变量设置日志的优先级最高
-    // QLoggingRegistry 初始化时会获取 QT_LOGGING_RULES 的值并保存，后续重置了环境变量 QLoggingRegistry 不会进行同步
-    // 需要在 QLoggingRegistry 初始化之前重置 QT_LOGGING_RULES 的值
-    QByteArray logRules = qgetenv("QT_LOGGING_RULES");
-    qunsetenv("QT_LOGGING_RULES");
-
-    if (!logRules.isEmpty()) {
-        QLoggingCategory::setFilterRules(logRules.replace(";", "\n"));
-    }
-
-    m_loggingRulesConfig = DConfig::create(appId, "org.deepin.dtk.loggingrules");
-    if (!m_loggingRulesConfig) {
-        qWarning() << "Create logging rules dconfig object failed, logging rules won't take effect";
-        return;
-    }
-
-    if (!m_loggingRulesConfig->isValid()) {
-        qWarning() << "Logging rules config is invalid, please check `appId` arg is correct";
-        delete m_loggingRulesConfig;
-        m_loggingRulesConfig = nullptr;
-        return;
-    }
-
-    auto updateLoggingRules = [this](const QString & key) {
-        if (key != RULES_KEY)
-            return;
-
-        const QVariant &var = m_loggingRulesConfig->value(RULES_KEY);
-        if (var.isValid() && !var.toString().isEmpty()) {
-            QLoggingCategory::setFilterRules(var.toString().replace(";", "\n"));
-        }
-    };
-
-    updateLoggingRules(RULES_KEY);
-    QObject::connect(m_loggingRulesConfig, &DConfig::valueChanged, m_loggingRulesConfig, updateLoggingRules);
-}
-
-void DLogManager::registerLoggingRulesWatcher(const QString &appId)
-{
-    DLogManager::instance()->initLoggingRules(appId);
-}
-
 /*!
 @~english
   \brief Return the path file log storage.
@@ -140,22 +191,22 @@ QString DLogManager::getlogFilePath()
 {
     //No longer set the default log path (and mkdir) when constructing now, instead set the default value if it's empty when getlogFilePath is called.
     //Fix the problem that the log file is still created in the default path when the log path is set manually.
-    if (DLogManager::instance()->m_logPath.isEmpty()) {
-        if (QDir::homePath() == QDir::rootPath()) {
-            qWarning() << "unable to locate the cache directory."
-                       << "logfile path is empty, the log will not be written.\r\n"
-                       << (qgetenv("HOME").isEmpty() ? "the HOME environment variable not set" : "");
+    if (DLogManager::instance()->d_func()->m_logPath.isEmpty()) {
+        if (DStandardPaths::homePath().isEmpty()) {
+            qWarning() << "Unable to locate the cache directory, cannot acquire home directory, and the log will not be written to file..";
             return QString();
         }
 
-        QString cachePath = QStandardPaths::standardLocations(QStandardPaths::CacheLocation).at(0);
+        QString cachePath(DStandardPaths::path(DStandardPaths::XDG::CacheHome));
+        appendOrganizationAndApp(cachePath);
+
         if (!QDir(cachePath).exists()) {
             QDir(cachePath).mkpath(cachePath);
         }
-        DLogManager::instance()->m_logPath = DLogManager::instance()->joinPath(cachePath, QString("%1.log").arg(qApp->applicationName()));
+        instance()->d_func()->m_logPath = instance()->joinPath(cachePath, QString("%1.log").arg(qApp->applicationName()));
     }
 
-    return QDir::toNativeSeparators(DLogManager::instance()->m_logPath);
+    return QDir::toNativeSeparators(DLogManager::instance()->d_func()->m_logPath);
 }
 
 /*!
@@ -170,13 +221,20 @@ void DLogManager::setlogFilePath(const QString &logFilePath)
     if (info.exists() && !info.isFile())
         qWarning() << "invalid file path:" << logFilePath << " is not a file";
     else
-        DLogManager::instance()->m_logPath = logFilePath;
+        DLogManager::instance()->d_func()->m_logPath = logFilePath;
 }
 
 void DLogManager::setLogFormat(const QString &format)
 {
     //m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
-    DLogManager::instance()->m_format = format;
+    DLogManager::instance()->d_func()->m_format = format;
+}
+
+void DLogManager::registerLoggingRulesWatcher(const QString &appId)
+{
+    Q_UNUSED(appId)
+    qWarning() << "This interface has been deprecated, but the functionality is enabled by default"
+                  ", which can be disabled by environment variables: DTK_DISABLED_LOGGING_RULES";
 }
 
 QString DLogManager::joinPath(const QString &path, const QString &fileName){
@@ -186,10 +244,6 @@ QString DLogManager::joinPath(const QString &path, const QString &fileName){
 
 DLogManager::~DLogManager()
 {
-    if (m_loggingRulesConfig) {
-        delete m_loggingRulesConfig;
-        m_loggingRulesConfig = nullptr;
-    }
 }
 
 DCORE_END_NAMESPACE

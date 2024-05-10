@@ -202,6 +202,13 @@ public:
         return vg.isValid() ? vg : fallback;
     }
 
+    virtual bool isDefaultValue(const QString &key) const override
+    {
+        // Don't fallback to generic configuration
+        const QVariant &vc = configFile->cacheValue(configCache.get(), key);
+        return !vc.isValid();
+    }
+
     virtual void setValue(const QString &key, const QVariant &value) override
     {
         // setValue's callerAppid is itself instead of config's appId.
@@ -378,6 +385,18 @@ public:
             return fallback;
         }
         return decodeQDBusArgument(reply.value().variant());
+    }
+
+    virtual bool isDefaultValue(const QString &key) const override
+    {
+        auto reply = config->isDefaultValue(key);
+        reply.waitForFinished();
+        if (reply.isError()) {
+            qWarning() << "Failed to call `isDefaultValue`, key:" << key
+                       << ", error message:" << reply.error().message();
+            return false;
+        }
+        return reply.value();
     }
 
     virtual void setValue(const QString &key, const QVariant &value) override
@@ -558,7 +577,6 @@ DConfigBackend *DConfigPrivate::createBackendByEnv()
 
     @brief Configure the interface class provided by the policy
 
-    
     This interface specification defines the relevant interfaces provided by the development library for reading and writing configuration files,
     If the application uses a development library that implements this specification, the application should use the interfaces provided by the development library first.
  */
@@ -688,6 +706,20 @@ bool DConfig::isValid() const
 {
     D_DC(DConfig);
     return !d->invalid();
+}
+
+/*!
+@~english
+ * @brief Check whether the value is default according to the configuration item name
+ * @param key Configuration Item Name
+ * @return Return `true` if the value isn't been set, otherwise return `false`
+ */
+bool DConfig::isDefaultValue(const QString &key) const
+{
+    D_DC(DConfig);
+    if (d->invalid())
+        return false;
+    return d->backend->isDefaultValue(key);
 }
 
 /*!
