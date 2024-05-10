@@ -35,11 +35,7 @@ public:
 
     static void setLogFormat(const QString &format);
 
-    /*!
-     * \brief 监听 org.deepin.dtk.log 的变化动态调整应用的日志输出规则
-     * 此方法应该在创建 QApplication 之前调用，否则 QT_LOGGING_RULES 环境变量会覆盖 dconfig 的的值
-     * \a logFilePath 指定 dconfig 的 appId
-     */
+    // 废弃接口，现已改为默认启用(可以用 DTK_DISABLED_LOGGING_RULES 禁用)
     static void registerLoggingRulesWatcher(const QString &appId);
 
 private:
@@ -49,12 +45,16 @@ private:
     ConsoleAppender* m_consoleAppender;
     RollingFileAppender* m_rollingFileAppender;
     JournalAppender* m_journalAppender;
-    DConfig* m_loggingRulesConfig;
 
+    DConfig *m_dsgConfig;
+    DConfig *m_fallbackConfig;
+
+    DConfig *createDConfig(const QString &appId);
+    void initLoggingRules();
+    void updateLoggingRules();
     void initConsoleAppender();
     void initRollingFileAppender();
     void initJournalAppender();
-    void initLoggingRules(const QString &appId);
     QString joinPath(const QString &path, const QString &fileName);
 
     inline static DLogManager* instance(){

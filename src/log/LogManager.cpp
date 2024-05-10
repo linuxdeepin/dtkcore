@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "LogManager.h"
+#include "dsgapplication.h"
 #include "dconfig.h"
 
 #include <Logger.h>
@@ -13,6 +14,7 @@
 DCORE_BEGIN_NAMESPACE
 
 #define RULES_KEY ("rules")
+#define DEFAULT_FMT "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n"
 
 /*!
 @~english
@@ -23,11 +25,66 @@ DCORE_BEGIN_NAMESPACE
  */
 
 DLogManager::DLogManager()
-    : m_loggingRulesConfig(nullptr)
+    : m_format(DEFAULT_FMT)
+    , m_dsgConfig(nullptr)
+    , m_fallbackConfig(nullptr)
 {
-    m_format = "%{time}{yyyy-MM-dd, HH:mm:ss.zzz} [%{type:-7}] [%{file:-20} %{function:-35} %{line}] %{message}\n";
+    initLoggingRules();
 }
 
+DConfig *DLogManager::createDConfig(const QString &appId)
+{
+    if (appId.isEmpty())
+        return nullptr;
+
+    DConfig *config = DConfig::create(appId, "org.deepin.dtk.loggingrules");
+    if (!config->isValid()) {
+        qWarning() << "Logging rules config is invalid, please check `appId` [" << appId << "]arg is correct";
+        delete config;
+        config = nullptr;
+        return nullptr;
+    }
+
+    QObject::connect(config, &DConfig::valueChanged, config, [this](const QString &key) {
+        if (key != RULES_KEY)
+            return;
+
+        updateLoggingRules();
+    });
+
+    return config;
+}
+
+void DLogManager::initLoggingRules()
+{
+    if (qEnvironmentVariableIsSet("DTK_DISABLED_LOGGING_RULES"))
+        return;
+
+    // 1. 未指定 fallbackId 时，以 dsgAppId 为准
+    QString dsgAppId = DSGApplication::id();
+    m_dsgConfig = createDConfig(dsgAppId);
+
+    QString fallbackId = qgetenv("DTK_LOGGING_FALLBACK_APPID");
+    // 2. fallbackId 和 dsgAppId 非空且不等时，都创建和监听变化
+    if (!fallbackId.isEmpty() && fallbackId != dsgAppId)
+        m_fallbackConfig = createDConfig(fallbackId);
+
+    updateLoggingRules();
+}
+
+void DLogManager::updateLoggingRules()
+{
+    QVariant var;
+    // 3. 优先看 fallback 是否存在
+    if (m_fallbackConfig) {
+        var = m_fallbackConfig->value(RULES_KEY);
+    } else if (m_dsgConfig) {
+        var = m_dsgConfig->value(RULES_KEY);
+    }
+
+    if (var.isValid())
+        QLoggingCategory::setFilterRules(var.toString().replace(";", "\n"));
+}
 
 void DLogManager::initConsoleAppender(){
     m_consoleAppender = new ConsoleAppender;
@@ -78,53 +135,11 @@ void DLogManager::registerJournalAppender()
     DLogManager::instance()->initJournalAppender();
 }
 
-void DLogManager::initLoggingRules(const QString &appId)
-{
-    if (appId.isEmpty()) {
-        qWarning() << "App id is empty, logging rules won't take effect";
-        return;
-    }
-
-    // QT_LOGGING_RULES环境变量设置日志的优先级最高
-    // QLoggingRegistry 初始化时会获取 QT_LOGGING_RULES 的值并保存，后续重置了环境变量 QLoggingRegistry 不会进行同步
-    // 需要在 QLoggingRegistry 初始化之前重置 QT_LOGGING_RULES 的值
-    QByteArray logRules = qgetenv("QT_LOGGING_RULES");
-    qunsetenv("QT_LOGGING_RULES");
-
-    if (!logRules.isEmpty()) {
-        QLoggingCategory::setFilterRules(logRules.replace(";", "\n"));
-    }
-
-    m_loggingRulesConfig = DConfig::create(appId, "org.deepin.dtk.loggingrules");
-    if (!m_loggingRulesConfig) {
-        qWarning() << "Create logging rules dconfig object failed, logging rules won't take effect";
-        return;
-    }
-
-    if (!m_loggingRulesConfig->isValid()) {
-        qWarning() << "Logging rules config is invalid, please check `appId` arg is correct";
-        delete m_loggingRulesConfig;
-        m_loggingRulesConfig = nullptr;
-        return;
-    }
-
-    auto updateLoggingRules = [this](const QString & key) {
-        if (key != RULES_KEY)
-            return;
-
-        const QVariant &var = m_loggingRulesConfig->value(RULES_KEY);
-        if (var.isValid() && !var.toString().isEmpty()) {
-            QLoggingCategory::setFilterRules(var.toString().replace(";", "\n"));
-        }
-    };
-
-    updateLoggingRules(RULES_KEY);
-    QObject::connect(m_loggingRulesConfig, &DConfig::valueChanged, m_loggingRulesConfig, updateLoggingRules);
-}
-
 void DLogManager::registerLoggingRulesWatcher(const QString &appId)
 {
-    DLogManager::instance()->initLoggingRules(appId);
+    Q_UNUSED(appId)
+    qWarning() << "This interface has been deprecated, but the functionality is enabled by default"
+                  ", which can be disabled by environment variables: DTK_DISABLED_LOGGING_RULES";
 }
 
 /*!
@@ -186,9 +201,14 @@ QString DLogManager::joinPath(const QString &path, const QString &fileName){
 
 DLogManager::~DLogManager()
 {
-    if (m_loggingRulesConfig) {
-        delete m_loggingRulesConfig;
-        m_loggingRulesConfig = nullptr;
+    if (m_dsgConfig) {
+        delete m_dsgConfig;
+        m_dsgConfig = nullptr;
+    }
+
+    if (m_fallbackConfig) {
+        delete m_fallbackConfig;
+        m_fallbackConfig = nullptr;
     }
 }
 
