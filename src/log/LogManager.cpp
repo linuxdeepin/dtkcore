@@ -133,18 +133,8 @@ void DLogManager::initLoggingRules(const QString &appId)
         return;
     }
 
-    // QT_LOGGING_RULES环境变量设置日志的优先级最高
-    // QLoggingRegistry 初始化时会获取 QT_LOGGING_RULES 的值并保存，后续重置了环境变量 QLoggingRegistry 不会进行同步
-    // 需要在 QLoggingRegistry 初始化之前重置 QT_LOGGING_RULES 的值
-    QByteArray logRules = qgetenv("QT_LOGGING_RULES");
-    qunsetenv("QT_LOGGING_RULES");
-
-    if (!logRules.isEmpty()) {
-        QLoggingCategory::setFilterRules(logRules.replace(";", "\n"));
-    }
-
     Q_D(DLogManager);
-    d->m_loggingRulesConfig = DConfig::create(appId, "org.deepin.dtk.loggingrules");
+    d->m_loggingRulesConfig = DConfig::create(appId, "org.deepin.dtk.preference");
     if (!d->m_loggingRulesConfig) {
         qWarning() << "Create logging rules dconfig object failed, logging rules won't take effect";
         return;
@@ -155,6 +145,16 @@ void DLogManager::initLoggingRules(const QString &appId)
         delete d->m_loggingRulesConfig;
         d->m_loggingRulesConfig = nullptr;
         return;
+    }
+
+    // QT_LOGGING_RULES环境变量设置日志的优先级最高
+    // QLoggingRegistry 初始化时会获取 QT_LOGGING_RULES 的值并保存，后续重置了环境变量 QLoggingRegistry 不会进行同步
+    // 需要在 QLoggingRegistry 初始化之前重置 QT_LOGGING_RULES 的值
+    QByteArray logRules = qgetenv("QT_LOGGING_RULES");
+    qunsetenv("QT_LOGGING_RULES");
+
+    if (!logRules.isEmpty()) {
+        QLoggingCategory::setFilterRules(logRules.replace(";", "\n"));
     }
 
     auto updateLoggingRules = [d](const QString & key) {
