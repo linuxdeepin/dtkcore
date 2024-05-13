@@ -6,6 +6,8 @@
 
 #include <QByteArray>
 #include <QCoreApplication>
+#include <QDebug>
+#include <QFileInfo>
 
 DCORE_BEGIN_NAMESPACE
 
@@ -16,11 +18,23 @@ static inline QByteArray getSelfAppId() {
         return selfId;
     selfId = DSGApplication::getId(QCoreApplication::applicationPid());
     if (selfId.isEmpty() && !qEnvironmentVariableIsSet("DTK_DISABLED_FALLBACK_APPID")) {
-        selfId = QCoreApplication::applicationName().toLocal8Bit();
+        auto appName = QCoreApplication::applicationName().toLocal8Bit();
+        if (!appName.isEmpty()) {
+            selfId = appName;
+        } else {
+#ifdef Q_OS_LINUX
+            if (QFile::exists("/proc/self/exe")) {
+                auto id = QFileInfo("/proc/self/exe").symLinkTarget().replace("/", ".");
+                selfId = id.size() > 0 ? id.remove(0, 1).toLocal8Bit() : id.toLocal8Bit();
+            }
+#endif
+        }
     }
     if (selfId.isEmpty()) {
-        qt_assert("The application ID is empty", __FILE__, __LINE__);
+        qWarning() << "The application ID is empty. " << __FILE__ << __LINE__;
     }
+
+    Q_ASSERT(!selfId.isEmpty());
     return selfId;
 }
 
