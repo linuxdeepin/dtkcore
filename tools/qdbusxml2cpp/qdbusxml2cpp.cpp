@@ -717,12 +717,20 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
 
         for (const QString &annotation : annotations) {
             if (annotation.indexOf('<') != -1) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                cs << "    if (QMetaType::fromName(\"" << annotation << "\").id() == QMetaType::UnknownType) {" << endl;
+#else
                 cs << "    if (QMetaType::type(\"" << annotation << "\") == QMetaType::UnknownType) {" << endl;
+#endif
                 cs << "        qRegisterMetaType< " << annotation << " >(\"" << annotation << "\");" << endl;
                 cs << "        qDBusRegisterMetaType< " << annotation << " >();" << endl;
                 cs << "    }" << endl;
             } else {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                cs << "    if (QMetaType::fromName(\"" << annotation << "\").id() == QMetaType::UnknownType)" << endl;
+#else
                 cs << "    if (QMetaType::type(\"" << annotation << "\") == QMetaType::UnknownType)" << endl;
+#endif
                 cs << "        register" << annotation << "MetaType();" << endl;
             }
         }
