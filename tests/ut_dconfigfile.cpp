@@ -532,6 +532,7 @@ TEST_P(ut_DConfigFileCheckAppId, checkAppId)
 }
 INSTANTIATE_TEST_SUITE_P(checkAppId, ut_DConfigFileCheckAppId,
                          ::testing::Values(
+                             std::tuple{NoAppId, true},
                              std::tuple{QString("org-foo"), true},
                              std::tuple{QString("org foo"), false},
                              std::tuple{QString("org.foo2"), true},
