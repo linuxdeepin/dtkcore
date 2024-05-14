@@ -52,11 +52,12 @@ inline static bool isValidFilename(const QString& filename)
     QRegularExpressionMatch match = regex.match(filename);
     return match.hasMatch();
 }
+// AppId don't contain ' ', but it can be empty.
 inline static bool isValidAppId(const QString& appId)
 {
-    if (appId.contains(' '))
-        return false;
-    return isValidFilename(appId);
+    static const QRegularExpression regex("^[\\w\\-\\.]*$");
+    QRegularExpressionMatch match = regex.match(appId);
+    return match.hasMatch();
 }
 /*!
 @~english
