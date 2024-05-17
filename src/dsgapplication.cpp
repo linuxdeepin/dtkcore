@@ -7,6 +7,8 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#include <QDir>
+#include <QFile>
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QDebug>
@@ -47,6 +49,19 @@ static bool isServiceActivatable(const QString &service)
      return activatableNames.value().contains(service);
 }
 
+// Format appId to valid.
+static QByteArray formatAppId(const QByteArray &appId)
+{
+    static const QRegularExpression regex("[^\\w\\-\\.]");
+    QString format(appId);
+    format.replace(QDir::separator(), ".");
+    format = format.replace(regex, QStringLiteral("-"));
+    const QString InvalidPrefix{"."};
+    if (format.startsWith(InvalidPrefix))
+        format = format.mid(InvalidPrefix.size());
+    return format.toLocal8Bit();
+}
+
 QByteArray DSGApplication::id()
 {
     static QByteArray selfId = getSelfAppId();
@@ -55,11 +70,23 @@ QByteArray DSGApplication::id()
     QByteArray result = selfId;
     if (!qEnvironmentVariableIsSet("DTK_DISABLED_FALLBACK_APPID")) {
         result = QCoreApplication::applicationName().toLocal8Bit();
+        if (result.isEmpty()) {
+            QFile file("/proc/self/cmdline");
+            if (file.open(QIODevice::ReadOnly))
+                result = file.readLine();
+        }
+        if (result.isEmpty()) {
+            const QFileInfo file(QFile::symLinkTarget("/proc/self/exe"));
+            if (file.exists())
+                result = file.absoluteFilePath().toLocal8Bit();
+        }
+        if (!result.isEmpty()) {
+            result = formatAppId(result);
+            qCDebug(dsgApp) << "The applicatiion ID is fallback to " << result;
+        }
     }
-    Q_ASSERT(!result.isEmpty());
-    if (result.isEmpty()) {
-        qt_assert("The application ID is empty", __FILE__, __LINE__);
-    }
+    if (result.isEmpty())
+        qCWarning(dsgApp) << "The application ID is empty.";
 
     return result;
 }
