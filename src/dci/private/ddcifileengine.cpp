@@ -531,10 +531,17 @@ void DDciFileEngine::setFileName(const QString &fullPath)
     file = getDciFile(dciFilePath, QFile::exists(dciFilePath));
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 1)
+QDateTime DDciFileEngine::fileTime(QFile::FileTime time) const
+{
+    return QFileInfo(dciFilePath).fileTime(time);
+}
+#else
 QDateTime DDciFileEngine::fileTime(QAbstractFileEngine::FileTime time) const
 {
     return QFileInfo(dciFilePath).fileTime(static_cast<QFile::FileTime>(time));
 }
+#endif
 
 DDciFileEngine::Iterator *DDciFileEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
 {

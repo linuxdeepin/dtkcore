@@ -95,7 +95,11 @@ public:
 
     void setFileName(const QString &fullPath) override;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 1)
+    QDateTime fileTime(QFile::FileTime time) const override;
+#else
     QDateTime fileTime(FileTime time) const override;
+#endif
 
     typedef DDciFileEngineIterator Iterator;
     Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames) override;
