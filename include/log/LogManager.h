@@ -6,20 +6,16 @@
 #ifndef LOGMANAGER_H
 #define LOGMANAGER_H
 
-#include <QtCore>
+#include <QScopedPointer>
 
 #include "dtkcore_global.h"
 
 DCORE_BEGIN_NAMESPACE
 
-class ConsoleAppender;
-class RollingFileAppender;
-class JournalAppender;
-
-class DConfig;
-
+class DLogManagerPrivate;
 class LIBDTKCORESHARED_EXPORT DLogManager
 {
+    Q_DISABLE_COPY(DLogManager)
 public:
     static void registerConsoleAppender();
     static void registerFileAppender();
@@ -35,26 +31,13 @@ public:
 
     static void setLogFormat(const QString &format);
 
-    /*!
-     * \brief 监听 org.deepin.dtk.log 的变化动态调整应用的日志输出规则
-     * 此方法应该在创建 QApplication 之前调用，否则 QT_LOGGING_RULES 环境变量会覆盖 dconfig 的的值
-     * \a logFilePath 指定 dconfig 的 appId
-     */
+    // 废弃接口，现已改为默认启用(可以用 DTK_DISABLED_LOGGING_RULES 禁用)
     static void registerLoggingRulesWatcher(const QString &appId);
 
 private:
-//TODO: move it to private class (DTK6)
-    QString m_format;
-    QString m_logPath;
-    ConsoleAppender* m_consoleAppender;
-    RollingFileAppender* m_rollingFileAppender;
-    JournalAppender* m_journalAppender;
-    DConfig* m_loggingRulesConfig;
-
     void initConsoleAppender();
     void initRollingFileAppender();
     void initJournalAppender();
-    void initLoggingRules(const QString &appId);
     QString joinPath(const QString &path, const QString &fileName);
 
     inline static DLogManager* instance(){
@@ -63,8 +46,9 @@ private:
     }
     explicit DLogManager();
     ~DLogManager();
-    DLogManager(const DLogManager &);
-    DLogManager & operator = (const DLogManager &);
+
+    QScopedPointer<DLogManagerPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(DLogManager)
 };
 
 DCORE_END_NAMESPACE
