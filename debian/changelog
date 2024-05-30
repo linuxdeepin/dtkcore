@@ -1,3 +1,20 @@
+dtkcore (5.6.30) unstable; urgency=medium
+
+  * feat: 允许基于dtk开发的应用动态控制其日志输出等级(Task: 307567)(Influence: 允许基于dtk开发的应用动态控制其日志输出等级)
+  * fix: lshw查询内存大小时返回多元素数组,修正解析过程(Bug: 228681)(Influence: DSysInfo::memoryInstalledSize解析过程)
+  * fix: 从文件中读取deepinType和productType值时因为权限问题会失败(Influence: 正常显示版本和说明)
+  * feat: 增加registerLoggingRulesWatcher接口(Task: 303379)
+  * fix: 修复计算 build 版本号错误的问题(Influence: 构建版本号（BUILD_VERSION ）)
+  * feat: DeepinType类型增加军用版(Task: 316703)(Influence: DeepinType类型)
+  * fix: 修复日志格式时间戳显示异常问题(Bug: 236239)(Influence: 使用DLogManager的应用日志输出格式)
+  * chore: loggingrules config move to preference
+  * refactor: remove LoggingRules interface
+  * fix: crashed when access DSGApplication::id early
+  * chore: fallback to dsgconfig value
+  * fix(build): build faild on Qt 6.7.1
+
+ -- Deepin Packages Builder <packages@deepin.org>  Thu, 30 May 2024 02:46:32 +0000
+
 dtkcore (5.6.29) unstable; urgency=medium
 
   * chore: remove warning for dbusxml2cpp in qt6
