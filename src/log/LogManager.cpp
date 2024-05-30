@@ -108,7 +108,7 @@ void DLogManagerPrivate::updateLoggingRules()
         var = m_dsgConfig->value(RULES_KEY);
     } else if (m_fallbackConfig && !m_fallbackConfig->isDefaultValue(RULES_KEY)) {
         var = m_fallbackConfig->value(RULES_KEY);
-    } else {
+    } else if (m_dsgConfig) {
         var = m_dsgConfig->value(RULES_KEY);
     }
 
