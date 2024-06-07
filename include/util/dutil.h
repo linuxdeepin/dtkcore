@@ -78,7 +78,7 @@ inline QString unescapeFromObjectPath(const QString &str)
 {
     auto ret = str;
     for (int i = 0; i < str.size(); ++i) {
-        if (str[i] == '_' and i + 2 < str.size()) {
+        if (str[i] == '_' && i + 2 < str.size()) {
             auto hexStr = str.mid(i + 1, 2);
             ret.replace(QString{"_%1"}.arg(hexStr), QChar::fromLatin1(hexStr.toUInt(nullptr, 16)));
             i += 2;
@@ -91,7 +91,7 @@ inline QString getAppIdFromAbsolutePath(const QString &path)
 {
     static QString desktopSuffix{u8".desktop"};
     const auto &appDirs = QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation);
-    if (!path.endsWith(desktopSuffix) or
+    if (!path.endsWith(desktopSuffix) ||
         !std::any_of(appDirs.cbegin(), appDirs.constEnd(), [&path](const QString &dir) { return path.startsWith(dir); })) {
         return {};
     }
