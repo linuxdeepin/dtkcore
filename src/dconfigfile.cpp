@@ -335,8 +335,13 @@ public:
     {
         DConfigFile::Permissions p = DConfigFile::ReadOnly;
         const auto &tmp = values[key][QLatin1String("permissions")].toString();
-        if (tmp == QLatin1String("readwrite"))
+        if (tmp == QLatin1String("readwrite")) {
             p = DConfigFile::ReadWrite;
+        } else if (tmp == QLatin1String("authorizedreadonly")) {
+            p = DConfigFile::AuthorizedReadOnly;
+        } else if (tmp == QLatin1String("authorizedreadwrite")) {
+            p = DConfigFile::AuthorizedReadWrite;
+        }
 
         return p;
     }
@@ -1049,7 +1054,7 @@ public:
                 homePath = DStandardPaths::homePath(getuid());
             }
 
-            if (homePath.isEmpty())
+            if (homePath.isEmpty() || !QDir().exists(homePath))
                 return QString();
 
             // fallback to default application cache directory.
@@ -1207,7 +1212,7 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
     cacheChanged = false;
     const QString &dir = getCacheDir(localPrefix);
     if (dir.isEmpty()) {
-        qCWarning(cfLog, "Falied on saveing, the config cache directory is empty for the user[%d], "
+        qCWarning(cfLog, "Failed on saving, the config cache directory is empty for the user[%d], "
                          "the current user[%d].", userid, getuid());
         return false;
     }
@@ -1219,7 +1224,7 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
     }
 
     if (!cache.open(QIODevice::WriteOnly)) {
-        qCWarning(cfLog, "Falied on saveing data when open file: \"%s\", error message: \"%s\"",
+        qCWarning(cfLog, "Failed on saving data when open file: \"%s\", error message: \"%s\"",
                   qPrintable(cache.fileName()), qPrintable(cache.errorString()));
         return false;
     }
