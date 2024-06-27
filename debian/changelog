@@ -1,3 +1,9 @@
+dtkcore (5.6.31) unstable; urgency=medium
+
+  * chore: use '&&' and '||' instead of 'and' and 'or'
+
+ -- Deepin Packages Builder <packages@deepin.org>  Thu, 27 Jun 2024 09:11:34 +0000
+
 dtkcore (5.6.30) unstable; urgency=medium
 
   * feat: 允许基于dtk开发的应用动态控制其日志输出等级(Task: 307567)(Influence: 允许基于dtk开发的应用动态控制其日志输出等级)
