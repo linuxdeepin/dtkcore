@@ -12,8 +12,6 @@
 #include <JournalAppender.h>
 #include "dstandardpaths.h"
 
-#include "spdlog/spdlog.h"
-
 DCORE_BEGIN_NAMESPACE
 
 #define RULES_KEY ("rules")
@@ -126,9 +124,6 @@ void DLogManagerPrivate::updateLoggingRules()
 DLogManager::DLogManager()
     :d_ptr(new DLogManagerPrivate(this))
 {
-    spdlog::set_automatic_registration(true);
-    spdlog::set_pattern("%v");
-
     d_ptr->initLoggingRules();
 }
 
@@ -242,7 +237,6 @@ QString DLogManager::joinPath(const QString &path, const QString &fileName){
 
 DLogManager::~DLogManager()
 {
-    spdlog::shutdown();
 }
 
 DCORE_END_NAMESPACE

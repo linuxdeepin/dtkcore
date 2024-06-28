@@ -6,6 +6,7 @@ endif()
 include(CMakeFindDependencyMacro)
 find_dependency(Qt@QT_VERSION_MAJOR@Core)
 find_dependency(Qt@QT_VERSION_MAJOR@Xml)
+find_dependency(Dtk@DTK_VERSION_MAJOR@Log)
 
 if (LINUX)
     find_dependency(Qt@QT_VERSION_MAJOR@DBus) 

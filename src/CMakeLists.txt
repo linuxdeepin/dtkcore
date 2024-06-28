@@ -7,6 +7,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+find_package(Dtk${DTK_VERSION_MAJOR}Log REQUIRED)
 if(LINUX)
   find_package(PkgConfig REQUIRED)
   find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBus)
@@ -14,9 +15,6 @@ if(LINUX)
       pkg_check_modules(QGSettings REQUIRED IMPORTED_TARGET gsettings-qt) #Dtk6 removed.
   endif()
 
-  if(BUILD_WITH_SYSTEMD)
-    pkg_check_modules(Systemd REQUIRED IMPORTED_TARGET libsystemd)
-  endif()
 endif()
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Xml)
 find_package(DtkBuildHelper REQUIRED)
@@ -39,7 +37,6 @@ include(filesystem/filesystem.cmake)
 #end filesystem
 # start log
 include(log/log.cmake)
-find_package(spdlog REQUIRED)
 #end log
 # start settings
 include(settings/settings.cmake)
@@ -67,23 +64,17 @@ if(LINUX)
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::DBus
     Qt${QT_VERSION_MAJOR}::Xml
+    Dtk${DTK_VERSION_MAJOR}::Log
   )
   target_link_libraries(${LIB_NAME} PRIVATE
     ICU::uc
     Qt${QT_VERSION_MAJOR}::CorePrivate
     uchardet
-    spdlog::spdlog
   )
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
     target_link_libraries(${LIB_NAME} PRIVATE
       PkgConfig::QGSettings
     )
-  endif()
-  if(BUILD_WITH_SYSTEMD)
-    target_link_libraries(${LIB_NAME} PRIVATE
-      PkgConfig::Systemd
-    )
-    add_definitions(-DBUILD_WITH_SYSTEMD)
   endif()
 
 else()
@@ -105,7 +96,6 @@ else()
     ICU::uc
     Qt${QT_VERSION_MAJOR}::CorePrivate
     uchardet
-    spdlog::spdlog
   )
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
     target_link_libraries(${LIB_NAME} PRIVATE
