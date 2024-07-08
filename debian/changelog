@@ -1,3 +1,9 @@
+dtkcore (5.6.32) unstable; urgency=medium
+
+  * refactor: log files move to dtklog(Issue: #182)
+
+ -- Deepin Packages Builder <packages@deepin.org>  Mon, 08 Jul 2024 02:29:21 +0000
+
 dtkcore (5.6.31) unstable; urgency=medium
 
   * chore: use '&&' and '||' instead of 'and' and 'or'
