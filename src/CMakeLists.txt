@@ -67,9 +67,7 @@ if(LINUX)
     Dtk${DTK_VERSION_MAJOR}::Log
   )
   target_link_libraries(${LIB_NAME} PRIVATE
-    ICU::uc
     Qt${QT_VERSION_MAJOR}::CorePrivate
-    uchardet
   )
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
     target_link_libraries(${LIB_NAME} PRIVATE
@@ -93,9 +91,7 @@ else()
     Qt${QT_VERSION_MAJOR}::Xml
   )
   target_link_libraries(${LIB_NAME} PRIVATE
-    ICU::uc
     Qt${QT_VERSION_MAJOR}::CorePrivate
-    uchardet
   )
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
     target_link_libraries(${LIB_NAME} PRIVATE
