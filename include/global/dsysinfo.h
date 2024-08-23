@@ -60,6 +60,7 @@ public:
         UosDesktop,
         UosServer,
         UosDevice,
+        UosSmart,
 
         UosTypeCount // must at last
     };
