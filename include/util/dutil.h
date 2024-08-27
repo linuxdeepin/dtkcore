@@ -96,7 +96,7 @@ inline QString getAppIdFromAbsolutePath(const QString &path)
         return {};
     }
 
-    auto tmp = path.chopped(desktopSuffix.size() - 1);
+    auto tmp = path.chopped(desktopSuffix.size());
     auto components = tmp.split(QDir::separator(), Qt::SkipEmptyParts);
     auto location = std::find(components.cbegin(), components.cend(), "applications");
     if (location == components.cend()) {
