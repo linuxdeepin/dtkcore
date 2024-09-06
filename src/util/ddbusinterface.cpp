@@ -114,16 +114,16 @@ void DDBusInterfacePrivate::updateProp(const char *propName, const QVariant &val
 #endif
     }
     QByteArray baSignal = QStringLiteral("%1Changed(%2)").arg(propName).arg(typeName).toLatin1();
-    QByteArray baSignalName = QStringLiteral("%1Changed").arg(propName).toLatin1();
-    const char *signal = baSignal.data();
-    const char *signalName = baSignalName.data();
-    int i = metaObj->indexOfSignal(signal);
+    int i = metaObj->indexOfSignal(baSignal.data());
     if (i != -1) {
-        QMetaObject::invokeMethod(m_parent, signalName, Qt::DirectConnection, QGenericArgument(typeName, data));
+        auto method = metaObj->method(i);
+        if (method.parameterCount() == 1) {
+            method.invoke(m_parent, Qt::DirectConnection, QGenericArgument(method.parameterTypes().first(), data));
+        } else {
+            method.invoke(m_parent, Qt::DirectConnection);
+        }
     } else {
-        qDebug() << "It's not exist the property:[" << propName <<"] for parent:" << m_parent
-                 << ", interface:" << q_ptr->interface()
-                 << ", and It's changed value is:" << value;
+        qDebug() << "It's not exist the property:[" << propName << "] for parent:" << m_parent << ", interface:" << q_ptr->interface() << ", and It's changed value is:" << value;
     }
 }
 
