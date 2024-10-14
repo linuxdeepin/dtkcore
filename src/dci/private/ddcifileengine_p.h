@@ -24,7 +24,11 @@ DCORE_BEGIN_NAMESPACE
 class DDciFileEngineHandler : public QAbstractFileEngineHandler
 {
 public:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    std::unique_ptr<QAbstractFileEngine> create(const QString &fileName) const override;
+#else
     QAbstractFileEngine *create(const QString &fileName) const override;
+#endif
 };
 
 class DDciFile;
@@ -35,8 +39,12 @@ class DDciFileEngineIterator : public QAbstractFileEngineIterator
 public:
     DDciFileEngineIterator(QDir::Filters filters, const QStringList &nameFilters);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
     QString next() override;
     bool hasNext() const override;
+#else
+    bool advance() override;
+#endif
 
     QString currentFileName() const override;
 
@@ -102,8 +110,14 @@ public:
 #endif
 
     typedef DDciFileEngineIterator Iterator;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    IteratorUniquePtr beginEntryList(const QString &path, QDir::Filters filters, const QStringList &filterNames) override;
+    IteratorUniquePtr endEntryList() override;
+#else
     Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames) override;
     Iterator *endEntryList() override;
+#endif
 
     qint64 read(char *data, qint64 maxlen) override;
     qint64 write(const char *data, qint64 len) override;

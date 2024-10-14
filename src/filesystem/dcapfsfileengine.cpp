@@ -14,6 +14,7 @@ DCORE_BEGIN_NAMESPACE
 extern QString _d_cleanPath(const QString &path);
 extern bool _d_isSubFileOf(const QString &filePath, const QString &directoryPath);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
 static bool capDirIteraterHasNext(QAbstractFileEngineIterator *it)
 {
     const QStringList &paths = DCapManager::instance()->paths();
@@ -28,10 +29,19 @@ static bool capDirIteraterHasNext(QAbstractFileEngineIterator *it)
         return ret;
     return DVtableHook::callOriginalFun(it, &QAbstractFileEngineIterator::hasNext);
 }
+#endif
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+std::unique_ptr<QAbstractFileEngine> DCapFSFileEngineHandler::create(const QString &fileName) const
+#else
 QAbstractFileEngine *DCapFSFileEngineHandler::create(const QString &fileName) const
+#endif
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    return std::unique_ptr<QAbstractFileEngine>(new DCapFSFileEngine(fileName));
+#else
     return new DCapFSFileEngine(fileName);
+#endif
 }
 
 
@@ -210,10 +220,18 @@ QStringList DCapFSFileEngine::entryList(QDir::Filters filters, const QStringList
     return QFSFileEngine::entryList(filters, filterNames);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+QAbstractFileEngine::IteratorUniquePtr DCapFSFileEngine::beginEntryList(const QString &path, QDir::Filters filters, const QStringList &filterNames)
+#else
 QAbstractFileEngine::Iterator *DCapFSFileEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
+#endif
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    auto ret = QFSFileEngine::beginEntryList(path, filters, filterNames);
+#else
     auto ret = QFSFileEngine::beginEntryList(filters, filterNames);
     DVtableHook::overrideVfptrFun(ret, &QAbstractFileEngineIterator::hasNext, &capDirIteraterHasNext);
+#endif
     return ret;
 }
 
