@@ -1,3 +1,13 @@
+dtkcore (5.7.1) unstable; urgency=medium
+
+  * feat: 增加智能终端设备类型 (#434)
+    Thanks to Whale107
+  * fix: remove unnecessary link libraries
+  * fix: DDBusInterface signal loss
+  * fix(util): error appid from `getAppIdFromAbsolutePath`
+
+ -- Deepin Packages Builder <packages@deepin.org>  Wed, 16 Oct 2024 03:30:45 +0000
+
 dtkcore (5.6.34) unstable; urgency=medium
 
   [ root ]
