@@ -24,6 +24,7 @@ build() {
     -GNinja \
     -DMKSPECS_INSTALL_DIR=lib/qt/mkspecs/modules \
     -DBUILD_DOCS=ON \
+    -DBUILD_WITH_SYSTEMD=ON \
     -DBUILD_EXAMPLES=OFF \
     -DQCH_INSTALL_DESTINATION=share/doc/qt \
     -DCMAKE_INSTALL_LIBDIR=lib \
