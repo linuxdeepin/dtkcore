@@ -149,6 +149,8 @@ void DLogManager::initJournalAppender()
     Q_D(DLogManager);
     d->m_journalAppender = new JournalAppender();
     dlogger->registerAppender(d->m_journalAppender);
+#else
+    qWarning() <<  "BUILD_WITH_SYSTEMD not defined or OS not support!!";
 #endif
 }
 

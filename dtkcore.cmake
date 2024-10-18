@@ -27,6 +27,9 @@ if(UNIX AND NOT APPLE)
 endif()
 
 set (BUILD_WITH_SYSTEMD OFF CACHE BOOL "Build with systemd")
+if (BUILD_WITH_SYSTEMD)
+    add_definitions(-DBUILD_WITH_SYSTEMD)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 
