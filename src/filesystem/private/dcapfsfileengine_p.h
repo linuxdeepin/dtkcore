@@ -14,7 +14,11 @@ DCORE_BEGIN_NAMESPACE
 class DCapFSFileEngineHandler : public QAbstractFileEngineHandler
 {
 public:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    std::unique_ptr<QAbstractFileEngine> create(const QString &fileName) const override;
+#else
     QAbstractFileEngine *create(const QString &fileName) const override;
+#endif
 };
 
 class DCapFSFileEnginePrivate;
@@ -47,7 +51,11 @@ public:
     bool cloneTo(QAbstractFileEngine *target) override;
     bool setSize(qint64 size) override;
     QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const override;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    IteratorUniquePtr beginEntryList(const QString &path, QDir::Filters filters, const QStringList &filterNames) override;
+#else
     Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames) override;
+#endif
 
     bool canReadWrite(const QString &path) const;
 };
