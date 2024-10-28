@@ -21,9 +21,6 @@ if(LINUX)
     if("${QT_VERSION_MAJOR}" STREQUAL "5")
         pkg_check_modules(QGSettings REQUIRED IMPORTED_TARGET gsettings-qt)
     endif()
-    if(BUILD_WITH_SYSTEMD)
-        pkg_check_modules(Systemd REQUIRED IMPORTED_TARGET libsystemd)
-    endif()
 endif()
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Xml)
@@ -86,13 +83,6 @@ if(LINUX)
               ${BIN_NAME} PRIVATE
               PkgConfig::QGSettings
           )
-    endif()
-
-    if(BUILD_WITH_SYSTEMD)
-        target_link_libraries(
-            ${BIN_NAME} PRIVATE
-            PkgConfig::Systemd
-        )
     endif()
 
     target_link_libraries(
