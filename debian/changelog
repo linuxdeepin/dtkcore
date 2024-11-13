@@ -1,3 +1,10 @@
+dtkcore (5.7.2) unstable; urgency=medium
+
+  [ root ]
+  * UNRELEASED
+
+ -- Deepin Packages Builder <packages@deepin.org>  Wed, 13 Nov 2024 01:53:26 +0000
+
 dtkcore (5.7.1) unstable; urgency=medium
 
   * feat: 增加智能终端设备类型 (#434)
