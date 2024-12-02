@@ -174,15 +174,15 @@ void DVtableHook::autoCleanVtable(const void *obj)
     if (!fun)
         return;
 
-    typedef void(*Destruct)(const void*);
-    Destruct destruct = reinterpret_cast<Destruct>(fun);
-    // call origin destruct function
-    destruct(obj);
-
     if (hasVtable(obj)) {// 需要判断一下，有可能在执行析构函数时虚表已经被删除
         // clean
         clearGhostVtable(obj);
     }
+
+    typedef void(*Destruct)(const void*);
+    Destruct destruct = reinterpret_cast<Destruct>(fun);
+    // call origin destruct function
+    destruct(obj);
 }
 
 bool DVtableHook::ensureVtable(const void *obj, std::function<void ()> destoryObjFun)
