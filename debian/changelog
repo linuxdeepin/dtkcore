@@ -1,3 +1,9 @@
+dtkcore (5.7.4) unstable; urgency=medium
+
+  * fix: hasVtable is incorrect when destructing
+
+ -- Deepin Packages Builder <packages@deepin.org>  Tue, 03 Dec 2024 02:00:45 +0000
+
 dtkcore (5.7.3) unstable; urgency=medium
 
   [ root ]
