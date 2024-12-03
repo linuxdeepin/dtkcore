@@ -51,7 +51,9 @@ public:
     bool cloneTo(QAbstractFileEngine *target) override;
     bool setSize(qint64 size) override;
     QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const override;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 1)
+    IteratorUniquePtr beginEntryList(const QString &path, QDirListing::IteratorFlags filters, const QStringList &filterNames) override;
+#elif QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     IteratorUniquePtr beginEntryList(const QString &path, QDir::Filters filters, const QStringList &filterNames) override;
 #else
     Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames) override;
