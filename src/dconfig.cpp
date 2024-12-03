@@ -87,6 +87,7 @@ static QString NoAppId;
     @fn QString DConfigBackend::name() const = 0
 
     @brief The unique identity of the backend configuration
+ */
 
 /*!
 @~english
@@ -667,6 +668,29 @@ void DConfig::setAppId(const QString &appId)
     }
     _globalAppId = appId;
     qCDebug(cfLog, "Explicitly specify application Id as appId=%s for config.", qPrintable(appId));
+}
+
+class DConfigThread : public QThread
+{
+public:
+    DConfigThread() {
+        setObjectName("DConfigGlobalThread");
+        start();
+    }
+
+    ~DConfigThread() override {
+        if (isRunning()) {
+            quit();
+            wait();
+        }
+    }
+};
+
+Q_GLOBAL_STATIC(DConfigThread, _globalThread)
+
+QThread *DConfig::globalThread()
+{
+    return _globalThread;
 }
 
 /*!
