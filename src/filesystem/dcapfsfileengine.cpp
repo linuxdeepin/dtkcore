@@ -219,8 +219,9 @@ QStringList DCapFSFileEngine::entryList(QDir::Filters filters, const QStringList
         return {};
     return QFSFileEngine::entryList(filters, filterNames);
 }
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 1)
+QAbstractFileEngine::IteratorUniquePtr DCapFSFileEngine::beginEntryList(const QString &path, QDirListing::IteratorFlags filters, const QStringList &filterNames)
+#elif QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
 QAbstractFileEngine::IteratorUniquePtr DCapFSFileEngine::beginEntryList(const QString &path, QDir::Filters filters, const QStringList &filterNames)
 #else
 QAbstractFileEngine::Iterator *DCapFSFileEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
