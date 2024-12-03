@@ -349,6 +349,11 @@ sudo make install
 @param[in] appId 配置文件所属的应用Id
 @note 需要在QCoreApplication构造前设置。
 
+@fn static void DConfig::globalThread()
+@brief 一个服务于 DConfig 的公用线程，一般用于 dconfig2cpp 生成的代码，此线程在构造时会自动调用 QThread::start 以满足 dconfig2cpp 的需求。
+@return 此线程默认为 running 状态
+@note 请不要析构它，它会在应用程序退出时释放
+
 @fn QString Dtk::Core::DConfig::backendName()
 @brief 配置策略后端名称
 @return 配置策略后端名称
