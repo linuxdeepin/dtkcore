@@ -86,6 +86,14 @@ DDciFileEngineIterator::DDciFileEngineIterator(QDir::Filters filters, const QStr
 
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 1)
+DDciFileEngineIterator::DDciFileEngineIterator(QDirListing::IteratorFlags filters, const QStringList &nameFilters)
+    : QAbstractFileEngineIterator(nullptr, filters, nameFilters)
+{
+
+}
+#endif
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
 QString DDciFileEngineIterator::next()
 {
@@ -564,14 +572,16 @@ QDateTime DDciFileEngine::fileTime(QAbstractFileEngine::FileTime time) const
     return QFileInfo(dciFilePath).fileTime(static_cast<QFile::FileTime>(time));
 }
 #endif
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 1)
+QAbstractFileEngine::IteratorUniquePtr DDciFileEngine::beginEntryList(const QString &path, QDirListing::IteratorFlags filters, const QStringList &filterNames)
+#elif QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
 QAbstractFileEngine::IteratorUniquePtr DDciFileEngine::beginEntryList(const QString &path, QDir::Filters filters, const QStringList &filterNames)
 #else
 DDciFileEngine::Iterator *DDciFileEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
 #endif
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    Q_UNUSED(path);
     return QAbstractFileEngine::IteratorUniquePtr(new DDciFileEngineIterator(filters, filterNames));
 #else
     return new DDciFileEngineIterator(filters, filterNames);
