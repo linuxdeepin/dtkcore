@@ -22,6 +22,41 @@ if(NOT DEFINED DSG_DATA_DIR)
 endif()
 
 add_definitions(-DDSG_DATA_DIR=\"${DSG_DATA_DIR}\")
+
+# Define the helper function
+function(dtk_config_to_cpp JSON_FILE OUTPUT_VAR)
+    if(NOT EXISTS ${JSON_FILE})
+        message(FATAL_ERROR "JSON file ${JSON_FILE} does not exist.")
+    endif()
+
+    # Generate the output header file name
+    get_filename_component(FILE_NAME_WE ${JSON_FILE} NAME_WE)
+    if(DEFINED OUTPUT_FILE_NAME)
+        set(OUTPUT_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_FILE_NAME}")
+    else()
+        set(OUTPUT_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME_WE}.hpp")
+    endif()
+
+    # Check if CLASS_NAME is set
+    if(DEFINED CLASS_NAME)
+        set(CLASS_NAME_ARG -c ${CLASS_NAME})
+    else()
+        set(CLASS_NAME_ARG "")
+    endif()
+
+    # Add a custom command to run dconfig2cpp
+    add_custom_command(
+        OUTPUT ${OUTPUT_HEADER}
+        COMMAND ${TOOL_INSTALL_DIR}/dconfig2cpp -o ${OUTPUT_HEADER} ${CLASS_NAME_ARG} ${JSON_FILE}
+        DEPENDS ${JSON_FILE}
+        COMMENT "Generating ${OUTPUT_HEADER} from ${JSON_FILE}"
+        VERBATIM
+    )
+
+    # Add the generated header to the specified output variable
+    set(${OUTPUT_VAR} ${${OUTPUT_VAR}} ${OUTPUT_HEADER} PARENT_SCOPE)
+endfunction()
+
 # deploy some `meta` 's configure.
 #
 # FILES       - deployed files.
