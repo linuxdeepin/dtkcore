@@ -1288,11 +1288,21 @@ public:
                     return cache->setValue(key, value, configMeta->serial(key), cache->uid(), appid);
 
                 // convert copy to meta's type, it promises `setValue` don't change meta's type.
+                // canConvert isn't explicit, e.g: QString is also can convert to double.
                 auto copy = value;
                 if (!copy.convert(metaValue.metaType())) {
                     qCWarning(cfLog) << "check type error, meta type is " << metaValue.metaType().name()
                                      << ", and now type is " << value.metaType().name();
                     return false;
+                }
+
+                 // TODO it's a bug of qt, MetaType of 1.0 is qlonglong instead of double in json file.
+                static const QVector<QMetaType> filterConvertType {
+                    QMetaType{QMetaType::Double}
+                };
+                // reset to origin value.
+                if (filterConvertType.contains(value.metaType())) {
+                    copy = value;
                 }
 #else
                 if (metaValue.type() == value.type())
@@ -1303,6 +1313,13 @@ public:
                     qCWarning(cfLog) << "check type error, meta type is " << metaValue.type()
                                      << ", and now type is " << value.type();
                     return false;
+                }
+
+                static const QVector<QVariant::Type> filterConvertType {
+                    QVariant::Double
+                };
+                if (filterConvertType.contains(value.type())) {
+                    copy = value;
                 }
 #endif
 
