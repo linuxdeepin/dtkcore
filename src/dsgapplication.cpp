@@ -100,7 +100,7 @@ QByteArray DSGApplication::getId(qint64 pid)
 
     int pidfd = syscall(SYS_pidfd_open, pid, 0);
     if (pidfd < 0) {
-        qCWarning(dsgApp) << "pidfd open failed:" << strerror(errno);
+        qCWarning(dsgApp) << "pidfd open failed:" << strerror(errno) << ", the pid:" << pid;
         return QByteArray();
     }
 
@@ -109,6 +109,8 @@ QByteArray DSGApplication::getId(qint64 pid)
                         "org.desktopspec.ApplicationManager1");
 
     QDBusReply<QString> reply = infc.call("Identify", QVariant::fromValue(QDBusUnixFileDescriptor(pidfd)));
+    // see QDBusUnixFileDescriptor: The original file descriptor is not touched and must be closed by the user.
+    close(pidfd);
 
     if (!reply.isValid()) {
         qCWarning(dsgApp) << "Identify from AM failed." << reply.error().message();

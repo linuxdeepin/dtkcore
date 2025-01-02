@@ -125,6 +125,11 @@ TEST_F(ut_DConfigFile, setValueTypeCheck) {
         ASSERT_EQ(config.value("number", userCache.get()).type(), type);
     }
     {
+        const auto type = config.value("numberDouble", userCache.get()).type();
+        ASSERT_TRUE(config.setValue("numberDouble", 1.2, "test", userCache.get()));
+        ASSERT_EQ(config.value("numberDouble", userCache.get()), 1.2);
+    }
+    {
         const auto type = config.value("array", userCache.get()).type();
         const QStringList array{"value1", "value2"};
         ASSERT_TRUE(config.setValue("array", QStringList(), "test", userCache.get()));
