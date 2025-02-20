@@ -3,6 +3,7 @@ file(GLOB LOG_HEADER
 )
 set(LOG_SOURCE
   ${CMAKE_CURRENT_LIST_DIR}/LogManager.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/dconfig_org_deepin_dtk_preference.hpp
 )
 
 set(log_SRCS
