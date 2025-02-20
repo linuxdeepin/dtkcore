@@ -87,10 +87,6 @@ int main(int argc, char *argv[]) {
                                           QLatin1String("Force request thread to create DConfig instance"));
     parser.addOption(forceRequestThread);
 
-    QCommandLineOption getIsDefaultValue(QStringList() << QLatin1String("get-is-default-value"),
-                                         QLatin1String("Generate *IsDefaultValue method"));
-    parser.addOption(getIsDefaultValue);
-
     QCommandLineOption noComment(QStringList() << QLatin1String("no-comment"),
                                  QLatin1String("Do not generate comments in the generated code"));
     parser.addOption(noComment);
@@ -189,15 +185,19 @@ int main(int argc, char *argv[]) {
         QJsonValue defaultValue;
     };
     QList<Property> properties;
+    QStringList propertyNames;
+    QStringList propertyNameStrings;
 
     static QStringList usedKeywords = {
         className,
         "create",
         "createByName",
         "config",
+        "keyList",
         "isInitializeSucceed",
         "isInitializeFailed",
         "isInitializing",
+        "isDefaultValue",
         "m_config",
         "m_status",
     };
@@ -232,6 +232,7 @@ int main(int argc, char *argv[]) {
             capitalizedPropertyName[0] = capitalizedPropertyName[0].toUpper();
         }
 
+        propertyNames << propertyName;
         properties.append(Property({
             typeName,
             propertyName,
@@ -239,6 +240,7 @@ int main(int argc, char *argv[]) {
             "QStringLiteral(u\"" + toUnicodeEscape(propertyName) + "\")",
             obj[QLatin1String("value")]
         }));
+        propertyNameStrings << properties.last().propertyNameString;
 
         const  QString readFunction = usedKeywords.contains(propertyName) ? QLatin1String(" READ get") + capitalizedPropertyName
                                                                            : QLatin1String(" READ ") + propertyName;
@@ -246,7 +248,11 @@ int main(int argc, char *argv[]) {
                      << " WRITE set" << capitalizedPropertyName << " NOTIFY " << propertyName << "Changed"
                      << " RESET reset" << capitalizedPropertyName << ")\n";
     }
-    headerStream << "public:\n"
+
+    headerStream << "    Q_CLASSINFO(\"DConfigKeyList\", \"" << propertyNames.join(";") <<"\")\n"
+                 << "    Q_CLASSINFO(\"DConfigFileName\", \"" << QString(jsonFileName).replace("\n", "\\n").replace("\r", "\\r") <<"\")\n"
+                 << "    Q_CLASSINFO(\"DConfigFileVersion\", \"" << version <<"\")\n\n"
+                 << "public:\n"
                  << "    explicit " << className
                  << R"((QThread *thread, DTK_CORE_NAMESPACE::DConfigBackend *backend, const QString &name, const QString &appId, const QString &subpath, QObject *parent)
                 : QObject(parent) {
@@ -313,23 +319,35 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    DTK_CORE_NAMESPACE::DConfig *config() const {
+    Q_INVOKABLE DTK_CORE_NAMESPACE::DConfig *config() const {
         return m_config.loadRelaxed();
     }
 
-    bool isInitializeSucceed() const {
+    Q_INVOKABLE bool isInitializeSucceed() const {
         return m_status.loadRelaxed() == static_cast<int>(Status::Succeed);
     }
 
-    bool isInitializeFailed() const {
+    Q_INVOKABLE bool isInitializeFailed() const {
         return m_status.loadRelaxed() == static_cast<int>(Status::Failed);
     }
 
-    bool isInitializing() const {
+    Q_INVOKABLE bool isInitializing() const {
         return m_status.loadRelaxed() == static_cast<int>(Status::Invalid);
     }
 
 )";
+
+    headerStream << "    Q_INVOKABLE QStringList keyList() const {\n"
+                 << "        return { " << propertyNameStrings.join(",\n                 ") << "};\n"
+                 << "    }\n\n";
+
+    headerStream << "    Q_INVOKABLE bool isDefaultValue(const QString &key) const {\n";
+    for (int i = 0; i < properties.size(); ++i) {
+        headerStream << "        if (key == " << properties.at(i).propertyNameString << ")\n"
+                     << "            return " << properties.at(i).propertyName << "IsDefaultValue();\n";
+    }
+    headerStream << "        return false;\n"
+                 << "    }\n\n";
 
     // Generate property getter and setter methods
     for (int i = 0; i < properties.size(); ++i) {
@@ -367,11 +385,10 @@ int main(int argc, char *argv[]) {
                          << "        return QBindable<" << property.typeName << ">(this, " << property.propertyNameString << ");\n"
                          << "    }\n";
         }
-        if (parser.isSet(getIsDefaultValue)) {
-            headerStream << "    bool " << property.propertyName << "IsDefaultValue() const {\n"
-                         << "        return !testPropertySet(" << i << ");\n"
-                         << "    }\n";
-        }
+
+        headerStream << "    Q_INVOKABLE bool " << property.propertyName << "IsDefaultValue() const {\n"
+                     << "        return !testPropertySet(" << i << ");\n"
+                     << "    }\n";
     }
 
     // Generate signals for property changes
@@ -418,8 +435,7 @@ int main(int argc, char *argv[]) {
         const Property &property = properties.at(i);
         headerStream << "        if (key == " << property.propertyNameString << ") {\n";
 
-        if (parser.isSet(getIsDefaultValue))
-            headerStream << "            markPropertySet(" << i << ", !m_config.loadRelaxed()->isDefaultValue(key));\n";
+        headerStream << "            markPropertySet(" << i << ", !m_config.loadRelaxed()->isDefaultValue(key));\n";
 
         headerStream << "            auto newValue = qvariant_cast<" << property.typeName << ">(value);\n"
                      << "            QMetaObject::invokeMethod(this, [this, newValue, key, value]() {\n"
