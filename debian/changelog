@@ -1,3 +1,12 @@
+dtkcore (5.7.11) unstable; urgency=medium
+
+  * feat: dconfig2cpp generated codes supports qml
+  * feat: export ProductType for QML
+  * feat: async get dconfig value for DLog
+  * feat: support auto generate the Qt code from a dconfig's json
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Thu, 27 Feb 2025 20:47:22 +0800
+
 dtkcore (5.7.10) unstable; urgency=medium
 
   * Release 5.7.10
