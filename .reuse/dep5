@@ -83,3 +83,8 @@ License: MIT
 Files: docs/references/*
 Copyright: UnionTech Software Technology Co., Ltd.
 License: CC-BY-4.0
+
+
+Files: toolGenerate/**/*
+Copyright: None
+License: CC0-1.0
