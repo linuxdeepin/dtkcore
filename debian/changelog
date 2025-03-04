@@ -1,3 +1,32 @@
+dtkcore (5.7.11) unstable; urgency=medium
+
+  * feat: dconfig2cpp generated codes supports qml
+  * feat: export ProductType for QML
+  * feat: async get dconfig value for DLog
+  * feat: support auto generate the Qt code from a dconfig's json
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Thu, 27 Feb 2025 20:47:22 +0800
+
+dtkcore (5.7.10) unstable; urgency=medium
+
+  * Release 5.7.10
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Thu, 13 Feb 2025 17:18:04 +0800
+
+dtkcore (5.7.9) unstable; urgency=medium
+
+  [ root ]
+  * UNRELEASED
+
+ -- Deepin Packages Builder <packages@deepin.org>  Thu, 23 Jan 2025 09:07:08 +0000
+
+dtkcore (5.7.8) unstable; urgency=medium
+
+  [ root ]
+  * UNRELEASED
+
+ -- Deepin Packages Builder <packages@deepin.org>  Tue, 14 Jan 2025 11:17:31 +0000
+
 dtkcore (5.7.7) unstable; urgency=medium
 
   [ root ]
