@@ -88,3 +88,7 @@ License: CC-BY-4.0
 Files: toolGenerate/**/*
 Copyright: None
 License: CC0-1.0
+
+Files: src/log/dconfig_org_deepin_dtk_preference.hpp
+Copyright: None
+License: CC0-1.0
