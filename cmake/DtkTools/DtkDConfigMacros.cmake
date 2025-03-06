@@ -13,7 +13,7 @@ function(dtk_add_config_to_cpp OUTPUT_VAR JSON_FILE)
     cmake_parse_arguments(
         "arg"
         ""
-        "OUTPUT_FILE_NAME;CLASS_NAME;USE_QPROPERTY"
+        "OUTPUT_FILE_NAME;CLASS_NAME"
         ""
         ${ARGN}
     )
@@ -33,22 +33,10 @@ function(dtk_add_config_to_cpp OUTPUT_VAR JSON_FILE)
         set(CLASS_NAME_ARG "")
     endif()
 
-    if(NOT DEFINED arg_USE_QPROPERTY)
-        if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-            set(arg_USE_QPROPERTY ON)
-        endif()
-    endif()
-
-    if (arg_USE_QPROPERTY)
-        set(USE_QPROPERTY_ARG "--use-qproperty")
-    else()
-        set(USE_QPROPERTY_ARG "")
-    endif()
-
     # Add a custom command to run dconfig2cpp
     add_custom_command(
         OUTPUT ${OUTPUT_HEADER}
-        COMMAND ${DTK_DCONFIG2CPP} -o ${OUTPUT_HEADER} ${CLASS_NAME_ARG} ${USE_QPROPERTY_ARG} ${JSON_FILE}
+        COMMAND ${DTK_DCONFIG2CPP} -o ${OUTPUT_HEADER} ${CLASS_NAME_ARG} ${JSON_FILE}
         DEPENDS ${JSON_FILE} ${DTK_XML2CPP}
         COMMENT "Generating ${OUTPUT_HEADER} from ${JSON_FILE}"
         VERBATIM
