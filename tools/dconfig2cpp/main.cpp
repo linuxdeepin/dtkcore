@@ -79,10 +79,6 @@ int main(int argc, char *argv[]) {
                                         QLatin1String("sourceFile"));
     parser.addOption(sourceFileOption);
 
-    QCommandLineOption cppPropertyOption(QStringList() << QLatin1String("use-qproperty"),
-                                         QLatin1String("Generate Qt/C++ properties use QProperty"));
-    parser.addOption(cppPropertyOption);
-
     QCommandLineOption forceRequestThread(QStringList() << QLatin1String("force-request-thread"),
                                           QLatin1String("Force request thread to create DConfig instance"));
     parser.addOption(forceRequestThread);
@@ -168,10 +164,9 @@ int main(int argc, char *argv[]) {
     headerStream << "#include <QDebug>\n";
     headerStream << "#include <QAtomicPointer>\n";
     headerStream << "#include <QAtomicInteger>\n";
-
-    if (parser.isSet(cppPropertyOption)) {
-        headerStream << "#include <QProperty>\n";
-    }
+    headerStream << "#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)\n"
+                 << "#include <QProperty>\n"
+                 << "#endif\n";
 
     headerStream << "#include <DConfig>\n\n";
     headerStream << "class " << className << " : public QObject {\n";
@@ -237,7 +232,7 @@ int main(int argc, char *argv[]) {
             typeName,
             propertyName,
             capitalizedPropertyName,
-            "QStringLiteral(u\"" + toUnicodeEscape(propertyName) + "\")",
+            "QStringLiteral(\"" + propertyName + "\")",
             obj[QLatin1String("value")]
         }));
         propertyNameStrings << properties.last().propertyNameString;
@@ -380,11 +375,11 @@ int main(int argc, char *argv[]) {
                      << "            });\n"
                      << "        }\n"
                      << "    }\n";
-        if (parser.isSet(cppPropertyOption)) {
-            headerStream << "    QBindable<" << property.typeName << "> bindable" << property.capitalizedPropertyName << "() {\n"
-                         << "        return QBindable<" << property.typeName << ">(this, " << property.propertyNameString << ");\n"
-                         << "    }\n";
-        }
+        headerStream << "#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)\n";
+        headerStream << "    QBindable<" << property.typeName << "> bindable" << property.capitalizedPropertyName << "() {\n"
+                     << "        return QBindable<" << property.typeName << ">(this, " << property.propertyNameString << ");\n"
+                     << "    }\n";
+        headerStream << "#endif\n";
 
         headerStream << "    Q_INVOKABLE bool " << property.propertyName << "IsDefaultValue() const {\n"
                      << "        return !testPropertySet(" << i << ");\n"
