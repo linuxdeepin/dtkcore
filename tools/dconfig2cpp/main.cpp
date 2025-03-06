@@ -168,6 +168,7 @@ int main(int argc, char *argv[]) {
                  << "#include <QProperty>\n"
                  << "#endif\n";
 
+    headerStream << "#include <DSGApplication>\n";
     headerStream << "#include <DConfig>\n\n";
     headerStream << "class " << className << " : public QObject {\n";
     headerStream << "    Q_OBJECT\n\n";
@@ -261,13 +262,15 @@ int main(int argc, char *argv[]) {
             DTK_CORE_NAMESPACE::DConfig *config = nullptr;
             if (backend) {
                 if (appId.isNull()) {
-                    config = DTK_CORE_NAMESPACE::DConfig::create(backend, name, subpath, nullptr);
+                    config = DTK_CORE_NAMESPACE::DConfig::create(backend, DTK_CORE_NAMESPACE::DSGApplication::id(),
+                                                                 name, subpath, nullptr);
                 } else {
                     config = DTK_CORE_NAMESPACE::DConfig::create(backend, appId, name, subpath, nullptr);
                 }
             } else {
                 if (appId.isNull()) {
-                    config = DTK_CORE_NAMESPACE::DConfig::create(name, subpath, nullptr);
+                    config = DTK_CORE_NAMESPACE::DConfig::create(DTK_CORE_NAMESPACE::DSGApplication::id(),
+                                                                 name, subpath, nullptr);
                 } else {
                     config = DTK_CORE_NAMESPACE::DConfig::create(appId, name, subpath, nullptr);
                 }
@@ -377,7 +380,7 @@ int main(int argc, char *argv[]) {
                      << "    }\n";
         headerStream << "#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)\n";
         headerStream << "    QBindable<" << property.typeName << "> bindable" << property.capitalizedPropertyName << "() {\n"
-                     << "        return QBindable<" << property.typeName << ">(this, " << property.propertyNameString << ");\n"
+                     << "        return QBindable<" << property.typeName << ">(this, \"" << property.propertyName << "\");\n"
                      << "    }\n";
         headerStream << "#endif\n";
 
