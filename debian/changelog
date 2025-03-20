@@ -1,3 +1,11 @@
+dtkcore (5.7.13) unstable; urgency=medium
+
+  * fix: add copyright for dconfig_org_deepin_dtk_preference.hpp
+  * feat: supports create generic config by dconfig2cpp
+  * fix: build failed on Qt6
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Thu, 20 Mar 2025 17:05:39 +0800
+
 dtkcore (5.7.12) unstable; urgency=medium
 
   * feat: dconfig2cpp always add bindableFoo functions on Qt6
