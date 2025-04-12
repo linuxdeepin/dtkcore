@@ -222,7 +222,11 @@ public:
         Q_STATIC_ASSERT_X((FunctorArgumentCount >= 0),
                           "Function1 and Function2 arguments are not compatible.");
         const int Fun2ArgumentCount = (FunctorArgumentCount >= 0) ? FunctorArgumentCount : 0;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        typedef typename QtPrivate::FunctorReturnType<Fun2, typename QtPrivate::List_Left<typename FunctionPointer<Fun1>::Arguments, Fun2ArgumentCount>::Value>::type Fun2ReturnType;
+#else
         typedef typename QtPrivate::FunctorReturnType<Fun2, typename QtPrivate::List_Left<typename FunctionPointer<Fun1>::Arguments, Fun2ArgumentCount>::Value>::Value Fun2ReturnType;
+#endif
 
         Q_STATIC_ASSERT_X((QtPrivate::AreArgumentsCompatible<Fun2ReturnType, typename FunInfo1::ReturnType>::value),
                           "Function1 and Function2 return type are not compatible.");

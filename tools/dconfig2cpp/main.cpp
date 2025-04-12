@@ -15,7 +15,7 @@
 static QString toUnicodeEscape(const QString& input) {
     QString result;
     for (QChar ch : input) {
-        result += QString("\\u%1").arg(ch.unicode(), 4, 16, QChar('0'));
+        result += QString("\\u%1").arg(static_cast<short>(ch.unicode()), 4, 16, QChar('0'));
     }
     return result;
 }
