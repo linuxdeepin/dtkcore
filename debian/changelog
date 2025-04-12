@@ -1,3 +1,9 @@
+dtkcore (5.7.14) unstable; urgency=medium
+
+  * fix: resolve compilation failure on Qt 6.9
+
+ -- JiDe Zhang <zhangjide@deepin.org>  Sat, 12 Apr 2025 17:19:00 +0800
+
 dtkcore (5.7.13) unstable; urgency=medium
 
   * fix: add copyright for dconfig_org_deepin_dtk_preference.hpp
