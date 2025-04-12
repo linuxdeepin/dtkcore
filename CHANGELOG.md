@@ -1,3 +1,10 @@
+<a name="5.7.14"></a>
+## 5.7.14 (2025-04-12)
+
+### Bug Fixes
+
+* resolve compilation failure on Qt 6.9
+
 <a name="2.0.14"></a>
 ## 2.0.14 (2019-05-23)
 
