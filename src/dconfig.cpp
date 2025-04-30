@@ -332,13 +332,16 @@ public:
         } else {
             qCDebug(cfLog(), "dbus path=\"%s\"", qPrintable(dbus_path.path()));
             config.reset(new DSGConfigManager(DSG_CONFIG_MANAGER, dbus_path.path(),
-                                                QDBusConnection::systemBus(), owner->q_func()));
+                                                QDBusConnection::systemBus()));
             if (!config->isValid()) {
                 qCWarning(cfLog(), "Can't acquire config path=\"%s\"", qPrintable(dbus_path.path()));
                 config.reset();
                 return false;
             } else {
-                QObject::connect(config.data(), &DSGConfigManager::valueChanged, owner->q_func(), &DConfig::valueChanged);
+                config->moveToThread(DConfig::globalThread());
+                QObject::connect(config.data(), &DSGConfigManager::valueChanged, config.data(), [this] (const QString &key) {
+                    Q_EMIT owner->q_func()->valueChanged(key);
+                });
             }
         }
         return true;
