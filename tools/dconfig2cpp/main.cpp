@@ -161,6 +161,7 @@ int main(int argc, char *argv[]) {
     headerStream << "#define " << className.toUpper() << "_H\n\n";
     headerStream << "#include <QThread>\n";
     headerStream << "#include <QVariant>\n";
+    headerStream << "#include <QPointer>\n";
     headerStream << "#include <QDebug>\n";
     headerStream << "#include <QAtomicPointer>\n";
     headerStream << "#include <QAtomicInteger>\n";
@@ -253,13 +254,14 @@ int main(int argc, char *argv[]) {
                  << R"((QThread *thread, DTK_CORE_NAMESPACE::DConfigBackend *backend,
                         const QString &name, const QString &appId, const QString &subpath,
                         bool isGeneric, QObject *parent)
-                : QObject(parent) {
+                : QObject(nullptr) {
         if (!thread->isRunning()) {
             qWarning() << QLatin1String("Warning: The provided thread is not running.");
         }
         Q_ASSERT(QThread::currentThread() != thread);
         auto worker = new QObject();
         worker->moveToThread(thread);
+        QPointer<QObject> watcher(parent);
         QMetaObject::invokeMethod(worker, [=, this]() {
             DTK_CORE_NAMESPACE::DConfig *config = nullptr;
             if (isGeneric) {
@@ -292,6 +294,13 @@ int main(int argc, char *argv[]) {
             }
             config->moveToThread(QThread::currentThread());
             initializeInConfigThread(config);
+            if (watcher != parent) {
+                // delete this if watcher is changed to nullptr.
+                deleteLater();
+            } else if (!this->parent() && parent) {
+                // !parent() means that parent is not changed.
+                this->setParent(watcher);
+            }
             worker->deleteLater();
         });
     }
