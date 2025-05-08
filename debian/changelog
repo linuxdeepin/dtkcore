@@ -1,3 +1,11 @@
+dtkcore (5.7.15) unstable; urgency=medium
+
+  * fix: correct bitwise operation in dconfig status tracking
+  * chore: update REUSE license file patterns
+  * fix: add QPointer check for parent object safety
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Thu, 08 May 2025 17:53:02 +0800
+
 dtkcore (5.7.14) unstable; urgency=medium
 
   * fix: resolve compilation failure on Qt 6.9
