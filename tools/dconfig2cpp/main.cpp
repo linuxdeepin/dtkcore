@@ -496,7 +496,7 @@ int main(int argc, char *argv[]) {
                      << "            if (on)\n"
                      << "                m_propertySetStatus" << QString::number(i) << ".fetchAndOrOrdered(1 << (index - " << i * 32 << "));\n"
                      << "            else\n"
-                     << "                m_propertySetStatus" << QString::number(i) << ".fetchAndAndOrdered(1 << (index - " << i * 32 << "));\n"
+                     << "                m_propertySetStatus" << QString::number(i) << ".fetchAndAndOrdered(~(1 << (index - " << i * 32 << ")));\n"
                      << "            return;\n"
                      << "        }\n";
     }
