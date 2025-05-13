@@ -537,19 +537,21 @@ void DSysInfoPrivate::ensureComputerInfo()
 
 QMap<QString, QString> DSysInfoPrivate::parseInfoFile(QFile &file)
 {
-    char buf[1024];
-    qint64 lineLength = 0;
     QMap<QString, QString> map;
-    do {
-        lineLength = file.readLine(buf, sizeof(buf));
-        QString s(buf);
-        if (s.contains(':')) {
-            QStringList list = s.split(':');
-            if (list.size() == 2) {
-                map.insert(list.first().trimmed(), list.back().trimmed());
-            }
-        }
-    } while (lineLength >= 0);
+
+    qint64 fileSize = file.size();
+    // 因为此类文件一般不会超过1M大小，超过1M大小大概率出现异常情况
+    // 避免文件内容异常导致出现问题，对文件大小做了限制
+    if (fileSize < 1024000) {
+        QByteArray buff = file.readAll();
+        map = parseInfoContent(QString::fromLocal8Bit(buff));
+    } else {
+        qCWarning(logSysInfo) << "Size is too big, is it broken? File :"
+                              << file.fileName()
+                              << ", size :"
+                              << fileSize;
+    }
+
     return map;
 }
 
@@ -558,11 +560,11 @@ QMap<QString, QString> DSysInfoPrivate::parseInfoContent(const QString &content)
     QMap<QString, QString> map;
     QStringList lineContents = content.split("\n");
     for (auto lineContent : lineContents) {
-        if (lineContent.contains(':')) {
-            QStringList list = lineContent.split(':');
-            if (list.size() == 2) {
-                map.insert(list.first().trimmed(), list.back().trimmed());
-            }
+        const int index = lineContent.indexOf(':');
+        if (index != -1) {
+            const QString key = lineContent.left(index);
+            const QString value = lineContent.mid(index + 1);
+            map.insert(key.trimmed(), value.trimmed());
         }
     }
     return map;
