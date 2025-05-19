@@ -664,6 +664,7 @@ DSysInfo::UosEdition DSysInfo::uosEditionType()
         case 3:
             return UosCommunity;
         case 4:
+        case 9:
             return UosMilitary;
         case 5:
             return UosDeviceEdition;
@@ -681,6 +682,7 @@ DSysInfo::UosEdition DSysInfo::uosEditionType()
         case 3:
             return UosEuler;
         case 4:
+        case 9:
             return UosMilitaryS;
         case 5:
             return UosDeviceEdition;
