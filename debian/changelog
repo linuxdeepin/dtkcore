@@ -1,3 +1,9 @@
+dtkcore (5.7.16) unstable; urgency=medium
+
+  * fix: add missing UosMilitary edition type cases
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Mon, 19 May 2025 17:21:50 +0800
+
 dtkcore (5.7.15) unstable; urgency=medium
 
   * fix: correct bitwise operation in dconfig status tracking
