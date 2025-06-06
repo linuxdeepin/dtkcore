@@ -1,3 +1,9 @@
+dtkcore (5.7.17) unstable; urgency=medium
+
+  * Release 5.7.17
+
+ -- asterwyx <yixue.wang@outlook.com>  Fri, 06 Jun 2025 17:40:25 +0800
+
 dtkcore (5.7.16) unstable; urgency=medium
 
   * fix: add missing UosMilitary edition type cases
