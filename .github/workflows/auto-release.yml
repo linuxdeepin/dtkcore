@@ -1,0 +1,28 @@
+name: Auto Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+      name:
+        description: 'The name of the person to release the version'
+        required: false
+      email:
+        description: 'The email of the person to release the version'
+        required: false
+      timezone:
+        description: 'The timezone in the debian changelog file'
+        required: false
+        type: string
+        default: 'Asia/Shanghai'
+
+jobs:
+  auto_tag:
+    uses: linuxdeepin/.github/.github/workflows/auto-release.yml@main
+    secrets: inherit
+    with:
+      version: ${{ inputs.version }}
+      name: ${{ inputs.name }}
+      email: ${{ inputs.email }}
+      timezone: ${{ inputs.timezone }}
