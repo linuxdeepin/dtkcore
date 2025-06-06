@@ -30,7 +30,7 @@ Copyright: None
 License: CC0-1.0
 
 # cmake
-Files: *.cmake *CMakeLists.txt *.pc.in, cmake/*.in misc/*.in
+Files: *.cmake *CMakeLists.txt *.pc.in, cmake/*.in misc/*.in VERSION
 Copyright: None
 License: CC0-1.0
 
