@@ -72,7 +72,7 @@ dconfig_org_deepin_dtk_preference *DLogManagerPrivate::createDConfig(const QStri
 
 void DLogManagerPrivate::initLoggingRules()
 {
-    if (qEnvironmentVariableIsSet("DTK_DISABLED_LOGGING_RULES"))
+    if (qEnvironmentVariableIsSet("DTK_DISABLED_LOGGING_RULES") || qEnvironmentVariableIsSet("QT_LOGGING_RULES"))
         return;
 
     // 1. 未指定 fallbackId 时，以 dsgAppId 为准
