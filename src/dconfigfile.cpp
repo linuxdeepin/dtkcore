@@ -1407,6 +1407,7 @@ DConfigFile::DConfigFile(const DConfigFile &other)
     D_D(DConfigFile);
     auto cache = new DConfigCacheImpl(d->configKey, InvalidUID, true);
     cache->values = other.d_func()->globalCache->values;
+    cache->cachePrefix = other.d_func()->globalCache->cachePrefix;
     d->globalCache = cache;
 }
 
