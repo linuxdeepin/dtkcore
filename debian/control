@@ -5,7 +5,7 @@ Maintainer: Deepin Packages Builder <packages@deepin.com>
 Build-Depends: debhelper-compat ( =12), pkg-config,
  qttools5-dev-tools, qttools5-dev, qtbase5-private-dev, doxygen,
  libgsettings-qt-dev, libgtest-dev, libdtkcommon-dev, cmake,
- libuchardet-dev, libicu-dev, libdtklog-dev
+ libuchardet-dev, libicu-dev, libdtklog-dev, libdbus-1-dev
 Standards-Version: 3.9.8
 
 Package: libdtkcore5

@@ -8,6 +8,7 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 find_package(Dtk${DTK_VERSION_MAJOR}Log REQUIRED)
+find_package(DBus1 REQUIRED)
 if(LINUX)
   find_package(PkgConfig REQUIRED)
   find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBus)
@@ -114,6 +115,9 @@ target_compile_definitions(${LIB_NAME} PRIVATE
     LIBDTKCORE_LIBRARY
 )
 
+target_link_libraries(${LIB_NAME} PRIVATE
+  dbus-1
+)
 target_include_directories(${LIB_NAME} PRIVATE
   ${uchardet_INCLUDE_DIRS}
 )
