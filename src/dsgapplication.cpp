@@ -12,13 +12,10 @@
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QDebug>
-#include <QDBusUnixFileDescriptor>
-#include <QDBusReply>
 #include <QRegularExpression>
 #include <QLoggingCategory>
-#include <QDBusConnectionInterface>
 
-#include <DDBusInterface>
+#include <dbus/dbus.h>
 
 #ifdef QT_DEBUG
 Q_LOGGING_CATEGORY(dsgApp, "dtk.core.dsg")
@@ -27,6 +24,212 @@ Q_LOGGING_CATEGORY(dsgApp, "dtk.core.dsg", QtInfoMsg)
 #endif
 
 DCORE_BEGIN_NAMESPACE
+
+// D-Bus utility functions using libdbus-1
+static bool checkDBusServiceActivatable(const QString &service)
+{
+    DBusError error;
+    dbus_error_init(&error);
+
+    DBusConnection *connection = dbus_bus_get(DBUS_BUS_SESSION, &error);
+    if (dbus_error_is_set(&error)) {
+        qCWarning(dsgApp) << "Failed to connect to session bus:" << error.message;
+        dbus_error_free(&error);
+        return false;
+    }
+
+    if (!connection) {
+        qCWarning(dsgApp) << "Failed to get session bus connection";
+        return false;
+    }
+
+    // Create method call to check if service is registered
+    DBusMessage *msg = dbus_message_new_method_call(
+        "org.freedesktop.DBus",
+        "/org/freedesktop/DBus",
+        "org.freedesktop.DBus",
+        "NameHasOwner"
+    );
+
+    if (!msg) {
+        qCWarning(dsgApp) << "Failed to create D-Bus message";
+        dbus_connection_unref(connection);
+        return false;
+    }
+
+    const char *serviceName = service.toUtf8().constData();
+    if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &serviceName, DBUS_TYPE_INVALID)) {
+        qCWarning(dsgApp) << "Failed to append arguments to D-Bus message";
+        dbus_message_unref(msg);
+        dbus_connection_unref(connection);
+        return false;
+    }
+
+    // Send message and get reply
+    DBusMessage *reply = dbus_connection_send_with_reply_and_block(connection, msg, 1000, &error);
+    dbus_message_unref(msg);
+
+    if (dbus_error_is_set(&error)) {
+        qCWarning(dsgApp) << "D-Bus call failed:" << error.message;
+        dbus_error_free(&error);
+        dbus_connection_unref(connection);
+        return false;
+    }
+
+    if (!reply) {
+        qCWarning(dsgApp) << "No reply received from D-Bus";
+        dbus_connection_unref(connection);
+        return false;
+    }
+
+    dbus_bool_t hasOwner = FALSE;
+    if (!dbus_message_get_args(reply, &error, DBUS_TYPE_BOOLEAN, &hasOwner, DBUS_TYPE_INVALID)) {
+        qCWarning(dsgApp) << "Failed to parse D-Bus reply:" << error.message;
+        dbus_error_free(&error);
+        dbus_message_unref(reply);
+        dbus_connection_unref(connection);
+        return false;
+    }
+
+    dbus_message_unref(reply);
+
+    if (!hasOwner) {
+        dbus_connection_unref(connection);
+        return false;
+    }
+
+    // Check if service is activatable
+    msg = dbus_message_new_method_call(
+        "org.freedesktop.DBus",
+        "/org/freedesktop/DBus",
+        "org.freedesktop.DBus",
+        "ListActivatableNames"
+    );
+
+    if (!msg) {
+        qCWarning(dsgApp) << "Failed to create ListActivatableNames message";
+        dbus_connection_unref(connection);
+        return false;
+    }
+
+    reply = dbus_connection_send_with_reply_and_block(connection, msg, 1000, &error);
+    dbus_message_unref(msg);
+
+    if (dbus_error_is_set(&error)) {
+        qCWarning(dsgApp) << "ListActivatableNames call failed:" << error.message;
+        dbus_error_free(&error);
+        dbus_connection_unref(connection);
+        return false;
+    }
+
+    if (!reply) {
+        dbus_connection_unref(connection);
+        return false;
+    }
+
+    DBusMessageIter iter, array_iter;
+    dbus_message_iter_init(reply, &iter);
+
+    if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY) {
+        dbus_message_unref(reply);
+        dbus_connection_unref(connection);
+        return false;
+    }
+
+    dbus_message_iter_recurse(&iter, &array_iter);
+    bool found = false;
+
+    while (dbus_message_iter_get_arg_type(&array_iter) == DBUS_TYPE_STRING) {
+        const char *name;
+        dbus_message_iter_get_basic(&array_iter, &name);
+        if (service == QString::fromUtf8(name)) {
+            found = true;
+            break;
+        }
+        dbus_message_iter_next(&array_iter);
+    }
+
+    dbus_message_unref(reply);
+    dbus_connection_unref(connection);
+    dbus_error_free(&error);
+
+    return found;
+}
+
+static QByteArray callDBusIdentifyMethod(const QString &service, const QString &path, const QString &interface, int pidfd)
+{
+    DBusError error;
+    dbus_error_init(&error);
+
+    DBusConnection *connection = dbus_bus_get(DBUS_BUS_SESSION, &error);
+    if (dbus_error_is_set(&error)) {
+        qCWarning(dsgApp) << "Failed to connect to session bus:" << error.message;
+        dbus_error_free(&error);
+        return QByteArray();
+    }
+
+    if (!connection) {
+        qCWarning(dsgApp) << "Failed to get session bus connection";
+        return QByteArray();
+    }
+
+    // Create method call
+    DBusMessage *msg = dbus_message_new_method_call(
+        service.toUtf8().constData(),
+        path.toUtf8().constData(),
+        interface.toUtf8().constData(),
+        "Identify"
+    );
+
+    if (!msg) {
+        qCWarning(dsgApp) << "Failed to create D-Bus message";
+        dbus_connection_unref(connection);
+        return QByteArray();
+    }
+
+    // Append Unix file descriptor
+    if (!dbus_message_append_args(msg, DBUS_TYPE_UNIX_FD, &pidfd, DBUS_TYPE_INVALID)) {
+        qCWarning(dsgApp) << "Failed to append Unix FD to D-Bus message";
+        dbus_message_unref(msg);
+        dbus_connection_unref(connection);
+        return QByteArray();
+    }
+
+    // Send message and get reply
+    DBusMessage *reply = dbus_connection_send_with_reply_and_block(connection, msg, 5000, &error);
+    dbus_message_unref(msg);
+
+    if (dbus_error_is_set(&error)) {
+        qCWarning(dsgApp) << "Identify from AM failed:" << error.message;
+        dbus_error_free(&error);
+        dbus_connection_unref(connection);
+        return QByteArray();
+    }
+
+    if (!reply) {
+        qCWarning(dsgApp) << "No reply received from Identify method";
+        dbus_connection_unref(connection);
+        return QByteArray();
+    }
+
+    const char *result;
+    if (!dbus_message_get_args(reply, &error, DBUS_TYPE_STRING, &result, DBUS_TYPE_INVALID)) {
+        qCWarning(dsgApp) << "Failed to parse Identify reply:" << error.message;
+        dbus_error_free(&error);
+        dbus_message_unref(reply);
+        dbus_connection_unref(connection);
+        return QByteArray();
+    }
+
+    QByteArray appId = QByteArray(result);
+    qCInfo(dsgApp) << "AppId is fetched from AM, and value is " << appId;
+
+    dbus_message_unref(reply);
+    dbus_connection_unref(connection);
+    dbus_error_free(&error);
+
+    return appId;
+}
 
 static inline QByteArray getSelfAppId() {
     // The env is set by the application starter(eg, org.desktopspec.ApplicationManager service)
@@ -38,15 +241,7 @@ static inline QByteArray getSelfAppId() {
 
 static bool isServiceActivatable(const QString &service)
 {
-    if (!QDBusConnection::sessionBus().interface()->isServiceRegistered(service))
-        return false;
-
-     const QDBusReply<QStringList> activatableNames = QDBusConnection::sessionBus().interface()->
-             callWithArgumentList(QDBus::AutoDetect,
-             QLatin1String("ListActivatableNames"),
-             QList<QVariant>());
-
-     return activatableNames.value().contains(service);
+    return checkDBusServiceActivatable(service);
 }
 
 // Format appId to valid.
@@ -104,21 +299,13 @@ QByteArray DSGApplication::getId(qint64 pid)
         return QByteArray();
     }
 
-    DDBusInterface infc("org.desktopspec.ApplicationManager1",
-                        "/org/desktopspec/ApplicationManager1",
-                        "org.desktopspec.ApplicationManager1");
-
-    QDBusReply<QString> reply = infc.call("Identify", QVariant::fromValue(QDBusUnixFileDescriptor(pidfd)));
+    QByteArray appId = callDBusIdentifyMethod("org.desktopspec.ApplicationManager1",
+                                              "/org/desktopspec/ApplicationManager1",
+                                              "org.desktopspec.ApplicationManager1",
+                                              pidfd);
     // see QDBusUnixFileDescriptor: The original file descriptor is not touched and must be closed by the user.
     close(pidfd);
 
-    if (!reply.isValid()) {
-        qCWarning(dsgApp) << "Identify from AM failed." << reply.error().message();
-        return QByteArray();
-    }
-
-    const QByteArray appId = reply.value().toLatin1();
-    qCInfo(dsgApp) << "AppId is fetched from AM, and value is " << appId;
     return appId;
 }
 
