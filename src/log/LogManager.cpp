@@ -213,7 +213,7 @@ QString DLogManager::getlogFilePath()
         if (!QDir(cachePath).exists()) {
             QDir(cachePath).mkpath(cachePath);
         }
-        instance()->d_func()->m_logPath = instance()->joinPath(cachePath, QString("%1.log").arg(qApp->applicationName()));
+        instance()->d_func()->m_logPath = instance()->joinPath(cachePath, QString("%1.log").arg(QCoreApplication::applicationName()));
     }
 
     return QDir::toNativeSeparators(DLogManager::instance()->d_func()->m_logPath);
