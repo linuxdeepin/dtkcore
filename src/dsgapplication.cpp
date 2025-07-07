@@ -25,16 +25,28 @@ Q_LOGGING_CATEGORY(dsgApp, "dtk.core.dsg", QtInfoMsg)
 
 DCORE_BEGIN_NAMESPACE
 
+// D-Bus resource deleters for RAII management
+static void dbusErrorDeleter(DBusError *error) {
+    if (error) { dbus_error_free(error); delete error; }
+}
+
+static void dbusConnectionDeleter(DBusConnection *conn) {
+    if (conn) dbus_connection_unref(conn);
+}
+
+static void dbusMessageDeleter(DBusMessage *msg) {
+    if (msg) dbus_message_unref(msg);
+}
+
 // D-Bus utility functions using libdbus-1
 static bool checkDBusServiceActivatable(const QString &service)
 {
-    DBusError error;
-    dbus_error_init(&error);
+    auto error = std::unique_ptr<DBusError, void(*)(DBusError*)>(new DBusError, dbusErrorDeleter);
+    dbus_error_init(error.get());
 
-    DBusConnection *connection = dbus_bus_get(DBUS_BUS_SESSION, &error);
-    if (dbus_error_is_set(&error)) {
-        qCWarning(dsgApp) << "Failed to connect to session bus:" << error.message;
-        dbus_error_free(&error);
+    DBusConnection *connection = dbus_bus_get(DBUS_BUS_SESSION, error.get());
+    if (dbus_error_is_set(error.get())) {
+        qCWarning(dsgApp) << "Failed to connect to session bus:" << error->message;
         return false;
     }
 
@@ -42,6 +54,7 @@ static bool checkDBusServiceActivatable(const QString &service)
         qCWarning(dsgApp) << "Failed to get session bus connection";
         return false;
     }
+    auto connGuard = std::unique_ptr<DBusConnection, void(*)(DBusConnection*)>(connection, dbusConnectionDeleter);
 
     // Create method call to check if service is registered
     DBusMessage *msg = dbus_message_new_method_call(
@@ -53,86 +66,71 @@ static bool checkDBusServiceActivatable(const QString &service)
 
     if (!msg) {
         qCWarning(dsgApp) << "Failed to create D-Bus message";
-        dbus_connection_unref(connection);
         return false;
     }
+    auto msgGuard = std::unique_ptr<DBusMessage, void(*)(DBusMessage*)>(msg, dbusMessageDeleter);
 
     const char *serviceName = service.toUtf8().constData();
     if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &serviceName, DBUS_TYPE_INVALID)) {
         qCWarning(dsgApp) << "Failed to append arguments to D-Bus message";
-        dbus_message_unref(msg);
-        dbus_connection_unref(connection);
         return false;
     }
 
     // Send message and get reply
-    DBusMessage *reply = dbus_connection_send_with_reply_and_block(connection, msg, 1000, &error);
-    dbus_message_unref(msg);
+    DBusMessage *reply = dbus_connection_send_with_reply_and_block(connection, msg, 1000, error.get());
+    msgGuard.reset(); // msg is consumed by the call
 
-    if (dbus_error_is_set(&error)) {
-        qCWarning(dsgApp) << "D-Bus call failed:" << error.message;
-        dbus_error_free(&error);
-        dbus_connection_unref(connection);
+    if (dbus_error_is_set(error.get())) {
+        qCWarning(dsgApp) << "D-Bus call failed:" << error->message;
         return false;
     }
 
     if (!reply) {
         qCWarning(dsgApp) << "No reply received from D-Bus";
-        dbus_connection_unref(connection);
         return false;
     }
+    auto replyGuard = std::unique_ptr<DBusMessage, void(*)(DBusMessage*)>(reply, dbusMessageDeleter);
 
     dbus_bool_t hasOwner = FALSE;
-    if (!dbus_message_get_args(reply, &error, DBUS_TYPE_BOOLEAN, &hasOwner, DBUS_TYPE_INVALID)) {
-        qCWarning(dsgApp) << "Failed to parse D-Bus reply:" << error.message;
-        dbus_error_free(&error);
-        dbus_message_unref(reply);
-        dbus_connection_unref(connection);
+    if (!dbus_message_get_args(reply, error.get(), DBUS_TYPE_BOOLEAN, &hasOwner, DBUS_TYPE_INVALID)) {
+        qCWarning(dsgApp) << "Failed to parse D-Bus reply:" << error->message;
         return false;
     }
 
-    dbus_message_unref(reply);
-
     if (!hasOwner) {
-        dbus_connection_unref(connection);
         return false;
     }
 
     // Check if service is activatable
-    msg = dbus_message_new_method_call(
+    DBusMessage *msg2 = dbus_message_new_method_call(
         "org.freedesktop.DBus",
         "/org/freedesktop/DBus",
         "org.freedesktop.DBus",
         "ListActivatableNames"
     );
 
-    if (!msg) {
+    if (!msg2) {
         qCWarning(dsgApp) << "Failed to create ListActivatableNames message";
-        dbus_connection_unref(connection);
+        return false;
+    }
+    auto msg2Guard = std::unique_ptr<DBusMessage, void(*)(DBusMessage*)>(msg2, dbusMessageDeleter);
+
+    DBusMessage *reply2 = dbus_connection_send_with_reply_and_block(connection, msg2, 1000, error.get());
+
+    if (dbus_error_is_set(error.get())) {
+        qCWarning(dsgApp) << "ListActivatableNames call failed:" << error->message;
         return false;
     }
 
-    reply = dbus_connection_send_with_reply_and_block(connection, msg, 1000, &error);
-    dbus_message_unref(msg);
-
-    if (dbus_error_is_set(&error)) {
-        qCWarning(dsgApp) << "ListActivatableNames call failed:" << error.message;
-        dbus_error_free(&error);
-        dbus_connection_unref(connection);
+    if (!reply2) {
         return false;
     }
-
-    if (!reply) {
-        dbus_connection_unref(connection);
-        return false;
-    }
+    auto reply2Guard = std::unique_ptr<DBusMessage, void(*)(DBusMessage*)>(reply2, dbusMessageDeleter);
 
     DBusMessageIter iter, array_iter;
-    dbus_message_iter_init(reply, &iter);
+    dbus_message_iter_init(reply2, &iter);
 
     if (dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_ARRAY) {
-        dbus_message_unref(reply);
-        dbus_connection_unref(connection);
         return false;
     }
 
@@ -149,22 +147,17 @@ static bool checkDBusServiceActivatable(const QString &service)
         dbus_message_iter_next(&array_iter);
     }
 
-    dbus_message_unref(reply);
-    dbus_connection_unref(connection);
-    dbus_error_free(&error);
-
     return found;
 }
 
 static QByteArray callDBusIdentifyMethod(const QString &service, const QString &path, const QString &interface, int pidfd)
 {
-    DBusError error;
-    dbus_error_init(&error);
+    auto error = std::unique_ptr<DBusError, void(*)(DBusError*)>(new DBusError, dbusErrorDeleter);
+    dbus_error_init(error.get());
 
-    DBusConnection *connection = dbus_bus_get(DBUS_BUS_SESSION, &error);
-    if (dbus_error_is_set(&error)) {
-        qCWarning(dsgApp) << "Failed to connect to session bus:" << error.message;
-        dbus_error_free(&error);
+    DBusConnection *connection = dbus_bus_get(DBUS_BUS_SESSION, error.get());
+    if (dbus_error_is_set(error.get())) {
+        qCWarning(dsgApp) << "Failed to connect to session bus:" << error->message;
         return QByteArray();
     }
 
@@ -172,6 +165,7 @@ static QByteArray callDBusIdentifyMethod(const QString &service, const QString &
         qCWarning(dsgApp) << "Failed to get session bus connection";
         return QByteArray();
     }
+    auto connGuard = std::unique_ptr<DBusConnection, void(*)(DBusConnection*)>(connection, dbusConnectionDeleter);
 
     // Create method call
     DBusMessage *msg = dbus_message_new_method_call(
@@ -183,50 +177,39 @@ static QByteArray callDBusIdentifyMethod(const QString &service, const QString &
 
     if (!msg) {
         qCWarning(dsgApp) << "Failed to create D-Bus message";
-        dbus_connection_unref(connection);
         return QByteArray();
     }
+    auto msgGuard = std::unique_ptr<DBusMessage, void(*)(DBusMessage*)>(msg, dbusMessageDeleter);
 
     // Append Unix file descriptor
     if (!dbus_message_append_args(msg, DBUS_TYPE_UNIX_FD, &pidfd, DBUS_TYPE_INVALID)) {
         qCWarning(dsgApp) << "Failed to append Unix FD to D-Bus message";
-        dbus_message_unref(msg);
-        dbus_connection_unref(connection);
         return QByteArray();
     }
 
     // Send message and get reply
-    DBusMessage *reply = dbus_connection_send_with_reply_and_block(connection, msg, 5000, &error);
-    dbus_message_unref(msg);
+    DBusMessage *reply = dbus_connection_send_with_reply_and_block(connection, msg, 5000, error.get());
+    msgGuard.reset(); // msg is consumed by the call
 
-    if (dbus_error_is_set(&error)) {
-        qCWarning(dsgApp) << "Identify from AM failed:" << error.message;
-        dbus_error_free(&error);
-        dbus_connection_unref(connection);
+    if (dbus_error_is_set(error.get())) {
+        qCWarning(dsgApp) << "Identify from AM failed:" << error->message;
         return QByteArray();
     }
 
     if (!reply) {
         qCWarning(dsgApp) << "No reply received from Identify method";
-        dbus_connection_unref(connection);
         return QByteArray();
     }
+    auto replyGuard = std::unique_ptr<DBusMessage, void(*)(DBusMessage*)>(reply, dbusMessageDeleter);
 
     const char *result;
-    if (!dbus_message_get_args(reply, &error, DBUS_TYPE_STRING, &result, DBUS_TYPE_INVALID)) {
-        qCWarning(dsgApp) << "Failed to parse Identify reply:" << error.message;
-        dbus_error_free(&error);
-        dbus_message_unref(reply);
-        dbus_connection_unref(connection);
+    if (!dbus_message_get_args(reply, error.get(), DBUS_TYPE_STRING, &result, DBUS_TYPE_INVALID)) {
+        qCWarning(dsgApp) << "Failed to parse Identify reply:" << error->message;
         return QByteArray();
     }
 
     QByteArray appId = QByteArray(result);
     qCInfo(dsgApp) << "AppId is fetched from AM, and value is " << appId;
-
-    dbus_message_unref(reply);
-    dbus_connection_unref(connection);
-    dbus_error_free(&error);
 
     return appId;
 }
@@ -286,6 +269,18 @@ QByteArray DSGApplication::id()
     return result;
 }
 
+/**
+ * Get application ID for a given process ID
+ *
+ * This function has been updated to use libdbus-1 instead of Qt D-Bus to fix
+ * the bug(pms:BUG-278055) where calling this function before QCoreApplication 
+ * initialization would fail. This is particularly important when the service 
+ * is being started by D-Bus activation and DSGApplication::id() is called 
+ * during early startup.
+ *
+ * @param pid Process ID to get the application ID for
+ * @return Application ID as QByteArray, or empty array on failure
+ */
 QByteArray DSGApplication::getId(qint64 pid)
 {
     if (!isServiceActivatable("org.desktopspec.ApplicationManager1")) {
