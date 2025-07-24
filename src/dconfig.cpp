@@ -173,13 +173,13 @@ public:
         if (owner->appId == NoAppId)
             return true;
 
-        QScopedPointer<DConfigFile> file(new DConfigFile(NoAppId, owner->name, owner->subpath));
+        std::unique_ptr<DConfigFile> file(new DConfigFile(NoAppId, owner->name, owner->subpath));
         const bool canFallbackToGeneric = !file->meta()->metaPath(prefix).isEmpty();
         if (canFallbackToGeneric) {
-            QScopedPointer<DConfigCache> cache(file->createUserCache(getuid()));
+            std::unique_ptr<DConfigCache> cache(file->createUserCache(getuid()));
             if (file->load(prefix) && cache->load(prefix)) {
-                genericConfigFile.reset(file.take());
-                genericConfigCache.reset(cache.take());
+                genericConfigFile.reset(file.release());
+                genericConfigCache.reset(cache.release());
             }
         }
         return true;
@@ -370,7 +370,7 @@ public:
                 complexType >> list;
                 QVariantList res;
                 res.reserve(list.size());
-                for (const auto &item : qAsConst(list)) {
+                for (const auto &item : std::as_const(list)) {
                     res << decodeQDBusArgument(item);
                 }
                 return res;
