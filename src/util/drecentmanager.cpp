@@ -13,6 +13,7 @@
 #include <QUrl>
 #if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 #include <QStringConverter>
+#include <QTimeZone>
 #endif
 
 DCORE_BEGIN_NAMESPACE
@@ -67,7 +68,11 @@ bool DRecentManager::addItem(const QString &uri, DRecentData &data)
     QFile file(RECENT_PATH);
     file.open(QIODevice::ReadWrite | QIODevice::Text);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+    QString dateTime = QDateTime::currentDateTime().toTimeZone(QTimeZone::UTC).toString(Qt::ISODate);
+#else
     QString dateTime = QDateTime::currentDateTime().toTimeSpec(Qt::OffsetFromUTC).toString(Qt::ISODate);
+#endif
     QDomDocument doc;
 
     if (!doc.setContent(&file)) {
