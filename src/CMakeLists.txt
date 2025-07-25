@@ -25,6 +25,12 @@ find_package(ICU REQUIRED COMPONENTS uc)
 pkg_check_modules(uchardet REQUIRED uchardet)
 # end text encoding
 
+# 为不包含实际QObject类的头文件跳过AutoMOC处理
+set_property(SOURCE ../include/base/dsingleton.h PROPERTY SKIP_AUTOMOC ON)
+if("${DTK_VERSION_MAJOR}" STREQUAL "6")
+    set_property(SOURCE ../include/util/dthreadutils.h PROPERTY SKIP_AUTOMOC ON)
+endif()
+
 # start base
 include(base/base.cmake)
 # end base
