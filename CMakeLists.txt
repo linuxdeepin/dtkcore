@@ -27,4 +27,7 @@ else()
     message(SEND_ERROR "not support Prject Version ${PROJECT_VERSION}.")
 endif()
 
+# 将编译警告视为错误
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
 include(dtkcore.cmake)
