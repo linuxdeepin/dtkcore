@@ -35,9 +35,11 @@
 
 #if defined(DTK_STATIC_LIB)
 #  define LIBDTKCORESHARED_EXPORT
+#  define D_IGNORE_DEPRECATIONS
 #else
 #if defined(LIBDTKCORE_LIBRARY)
 #  define LIBDTKCORESHARED_EXPORT Q_DECL_EXPORT
+#  define D_IGNORE_DEPRECATIONS
 #else
 #  define LIBDTKCORESHARED_EXPORT Q_DECL_IMPORT
 #endif
@@ -46,6 +48,10 @@
 #ifdef D_DEPRECATED_CHECK
 #define D_DECL_DEPRECATED_X(text) Q_DECL_HIDDEN
 #define D_DECL_DEPRECATED Q_DECL_HIDDEN
+#else
+#if defined(D_IGNORE_DEPRECATIONS)
+#define D_DECL_DEPRECATED
+#define D_DECL_DEPRECATED_X(text)
 #else
 #ifdef __GNUC__
 #if __GNUC__ < 13
@@ -58,6 +64,7 @@
 #else
 #define D_DECL_DEPRECATED Q_DECL_DEPRECATED
 #define D_DECL_DEPRECATED_X Q_DECL_DEPRECATED_X
+#endif
 #endif
 #endif
 
