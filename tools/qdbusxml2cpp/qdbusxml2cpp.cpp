@@ -598,7 +598,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
                << endl;
     }
 
-    QSet<QString> annotations;
+    QStringList annotations;
     for (const QDBusIntrospection::Interface *interface : interfaces) {
         for (const auto &method : interface->methods) {
             for (int i(0); i != method.outputArgs.size(); ++i) {
@@ -638,6 +638,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
         }
     }
 
+    annotations.removeDuplicates();
     if (!skipIncludeAnnotations) {
         for (const QString &annotation : annotations) {
             if (annotation.indexOf('<') == -1) {
