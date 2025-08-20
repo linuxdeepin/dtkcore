@@ -354,6 +354,7 @@ int main(int argc, char *argv[]) {
     headerStream << "    ~" << className << R"(() {
         if (m_config.loadRelaxed()) {
             m_config.loadRelaxed()->deleteLater();
+            m_config.storeRelaxed(nullptr);
         }
     }
 
@@ -458,6 +459,8 @@ int main(int argc, char *argv[]) {
         headerStream << "        }\n";
     }
     headerStream << R"(
+        if (!m_config.loadRelaxed())
+            return;
         connect(config, &DTK_CORE_NAMESPACE::DConfig::valueChanged, this, [this](const QString &key) {
             updateValue(key);
         }, Qt::DirectConnection);
@@ -466,6 +469,8 @@ int main(int argc, char *argv[]) {
         Q_EMIT configInitializeSucceed(config);
     }
     void updateValue(const QString &key, const QVariant &fallback = QVariant()) {
+        if (!m_config.loadRelaxed())
+            return;
         Q_ASSERT(QThread::currentThread() == m_config.loadRelaxed()->thread());
         const QVariant &value = m_config.loadRelaxed()->value(key, fallback);
 )";
