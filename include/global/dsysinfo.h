@@ -79,6 +79,7 @@ public:
         UosMilitaryS, // for Server
         UosDeviceEdition,
         UosEducation,
+        UosDefense,
 
         UosEditionCount // must at last
     };
