@@ -43,6 +43,13 @@ static QVariant demarshall(const QMetaProperty &metaProperty, const QVariant &va
     if (value.userType() == qMetaTypeId<QDBusArgument>()) {
         QDBusArgument dbusArg = value.value<QDBusArgument>();
         QDBusMetaType::demarshall(dbusArg, PropType(metaProperty), result.data());
+    } else {
+        auto copy = value;
+        if (copy.convert(PropType(metaProperty))) {
+            result = copy;
+        } else {
+            qDebug() << "Failed to convert value type" << value.typeName() << "to property type" << metaProperty.typeName();
+        }
     }
 
     return result;
