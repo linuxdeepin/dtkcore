@@ -26,6 +26,7 @@ QStringList LIBDTKCORESHARED_EXPORT pinyin(const QString& words, ToneStyle ts = 
 
 // support polyphonic
 QStringList LIBDTKCORESHARED_EXPORT firstLetters(const QString& words);
+QStringList LIBDTKCORESHARED_EXPORT firstLetters(const QString& words, ToneStyle ts);
 
 DCORE_END_NAMESPACE
 

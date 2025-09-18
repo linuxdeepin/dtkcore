@@ -28,6 +28,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Concurrent)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
 find_package(GTest REQUIRED)
 
+include(GoogleTest)
+
 # for test.so
 set(TEST_SO_NAME vtabletest${DTK_VERSION_MAJOR})
 add_subdirectory(./testso)
@@ -110,4 +112,4 @@ target_include_directories( ${BIN_NAME} PUBLIC
     ./testso/
 )
 
-add_test(NAME ${BIN_NAME} COMMAND ${BIN_NAME})
+gtest_discover_tests(${BIN_NAME})
