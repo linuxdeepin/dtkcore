@@ -68,5 +68,11 @@ TEST_F(ut_DPinyin, firstLetters)
 
     bool isPermutation = std::is_permutation(ls.begin() , ls.end(), letters.begin());
     ASSERT_TRUE(isPermutation);
+
+    QString words2("安全中心");
+    QStringList && result = firstLetters(words2, TS_NoneTone);
+    ASSERT_TRUE(result.count() == 1);
+    ASSERT_TRUE(result.constFirst() == "aqzx");
+    ASSERT_TRUE(result.constFirst() != firstLetters(words2).constFirst());
 }
 

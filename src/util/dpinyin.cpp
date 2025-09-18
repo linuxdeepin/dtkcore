@@ -212,10 +212,22 @@ QStringList pinyin(const QString &words, ToneStyle ts, bool *ok)
  */
 QStringList firstLetters(const QString &words)
 {
+    return firstLetters(words, TS_Tone);
+}
+
+/*!
+  \fn QStringList Dtk::Core::firstLetters(const QString &words)
+  \brief Convert Chinese characters to Pinyin firstLetters list
+  \brief with controllable tone style.
+
+  \return pinyin first letters list of the words
+ */
+QStringList firstLetters(const QString &words, ToneStyle ts)
+{
     QList<QStringList> result;
     bool ok = false;
     for (const QChar &w : words) {
-        QStringList pys = pinyin(w, TS_Tone, &ok);
+        QStringList pys = pinyin(w, ts, &ok);
         if (!ok) {
             result << QStringList(w);
             continue;
