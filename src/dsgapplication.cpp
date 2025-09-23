@@ -39,7 +39,7 @@ static void dbusMessageDeleter(DBusMessage *msg) {
 }
 
 // D-Bus utility functions using libdbus-1
-static bool checkDBusServiceActivatable(const QString &service)
+static bool checkDBusServiceActivatable(const QByteArray &service)
 {
     auto error = std::unique_ptr<DBusError, void(*)(DBusError*)>(new DBusError, dbusErrorDeleter);
     dbus_error_init(error.get());
@@ -70,10 +70,12 @@ static bool checkDBusServiceActivatable(const QString &service)
     }
     auto msgGuard = std::unique_ptr<DBusMessage, void(*)(DBusMessage*)>(msg, dbusMessageDeleter);
 
-    const char *serviceName = service.toUtf8().constData();
-    if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &serviceName, DBUS_TYPE_INVALID)) {
-        qCWarning(dsgApp) << "Failed to append arguments to D-Bus message";
-        return false;
+    {
+        const char *serviceName = service.constData();
+        if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &serviceName, DBUS_TYPE_INVALID)) {
+            qCWarning(dsgApp) << "Failed to append arguments to D-Bus message";
+            return false;
+        }
     }
 
     // Send message and get reply
@@ -140,7 +142,7 @@ static bool checkDBusServiceActivatable(const QString &service)
     while (dbus_message_iter_get_arg_type(&array_iter) == DBUS_TYPE_STRING) {
         const char *name;
         dbus_message_iter_get_basic(&array_iter, &name);
-        if (service == QString::fromUtf8(name)) {
+        if (service == name) {
             found = true;
             break;
         }
@@ -150,7 +152,8 @@ static bool checkDBusServiceActivatable(const QString &service)
     return found;
 }
 
-static QByteArray callDBusIdentifyMethod(const QString &service, const QString &path, const QString &interface, int pidfd)
+static QByteArray callDBusIdentifyMethod(const QByteArray &serviceName, const QByteArray &path,
+                                         const QByteArray &interface, int pidfd)
 {
     auto error = std::unique_ptr<DBusError, void(*)(DBusError*)>(new DBusError, dbusErrorDeleter);
     dbus_error_init(error.get());
@@ -167,11 +170,11 @@ static QByteArray callDBusIdentifyMethod(const QString &service, const QString &
     }
     auto connGuard = std::unique_ptr<DBusConnection, void(*)(DBusConnection*)>(connection, dbusConnectionDeleter);
 
-    // Create method call
+    // Create method call - string data is now managed by caller
     DBusMessage *msg = dbus_message_new_method_call(
-        service.toUtf8().constData(),
-        path.toUtf8().constData(),
-        interface.toUtf8().constData(),
+        serviceName.constData(),
+        path.constData(),
+        interface.constData(),
         "Identify"
     );
 
@@ -222,7 +225,7 @@ static inline QByteArray getSelfAppId() {
     return DSGApplication::getId(QCoreApplication::applicationPid());
 }
 
-static bool isServiceActivatable(const QString &service)
+static bool isServiceActivatable(const QByteArray &service)
 {
     return checkDBusServiceActivatable(service);
 }
@@ -273,9 +276,9 @@ QByteArray DSGApplication::id()
  * Get application ID for a given process ID
  *
  * This function has been updated to use libdbus-1 instead of Qt D-Bus to fix
- * the bug(pms:BUG-278055) where calling this function before QCoreApplication 
- * initialization would fail. This is particularly important when the service 
- * is being started by D-Bus activation and DSGApplication::id() is called 
+ * the bug(pms:BUG-278055) where calling this function before QCoreApplication
+ * initialization would fail. This is particularly important when the service
+ * is being started by D-Bus activation and DSGApplication::id() is called
  * during early startup.
  *
  * @param pid Process ID to get the application ID for
