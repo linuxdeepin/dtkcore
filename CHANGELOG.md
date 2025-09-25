@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.7.23] - 2025-09-25
+
+### Added
+
+- Add fallback type conversion in demarshall function
+
+### Changed
+
+- Feat: DPinyin::firstLetters support set ToneStyle
+- 增加服务器教育版和国防版
+
+### Fixed
+
+- Fix trash validation for symlinks
+- Fix heap-use-after-free issue
+- Fix dconfig static variable release issue
+
 ## [5.7.22] - 2025-09-04
 
 ### Fixed
