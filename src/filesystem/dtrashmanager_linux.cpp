@@ -123,7 +123,7 @@ static bool renameFile(const QFileInfo &fileInfo, const QString &target, QString
             }
         }
 
-        if (!QDir().rmdir(fileInfo.filePath())) {
+        if (!QDir().rename(fileInfo.filePath(), target)) {
             if (errorString) {
                 *errorString = QString("Cannot remove the %1 dir").arg(fileInfo.filePath());
             }
