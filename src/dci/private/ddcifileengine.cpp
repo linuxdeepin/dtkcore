@@ -621,10 +621,20 @@ bool DDciFileEngine::supportsExtension(QAbstractFileEngine::Extension extension)
     return extension == AtEndExtension;
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+DDciFileEngine::TriStateResult DDciFileEngine::cloneTo(QAbstractFileEngine *target)
+#else
 bool DDciFileEngine::cloneTo(QAbstractFileEngine *target)
+#endif
 {
     const QByteArray &data = file->dataRef(subfilePath);
-    return target->write(data.constData(), data.size()) == data.size();
+    auto ret = target->write(data.constData(), data.size()) == data.size();
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    return ret ? DDciFileEngine::TriStateResult::Success : DDciFileEngine::TriStateResult::Failed;
+#else
+    return ret;
+#endif
 }
 
 bool DDciFileEngine::forceSave(bool writeFile) const
