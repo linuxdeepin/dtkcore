@@ -326,15 +326,16 @@ public:
         DSGConfig dsg_config(DSG_CONFIG, "/", QDBusConnection::systemBus());
         QDBusPendingReply<QDBusObjectPath> dbus_reply = dsg_config.acquireManager(owner->appId, owner->name, owner->subpath);
         const QDBusObjectPath dbus_path = dbus_reply.value();
-        if (dbus_reply.isError() || dbus_path.path().isEmpty()) {
+        const auto path = dbus_path.path(); // 显式拷贝，避免其它线程共用systemBus连接而修改dbus数据
+        if (dbus_reply.isError() || path.isEmpty()) {
             qCWarning(cfLog, "Can't acquire config manager. error:\"%s\"", qPrintable(dbus_reply.error().message()));
             return false;
         } else {
-            qCDebug(cfLog(), "dbus path=\"%s\"", qPrintable(dbus_path.path()));
-            config.reset(new DSGConfigManager(DSG_CONFIG_MANAGER, dbus_path.path(),
+            qCDebug(cfLog, "dbus path=\"%s\"", qPrintable(path));
+            config.reset(new DSGConfigManager(DSG_CONFIG_MANAGER, path,
                                                 QDBusConnection::systemBus(), owner->q_func()));
             if (!config->isValid()) {
-                qCWarning(cfLog(), "Can't acquire config path=\"%s\"", qPrintable(dbus_path.path()));
+                qCWarning(cfLog, "Can't acquire config path=\"%s\"", qPrintable(path));
                 config.reset();
                 return false;
             } else {
