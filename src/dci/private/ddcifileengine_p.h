@@ -129,7 +129,11 @@ public:
                    ExtensionReturn *output = 0) override;
     bool supportsExtension(Extension extension) const override;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    TriStateResult cloneTo(QAbstractFileEngine *target) override;
+#else
     bool cloneTo(QAbstractFileEngine *target) override;
+#endif
 
 private:
     bool forceSave(bool writeFile = false) const;

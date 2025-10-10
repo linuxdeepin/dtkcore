@@ -48,7 +48,13 @@ public:
 #endif
     bool rmdir(const QString &dirName, bool recurseParentDirectories) const override;
     FileFlags fileFlags(FileFlags type) const override;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    TriStateResult cloneTo(QAbstractFileEngine *target) override;
+#else
     bool cloneTo(QAbstractFileEngine *target) override;
+#endif
+
     bool setSize(qint64 size) override;
     QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const override;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 1)

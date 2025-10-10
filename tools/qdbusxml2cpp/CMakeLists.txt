@@ -5,6 +5,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBus)
 
+if(${QT_VERSION_MAJOR} EQUAL 6)
+    if (${Qt6DBus_VERSION} VERSION_GREATER_EQUAL 6.10.0)
+      find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBusPrivate)
+    endif()
+endif()
+
 add_executable(${BIN_NAME}
   qdbusxml2cpp.cpp
 )

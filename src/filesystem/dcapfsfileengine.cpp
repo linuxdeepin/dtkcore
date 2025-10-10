@@ -195,12 +195,21 @@ QAbstractFileEngine::FileFlags DCapFSFileEngine::fileFlags(QAbstractFileEngine::
     return ret;
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+DCapFSFileEngine::TriStateResult DCapFSFileEngine::cloneTo(QAbstractFileEngine *target)
+#else
 bool DCapFSFileEngine::cloneTo(QAbstractFileEngine *target)
+#endif
 {
     D_DC(DCapFSFileEngine);
     const QString targetPath = target->fileName(DCapFSFileEngine::AbsolutePathName);
-    if (!d->canReadWrite(targetPath))
+    if (!d->canReadWrite(targetPath)) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        return DCapFSFileEngine::TriStateResult::Failed;
+#else
         return false;
+#endif
+    }
     return QFSFileEngine::cloneTo(target);
 }
 
