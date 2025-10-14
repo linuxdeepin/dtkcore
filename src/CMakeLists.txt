@@ -7,6 +7,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+if(Qt${QT_VERSION_MAJOR}_VERSION VERSION_GREATER_EQUAL 6.10)
+  find_package(Qt${QT_VERSION_MAJOR} COMPONENTS CorePrivate REQUIRED)
+endif()
 find_package(Dtk${DTK_VERSION_MAJOR}Log REQUIRED)
 find_package(DBus1 REQUIRED)
 if(LINUX)
@@ -86,6 +89,9 @@ if(LINUX)
     target_link_libraries(${LIB_NAME} PRIVATE
       PkgConfig::QGSettings
     )
+  endif()
+  if(Qt${QT_VERSION_MAJOR}_VERSION VERSION_GREATER_EQUAL 6.10)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS DBusPrivate REQUIRED)
   endif()
 
 else()
