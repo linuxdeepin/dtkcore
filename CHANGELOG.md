@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.7.24] - 2025-10-16
+
+### Added
+
+- Support Qt 6.10
+
+### Fixed
+
+- Replace rmdir with rename for directory operations
+- Prevent thread-safety issue in D-Bus config manager
+- Sync with qt5platform-plugins
+
 ## [5.7.23] - 2025-09-25
 
 ### Added
