@@ -229,7 +229,21 @@ bool DVtableHook::hasVtable(const void *obj)
 {
     quintptr **_obj = (quintptr**)(obj);
 
-    return objToGhostVfptr.contains(_obj);
+    // 验证 vtable 是否匹配
+    quintptr *ghost_vtable = objToGhostVfptr.value(obj);
+    if (!ghost_vtable) {
+        return false;
+    }
+
+    // 检查当前对象的 vtable 指针是否指向我们记录的 ghost vtable
+    if (*_obj != adjustToEntry(ghost_vtable)) {
+        // vtable 不匹配，说明地址被重用了
+        qCDebug(vtableHook) << "hasVtable: vtable mismatch! Address reused by different object."
+                               << "obj:" << QString("0x%1").arg((quintptr)obj, 0, 16);        
+        return false;
+    }
+
+    return true;
 }
 
 void DVtableHook::resetVtable(const void *obj)
