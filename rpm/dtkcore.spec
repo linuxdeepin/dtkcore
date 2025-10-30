@@ -1,5 +1,5 @@
 Name:           dtkcore
-Version:        5.7.24
+Version:        5.7.25
 Release:        1%{?dist}
 Summary:        Deepin tool kit core modules
 License:        LGPLv3+
