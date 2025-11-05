@@ -1,0 +1,86 @@
+{
+  "magic": "dsg.config.meta",
+  "version": "1.0",
+  "contents": {
+    "booleanTrue": {
+      "value": true,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Boolean true value",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "booleanFalse": {
+      "value": false,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Boolean false value",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "stringValue": {
+      "value": "hello world",
+      "serial": 0,
+      "flags": ["global"],
+      "name": "String value",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "emptyString": {
+      "value": "",
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Empty string value",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "integerPositive": {
+      "value": 42,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Positive integer",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "integerNegative": {
+      "value": -10,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Negative integer",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "integerZero": {
+      "value": 0,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Zero integer",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "doubleValue": {
+      "value": 3.14,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Double value with decimal",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "doubleZero": {
+      "value": 0.0,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Double zero with decimal point",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "scientificValue": {
+      "value": 1.5e3,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Scientific notation value",
+      "permissions": "readwrite",
+      "visibility": "public"
+    }
+  }
+}
