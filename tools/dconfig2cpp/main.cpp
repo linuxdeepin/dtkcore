@@ -20,6 +20,24 @@ static QString toUnicodeEscape(const QString& input) {
     return result;
 }
 
+// Check if the original JSON value is in floating-point format
+static bool isOriginalValueFloat(const QByteArray& jsonData, const QString& propertyName, const QJsonValue& value) {
+    if (!value.isDouble()) {
+        return false;
+    }
+    // Build search pattern to find the number in "propertyName": { "value": number }
+    QString searchPattern = QString("\"%1\"\\s*:\\s*\\{[^}]*\"value\"\\s*:\\s*([0-9.eE+-]+)").arg(propertyName);
+    QRegularExpression regex(searchPattern);
+    QString jsonString = QString::fromUtf8(jsonData);
+    QRegularExpressionMatch match = regex.match(jsonString);
+    if (match.hasMatch()) {
+        QString numberStr = match.captured(1);
+        // If contains decimal point or scientific notation, it's a floating-point number
+        return numberStr.contains('.') || numberStr.contains('e', Qt::CaseInsensitive);
+    }
+    return false;
+}
+
 // Converts a QJsonValue to a corresponding C++ code representation
 static QString jsonValueToCppCode(const QJsonValue &value){
     if (value.isBool()) {
@@ -216,8 +234,17 @@ int main(int argc, char *argv[]) {
         } else if (value.isObject()) {
             typeName = "QVariantMap";
         } else if (value.isDouble()) {
-            const auto variantValue = value.toVariant();
-            typeName = QString::fromLatin1(variantValue.typeName());
+            // QJson treats all numbers in JSON as double. Although converting QJsonValue to
+            // QVariant can distinguish between double and int, Qt's JSON parsing attempts to
+            // convert floating-point numbers with decimal parts of 0, such as 1.0, to integers,
+            // resulting in the generated property type being qlonglong. However, dconfig expects
+            // floating-point numbers, so we try to identify whether it is a floating-point number
+            // or an integer by matching strings.
+            if (isOriginalValueFloat(data, propertyName, value)) {
+                typeName = "double";
+            } else {
+                typeName = "qlonglong";
+            }
         } else if (value.isString()) {
             typeName = "QString";
         } else {
@@ -535,7 +562,7 @@ private:
     // Property variables
     for (const Property &property : std::as_const(properties)) {
         if (property.typeName == QLatin1String("int") || property.typeName == QLatin1String("qint64")) {
-            headerStream << "    // Note: If you expect a double type, add 'e' to the number in the JSON value field, e.g., \"value\": 1.0e, not just 1.0\n";
+            headerStream << "    // Note: If you expect a double type, use XXX.0\n";
         } else if (property.typeName == QLatin1String("QString")) {
             headerStream << "    // Default value: \"" << property.defaultValue.toString().replace("\n", "\\n").replace("\r", "\\r") << "\"\n";
         }
