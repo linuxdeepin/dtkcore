@@ -206,7 +206,7 @@ TEST_F(ut_dconfig2cpp, NumericTypesDetection) {
         "Q_PROPERTY(double doubleWithDecimal READ doubleWithDecimal WRITE setDoubleWithDecimal",     // Decimal -> double
         "Q_PROPERTY(double doubleWithZeroDecimal READ doubleWithZeroDecimal WRITE setDoubleWithZeroDecimal", // .0 -> double
         "Q_PROPERTY(double scientificNotation READ scientificNotation WRITE setScientificNotation", // Scientific notation -> double
-        "Q_PROPERTY(qlonglong largeInteger read largeInteger WRITE setLargeInteger"        // Large integer -> qlonglong
+        "Q_PROPERTY(qlonglong largeInteger READ largeInteger WRITE setLargeInteger"        // Large integer -> qlonglong
     };
 
     // Verify each expected Q_PROPERTY exists
