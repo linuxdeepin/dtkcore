@@ -11,5 +11,8 @@
         <file>data/LGPLv3.txt</file>
         <file>data/example-license.json</file>
         <file>data/dconf-example.override.noexistitem.json</file>
+        <file>data/dconfig2cpp/basic-types.meta.json</file>
+        <file>data/dconfig2cpp/numeric-types.meta.json</file>
+        <file>data/dconfig2cpp/complex-types.meta.json</file>
     </qresource>
 </RCC>

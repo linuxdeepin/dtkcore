@@ -1,0 +1,46 @@
+{
+  "magic": "dsg.config.meta",
+  "version": "1.0",
+  "contents": {
+    "pureInteger": {
+      "value": 123,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Pure integer - should be int/qint64",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "doubleWithDecimal": {
+      "value": 123.45,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Double with decimal - should be double",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "doubleWithZeroDecimal": {
+      "value": 123.0,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Double with .0 - should be double",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "scientificNotation": {
+      "value": 1.0e0,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Scientific notation - should be double",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "largeInteger": {
+      "value": 9223372036854775807,
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Large integer - should be qint64",
+      "permissions": "readwrite",
+      "visibility": "public"
+    }
+  }
+}
