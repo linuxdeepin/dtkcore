@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.7.26] - 2025-11-06
+
+### Changed
+
+- Chore: New release 5.7.25
+- Improve numeric type detection in dconfig2cpp (#516)
+
+### Fixed
+
+- 修复某些机型CPU型号中包含冒号时控制中心无法读取显示CPU信息的问题
+
 ## [5.7.25] - 2025-10-30
 
 ## [5.7.24] - 2025-10-16
