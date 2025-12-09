@@ -76,21 +76,20 @@ static DDciFileShared getDciFile(const QString &dciFilePath, bool usePath = true
     return shared;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
 DDciFileEngineIterator::DDciFileEngineIterator(QDir::Filters filters, const QStringList &nameFilters)
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    : QAbstractFileEngineIterator(nullptr, filters, nameFilters)
-#else
     : QAbstractFileEngineIterator(filters, nameFilters)
-#endif
 {
-
+}
+#else
+DDciFileEngineIterator::DDciFileEngineIterator(const QString &path, QDir::Filters filters, const QStringList &nameFilters)
+    : QAbstractFileEngineIterator(path, filters, nameFilters)
+{
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 1)
-DDciFileEngineIterator::DDciFileEngineIterator(QDirListing::IteratorFlags filters, const QStringList &nameFilters)
-    : QAbstractFileEngineIterator(nullptr, filters, nameFilters)
+DDciFileEngineIterator::DDciFileEngineIterator(const QString &path, QDirListing::IteratorFlags filters, const QStringList &nameFilters)
+    : QAbstractFileEngineIterator(path, filters, nameFilters)
 {
-
 }
 #endif
 
@@ -116,18 +115,33 @@ bool DDciFileEngineIterator::advance()
         list = file->list(paths.second);
     }
 
+    bool excludeDirs = false, excludeFiles = false, excludeSymlinks = false;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    if (this->m_listingFilters) {
+        const auto filters = this->m_listingFilters.value();
+        excludeDirs = filters.testFlag(QDirListing::IteratorFlag::ExcludeDirs);
+        excludeFiles = filters.testFlag(QDirListing::IteratorFlag::ExcludeFiles);
+        excludeSymlinks = filters.testFlag(QDirListing::IteratorFlag::ExcludeSpecial) && !filters.testFlag(QDirListing::IteratorFlag::ResolveSymlinks);
+    } else
+#endif
+    {
+        const auto filters = this->filters();
+        excludeDirs = !filters.testFlag(QDir::Dirs);
+        excludeFiles = !filters.testFlag(QDir::Files);
+        excludeSymlinks = filters.testFlag(QDir::NoSymLinks);
+    }
+
     for (int i = current + 1; i < list.count(); ++i) {
         // 先检查文件类型
-        const auto filters = this->filters();
         const auto fileType = file->type(list.at(i));
         if (fileType == DDciFile::Directory) {
-            if (!filters.testFlag(QDir::Files))
+            if (excludeDirs)
                 continue;
         } else if (fileType == DDciFile::File) {
-            if (!filters.testFlag(QDir::Files))
+            if (excludeFiles)
                 continue;
         } else if (fileType == DDciFile::Symlink) {
-            if (filters.testFlag(QDir::NoSymLinks))
+            if (excludeSymlinks)
                 continue;
         } else { // DDciFile::UnknowFile
             continue;
@@ -527,7 +541,7 @@ QString DDciFileEngine::fileName(QAbstractFileEngine::FileName file) const
     case AbsolutePathName:
         return QDir::cleanPath(DCI_FILE_SCHEME + dciFilePath);
     case BaseName:
-        return QFileInfo(subfilePath).baseName();
+        return QFileInfo(subfilePath).fileName();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
     case AbsoluteLinkTarget:
 #else
@@ -572,21 +586,27 @@ QDateTime DDciFileEngine::fileTime(QAbstractFileEngine::FileTime time) const
     return QFileInfo(dciFilePath).fileTime(static_cast<QFile::FileTime>(time));
 }
 #endif
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 1)
-QAbstractFileEngine::IteratorUniquePtr DDciFileEngine::beginEntryList(const QString &path, QDirListing::IteratorFlags filters, const QStringList &filterNames)
-#elif QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
 QAbstractFileEngine::IteratorUniquePtr DDciFileEngine::beginEntryList(const QString &path, QDir::Filters filters, const QStringList &filterNames)
 #else
 DDciFileEngine::Iterator *DDciFileEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
 #endif
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    Q_UNUSED(path);
-    return QAbstractFileEngine::IteratorUniquePtr(new DDciFileEngineIterator(filters, filterNames));
+    return QAbstractFileEngine::IteratorUniquePtr(new DDciFileEngineIterator(path, filters, filterNames));
 #else
     return new DDciFileEngineIterator(filters, filterNames);
 #endif
 }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+QAbstractFileEngine::IteratorUniquePtr DDciFileEngine::beginEntryList(const QString &path, QDirListing::IteratorFlags filters, const QStringList &filterNames)
+{
+    auto iterator = new DDciFileEngineIterator(path, filters, filterNames);
+    iterator->m_listingFilters = filters;
+    return QAbstractFileEngine::IteratorUniquePtr(iterator);
+}
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
 QAbstractFileEngine::IteratorUniquePtr DDciFileEngine::endEntryList()
