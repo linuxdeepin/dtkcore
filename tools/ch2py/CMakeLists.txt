@@ -14,8 +14,9 @@ target_link_libraries(${BIN_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
 )
 target_include_directories(${BIN_NAME} PRIVATE
-    ${PROJECT_SOURCE_DIR}/include/util
-    ${PROJECT_SOURCE_DIR}/include/global
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/util>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/global>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
 )
 set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME ${TARGET_NAME})
 install(TARGETS ${BIN_NAME} DESTINATION "${TOOL_INSTALL_DIR}")

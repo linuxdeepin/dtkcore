@@ -138,7 +138,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIB_NAME}.pc DESTINATION "${CMAKE_IN
 configure_file(misc/qt_lib_dtkcore.pri.in qt_lib_dtkcore.pri @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/qt_lib_dtkcore.pri DESTINATION "${MKSPECS_INSTALL_DIR}")
 install(FILES misc/dtk_install_dconfig.prf DESTINATION ${FEATURES_INSTALL_DIR})
-set(CONFIGNAME include/global/dtkcore_config.h)
+set(CONFIGNAME ${PROJECT_BINARY_DIR}/dtkcore_config.h)
 file(WRITE ${CONFIGNAME}
   "// it is auto make config\n"
   "#define DTK_VERSION_MAJOR ${PROJECT_VERSION_MAJOR}\n"
@@ -154,3 +154,4 @@ foreach(FILENAME ${CONFIGSOURCE})
   get_filename_component(thefile ${FILENAME} NAME)
   file(APPEND ${CONFIGNAME} "#define DTKCORE_CLASS_${thefile}\n")
 endforeach()
+install(FILES ${CONFIGNAME} DESTINATION "${INCLUDE_INSTALL_DIR}/DCore/global/")
