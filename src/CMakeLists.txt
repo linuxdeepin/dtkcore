@@ -144,6 +144,7 @@ target_include_directories(${LIB_NAME} PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/settings>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/filesystem>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
 )
 
 target_include_directories(${LIB_NAME} INTERFACE
