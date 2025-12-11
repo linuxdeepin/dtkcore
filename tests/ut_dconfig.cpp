@@ -226,3 +226,14 @@ TEST_F(ut_DConfig, isDefaultValue) {
         EXPECT_EQ(config.isDefaultValue("key2"), true);
     }
 }
+
+TEST_F(ut_DConfig, isReadOnly) {
+
+    FileCopyGuard guard(":/data/dconf-example.meta.json", metaFilePath);
+    {
+        DConfig config(FILE_NAME);
+        EXPECT_TRUE(config.isValid());
+        ASSERT_EQ(config.isReadOnly("readwrite"), false);
+        EXPECT_EQ(config.isReadOnly("readonly"), true);
+    }
+}

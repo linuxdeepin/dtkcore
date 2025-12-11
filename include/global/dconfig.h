@@ -23,6 +23,7 @@ public:
     virtual void reset(const QString &key) { setValue(key, QVariant());}
     virtual QString name() const {return QString("");}
     virtual bool isDefaultValue(const QString &/*key*/) const { return true; }
+    virtual bool isReadOnly(const QString &/*key*/) const { return false; }
 };
 
 class DConfigPrivate;
@@ -61,6 +62,7 @@ public:
     QVariant value(const QString &key, const QVariant &fallback = QVariant()) const;
     void setValue(const QString &key, const QVariant &value);
     void reset(const QString &key);
+    bool isReadOnly(const QString &key) const;
 
     QString name() const;
     QString subpath() const;

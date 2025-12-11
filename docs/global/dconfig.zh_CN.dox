@@ -63,6 +63,14 @@
 @sa DBusBackend::reset()
 @sa QSettingBackend::reset()
 
+@fn bool Dtk::Core::DConfigBackend::isReadOnly(const QString &key)
+@brief 检测指定配置项是否为只读
+@param[in] key 配置项名称
+@return 如果配置项为只读返回true，否则返回false
+@sa DConfig::isReadOnly()
+@sa FileBackend::isReadOnly()
+@sa DBusBackend::isReadOnly()
+
 @fn QString Dtk::Core::DConfigBackend::name() const = 0
 @brief 后端配置的唯一标识
 @sa FileBackend::name()
@@ -383,6 +391,11 @@ sudo make install
 @fn void Dtk::Core::DConfig::reset(const QString &key)
 @brief 设置其配置项对应的默认值,此值为经过override机制覆盖后的值,不一定为此配置文件中meta中定义的值
 @param[in] key 配置项名称
+
+@fn bool Dtk::Core::DConfig::isReadOnly(const QString &key)
+@brief 检测指定配置项是否为只读
+@param[in] key 配置项名称
+@return 如果配置项为只读返回true，否则返回false
 
 @fn QString Dtk::Core::DConfig::name()
 @brief 返回配置文件名称
