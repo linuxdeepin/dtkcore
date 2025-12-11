@@ -82,6 +82,13 @@ static QString NoAppId;
     @sa DConfig::reset()
  */
 
+ /*!
+ @~english
+     @fn bool DConfigBackend::isReadOnly(const QString &key) const = 0
+
+     @sa DConfig::isReadOnly()
+ */
+
 /*!
 @~english
     @fn QString DConfigBackend::name() const = 0
@@ -228,6 +235,12 @@ public:
     virtual void reset(const QString &key) override
     {
         setValue(key, QVariant());
+    }
+
+    virtual bool isReadOnly(const QString &key) const override
+    {
+        const auto vc = configFile->meta()->permissions(key);
+        return vc == DConfigFile::ReadOnly;
     }
 
     virtual QString name() const override
@@ -423,6 +436,18 @@ public:
         if (reply.isError())
             qCWarning(cfLog) << "Failed to reset for the key:" << key
                              << ", error message:" << reply.error();
+    }
+
+    virtual bool isReadOnly(const QString &key) const override
+    {
+        auto reply = config->permissions(key);
+        reply.waitForFinished();
+        if (reply.isError()) {
+            qWarning() << "Failed to call `permissions`, key:" << key
+                       << ", error message:" << reply.error().message();
+            return false;
+        }
+        return reply.value() == QLatin1String("readonly");
     }
 
     virtual QString name() const override
@@ -819,6 +844,21 @@ void DConfig::reset(const QString &key)
         return;
 
     d->backend->reset(key);
+}
+
+/*!
+ * @~english
+ * @brief Check whether the configuration item is read-only
+ * @param key Configuration Item Name
+ * @return Return `true` if the configuration item is read-only, otherwise return `false`
+ */
+bool DConfig::isReadOnly(const QString &key) const
+{
+    D_DC(DConfig);
+    if (d->invalid())
+        return false;
+
+    return d->backend->isReadOnly(key);
 }
 
 /*!
