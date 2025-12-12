@@ -1,7 +1,6 @@
 #!/usr/bin/make -f
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/default.mk
-export QT_SELECT = qt5
 export DEB_CXXFLAGS_MAINT_APPEND = -Ofast
 
 # 安全编译参数
@@ -15,25 +14,74 @@ DEB_CMAKE_EXTRA_FLAGS += -DCMAKE_SKIP_BUILD_RPATH=ON
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
-VERSION = $(DEB_VERSION_UPSTREAM)
+# x.y.z -> DTK5_VERSION=5.y.z, DTK6_VERSION=6.y.z
+DTK5_VERSION := $(shell echo $(DEB_VERSION_UPSTREAM) | sed -E 's/^[0-9]+(\.|[^0-9]|$$)/5\1/')
+DTK6_VERSION := $(shell echo $(DEB_VERSION_UPSTREAM) | sed -E 's/^[0-9]+(\.|[^0-9]|$$)/6\1/')
 
 # Calculate build version:
 # 5.6.8 -> 0; 5.6.8.7 -> 7; 5.6.8+u001 -> 1; 5.6.8.7+u001 -> 7; 5.6.8.0+u001 -> 0
-BUILD_VER = $(shell echo $(VERSION) | awk -F'[+_~-]' '{print $$1}' | awk -F'.' '{print $$4}' | sed 's/[^0-9]//g' | awk '{print int($$1)}')
+BUILD_VER := $(shell echo $(DEB_VERSION_UPSTREAM) | awk -F'[+_~-]' '{print $$1}' | awk -F'.' '{print $$4}' | sed 's/[^0-9]//g' | awk '{print int($$1)}')
 ifeq ($(BUILD_VER), 0)
-ifeq ($(shell expr $(shell echo "$(VERSION)" | awk -F. '{print NF-1}') '<' 3), 1)
-	BUILD_VER=$(shell echo $(VERSION) | awk -F'[+_~-]' '{print $$2}'  | sed 's/[^0-9]//g' | awk '{print int($$1)}')
+ifeq ($(shell expr $(shell echo "$(DEB_VERSION_UPSTREAM)" | awk -F. '{print NF-1}') '<' 3), 1)
+	BUILD_VER=$(shell echo $(DEB_VERSION_UPSTREAM) | awk -F'[+_~-]' '{print $$2}'  | sed 's/[^0-9]//g' | awk '{print int($$1)}')
 endif
 endif
+
+DTK5_MAJOR_MINOR := $(shell echo $(DTK5_VERSION) | cut -d '.' -f 1,2)
+DTK6_MAJOR_MINOR := $(shell echo $(DTK6_VERSION) | cut -d '.' -f 1,2)
+BUILD_DOCS := $(if $(filter nodoc,$(DEB_BUILD_PROFILES)),OFF,ON)
+BUILD_DTK5 := $(if $(filter nodtk5,$(DEB_BUILD_PROFILES)),OFF,ON)
+BUILD_DTK6 := $(if $(filter nodtk6,$(DEB_BUILD_PROFILES)),OFF,ON)
 
 %:
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- $(DEB_CMAKE_EXTRA_FLAGS) -DBUILD_WITH_SYSTEMD=ON -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=ON -DBUILD_VERSION=$(BUILD_VER) -DD_DSG_APP_DATA_FALLBACK=/var/dsg/appdata
+ifeq ($(BUILD_DTK5),ON)
+	mkdir -p build-dtk5
+	QT_SELECT=qt5 dh_auto_configure --builddirectory=build-dtk5 -- $(DEB_CMAKE_EXTRA_FLAGS) -DBUILD_WITH_SYSTEMD=ON -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=$(BUILD_DOCS) -DBUILD_VERSION=$(BUILD_VER) -DD_DSG_APP_DATA_FALLBACK=/var/dsg/appdata -DDTK5=ON
+endif
+ifeq ($(BUILD_DTK6),ON)
+	mkdir -p build-dtk6
+	dh_auto_configure --builddirectory=build-dtk6 -- $(DEB_CMAKE_EXTRA_FLAGS) -DBUILD_WITH_SYSTEMD=ON -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=OFF -DBUILD_VERSION=$(BUILD_VER) -DD_DSG_APP_DATA_FALLBACK=/var/dsg/appdata -DDTK5=OFF
+endif
 
-#override_dh_auto_test:
-#	echo "skip auto test"
+override_dh_auto_build:
+ifeq ($(BUILD_DTK5),ON)
+	QT_SELECT=qt5 dh_auto_build --builddirectory=build-dtk5
+endif
+ifeq ($(BUILD_DTK6),ON)
+	dh_auto_build --builddirectory=build-dtk6
+endif
+
+override_dh_auto_install:
+ifeq ($(BUILD_DTK5),ON)
+	QT_SELECT=qt5 dh_auto_install --builddirectory=build-dtk5
+endif
+ifeq ($(BUILD_DTK6),ON)
+	dh_auto_install --builddirectory=build-dtk6
+endif
 
 override_dh_makeshlibs:
-	dh_makeshlibs -V "libdtkcore5 (>= $(shell echo $(VERSION) | cut -d '.' -f 1,2))"
+ifeq ($(BUILD_DTK5),ON)
+	dh_makeshlibs -V "libdtkcore5 (>= $(DTK5_MAJOR_MINOR))" -plibdtkcore5
+endif
+ifeq ($(BUILD_DTK6),ON)
+	dh_makeshlibs -V "libdtk6core (>= $(DTK6_MAJOR_MINOR))" -plibdtk6core
+endif
+
+override_dh_link:
+ifeq ($(BUILD_DTK5),ON)
+	dh_link usr/lib/$(DEB_HOST_MULTIARCH)/libdtkcore.so.5 usr/lib/$(DEB_HOST_MULTIARCH)/libdtkcore.so -p libdtkcore-dev
+endif
+ifeq ($(BUILD_DTK6),ON)
+	dh_link usr/lib/$(DEB_HOST_MULTIARCH)/libdtk6core.so.6 usr/lib/$(DEB_HOST_MULTIARCH)/libdtk6core.so -p libdtk6core-dev
+endif
+
+override_dh_auto_test:
+ifeq ($(BUILD_DTK5),ON)
+	QT_SELECT=qt5 dh_auto_test --builddirectory=build-dtk5
+endif
+ifeq ($(BUILD_DTK6),ON)
+	dh_auto_test --builddirectory=build-dtk6
+endif

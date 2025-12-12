@@ -37,7 +37,7 @@ find_package(GTest REQUIRED)
 include(GoogleTest)
 
 # for test.so
-set(TEST_SO_NAME vtabletest${DTK_VERSION_MAJOR})
+set(TEST_SO_NAME vtabletest${DTK_NAME_SUFFIX})
 add_subdirectory(./testso)
 
 # test
@@ -49,7 +49,7 @@ file(GLOB FackDBus
     "./fakedbus/*.cpp"
 )
 
-if(DTK_VERSION_MAJOR)
+if(NOT DTK5)
     list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_LIST_DIR}/ut_gsettingsbackend.cpp")
     list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_LIST_DIR}/ut_dasync.cpp")
 endif()

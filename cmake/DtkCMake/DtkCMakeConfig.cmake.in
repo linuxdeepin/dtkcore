@@ -6,7 +6,7 @@ endfunction()
 add_definitions(-DQ_HOST_NAME=\"${CMAKE_HOST_SYSTEM_PROCESSOR}\")
 addDefinitions(Q_HOST_${CMAKE_HOST_SYSTEM_PROCESSOR})
 
-find_package(Dtk@DTK_VERSION_MAJOR@Core REQUIRED)
+find_package(Dtk@DTK_NAME_SUFFIX@Core REQUIRED)
 
 set(DEEPIN_OS_RELEASE_TOOL_PATH ${DtkCore_TOOL_DIRS})
 set(DEEPIN_OS_RELEASE_TOOL ${DEEPIN_OS_RELEASE_TOOL_PATH}/deepin-os-release)

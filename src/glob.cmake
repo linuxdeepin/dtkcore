@@ -7,7 +7,7 @@ set(OUTER_SOURCE
   ${CMAKE_CURRENT_LIST_DIR}/ddesktopentry.cpp
 )
 
-if (NOT DTK_VERSION_MAJOR)
+if (DTK5)
     list(APPEND OUTER_SOURCE ${CMAKE_CURRENT_LIST_DIR}/dtkcore_global.cpp)
 endif()
 
