@@ -1,5 +1,8 @@
-usr/lib/*/lib*.so
-usr/include
-usr/lib/*/pkgconfig/*.pc
-usr/lib/*/cmake/*/*.cmake
+usr/lib/*/libdtkcore.so
+usr/include/dtk5/*
+usr/lib/*/pkgconfig/dtkcore.pc
+usr/lib/*/cmake/DtkCMake/*
+usr/lib/*/cmake/DtkTools/*
+usr/lib/*/cmake/DtkDConfig/*
+usr/lib/*/cmake/DtkCore/*
 usr/lib/*/qt5/*

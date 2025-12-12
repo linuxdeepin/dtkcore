@@ -20,7 +20,7 @@ else()
   )
 endif()
 
-if(DTK_VERSION_MAJOR)
+if(NOT DTK5)
   list(REMOVE_ITEM SETTINGS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/backend/gsettingsbackend.cpp")
   list(REMOVE_ITEM SETTINGS_HEADERS "${CMAKE_CURRENT_LIST_DIR}/../../include/settings/backend/gsettingsbackend.h")
 endif()

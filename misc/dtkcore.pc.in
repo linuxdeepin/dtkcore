@@ -3,9 +3,9 @@ exec_prefix=${prefix}
 libdir=${prefix}/@LIBRARY_INSTALL_DIR@
 includedir=${prefix}/@INCLUDE_INSTALL_DIR@
 
-Name: dtk@DTK_VERSION_MAJOR@core
-Description: Deepin Tool Kit dtkcore header files
-Version: @CMAKE_PROJECT_VERSION@
-Libs: -L${libdir} -ldtk@DTK_VERSION_MAJOR@core
+Name: dtk@DTK_NAME_SUFFIX@core
+Description: Development ToolKit Core Devel Library
+Version: @DTK_VERSION@
+Libs: -L${libdir} -ldtk@DTK_NAME_SUFFIX@core
 Cflags: -I${includedir} -DQT_MESSAGELOGCONTEXT
-Requires: dtk@DTK_VERSION_MAJOR@log
+Requires: dtk@DTK_NAME_SUFFIX@log

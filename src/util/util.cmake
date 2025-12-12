@@ -47,7 +47,7 @@ set(PRIVATE_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/ddbusinterface_p.h
     ${CMAKE_CURRENT_LIST_DIR}/ddbusextendedpendingcallwatcher_p.h)
 
-if(DTK_VERSION_MAJOR)
+if(NOT DTK5)
   list(REMOVE_ITEM UTILS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/dtimedloop.cpp")
   list(REMOVE_ITEM UTILS_HEADERS "${PROJECT_SOURCE_DIR}/include/util/dtimedloop.h") # no longer be used
   list(REMOVE_ITEM UTILS_HEADERS "${PROJECT_SOURCE_DIR}/include/util/dasync.h")
