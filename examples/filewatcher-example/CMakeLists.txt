@@ -1,4 +1,4 @@
-set(BIN_NAME filewatcher${DTK_VERSION_MAJOR})
+set(BIN_NAME filewatcher${DTK_NAME_SUFFIX})
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 

@@ -30,6 +30,7 @@ build() {
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_BUILD_TYPE=Release \
     -DD_DSG_APP_DATA_FALLBACK=/var/dsg/appdata \
+    -DDTK5=ON \
     -DBUILD_WITH_SYSTEMD=ON
   ninja
 }
