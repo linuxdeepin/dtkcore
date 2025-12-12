@@ -1,18 +1,16 @@
-set(LIB_NAME dtk${DTK_VERSION_MAJOR}core)
-set(DtkCore Dtk${DTK_VERSION_MAJOR}Core)
+set(LIB_NAME dtk${DTK_NAME_SUFFIX}core)
+set(DtkCore Dtk${DTK_NAME_SUFFIX}Core)
 
 macro(add_sub_dir dir)
-#    message("add_subdirectory(${dir} ${OUTPUT_DIR}/${dir})")
     add_subdirectory(${dir} ${OUTPUT_DIR}/${dir})
 endmacro()
 
-message("Current Qt Version: ${QT_VERSION_MAJOR}")
-message("Current Dtk Version: ${DTK_VERSION_MAJOR}")
+message(STATUS "Compiling with DTK major version: ${DTK_VERSION_MAJOR}, Qt major version: ${QT_VERSION_MAJOR}")
 
 set(OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set (LIBRARY_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}")
-set (INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/dtk${PROJECT_VERSION_MAJOR}/DCore")
-set (TOOL_INSTALL_DIR "${CMAKE_INSTALL_LIBEXECDIR}/dtk${PROJECT_VERSION_MAJOR}/DCore/bin")
+set (INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/dtk${DTK_VERSION_MAJOR}/DCore")
+set (TOOL_INSTALL_DIR "${CMAKE_INSTALL_LIBEXECDIR}/dtk${DTK_VERSION_MAJOR}/DCore/bin")
 set (MKSPECS_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/qt${QT_VERSION_MAJOR}/mkspecs/modules" CACHE STRING "Install dir for qt pri files")
 set (FEATURES_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/qt${QT_VERSION_MAJOR}/mkspecs/features" CACHE STRING "Install dir for qt prf files")
 set (CONFIG_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${DtkCore}" CACHE STRING "Install dir for cmake config files")
@@ -74,35 +72,31 @@ if(BUILD_EXAMPLES)
 endif()
 add_sub_dir(tools)
 
-if("${QT_VERSION_MAJOR}" STREQUAL "6")
-  set(DTK_VERSION_MAJOR 6)
-endif()
-
 configure_package_config_file(cmake/DtkCMake/DtkCMakeConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkCMake/Dtk${DTK_VERSION_MAJOR}CMakeConfig.cmake
-    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}CMake"
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkCMake/Dtk${DTK_NAME_SUFFIX}CMakeConfig.cmake
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_NAME_SUFFIX}CMake"
     PATH_VARS TOOL_INSTALL_DIR)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkCMake/Dtk${DTK_VERSION_MAJOR}CMakeConfig.cmake
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}CMake")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkCMake/Dtk${DTK_NAME_SUFFIX}CMakeConfig.cmake
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_NAME_SUFFIX}CMake")
 
 configure_package_config_file(cmake/DtkTools/DtkToolsConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkTools/Dtk${DTK_VERSION_MAJOR}ToolsConfig.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}Tools
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkTools/Dtk${DTK_NAME_SUFFIX}ToolsConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_NAME_SUFFIX}Tools
     PATH_VARS TOOL_INSTALL_DIR)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkTools/Dtk${DTK_VERSION_MAJOR}ToolsConfig.cmake
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}Tools")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkTools/Dtk${DTK_NAME_SUFFIX}ToolsConfig.cmake
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_NAME_SUFFIX}Tools")
 
 install(FILES cmake/DtkTools/DtkSettingsToolsMacros.cmake
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}Tools"
-    RENAME Dtk${DTK_VERSION_MAJOR}SettingsToolsMacros.cmake)
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_NAME_SUFFIX}Tools"
+    RENAME Dtk${DTK_NAME_SUFFIX}SettingsToolsMacros.cmake)
 
 install(FILES cmake/DtkTools/DtkDBusMacros.cmake
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}Tools")
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_NAME_SUFFIX}Tools")
 
 install(FILES ${CMAKE_SOURCE_DIR}/cmake/DtkTools/DtkDConfigMacros.cmake
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}Tools")
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_NAME_SUFFIX}Tools")
 
-if (NOT DTK_VERSION_MAJOR)
+if (NOT DTK5)
     set(DCONFIG_DEPRECATED_FUNCS [=[
 # deprecated since dtk6
 function(dconfig_meta_files)
@@ -114,11 +108,11 @@ endfunction()]=])
 endif()
 
 configure_package_config_file(cmake/DtkDConfig/DtkDConfigConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkDConfig/Dtk${DTK_VERSION_MAJOR}DConfigConfig.cmake
-    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}DConfig"
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkDConfig/Dtk${DTK_NAME_SUFFIX}DConfigConfig.cmake
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_NAME_SUFFIX}DConfig"
     PATH_VARS TOOL_INSTALL_DIR)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkDConfig/Dtk${DTK_VERSION_MAJOR}DConfigConfig.cmake
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_VERSION_MAJOR}DConfig")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/DtkDConfig/Dtk${DTK_NAME_SUFFIX}DConfigConfig.cmake
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_NAME_SUFFIX}DConfig")
 
 configure_package_config_file(misc/DtkCoreConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/${DtkCore}Config.cmake
@@ -141,11 +135,11 @@ install(FILES misc/dtk_install_dconfig.prf DESTINATION ${FEATURES_INSTALL_DIR})
 set(CONFIGNAME ${PROJECT_BINARY_DIR}/dtkcore_config.h)
 file(WRITE ${CONFIGNAME}
   "// it is auto make config\n"
-  "#define DTK_VERSION_MAJOR ${PROJECT_VERSION_MAJOR}\n"
-  "#define DTK_VERSION_MINOR ${PROJECT_VERSION_MINOR}\n"
-  "#define DTK_VERSION_PATCH ${PROJECT_VERSION_PATCH}\n"
+  "#define DTK_VERSION_MAJOR ${DTK_VERSION_MAJOR}\n"
+  "#define DTK_VERSION_MINOR ${DTK_VERSION_MINOR}\n"
+  "#define DTK_VERSION_PATCH ${DTK_VERSION_PATCH}\n"
   "#define DTK_VERSION_BUILD ${BUILD_VERSION}\n"
-  "#define DTK_VERSION_STR \"${PROJECT_VERSION}\"\n"
+  "#define DTK_VERSION_STR \"${DTK_VERSION}\"\n"
   "\n"
 )
 file(GLOB CONFIGSOURCE include/DtkCore/*)

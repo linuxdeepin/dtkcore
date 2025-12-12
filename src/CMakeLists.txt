@@ -7,7 +7,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
-find_package(Dtk${DTK_VERSION_MAJOR}Log REQUIRED)
+find_package(Dtk${DTK_NAME_SUFFIX}Log REQUIRED)
 find_package(DBus1 REQUIRED)
 if(LINUX)
   find_package(PkgConfig REQUIRED)
@@ -77,7 +77,7 @@ if(LINUX)
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::DBus
     Qt${QT_VERSION_MAJOR}::Xml
-    Dtk${DTK_VERSION_MAJOR}::Log
+    Dtk${DTK_NAME_SUFFIX}::Log
   )
   target_link_libraries(${LIB_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::CorePrivate
@@ -113,8 +113,8 @@ else()
   endif()
 endif()
 set_target_properties(${LIB_NAME} PROPERTIES
-  VERSION ${CMAKE_PROJECT_VERSION}
-  SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR}
+  VERSION ${DTK_VERSION}
+  SOVERSION ${DTK_VERSION_MAJOR}
   EXPORT_NAME Core
 )
 
@@ -191,6 +191,6 @@ install(TARGETS ${LIB_NAME} EXPORT ${DtkCore}Targets
 
 install(EXPORT ${DtkCore}Targets
   FILE ${DtkCore}Targets.cmake
-  NAMESPACE Dtk${DTK_VERSION_MAJOR}::
+  NAMESPACE Dtk${DTK_NAME_SUFFIX}::
   DESTINATION ${CONFIG_CMAKE_INSTALL_DIR}
 )
