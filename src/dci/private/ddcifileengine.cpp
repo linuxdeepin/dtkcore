@@ -586,6 +586,7 @@ QDateTime DDciFileEngine::fileTime(QAbstractFileEngine::FileTime time) const
     return QFileInfo(dciFilePath).fileTime(static_cast<QFile::FileTime>(time));
 }
 #endif
+#if QT_VERSION < QT_VERSION_CHECK(6, 9, 0)
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
 QAbstractFileEngine::IteratorUniquePtr DDciFileEngine::beginEntryList(const QString &path, QDir::Filters filters, const QStringList &filterNames)
 #else
@@ -598,6 +599,7 @@ DDciFileEngine::Iterator *DDciFileEngine::beginEntryList(QDir::Filters filters, 
     return new DDciFileEngineIterator(filters, filterNames);
 #endif
 }
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
 QAbstractFileEngine::IteratorUniquePtr DDciFileEngine::beginEntryList(const QString &path, QDirListing::IteratorFlags filters, const QStringList &filterNames)
