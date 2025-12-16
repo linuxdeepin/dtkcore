@@ -13,6 +13,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QCoreApplication>
 
 class ut_dconfig2cpp : public testing::Test
 {
@@ -37,8 +38,9 @@ protected:
         };
 
         for (const QString &path : possiblePaths) {
-            if (QFile::exists(path)) {
-                return path;
+            const auto programPath = QCoreApplication::applicationDirPath() + "/" + path;
+            if (QFile::exists(programPath)) {
+                return programPath;
             }
         }
         return "dconfig2cpp";  // Assume it's in PATH

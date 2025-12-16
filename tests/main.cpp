@@ -11,6 +11,8 @@
 
 int main(int argc, char *argv[])
 {
+    qputenv("DSG_APP_ID", "tests");
+
     QCoreApplication app(argc, argv);
     app.setApplicationName("tests");
     app.setOrganizationName("deepin");

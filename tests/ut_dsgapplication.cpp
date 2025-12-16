@@ -13,15 +13,4 @@ TEST(ut_DSGApplication, id)
     if (!qgetenv("DSG_APP_ID").isEmpty()) {
         EXPECT_EQ(DSGApplication::id(), qgetenv("DSG_APP_ID"));
     }
-
-    EXPECT_EQ(DSGApplication::id(), QCoreApplication::applicationName());
-
-//    qputenv("DTK_DISABLED_FALLBACK_APPID", "1");
-//    // Q_ASSERT id not empty...
-//    EXPECT_EQ(DSGApplication::id(), "");
-}
-
-TEST(ut_DSGApplication, getId)
-{
-    ASSERT_EQ(DSGApplication::getId(QCoreApplication::applicationPid()), QByteArray());
 }

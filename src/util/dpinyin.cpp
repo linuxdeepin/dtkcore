@@ -70,23 +70,31 @@ static QString toned(const QString &str, ToneStyle ts)
     initToneTable(toneTable);
 
     QString newStr = str;
-    QString cv;
+    QString toneNum = "";
+    
+    // First pass: find tone number and remove tone marks
     for (QChar c : str) {
-        if (!toneTable.contains(c))
-            continue;
-
-        cv = toneTable.value(c);
-        switch (ts) {
-        case TS_NoneTone:
-            newStr.replace(c, cv.left(1));
-            break;
-        case TS_ToneNum:
-            newStr.replace(c, cv);
-            break;
-        default:
-            break;
+        if (toneTable.contains(c)) {
+            QString cv = toneTable.value(c);
+            switch (ts) {
+            case TS_NoneTone:
+                newStr.replace(c, cv.left(1));
+                break;
+            case TS_ToneNum:
+                newStr.replace(c, cv.left(1)); // Remove tone mark first
+                toneNum = cv.right(1); // Extract tone number
+                break;
+            default:
+                break;
+            }
         }
     }
+    
+    // For TS_ToneNum, append tone number at the end
+    if (ts == TS_ToneNum && !toneNum.isEmpty()) {
+        newStr += toneNum;
+    }
+    
     return newStr;
 }
 
