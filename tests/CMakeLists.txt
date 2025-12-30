@@ -9,8 +9,10 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 # dbus
 set(CMAKE_CXX_FLAGS "-fno-access-control")
-add_compile_options(-fsanitize=address)
-add_link_options(-fsanitize=address)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-fsanitize=address)
+    add_link_options(-fsanitize=address)
+endif()
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
@@ -116,6 +118,11 @@ target_include_directories( ${BIN_NAME} PUBLIC
     ../include/filesystem/
     ../include/
     ./testso/
+)
+
+# Set RPATH to find libvtabletest*.so in the build directory
+set_target_properties(${BIN_NAME} PROPERTIES
+    SKIP_BUILD_RPATH FALSE
 )
 
 gtest_discover_tests(${BIN_NAME})
