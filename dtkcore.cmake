@@ -19,6 +19,7 @@ set (DSYSINFO_PREFIX "" CACHE STRING "PREFIX of DSysInfo")
 
 set (BUILD_EXAMPLES ON CACHE BOOL "Build examples")
 set (BUILD_VERSION "0" CACHE STRING "buildversion")
+option(BUIILD_TESTING "Build tests" OFF)
 
 if(UNIX AND NOT APPLE)
   set(LINUX TRUE)
@@ -37,9 +38,6 @@ if("${QT_VERSION_MAJOR}" STREQUAL "5")
 else()
   # dtk6 not build doc
   set (BUILD_DOCS OFF CACHE BOOL "Generate doxygen-based documentation")
-endif()
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
 endif()
 
 if(NOT MSVC)
