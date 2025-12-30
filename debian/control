@@ -3,24 +3,24 @@ Section: libdevel
 Priority: optional
 Maintainer: Shanshan Ye <yeshanshan@uniontech.com>
 Build-Depends: debhelper-compat ( =12),
+    cmake,
     pkg-config,
     libgtest-dev,
     libdtkcommon-dev,
     libicu-dev,
     libuchardet-dev,
     libdbus-1-dev,
-    qttools5-dev-tools,
-    qttools5-dev,
-    libgsettings-qt-dev,
-    libdtklog-dev,
-    doxygen,
-    qtbase5-private-dev,
-    qt6-base-dev-tools,
-    qt6-base-dev,
-    qt6-base-private-dev,
-    libdtk6log-dev,
-    qt6-tools-dev,
-    cmake
+    qttools5-dev-tools <!nodtk5>,
+    qttools5-dev <!nodtk5>,
+    libgsettings-qt-dev <!nodtk5>,
+    libdtklog-dev <!nodtk5>,
+    qtbase5-private-dev <!nodtk5>,
+    qt6-base-dev-tools <!nodtk6>,
+    qt6-base-dev <!nodtk6>,
+    qt6-base-private-dev <!nodtk6>,
+    libdtk6log-dev <!nodtk6>,
+    qt6-tools-dev <!nodtk6>,
+    doxygen <!nodoc>
 Standards-Version: 3.9.8
 
 Package: libdtk6core
@@ -52,6 +52,14 @@ Description: Development ToolKit Core Devel Library (DTK6 with Qt6)
  DTK Core is the base library of deepin Qt/C++ applications.
  .
  This package contains the header files and development library symbolic links of DTK6 Core.
+
+Package: libdtk6core-doc
+Architecture: any
+Build-Profiles: <!nodtk6 !nodoc>
+Description: Development ToolKit Core Documentation
+ DTK Core is the base library of deepin Qt/C++ applications.
+ .
+ This package contains the doc files of DtkCore.
 
 Package: libdtkcore5
 Architecture: any
