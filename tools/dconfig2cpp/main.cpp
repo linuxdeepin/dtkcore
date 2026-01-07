@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2024-2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -186,7 +186,7 @@ int main(int argc, char *argv[]) {
     headerStream << "#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)\n"
                  << "#include <QProperty>\n"
                  << "#endif\n";
-
+    headerStream << "#include <QEvent>\n";
     headerStream << "#include <DSGApplication>\n";
     headerStream << "#include <DConfig>\n\n";
     headerStream << "class " << className << " : public QObject {\n";
@@ -210,11 +210,13 @@ int main(int argc, char *argv[]) {
         "config",
         "keyList",
         "isInitializeSucceed",
+        "isInitializeSucceeded",
         "isInitializeFailed",
         "isInitializing",
         "isDefaultValue",
         "m_config",
         "m_status",
+        "m_data",
     };
 
     for (int i = 0; i <= (contents.size()) / 32; ++i) {
@@ -281,15 +283,31 @@ int main(int argc, char *argv[]) {
                  << R"((QThread *thread, DTK_CORE_NAMESPACE::DConfigBackend *backend,
                         const QString &name, const QString &appId, const QString &subpath,
                         bool isGeneric, QObject *parent)
-                : QObject(nullptr) {
+                  : QObject(parent), m_data(new Data) {
+        m_data->m_userConfig = this;
+        m_data->moveToThread(this->thread());
+
         if (!thread->isRunning()) {
             qWarning() << QLatin1String("Warning: The provided thread is not running.");
         }
         Q_ASSERT(QThread::currentThread() != thread);
         auto worker = new QObject();
         worker->moveToThread(thread);
-        QPointer<QObject> watcher(parent);
-        QMetaObject::invokeMethod(worker, [=, this]() {
+
+        QPointer<Data> safeData(m_data);
+
+        QMetaObject::invokeMethod(worker, [safeData, backend, name, appId, subpath, isGeneric, worker]() mutable {
+            delete worker;
+            worker = nullptr;
+
+            if (!safeData->m_status.testAndSetOrdered(static_cast<int>(Data::Status::Invalid),
+                                                      static_cast<int>(Data::Status::Initializing))) {
+                // CAS failed: status changed (e.g., set to Destroyed by destructor)
+                // Schedule deletion of Data object via deleteLater to avoid direct delete in Config thread
+                safeData->deleteLater();
+                return;
+            }
+
             DTK_CORE_NAMESPACE::DConfig *config = nullptr;
             if (isGeneric) {
                 if (backend) {
@@ -314,21 +332,45 @@ int main(int argc, char *argv[]) {
                     }
                 }
             }
-            if (!config) {
+
+            if (!config || !config->isValid()) {
                 qWarning() << QLatin1String("Failed to create DConfig instance.");
-                worker->deleteLater();
+
+                QMetaObject::invokeMethod(safeData, [safeData]() {
+                    if (safeData->m_status.testAndSetOrdered(static_cast<int>(Data::Status::Initializing),
+                                                             static_cast<int>(Data::Status::Failed))) {
+                        Q_EMIT safeData->m_userConfig->configInitializeFailed();
+                    } else {
+                        // CAS failed, destroy data object
+                        delete safeData;
+                    }
+                }, Qt::QueuedConnection);
+
+                if (config)
+                    delete config;
+
                 return;
             }
             config->moveToThread(QThread::currentThread());
-            initializeInConfigThread(config);
-            if (watcher != parent) {
-                // delete this if watcher is changed to nullptr.
-                deleteLater();
-            } else if (!this->parent() && parent) {
-                // !parent() means that parent is not changed.
-                this->setParent(watcher);
+            // Initialize through Data class
+            safeData->initializeInConfigThread(config);
+
+            // Try to transition from Initializing to Succeeded
+            if (safeData->m_status.testAndSetOrdered(static_cast<int>(Data::Status::Initializing),
+                                                      static_cast<int>(Data::Status::Succeeded))) {
+                // CAS succeeded: connect config destroyed signal to cleanup Data, then emit success signal to main thread
+                QObject::connect(config, &QObject::destroyed, safeData, &QObject::deleteLater);
+                QMetaObject::invokeMethod(safeData, [safeData, config]() {
+                    if (safeData->m_userConfig) {
+                        Q_EMIT safeData->m_userConfig->configInitializeSucceed(config);
+                    }
+                }, Qt::QueuedConnection);
+            } else {
+                // CAS failed - state changed (e.g., set to Destroyed)
+                // We must clean up the config we just created
+                config->deleteLater();
+                safeData->deleteLater();
             }
-            worker->deleteLater();
         });
     }
 )";
@@ -379,26 +421,36 @@ int main(int argc, char *argv[]) {
 
     // Destructor
     headerStream << "    ~" << className << R"(() {
-        if (m_config.loadRelaxed()) {
-            m_config.loadRelaxed()->deleteLater();
-            m_config.storeRelaxed(nullptr);
+        m_data->m_userConfig = nullptr;
+        int oldStatus = m_data->m_status.fetchAndStoreOrdered(static_cast<int>(Data::Status::Destroyed));
+        if (oldStatus == static_cast<int>(Data::Status::Succeeded)) {
+            // When Succeeded, release config object only
+            auto config = m_data->m_config.loadRelaxed();
+            Q_ASSERT(config);
+            config->deleteLater();
+            // m_data will be deleted by config's destroyed signal
+        } else if (oldStatus == static_cast<int>(Data::Status::Failed)) {
+            // When Failed state, schedule cleanup of Data object
+            m_data->deleteLater();
         }
     }
 
     Q_INVOKABLE DTK_CORE_NAMESPACE::DConfig *config() const {
-        return m_config.loadRelaxed();
+        return m_data->m_config.loadRelaxed();
     }
-
-    Q_INVOKABLE bool isInitializeSucceed() const {
-        return m_status.loadRelaxed() == static_cast<int>(Status::Succeed);
+    // Deprecated: Use isInitializeSucceeded() instead
+    Q_INVOKABLE Q_DECL_DEPRECATED_X("Use isInitializeSucceeded() instead")
+    bool isInitializeSucceed() const {
+        return isInitializeSucceeded();
     }
-
+    Q_INVOKABLE bool isInitializeSucceeded() const {
+        return m_data->m_status.loadRelaxed() == static_cast<int>(Data::Status::Succeeded);
+    }
     Q_INVOKABLE bool isInitializeFailed() const {
-        return m_status.loadRelaxed() == static_cast<int>(Status::Failed);
+        return m_data->m_status.loadRelaxed() == static_cast<int>(Data::Status::Failed);
     }
-
     Q_INVOKABLE bool isInitializing() const {
-        return m_status.loadRelaxed() == static_cast<int>(Status::Invalid);
+        return m_data->m_status.loadRelaxed() == static_cast<int>(Data::Status::Initializing);
     }
 
 )";
@@ -424,25 +476,25 @@ int main(int argc, char *argv[]) {
         assert(!usedKeywords.contains(readFunction));
 
         headerStream << "    " << property.typeName << " " << readFunction << "() const {\n"
-                     << "        return p_" << property.propertyName << ";\n    }\n";
+                     << "        return m_data->p_" << property.propertyName << ";\n    }\n";
         headerStream << "    void set" << property.capitalizedPropertyName << "(const " << property.typeName << " &value) {\n"
-                     << "        auto oldValue = p_" << property.propertyName << ";\n"
-                     << "        p_" << property.propertyName << " = value;\n"
-                     << "        markPropertySet(" << i << ");\n"
-                     << "        if (auto config = m_config.loadRelaxed()) {\n"
-                     << "            QMetaObject::invokeMethod(config, [this, value]() {\n"
-                     << "                m_config.loadRelaxed()->setValue(" << property.propertyNameString << ", value);\n"
+                     << "        auto oldValue = m_data->p_" << property.propertyName << ";\n"
+                     << "        m_data->p_" << property.propertyName << " = value;\n"
+                     << "        m_data->markPropertySet(" << i << ");\n"
+                     << "        if (auto config = m_data->m_config.loadRelaxed()) {\n"
+                     << "            QMetaObject::invokeMethod(config, [config, value]() {\n"
+                     << "                config->setValue(" << property.propertyNameString << ", value);\n"
                      << "            });\n"
                      << "        }\n"
-                     << "        if (p_" << property.propertyName << " != oldValue) {\n"
+                     << "        if (m_data->p_" << property.propertyName << " != oldValue) {\n"
                      << "            Q_EMIT " << property.propertyName << "Changed();\n"
                      << "            Q_EMIT valueChanged(" << property.propertyNameString << ", value);\n"
                      << "        }\n"
                      << "    }\n"
                      << "    void reset" << property.capitalizedPropertyName << "() {\n"
-                     << "        if (auto config = m_config.loadRelaxed()) {\n"
-                     << "            QMetaObject::invokeMethod(config, [this]() {\n"
-                     << "                m_config.loadRelaxed()->reset(" << property.propertyNameString << ");\n"
+                     << "        if (auto config = m_data->m_config.loadRelaxed()) {\n"
+                     << "            QMetaObject::invokeMethod(config, [config]() {\n"
+                     << "                config->reset(" << property.propertyNameString << ");\n"
                      << "            });\n"
                      << "        }\n"
                      << "    }\n";
@@ -453,129 +505,130 @@ int main(int argc, char *argv[]) {
         headerStream << "#endif\n";
 
         headerStream << "    Q_INVOKABLE bool " << property.propertyName << "IsDefaultValue() const {\n"
-                     << "        return !testPropertySet(" << i << ");\n"
+                     << "        return !m_data->testPropertySet(" << i << ");\n"
                      << "    }\n";
     }
 
-    // Generate signals for property changes
-    headerStream << "Q_SIGNALS:\n"
-                 << "    void configInitializeFailed(DTK_CORE_NAMESPACE::DConfig *config);\n"
+    headerStream << "protected:\n"
+                 << "    bool event(QEvent *e) override {\n"
+                 << "        if (e->type() == QEvent::ThreadChange) {\n"
+                 << "            Q_ASSERT(this->thread() == m_data->thread());\n"
+                 << "        }\n"
+                 << "        return QObject::event(e);\n"
+                 << "    }\n"
+                 << "Q_SIGNALS:\n"
+                 << "    void configInitializeFailed();\n"
                  << "    void configInitializeSucceed(DTK_CORE_NAMESPACE::DConfig *config);\n"
-                 << "    void valueChanged(const QString &key, const QVariant &value);\n\n";
-    for (const Property &property : std::as_const(properties)) {
-        headerStream << "    void " << property.propertyName << "Changed();\n";
-    }
+                 << "    void valueChanged(const QString &key, const QVariant &value);\n";
+    for (const auto &p : properties)
+        headerStream << "    void " << p.propertyName << "Changed();\n";
 
-    // Generate private methods and members
-    headerStream << "private:\n";
+    headerStream << "\nprivate:\n"
+                 << "    // Prevent external moveToThread calls\n"
+                 << "    using QObject::moveToThread;\n"
+                 << "    class Data : public QObject {\n"
+                 << "    public:\n"
+                 << "        enum class Status {\n"
+                 << "            Invalid = 0,\n"
+                 << "            Initializing = 1,\n"
+                 << "            Succeeded = 2,\n"
+                 << "            Failed = 3,\n"
+                 << "            Destroyed = 4\n"
+                 << "        };\n"
+                 << "\n"
+                 << "        explicit Data()\n"
+                 << "            : QObject(nullptr) {}\n"
+                 << "\n"
+                 << "        inline void initializeInConfigThread(DTK_CORE_NAMESPACE::DConfig *config) {\n"
+                 << "            Q_ASSERT(!m_config.loadRelaxed());\n"
+                 << "            m_config.storeRelaxed(config);\n";
 
-    headerStream << "    void initializeInConfigThread(DTK_CORE_NAMESPACE::DConfig *config) {\n"
-                 << "        Q_ASSERT(!m_config.loadRelaxed());\n"
-                 << "        m_config.storeRelaxed(config);\n"
-                 << "        if (!config->isValid()) {\n"
-                 << "           m_status.storeRelaxed(static_cast<int>(Status::Failed));\n"
-                 << "           Q_EMIT configInitializeFailed(config);\n"
-                 << "           return;\n"
-                 << "        }\n\n";
     for (int i = 0; i < properties.size(); ++i) {
         const Property &property = properties[i];
-        headerStream << "        if (testPropertySet(" << i << ")) {\n";
-        headerStream << "            config->setValue(" << property.propertyNameString << ", QVariant::fromValue(p_" << property.propertyName << "));\n";
-        headerStream << "        } else {\n";
-        headerStream << "            updateValue(" << property.propertyNameString << ", QVariant::fromValue(p_" << property.propertyName << "));\n";
-        headerStream << "        }\n";
+        headerStream << "            if (testPropertySet(" << i << ")) {\n";
+        headerStream << "                config->setValue(" << property.propertyNameString << ", QVariant::fromValue(p_" << property.propertyName << "));\n";
+        headerStream << "            } else {\n";
+        headerStream << "                updateValue(" << property.propertyNameString << ", QVariant::fromValue(p_" << property.propertyName << "));\n";
+        headerStream << "            }\n";
     }
-    headerStream << R"(
-        if (!m_config.loadRelaxed())
-            return;
-        connect(config, &DTK_CORE_NAMESPACE::DConfig::valueChanged, this, [this](const QString &key) {
-            updateValue(key);
-        }, Qt::DirectConnection);
 
-        m_status.storeRelaxed(static_cast<int>(Status::Succeed));
-        Q_EMIT configInitializeSucceed(config);
-    }
-    void updateValue(const QString &key, const QVariant &fallback = QVariant()) {
-        if (!m_config.loadRelaxed())
-            return;
-        Q_ASSERT(QThread::currentThread() == m_config.loadRelaxed()->thread());
-        const QVariant &value = m_config.loadRelaxed()->value(key, fallback);
+    headerStream << "            connect(config, &DTK_CORE_NAMESPACE::DConfig::valueChanged, this, [this](const QString &key) {\n"
+                 << "                updateValue(key);\n"
+                 << "            }, Qt::DirectConnection);\n"
+                 << R"(        }
+
+        inline void updateValue(const QString &key, const QVariant &fallback = QVariant()) {
+            if (!m_config.loadRelaxed())
+                return;
+            Q_ASSERT(QThread::currentThread() == m_config.loadRelaxed()->thread());
+            const QVariant &value = m_config.loadRelaxed()->value(key, fallback);
 )";
     for (int i = 0; i < properties.size(); ++i) {
         const Property &property = properties.at(i);
-        headerStream << "        if (key == " << property.propertyNameString << ") {\n";
+        headerStream << "            if (key == " << property.propertyNameString << ") {\n";
 
-        headerStream << "            markPropertySet(" << i << ", !m_config.loadRelaxed()->isDefaultValue(key));\n";
+        headerStream << "                markPropertySet(" << i << ", !m_config.loadRelaxed()->isDefaultValue(key));\n";
 
-        headerStream << "            auto newValue = qvariant_cast<" << property.typeName << ">(value);\n"
-                     << "            QMetaObject::invokeMethod(this, [this, newValue, key, value]() {\n"
-                     << "                Q_ASSERT(QThread::currentThread() == this->thread());\n"
-                     << "                if (p_" << property.propertyName << " != newValue) {\n"
-                     << "                    p_" << property.propertyName << " = newValue;\n"
-                     << "                    Q_EMIT " << property.propertyName << "Changed();\n"
-                     << "                    Q_EMIT valueChanged(key, value);\n"
-                     << "                }\n"
-                     << "            });\n"
-                     << "            return;\n"
-                     << "        }\n";
+        headerStream << "                auto newValue = qvariant_cast<" << property.typeName << ">(value);\n"
+                     << "                QMetaObject::invokeMethod(this, [this, newValue, key, value]() {\n"
+                     << "                    if (m_userConfig && p_" << property.propertyName << " != newValue) {\n"
+                     << "                        Q_ASSERT(QThread::currentThread() == m_userConfig->thread());\n"
+                     << "                        p_" << property.propertyName << " = newValue;\n"
+                     << "                        Q_EMIT m_userConfig->" << property.propertyName << "Changed();\n"
+                     << "                        Q_EMIT m_userConfig->valueChanged(key, value);\n"
+                     << "                    }\n"
+                     << "                });\n"
+                     << "                return;\n"
+                     << "            }\n";
     }
-    headerStream << "    }\n";
+    headerStream << "        }\n";
 
     // Mark property as set
-    headerStream << "    inline void markPropertySet(const int index, bool on = true) {\n";
+    headerStream << "        inline void markPropertySet(const int index, bool on = true) {\n";
     for (int i = 0; i <= (properties.size()) / 32; ++i) {
-        headerStream << "        if (index < " << (i + 1) * 32 << ") {\n"
-                     << "            if (on)\n"
-                     << "                m_propertySetStatus" << QString::number(i) << ".fetchAndOrOrdered(1 << (index - " << i * 32 << "));\n"
-                     << "            else\n"
-                     << "                m_propertySetStatus" << QString::number(i) << ".fetchAndAndOrdered(~(1 << (index - " << i * 32 << ")));\n"
-                     << "            return;\n"
-                     << "        }\n";
+        headerStream << "            if (index < " << (i + 1) * 32 << ") {\n"
+                     << "                if (on)\n"
+                     << "                    m_propertySetStatus" << QString::number(i) << ".fetchAndOrOrdered(1 << (index - " << i * 32 << "));\n"
+                     << "                else\n"
+                     << "                    m_propertySetStatus" << QString::number(i) << ".fetchAndAndOrdered(~(1 << (index - " << i * 32 << ")));\n"
+                     << "                return;\n"
+                     << "            }\n";
     }
-    headerStream << "        Q_UNREACHABLE();\n    }\n";
+    headerStream << "            Q_UNREACHABLE();\n        }\n";
 
     // Test if property is set
-    headerStream << "    inline bool testPropertySet(const int index) const {\n";
+    headerStream << "        inline bool testPropertySet(const int index) const {\n";
     for (int i = 0; i <= (properties.size()) / 32; ++i) {
-        headerStream << "        if (index < " << (i + 1) * 32 << ") {\n";
-        headerStream << "            return (m_propertySetStatus" << QString::number(i) << ".loadRelaxed() & (1 << (index - " << i * 32 << ")));\n";
-        headerStream << "        }\n";
+        headerStream << "            if (index < " << (i + 1) * 32 << ") {\n"
+                     << "                return (m_propertySetStatus" << QString::number(i) << ".loadRelaxed() & (1 << (index - " << i * 32 << ")));\n"
+                     << "            }\n";
     }
-    headerStream << "        Q_UNREACHABLE();\n"
-                 << "    }\n";
+    headerStream << "            Q_UNREACHABLE();\n"
+                 << "        }\n";
 
-    // Member variables
-    headerStream << R"(
-    QAtomicPointer<DTK_CORE_NAMESPACE::DConfig> m_config = nullptr;
+    headerStream << "        // Member variables\n"
+                 << "        QAtomicPointer<DTK_CORE_NAMESPACE::DConfig> m_config = nullptr;\n"
+                 << "        QAtomicInteger<int> m_status = static_cast<int>(Status::Invalid);\n"
+                 << "        QPointer<" << className << "> m_userConfig = nullptr;\n";
 
-public:
-    enum class Status {
-        Invalid = 0,
-        Succeed = 1,
-        Failed = 2
-    };
-private:
-    QAtomicInteger<int> m_status = static_cast<int>(Status::Invalid);
+    for (int i = 0; i <= (properties.size()) / 32; ++i) {
+        headerStream << "        QAtomicInteger<quint32> m_propertySetStatus" << i << " = 0;\n";
+    }
 
-)";
-
-    // Property variables
-    for (const Property &property : std::as_const(properties)) {
-        if (property.typeName == QLatin1String("int") || property.typeName == QLatin1String("qint64")) {
-            headerStream << "    // Note: If you expect a double type, use XXX.0\n";
-        } else if (property.typeName == QLatin1String("QString")) {
-            headerStream << "    // Default value: \"" << property.defaultValue.toString().replace("\n", "\\n").replace("\r", "\\r") << "\"\n";
+    headerStream << "\n        // Property storage\n";
+    for (const Property &property : properties) {
+        if (property.typeName == QLatin1String("QString")) {
+            headerStream << "        // Default value: \""
+                         << property.defaultValue.toString().replace("\n", "\\n").replace("\r", "\\r") << "\"\n";
         }
-        headerStream << "    " << property.typeName << " p_" << property.propertyName << " { ";
-        headerStream << jsonValueToCppCode(property.defaultValue) << " };\n";
+        headerStream << "        " << property.typeName << " p_" << property.propertyName << " { "
+                     << jsonValueToCppCode(property.defaultValue) << " };\n";
     }
 
-    // Property set status variables
-    for (int i = 0; i <= (properties.size()) / 32; ++i) {
-        headerStream << "    QAtomicInteger<quint32> m_propertySetStatus" << QString::number(i) << " = 0;\n";
-    }
-    headerStream << "};\n\n";
-    headerStream << "#endif // " << className.toUpper() << "_H\n";
+    headerStream << "    };\n\n"
+                 << "    QPointer<Data> m_data;\n"
+                 << "};\n\n"
+                 << "#endif // " << className.toUpper() << "_H\n";
 
     return 0;
 }
