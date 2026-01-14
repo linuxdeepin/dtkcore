@@ -112,7 +112,7 @@ void DLogManagerPrivate::updateLoggingRules()
     // 4. 优先看 dsgConfig 是否默认值，其次 fallback 是否默认值
     if (m_dsgConfig && m_dsgConfig->isInitializeSucceed() && !m_dsgConfig->rulesIsDefaultValue()) {
         var = m_dsgConfig->rules();
-    } else if (m_fallbackConfig && m_dsgConfig->isInitializeSucceed() && !m_fallbackConfig->rulesIsDefaultValue()) {
+    } else if (m_fallbackConfig && m_fallbackConfig->isInitializeSucceed() && !m_fallbackConfig->rulesIsDefaultValue()) {
         var = m_fallbackConfig->rules();
     } else if (m_dsgConfig && m_dsgConfig->isInitializeSucceed()) {
         var = m_dsgConfig->rules();
