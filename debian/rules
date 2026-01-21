@@ -14,10 +14,6 @@ DEB_CMAKE_EXTRA_FLAGS += -DCMAKE_SKIP_BUILD_RPATH=ON
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
-# x.y.z -> DTK5_VERSION=5.y.z, DTK6_VERSION=6.y.z
-DTK5_VERSION := $(shell echo $(DEB_VERSION_UPSTREAM) | sed -E 's/^[0-9]+(\.|[^0-9]|$$)/5\1/')
-DTK6_VERSION := $(shell echo $(DEB_VERSION_UPSTREAM) | sed -E 's/^[0-9]+(\.|[^0-9]|$$)/6\1/')
-
 # Calculate build version:
 # 5.6.8 -> 0; 5.6.8.7 -> 7; 5.6.8+u001 -> 1; 5.6.8.7+u001 -> 7; 5.6.8.0+u001 -> 0
 BUILD_VER := $(shell echo $(DEB_VERSION_UPSTREAM) | awk -F'[+_~-]' '{print $$1}' | awk -F'.' '{print $$4}' | sed 's/[^0-9]//g' | awk '{print int($$1)}')
@@ -27,7 +23,6 @@ ifeq ($(shell expr $(shell echo "$(DEB_VERSION_UPSTREAM)" | awk -F. '{print NF-1
 endif
 endif
 
-DTK5_MAJOR_MINOR := $(shell echo $(DTK5_VERSION) | cut -d '.' -f 1,2)
 BUILD_DOCS := $(if $(filter nodoc,$(DEB_BUILD_PROFILES)),OFF,ON)
 BUILD_DTK5 := $(if $(filter nodtk5,$(DEB_BUILD_PROFILES)),OFF,ON)
 BUILD_DTK6 := $(if $(filter nodtk6,$(DEB_BUILD_PROFILES)),OFF,ON)
@@ -59,14 +54,6 @@ ifeq ($(BUILD_DTK5),ON)
 endif
 ifeq ($(BUILD_DTK6),ON)
 	dh_auto_install --builddirectory=build6
-endif
-
-override_dh_makeshlibs:
-ifeq ($(BUILD_DTK5),ON)
-	dh_makeshlibs -V "libdtkcore5 (>= $(DTK5_MAJOR_MINOR))" -plibdtkcore5
-endif
-ifeq ($(BUILD_DTK6),ON)
-	dh_makeshlibs -V "libdtk6core (>= $(DTK6_VERSION))" -plibdtk6core
 endif
 
 override_dh_link:
