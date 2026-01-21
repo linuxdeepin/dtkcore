@@ -355,22 +355,23 @@ int main(int argc, char *argv[]) {
             // Initialize through Data class
             safeData->initializeInConfigThread(config);
 
-            // Try to transition from Initializing to Succeeded
-            if (safeData->m_status.testAndSetOrdered(static_cast<int>(Data::Status::Initializing),
-                                                      static_cast<int>(Data::Status::Succeeded))) {
-                // CAS succeeded: connect config destroyed signal to cleanup Data, then emit success signal to main thread
-                QObject::connect(config, &QObject::destroyed, safeData, &QObject::deleteLater);
-                QMetaObject::invokeMethod(safeData, [safeData, config]() {
+            // Queue state transition to main thread, to ensure config values are fully initialized.
+            QMetaObject::invokeMethod(safeData, [safeData, config]() {
+                // Try to transition from Initializing to Succeeded
+                if (safeData->m_status.testAndSetOrdered(static_cast<int>(Data::Status::Initializing),
+                                                         static_cast<int>(Data::Status::Succeeded))) {
+                    // CAS succeeded: connect config destroyed signal to cleanup Data, then emit success signal to main thread
+                    QObject::connect(config, &QObject::destroyed, safeData, &QObject::deleteLater);
                     if (safeData->m_userConfig) {
                         Q_EMIT safeData->m_userConfig->configInitializeSucceed(config);
                     }
-                }, Qt::QueuedConnection);
-            } else {
-                // CAS failed - state changed (e.g., set to Destroyed)
-                // We must clean up the config we just created
-                config->deleteLater();
-                safeData->deleteLater();
-            }
+                } else {
+                    // CAS failed - state changed (e.g., set to Destroyed)
+                    // We must clean up the config we just created
+                    config->deleteLater();
+                    safeData->deleteLater();
+                }
+            }, Qt::QueuedConnection);
         });
     }
 )";
