@@ -117,6 +117,7 @@ target_include_directories( ${BIN_NAME} PUBLIC
     ../include/settings/
     ../include/filesystem/
     ../include/
+    ../src/log/
     ./testso/
 )
 
