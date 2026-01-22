@@ -12,6 +12,12 @@
 #include <QCommandLineParser>
 #include <QFileInfo>
 
+struct Version {
+    quint16 major;
+    quint16 minor;
+};
+static constexpr Version ToolVersion{1, 1};
+
 static QString toUnicodeEscape(const QString& input) {
     QString result;
     for (QChar ch : input) {
@@ -82,9 +88,11 @@ static QString jsonValueToCppCode(const QJsonValue &value){
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
+    app.setApplicationVersion(QString("%1.%2").arg(ToolVersion.major).arg(ToolVersion.minor));
     QCommandLineParser parser;
     parser.setApplicationDescription(QLatin1String("DConfig to C++ class generator"));
     parser.addHelpOption();
+    parser.addVersionOption();
 
     // Define command line options
     QCommandLineOption classNameOption(QStringList() << QLatin1String("c") << QLatin1String("class-name"),
@@ -151,6 +159,18 @@ int main(int argc, char *argv[]) {
 
     // Extract version and add it as a comment in the generated code
     QString version = root[QLatin1String("version")].toString();
+    
+    // Parse version to get major
+    QString fileMajorVersion;
+    const auto versionParts = version.split('.');
+    if (versionParts.size() == 2) {
+        fileMajorVersion = versionParts[0];
+    }
+
+    if (fileMajorVersion != "1") {
+        qWarning() << QLatin1String("Warning: The JSON file version isn't supported.");
+        return -1;
+    }
 
     // Generate header and source file comments
     QString commandLineArgs = QCoreApplication::arguments().join(QLatin1String(" "));
@@ -163,20 +183,37 @@ int main(int argc, char *argv[]) {
                                     " * Command line arguments: %1\n"
                                     " * Generation time: %2\n"
                                     " * JSON file version: %3\n"
+                                    " * Tool version: %4\n"
                                     " *\n"
                                     " * WARNING: DO NOT MODIFY THIS FILE MANUALLY.\n"
                                     " * If you need to change the content, please modify the dconfig2cpp tool.\n"
                                     " */\n\n"
-                                    ).arg(commandLineArgs, generationTime, version);
+                                    ).arg(commandLineArgs, generationTime, version, QString("%1.%2").arg(ToolVersion.major).arg(ToolVersion.minor));
 
         headerStream << headerComment;
     }
 
     QJsonObject contents = root[QLatin1String("contents")].toObject();
 
+    // First pass: collect all property names for macro definitions
+    QStringList allPropertyNames;
+    for (auto it = contents.begin(); it != contents.end(); ++it) {
+        allPropertyNames << it.key();
+    }
+
     // Write header file content
     headerStream << "#ifndef " << className.toUpper() << "_H\n";
     headerStream << "#define " << className.toUpper() << "_H\n\n";
+    
+    // Add version macros
+    headerStream << "#define " << className.toUpper() << "_DCONFIG_FILE_VERSION_MAJOR " << ToolVersion.major << "\n";
+    headerStream << "#define " << className.toUpper() << "_DCONFIG_FILE_VERSION_MINOR " << ToolVersion.minor << "\n";
+    
+    // Add property macros
+    for (const QString &propName : allPropertyNames) {
+        headerStream << "#define " << className.toUpper() << "_DCONFIG_FILE_" << propName << "\n";
+    }
+    headerStream << "\n";
     headerStream << "#include <QThread>\n";
     headerStream << "#include <QVariant>\n";
     headerStream << "#include <QPointer>\n";
