@@ -474,6 +474,10 @@ TEST_F(ut_DConfigFile, setSubpath) {
         ASSERT_TRUE(config.load(LocalPrefix));
     }
     {
+        DConfigFile config(APP_ID, FILE_NAME, "a/b");
+        ASSERT_FALSE(config.load(LocalPrefix));
+    }
+    {
         DConfigFile config(APP_ID, FILE_NAME, "/a/b");
         ASSERT_TRUE(config.load(LocalPrefix));
     }

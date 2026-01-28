@@ -42,6 +42,9 @@ inline static bool subpathIsValid(const QString &subpath, const QDir &dir)
     if (subpath.isEmpty())
         return true;
 
+    if (!subpath.startsWith(QLatin1Char('/')))
+        return false;
+
     const QDir subDir(dir.filePath(subpath.mid(1)));
     return subDir.absolutePath().startsWith(dir.absolutePath());
 }
@@ -710,6 +713,7 @@ public:
             qCWarning(cfLog, "Can't load meta file from local prefix: \"%s\"", qPrintable(localPrefix));
             return false;
         }
+        qCDebug(cfLog, "Load meta file: \"%s\"", qPrintable(path));
 
         QScopedPointer<QFile> meta(new QFile(path));
 
