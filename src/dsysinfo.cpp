@@ -19,6 +19,8 @@
 #include <QRegularExpression>
 #include <QLoggingCategory>
 #include <qmath.h>
+#include <QMutex>
+#include <QMutexLocker>
 
 #ifdef Q_OS_LINUX
 #include <sys/sysinfo.h>
@@ -48,6 +50,8 @@ class Q_DECL_HIDDEN DSysInfoPrivate
 {
 public:
     DSysInfoPrivate();
+
+    mutable QMutex mutex;
 
 #ifdef Q_OS_LINUX
     void ensureDeepinInfo();
@@ -167,6 +171,7 @@ bool DSysInfoPrivate::splitA_BC_DMode()
 
 void DSysInfoPrivate::ensureDeepinInfo()
 {
+    QMutexLocker locker(&mutex);
     if (static_cast<int>(deepinType) > 0 && !inTest())
         return;
 
@@ -246,8 +251,11 @@ void DSysInfoPrivate::ensureDeepinInfo()
 
 bool DSysInfoPrivate::ensureOsVersion()
 {
+    QMutexLocker locker(&mutex);
+#ifndef OS_VERSION_TEST_FILE // Always re-read the file when testing
     if (osBuild.A > 0 && !inTest())
         return true;
+#endif
 
     DDesktopEntry entry(OS_VERSION_FILE);
     bool ok = false;
@@ -447,6 +455,7 @@ static bool readLsbRelease(DSysInfoPrivate *info)
 
 void DSysInfoPrivate::ensureReleaseInfo()
 {
+    QMutexLocker locker(&mutex);
     if (productType > 0 && !inTest()) {
         return;
     }
