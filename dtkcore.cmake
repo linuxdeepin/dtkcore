@@ -94,7 +94,7 @@ install(FILES cmake/DtkTools/DtkDBusMacros.cmake
 install(FILES ${CMAKE_SOURCE_DIR}/cmake/DtkTools/DtkDConfigMacros.cmake
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Dtk${DTK_NAME_SUFFIX}Tools")
 
-if (NOT DTK5)
+if (DTK5)
     set(DCONFIG_DEPRECATED_FUNCS [=[
 # deprecated since dtk6
 function(dconfig_meta_files)
