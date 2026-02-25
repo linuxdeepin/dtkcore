@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2022 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -9,6 +9,11 @@
 #include <ConsoleAppender.h>
 #include <RollingFileAppender.h>
 #include <JournalAppender.h>
+
+#ifdef Q_OS_LINUX
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 
 #include "dstandardpaths.h"
 #include "dconfig_org_deepin_dtk_preference.hpp"
@@ -44,6 +49,8 @@ public:
     dconfig_org_deepin_dtk_preference *createDConfig(const QString &appId);
     void initLoggingRules();
     void updateLoggingRules();
+
+    bool shouldSkipConsoleAppender() const;
 
     QString m_format;
     QString m_logPath;
@@ -121,6 +128,33 @@ void DLogManagerPrivate::updateLoggingRules()
     if (var.isValid())
         QLoggingCategory::setFilterRules(var.toString().replace(";", "\n"));
 }
+
+bool DLogManagerPrivate::shouldSkipConsoleAppender() const
+{
+    if (qEnvironmentVariableIsSet("DTK_FORCE_CONSOLE_LOGGING"))
+        return false;
+
+
+    // Skip ConsoleAppender if running under systemd and stdout is connected to journal to avoid duplicate logging
+    QByteArray journalStream = qgetenv("JOURNAL_STREAM");
+    if (journalStream.isEmpty())
+        return false;
+
+    struct stat st;
+    if (fstat(STDOUT_FILENO, &st) != 0)
+        return false;
+
+    auto parts = journalStream.split(':');
+    if (parts.size() != 2)
+        return false;
+
+    bool ok1, ok2;
+    auto dev = parts[0].toULongLong(&ok1);
+    auto ino = parts[1].toULongLong(&ok2);
+
+    return ok1 && ok2 && st.st_dev == dev && st.st_ino == ino;
+}
+
 /*!
 @~english
   \class Dtk::Core::DLogManager
@@ -137,6 +171,13 @@ DLogManager::DLogManager()
 
 void DLogManager::initConsoleAppender(){
     Q_D(DLogManager);
+    
+    // Skip ConsoleAppender if JournalAppender is active under systemd to avoid duplicate logging
+    if (d->shouldSkipConsoleAppender() && d->m_journalAppender) {
+        qDebug() << "Running under systemd with JournalAppender enabled, skipping ConsoleAppender to avoid duplicate logging";
+        return;
+    }
+    
     d->m_consoleAppender = new ConsoleAppender;
     d->m_consoleAppender->setFormat(d->m_format);
     dlogger->registerAppender(d->m_consoleAppender);
@@ -157,6 +198,15 @@ void DLogManager::initJournalAppender()
     Q_D(DLogManager);
     d->m_journalAppender = new JournalAppender();
     dlogger->registerAppender(d->m_journalAppender);
+    
+    // Unregister ConsoleAppender if already registered under systemd to avoid duplicate logging
+    if (d->shouldSkipConsoleAppender() && d->m_consoleAppender) {
+        qDebug() << "Unregistered ConsoleAppender to avoid duplicate logging with JournalAppender under systemd";
+        dlogger->unregisterAppender(d->m_consoleAppender);
+        delete d->m_consoleAppender;
+        d->m_consoleAppender = nullptr;
+    }
+    
 #else
     qWarning() <<  "BUILD_WITH_SYSTEMD not defined or OS not support!!";
 #endif
