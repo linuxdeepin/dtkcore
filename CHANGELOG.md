@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.34] - 2026-02-27
+
+### Changed
+
+- Chore: New release 6.7.33
+
+### Fixed
+
+- Validate subpath format in dconfig
+- 修复 DSysInfo 在 AArch64 架构下的线程安全问题
+- Restore dconfig_meta_files macro for DTK5 compatibility
+- Avoid duplicate logging under systemd with journal
+
 ## [6.7.33] - 2026-02-05
 
 ### Fixed
