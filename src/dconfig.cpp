@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -556,10 +556,6 @@ DConfigBackend *DConfigPrivate::getOrCreateBackend()
     if (DBusBackend::isServiceRegistered() || DBusBackend::isServiceActivatable()) {
         qCDebug(cfLog, "Fallback to DBus mode");
         backend.reset(new DBusBackend(this));
-    }
-    if (!backend) {
-        qCDebug(cfLog, "Can't use DBus config service, fallback to DConfigFile mode");
-        backend.reset(new FileBackend(this));
     }
 #else
     backend.reset(new FileBackend(this));
