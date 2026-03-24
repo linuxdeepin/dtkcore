@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2022 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -56,7 +56,10 @@ public:
 #endif
 
     bool setSize(qint64 size) override;
+#if QT_VERSION < QT_VERSION_CHECK(6, 11, 0)
     QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const override;
+#endif
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 1)
     IteratorUniquePtr beginEntryList(const QString &path, QDirListing::IteratorFlags filters, const QStringList &filterNames) override;
 #elif QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
