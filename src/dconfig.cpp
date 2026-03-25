@@ -296,7 +296,8 @@ class Q_DECL_HIDDEN DBusBackend : public DConfigBackend
 {
 public:
     explicit DBusBackend(DConfigPrivate* o):
-        owner(o)
+        owner(o),
+        config(nullptr)
     {
     }
 
@@ -345,14 +346,15 @@ public:
             return false;
         } else {
             qCDebug(cfLog, "dbus path=\"%s\"", qPrintable(path));
-            config.reset(new DSGConfigManager(DSG_CONFIG_MANAGER, path,
-                                                QDBusConnection::systemBus(), owner->q_func()));
+            config = new DSGConfigManager(DSG_CONFIG_MANAGER, path,
+                                           QDBusConnection::systemBus(), owner->q_func());
             if (!config->isValid()) {
                 qCWarning(cfLog, "Can't acquire config path=\"%s\"", qPrintable(path));
-                config.reset();
+                config->deleteLater();
+                config = nullptr;
                 return false;
             } else {
-                QObject::connect(config.data(), &DSGConfigManager::valueChanged, owner->q_func(), &DConfig::valueChanged);
+                QObject::connect(config, &DSGConfigManager::valueChanged, owner->q_func(), &DConfig::valueChanged);
             }
         }
         return true;
@@ -456,7 +458,7 @@ public:
     }
 
 private:
-    QScopedPointer<DSGConfigManager> config;
+    DSGConfigManager *config;
     DConfigPrivate* owner;
 };
 
