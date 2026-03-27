@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2023 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -11,8 +11,15 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
+#include <QCoreApplication>
+#include <QStandardPaths>
 
 DCORE_BEGIN_NAMESPACE
+
+// /usr/share/spdx-licenses
+constexpr auto SystemLicenseDir = "spdx-licenses";
+constexpr auto CustomLicenseDir = "custom-licenses";
+constexpr auto SystemConfigDir = "deepin/credits";
 
 class DLicenseInfo::DComponentInfoPrivate : public DObjectPrivate
 {
@@ -90,6 +97,16 @@ DLicenseInfoPrivate::~DLicenseInfoPrivate()
 
 bool DLicenseInfoPrivate::loadFile(const QString &file)
 {
+    clear();
+    if (file.isEmpty()) {
+        const QString relPath = QString("%1/%2.json").arg(SystemConfigDir, qApp->applicationName());
+        for (const QString &dataDir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation)) {
+            const QString file = dataDir + '/' + relPath;
+            if (QFile::exists(file))
+                return loadFile(file);
+        }
+        return false;
+    }
     QFile jsonFile(file);
     if (!jsonFile.open(QIODevice::ReadOnly)) {
         qWarning() << QString("Failed on open file: \"%1\", error message: \"%2\"").arg(
@@ -141,24 +158,20 @@ bool DLicenseInfoPrivate::loadContent(const QByteArray &content)
 
 QByteArray DLicenseInfoPrivate::licenseContent(const QString &licenseName)
 {
-    QByteArray content;
-    QStringList dirs{"/usr/share/spdx-license"};
+    const QStringList dataDirs = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
+    QStringList searchDirs;
     if (!licenseSearchPath.isEmpty())
-        dirs.prepend(licenseSearchPath);
-    for (const QString &dir : dirs) {
-        QFile file(QString("%1/%2.txt").arg(dir).arg(licenseName));
-        if (!file.exists())
-            continue;
-        if (file.open(QIODevice::ReadOnly)) {
-            content = file.readAll();
-            file.close();
-            break;
-        }
+        searchDirs << licenseSearchPath;
+    for (const QString &dataDir : dataDirs)
+        for (const auto *dir : {CustomLicenseDir, SystemLicenseDir})
+            searchDirs << (dataDir + '/' + dir);
+
+    for (const QString &dir : searchDirs) {
+        QFile file(dir + '/' + licenseName + ".txt");
+        if (file.open(QIODevice::ReadOnly))
+            return file.readAll();
     }
-    if (content.isEmpty()) {
-        qWarning() << QString("License content is empty when getting license content!");
-    }
-    return content;
+    return {};
 }
 
 void DLicenseInfoPrivate::clear()
