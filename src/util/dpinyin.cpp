@@ -1,25 +1,25 @@
-// SPDX-FileCopyrightText: 2019 - 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2019 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "dpinyin.h"
 
+#include <QDebug>
 #include <QFile>
+#include <QMap>
 #include <QSet>
 #include <QTextStream>
-#include <QMap>
-#include <QDebug>
+
+#include <mutex>
 
 DCORE_BEGIN_NAMESPACE
 
 static QHash<uint, QString> dict = {};
+static std::once_flag dictInitFlag;
 const char kDictFile[] = ":/dpinyin/resources/dpinyin.dict";
 
-static void InitDict() {
-    if (!dict.isEmpty()) {
-        return;
-    }
-
+static void initDictImpl()
+{
     dict.reserve(25333);
 
     QFile file(kDictFile);
@@ -44,6 +44,11 @@ static void InitDict() {
             dict.insert(items[0].toUInt(nullptr, 16), items[1].trimmed());
         }
     }
+}
+
+static void InitDict()
+{
+    std::call_once(dictInitFlag, initDictImpl);
 }
 
 static void initToneTable(QMap<QChar, QString> &toneTable)
@@ -71,7 +76,7 @@ static QString toned(const QString &str, ToneStyle ts)
 
     QString newStr = str;
     QString toneNum = "";
-    
+
     // First pass: find tone number and remove tone marks
     for (QChar c : str) {
         if (toneTable.contains(c)) {
@@ -89,12 +94,12 @@ static QString toned(const QString &str, ToneStyle ts)
             }
         }
     }
-    
+
     // For TS_ToneNum, append tone number at the end
     if (ts == TS_ToneNum && !toneNum.isEmpty()) {
         newStr += toneNum;
     }
-    
+
     return newStr;
 }
 
