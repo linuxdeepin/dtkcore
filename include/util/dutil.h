@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2016 - 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2016 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -54,37 +54,58 @@ void SecureErase(T &obj)
     }
 }
 
-inline QString escapeToObjectPath(const QString &str)
+inline QString escapeToObjectPath(const QByteArray &str) noexcept
 {
     if (str.isEmpty()) {
-        return "_";
+        return QStringLiteral("_");
     }
 
-    auto ret = str;
-    QRegularExpression re{R"([^a-zA-Z0-9])"};
-    auto matcher = re.globalMatch(ret);
-    while (matcher.hasNext()) {
-        auto replaceList = matcher.next().capturedTexts();
-        replaceList.removeDuplicates();
-        for (const auto &c : replaceList) {
-            auto hexStr = QString::number(static_cast<uint>(c.front().toLatin1()), 16);
-            ret.replace(c, QString{R"(_%1)"}.arg(hexStr));
+    QString ret;
+    ret.reserve(str.size() * 3);
+
+    for (qsizetype i = 0; i < str.size(); ++i) {
+        auto byte = static_cast<unsigned char>(str.at(i));
+        if (std::isalnum(byte) != 0 || byte == '/') {
+            ret.append(QChar::fromLatin1(byte));
+        } else {
+            // TODO: a valid dbus object path component only allows "[A-Z][a-z][0-9]_"
+            // for compatibility with existing applications, we escape all unicode to avoid breakage
+            // but we should consider to drop this compatibility hack in the future.
+            ret.append(u'_');
+            ret.append(QString::number(byte, 16).rightJustified(2, u'0').toLower());
         }
     }
+
+    ret.shrink_to_fit();
     return ret;
 }
 
-inline QString unescapeFromObjectPath(const QString &str)
+inline QString escapeToObjectPath(const QString &str) noexcept
 {
-    auto ret = str;
-    for (int i = 0; i < str.size(); ++i) {
-        if (str[i] == '_' && i + 2 < str.size()) {
-            auto hexStr = str.mid(i + 1, 2);
-            ret.replace(QString{"_%1"}.arg(hexStr), QChar::fromLatin1(hexStr.toUInt(nullptr, 16)));
-            i += 2;
+    return escapeToObjectPath(str.toUtf8());
+}
+
+inline QString unescapeFromObjectPath(const QString &str) noexcept
+{
+    QByteArray ret;
+    ret.reserve(str.length());
+
+    for (qsizetype i = 0; i < str.length();) {
+        if (i <= str.length() - 3 && str.at(i) == u'_') {
+            bool ok{false};
+            auto byte = static_cast<unsigned char>(str.mid(i + 1, 2).toUShort(&ok, 16));
+            if (ok) {
+                ret.append(static_cast<char>(byte));
+                i += 3;
+                continue;
+            }
         }
+
+        ret.append(str.at(i).toLatin1());
+        ++i;
     }
-    return ret;
+
+    return QString::fromUtf8(ret);
 }
 
 inline QString getAppIdFromAbsolutePath(const QString &path)
