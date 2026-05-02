@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#define _GNU_SOURCE
+
 #include "dsysinfo.h"
 
 #include <QCoreApplication>
@@ -11,8 +13,40 @@
 #include <QFile>
 
 #include <stdio.h>
+#include <unistd.h> 
+#include <cstring>
 
 DCORE_USE_NAMESPACE
+
+class StderrFilterThread : public QThread
+{
+public:
+    explicit StderrFilterThread(int origStderr, int readFd, QObject *parent = nullptr)
+        : QThread(parent), m_origStderr(origStderr), m_readFd(readFd) {}
+
+protected:
+    void run() override
+    {
+        FILE *readEnd = fdopen(m_readFd, "r");
+        if (!readEnd) return;
+
+        char *line = nullptr;
+        size_t len = 0;
+        while (getline(&line, &len, readEnd) != -1) {
+            if (strstr(line, "WARNING: CPU random generator seem to be failing") ||
+                strstr(line, "WARNING: RDRND generated:")) {
+                continue; // 丢弃该行
+            }
+            write(m_origStderr, line, strlen(line));
+        }
+        free(line);
+        fclose(readEnd);
+    }
+
+private:
+    int m_origStderr;
+    int m_readFd;
+};
 
 bool distributionInfoValid() {
     return QFile::exists(DSysInfo::distributionInfoPath());
@@ -27,6 +61,16 @@ void printDistributionOrgInfo(DSysInfo::OrgType type) {
 
 int main(int argc, char *argv[])
 {
+    // 设置过滤器
+    int origStderr = dup(STDERR_FILENO);
+    int pipefd[2];
+    pipe(pipefd);
+    dup2(pipefd[1], STDERR_FILENO);
+    close(pipefd[1]);
+
+    StderrFilterThread *filterThread = new StderrFilterThread(origStderr, pipefd[0]);
+    filterThread->start(); 
+
     QCoreApplication app(argc, argv);
     Q_UNUSED(app)
 
@@ -122,6 +166,13 @@ int main(int argc, char *argv[])
             printDistributionOrgInfo(DSysInfo::Distributor);
         }
     }
+
+    // 清理
+    dup2(origStderr, STDERR_FILENO);  // 恢复 stderr
+    close(origStderr);
+
+    filterThread->wait();             
+    delete filterThread;
 
     return 0;
 }
