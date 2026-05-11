@@ -180,8 +180,10 @@ QVariant DDBusExtendedAbstractInterface::internalPropGet(const char *propname, v
         QVariant ret = property(propname);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        ret.metaType().destruct(propertyPtr);
         ret.metaType().construct(propertyPtr, ret.constData());
 #else
+        QMetaType::destruct(ret.userType(), propertyPtr);
         QMetaType::construct(ret.userType(), propertyPtr, ret.constData());
 
 #endif
