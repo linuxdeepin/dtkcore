@@ -7,17 +7,17 @@
 #include <filesystem>  //Avoid changing the access control of the standard library
 #endif
 
-#define private public
-#define protected public
 #include <private/qfile_p.h>
-#undef private
-#undef protected
 
+#include "util/dprivateaccessor_p.h"
 #include "ddcifileengine_p.h"
 #include "dci/ddcifile.h"
 
 #include <QBuffer>
 #include <QLoggingCategory>
+
+D_DECLARE_PRIVATE_METHOD(QFile_d_func_tag, QFile, d_func, QFilePrivate *);
+D_DECLARE_PRIVATE_CONST_METHOD(QFilePrivate_engine_tag, QFilePrivate, engine, QAbstractFileEngine *);
 
 DCORE_BEGIN_NAMESPACE
 
@@ -306,7 +306,7 @@ bool DDciFileEngine::syncToDisk()
 {
     if (!flush())
         return false;
-    return realDciFile.d_func()->engine()->syncToDisk();
+    return D_PRIVATE_CALL(*D_PRIVATE_CALL(realDciFile, QFile_d_func_tag{}), QFilePrivate_engine_tag{})->syncToDisk();
 }
 
 qint64 DDciFileEngine::size() const
