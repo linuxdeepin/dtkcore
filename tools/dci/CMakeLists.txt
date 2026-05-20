@@ -27,6 +27,7 @@ target_include_directories(${BIN_NAME} PUBLIC
   ../../include/DtkCore/
   ../../include/base/
   ../../include/global/
+  ../../src/
 )
 set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME ${TARGET_NAME})
 #end dci
