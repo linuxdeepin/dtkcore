@@ -28,6 +28,9 @@ target_include_directories(${BIN_NAME} PUBLIC
   ../../include/base/
   ../../include/global/
 )
+target_include_directories(${BIN_NAME} PRIVATE
+  ../../src/
+)
 set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME ${TARGET_NAME})
 #end dci
 
