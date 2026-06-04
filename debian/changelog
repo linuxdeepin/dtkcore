@@ -1,3 +1,9 @@
+dtkcore (6.7.43) unstable; urgency=medium
+
+  * refactor: replace private access hacks with accessor pattern
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 04 Jun 2026 19:33:09 +0800
+
 dtkcore (6.7.42) unstable; urgency=medium
 
   * Release 6.7.42
