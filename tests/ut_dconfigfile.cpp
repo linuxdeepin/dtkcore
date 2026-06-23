@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -503,6 +503,87 @@ TEST_F(ut_DConfigFile, userPublic) {
         ASSERT_TRUE(config.load(LocalPrefix));
         ASSERT_TRUE(config.meta()->flags("publicConfig").testFlag(DConfigFile::UserPublic));
         ASSERT_FALSE(config.meta()->flags("canExit").testFlag(DConfigFile::UserPublic));
+    }
+}
+
+TEST_F(ut_DConfigFile, setValueWithSerialComparison) {
+    // 测试 DConfigCacheImpl::setValue 中的 serial 比较逻辑
+    // 当值相同但 serial 不同时，应该返回 true（更新缓存）
+
+    FileCopyGuard guard(":/data/dconf-serial-test.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
+
+    // 场景1: 值和 serial 都相同 → 返回 false
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+        ASSERT_TRUE(userCache->load(LocalPrefix));
+
+        // 首次设置值，serial=0 从 meta 传入
+        ASSERT_TRUE(config.setValue("testKey", "test_value", "test", userCache.get()));
+
+        // 再次设置相同的值，serial 相同 → 返回 false
+        ASSERT_FALSE(config.setValue("testKey", "test_value", "test", userCache.get()));
+    }
+
+    // 场景2: 值相同，serial 不同 → 返回 true（新修复的场景）
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+        ASSERT_TRUE(userCache->load(LocalPrefix));
+
+        // 设置值，缓存中 serial=0
+        ASSERT_TRUE(config.setValue("testKey", "test_value", "test", userCache.get()));
+
+        // 使用 override 文件将 serial 升级到 1
+        FileCopyGuard guard2(":/data/dconf-serial-test.override.json", QString("%1/%2.json").arg(overridePath, FILE_NAME));
+
+        // 重新加载配置，此时 meta serial=1
+        DConfigFile config2(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config2.load(LocalPrefix));
+        QScopedPointer<DConfigCache> userCache2(config2.createUserCache(uid));
+        ASSERT_TRUE(userCache2->load(LocalPrefix));
+
+        // 设置相同的值，但 meta serial=1, cache serial=0 → 应该返回 true
+        ASSERT_TRUE(config2.setValue("testKey", "test_value", "test", userCache2.get()));
+    }
+
+    // 场景3: 值不同，serial 相同 → 返回 true
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+        ASSERT_TRUE(userCache->load(LocalPrefix));
+
+        // 设置初始值
+        ASSERT_TRUE(config.setValue("testKey", "value1", "test", userCache.get()));
+
+        // 设置不同的值，serial 相同 → 返回 true
+        ASSERT_TRUE(config.setValue("testKey", "value2", "test", userCache.get()));
+    }
+
+    // 场景4: 值不同，serial 不同 → 返回 true
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+        ASSERT_TRUE(userCache->load(LocalPrefix));
+
+        // 设置初始值
+        ASSERT_TRUE(config.setValue("testKey", "value1", "test", userCache.get()));
+
+        // 使用 override 文件将 serial 升级到 1
+        FileCopyGuard guard2(":/data/dconf-serial-test.override.json", QString("%1/%2.json").arg(overridePath, FILE_NAME));
+
+        // 重新加载配置
+        DConfigFile config2(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config2.load(LocalPrefix));
+        QScopedPointer<DConfigCache> userCache2(config2.createUserCache(uid));
+        ASSERT_TRUE(userCache2->load(LocalPrefix));
+
+        // 设置不同的值，serial 也不同 → 返回 true
+        ASSERT_TRUE(config2.setValue("testKey", "value3", "test", userCache2.get()));
     }
 }
 

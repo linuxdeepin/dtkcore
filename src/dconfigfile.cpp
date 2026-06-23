@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -985,7 +985,7 @@ DConfigMetaImpl::~DConfigMetaImpl()
     \a value Configuration name
     \a uid User Id at setup time
     \a callerAppid Application id at setup time
-    @return A value of true indicates that the new value has been reset, and false indicates that it has not been set
+    @return true if the cache was updated (value or serial changed), false if no update was needed
 */
 
 /*!
@@ -1124,7 +1124,7 @@ public:
     }
     bool setValue(const QString &key, const QVariant &value, const int serial, const uint uid, const QString &appid) override
     {
-        if (values.value(key) == value) {
+        if (values.value(key) == value && DConfigInfo::checkSerial(values.serial(key), serial)) {
             return false;
         }
         values.setValue(key, value);
@@ -1487,7 +1487,7 @@ QVariant DConfigFile::cacheValue(DConfigCache *userCache, const QString &key) co
     \a value The value to set
     \a userCache Specific user cache at setup time
     \a appid Application id at setup time
-    @return A value of true indicates that the new value has been reset, and false indicates that it has not been set
+    @return true if the cache was updated (value or serial changed), false if no update was needed
  */
 bool DConfigFile::setValue(const QString &key, const QVariant &value, const QString &callerAppid, DConfigCache *userCache)
 {

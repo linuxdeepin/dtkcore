@@ -1,0 +1,10 @@
+{
+  "magic": "dsg.config.override",
+  "version": "1.0",
+  "contents": {
+    "testKey": {
+      "value": "initial",
+      "serial": 1
+    }
+  }
+}
