@@ -20,6 +20,7 @@
 #include <QDirIterator>
 #include <QCollator>
 #include <QDateTime>
+#include <QRegularExpression>
 
 #include <unistd.h>
 #include <pwd.h>
@@ -35,6 +36,50 @@ Q_LOGGING_CATEGORY(cfLog, "dtk.dsg.config");
 #endif
 
 #define FILE_SUFFIX QLatin1String(".json")
+
+// QJson treats all numbers as double, and QJsonValue::toVariant() degrades a
+// float literal with no fractional part (e.g. 1.0) to an integer type
+// (qlonglong). To keep the original float intent, we match the raw JSON text
+// to detect whether the "value" literal contained '.' or 'e'/'E'.
+// This mirrors the approach used by tools/dconfig2cpp/main.cpp:isOriginalValueFloat.
+struct JsonParseResult {
+    QJsonDocument doc;
+    QByteArray raw;       // raw bytes, kept for float-literal detection
+    bool isValid() const { return !doc.isNull(); }
+};
+
+// Check whether the number literal under "propertyName" -> {"value": ...}
+// in the raw JSON is a floating-point literal (contains '.' or 'e'/'E').
+static bool isOriginalValueFloat(const QByteArray &raw, const QString &propertyName, const QJsonValue &value)
+{
+    if (!value.isDouble()) {
+        return false;
+    }
+    const QString searchPattern = QString("\"%1\"\\s*:\\s*\\{[^}]*\"value\"\\s*:\\s*([0-9.eE+-]+)").arg(propertyName);
+    const QRegularExpression regex(searchPattern);
+    const QRegularExpressionMatch match = regex.match(QString::fromUtf8(raw));
+    if (match.hasMatch()) {
+        const QString numberStr = match.captured(1);
+        return numberStr.contains(QLatin1Char('.')) || numberStr.contains(QLatin1Char('e'), Qt::CaseInsensitive);
+    }
+    return false;
+}
+
+// Convert a QJsonValue to QVariant, forcing double when the raw literal was float.
+inline static QVariant jsonValueToVariant(const QJsonValue &value, bool isFloat)
+{
+    QVariant var = value.toVariant();
+    if (isFloat) {
+        QVariant copy = var;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        if (copy.convert(QMetaType(QMetaType::Double)))
+#else
+        if (copy.convert(QVariant::Double))
+#endif
+            var = copy;
+    }
+    return var;
+}
 
 // subpath must be a subdirectory of the dir.
 inline static bool subpathIsValid(const QString &subpath, const QDir &dir)
@@ -111,26 +156,29 @@ inline QFile *loadFile(const QString &baseDir, const QString &subpath, const QSt
     return nullptr;
 }
 
-static QJsonDocument loadJsonFile(QIODevice *data)
+static JsonParseResult loadJsonFile(QIODevice *data)
 {
     if (!data->open(QIODevice::ReadOnly)) {
         if (auto file = qobject_cast<QFile*>(data)) {
             qCDebug(cfLog, "Falied on open file: \"%s\", error message: \"%s\"",
                     qPrintable(file->fileName()), qPrintable(file->errorString()));
         }
-        return QJsonDocument();
+        return JsonParseResult();
     }
 
-    QJsonParseError error;
-    auto document = QJsonDocument::fromJson(data->readAll(), &error);
+    JsonParseResult result;
+    result.raw = data->readAll();
     data->close();
+
+    QJsonParseError error;
+    result.doc = QJsonDocument::fromJson(result.raw, &error);
 
     if (error.error != QJsonParseError::NoError) {
         qCWarning(cfLog, "%s", qPrintable(error.errorString()));
-        return QJsonDocument();
+        return JsonParseResult();
     }
 
-    return document;
+    return result;
 }
 
 static DConfigFile::Version parseVersion(const QJsonObject &obj) {
@@ -443,9 +491,9 @@ public:
         return true;
     }
 
-    inline bool updateValue(const QString &key, const QJsonValue &value)
+    inline bool updateValue(const QString &key, const QJsonValue &value, const QByteArray &raw)
     {
-        return overrideValue(key, "value", value);
+        return overrideValue(key, "value", value, raw);
     }
 
     inline void updateSerial(const QString &key, const QJsonValue &value)
@@ -467,14 +515,20 @@ public:
         return contents;
     }
 private:
-    bool overrideValue(const QString &key, const QString &subkey, const QJsonValue &from) {
+    bool overrideValue(const QString &key, const QString &subkey, const QJsonValue &from, const QByteArray &raw = QByteArray()) {
         const QJsonValue &v = from[subkey];
 
         if (v.isUndefined()) {
             return false;
         }
 
-        values[key][subkey] = v.toVariant();
+        if (subkey == QLatin1String("value")) {
+            // QJsonValue::toVariant() degrades 1.0 to qlonglong; restore double
+            // when the raw literal was a float.
+            values[key][subkey] = jsonValueToVariant(v, isOriginalValueFloat(raw, key, v));
+        } else {
+            values[key][subkey] = v.toVariant();
+        }
         return true;
     }
 
@@ -732,7 +786,8 @@ public:
     bool load(QIODevice *meta, const QList<QIODevice*> &overrides) override
     {
         {
-            const QJsonDocument &doc = loadJsonFile(meta);
+            const JsonParseResult pr = loadJsonFile(meta);
+            const QJsonDocument &doc = pr.doc;
             if (!doc.isObject())
                 return false;
 
@@ -759,7 +814,16 @@ public:
 
             // 初始化原始值
             for (; i != contents.constEnd(); ++i) {
-                if (!values.update(i.key(), i.value().toObject().toVariantHash())) {
+                const QJsonObject itemObj = i.value().toObject();
+                QVariantHash vh = itemObj.toVariantHash();
+                // QJsonValue::toVariant() degrades 1.0 to qlonglong; restore double
+                // when the raw literal was a float.
+                const QJsonValue valueField = itemObj.value(QLatin1String("value"));
+                if (valueField.isDouble()) {
+                    vh.insert(QLatin1String("value"),
+                              jsonValueToVariant(valueField, isOriginalValueFloat(pr.raw, i.key(), valueField)));
+                }
+                if (!values.update(i.key(), vh)) {
                     qWarning() << "key:" << i.key() << "has no value";
                     return false;
                 }
@@ -767,7 +831,8 @@ public:
         }
         // for override
         Q_FOREACH(auto override, overrides) {
-            const QJsonDocument &doc = loadJsonFile(override);
+            const JsonParseResult ovr = loadJsonFile(override);
+            const QJsonDocument &doc = ovr.doc;
             if (doc.isObject()) {
                 const QJsonObject &root = doc.object();
                 if (!checkMagic(root, MAGIC_OVERRIDE)) {
@@ -800,7 +865,7 @@ public:
                     if (values.flags(i.key()) & DConfigFile::NoOverride)
                         continue;
 
-                    if (!values.updateValue(i.key(), i.value())) {
+                    if (!values.updateValue(i.key(), i.value(), ovr.raw)) {
                         qWarning() << "key (override):" << i.key() << "has no value";
                         return false;
                     }
@@ -1183,7 +1248,8 @@ bool DConfigCacheImpl::load(const QString &localPrefix)
         return true;
     }
 
-    const QJsonDocument &doc = loadJsonFile(cache.data());
+    const JsonParseResult pr = loadJsonFile(cache.data());
+    const QJsonDocument &doc = pr.doc;
 
     if (doc.isObject()) {
         const QJsonObject &root = doc.object();
@@ -1197,7 +1263,16 @@ bool DConfigCacheImpl::load(const QString &localPrefix)
 
         // 原样保存原始数据
         for (; i != contents.constEnd(); ++i) {
-            values.update(i.key(), i.value().toObject().toVariantHash());
+            const QJsonObject itemObj = i.value().toObject();
+            QVariantHash vh = itemObj.toVariantHash();
+            // QJsonValue::toVariant() degrades 1.0 to qlonglong; restore double
+            // when the raw literal was a float.
+            const QJsonValue valueField = itemObj.value(QLatin1String("value"));
+            if (valueField.isDouble()) {
+                vh.insert(QLatin1String("value"),
+                          jsonValueToVariant(valueField, isOriginalValueFloat(pr.raw, i.key(), valueField)));
+            }
+            values.update(i.key(), vh);
         }
     }
     return true;

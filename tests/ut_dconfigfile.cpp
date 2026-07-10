@@ -125,9 +125,23 @@ TEST_F(ut_DConfigFile, setValueTypeCheck) {
         ASSERT_EQ(config.value("number", userCache.get()).type(), type);
     }
     {
-        const auto type = config.value("numberDouble", userCache.get()).type();
-        ASSERT_TRUE(config.setValue("numberDouble", 1.2, "test", userCache.get()));
-        ASSERT_EQ(config.value("numberDouble", userCache.get()), 1.2);
+       const auto type = config.value("numberDouble", userCache.get()).type();
+       ASSERT_TRUE(config.setValue("numberDouble", 1.2, "test", userCache.get()));
+       ASSERT_EQ(config.value("numberDouble", userCache.get()), 1.2);
+   }
+    // The default literal in meta is "1.0" (a float literal); toVariant()
+    // would normally degrade it to qlonglong, losing the float intent. With
+    // the raw-text float detection fix, the default must stay double so that
+    // a later `dde-dconfig set -v 1.3` takes the Double branch.
+    {
+        const auto defaultValue = config.value("numberDouble", userCache.get());
+        ASSERT_EQ(defaultValue.userType(), static_cast<int>(QMetaType::Double));
+    }
+    // Conversely, "number" has default literal "1" (no fractional part), so
+    // it must remain an integer.
+    {
+        const auto defaultValue = config.value("number", userCache.get());
+        ASSERT_EQ(defaultValue.userType(), static_cast<int>(QMetaType::LongLong));
     }
     {
         const auto type = config.value("array", userCache.get()).type();
