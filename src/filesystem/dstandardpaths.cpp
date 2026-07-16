@@ -1,12 +1,15 @@
-// SPDX-FileCopyrightText: 2017 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2017 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "dstandardpaths.h"
 
 #include <QProcessEnvironment>
+#include <QDir>
+#ifdef Q_OS_LINUX
 #include <unistd.h>
 #include <pwd.h>
+#endif
 
 DCORE_BEGIN_NAMESPACE
 
@@ -118,7 +121,11 @@ QString DStandardPaths::homePath()
     if (!home.isEmpty())
         return QString::fromLocal8Bit(home);
 
+#ifdef Q_OS_LINUX
     return homePath(getuid());
+#else
+    return QDir::homePath();
+#endif
 }
 
 QString DStandardPaths::path(DStandardPaths::XDG type)
@@ -146,7 +153,11 @@ QString DStandardPaths::path(DStandardPaths::XDG type)
         const QByteArray &path = qgetenv("XDG_RUNTIME_DIR");
         if (!path.isEmpty())
             return QString::fromLocal8Bit(path);
+#ifdef Q_OS_LINUX
         return QStringLiteral("/run/user/") + QString::number(getuid());
+#else
+        return QDir::tempPath();
+#endif
     }
     case XDG::StateHome: {
         const QByteArray &path = qgetenv("XDG_STATE_HOME");
@@ -213,6 +224,7 @@ QString DStandardPaths::filePath(DStandardPaths::DSG type, const QString fileNam
 
 QString DStandardPaths::homePath(const uint uid)
 {
+#ifdef Q_OS_LINUX
     struct passwd *pw = getpwuid(uid);
 
     if (!pw)
@@ -220,6 +232,10 @@ QString DStandardPaths::homePath(const uint uid)
 
     const char *homedir = pw->pw_dir;
     return QString::fromLocal8Bit(homedir);
+#else
+    Q_UNUSED(uid)
+    return QDir::homePath();
+#endif
 }
 
 DCORE_END_NAMESPACE
