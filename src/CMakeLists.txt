@@ -8,11 +8,10 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 find_package(Dtk${DTK_NAME_SUFFIX}Log REQUIRED)
-find_package(DBus1 REQUIRED)
+find_package(PkgConfig REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBus)
 if(LINUX)
-  find_package(PkgConfig REQUIRED)
-  find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS DBus)
-
+  find_package(DBus1 REQUIRED)
   if(${QT_VERSION_MAJOR} EQUAL 5)
       pkg_check_modules(QGSettings REQUIRED IMPORTED_TARGET gsettings-qt) #Dtk6 removed.
   elseif(${QT_VERSION_MAJOR} EQUAL 6)
@@ -89,6 +88,9 @@ if(LINUX)
   endif()
 
 else()
+  if("${QT_VERSION_MAJOR}" STREQUAL "6")
+    find_package(Qt6 REQUIRED COMPONENTS CorePrivate)
+  endif()
   add_library(${LIB_NAME} SHARED
     ${base_SRCS}
     ${dci_SRCS}
@@ -101,10 +103,13 @@ else()
   target_link_libraries(
     ${LIB_NAME} PUBLIC
     Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::DBus
     Qt${QT_VERSION_MAJOR}::Xml
+    Dtk${DTK_NAME_SUFFIX}::Log
   )
   target_link_libraries(${LIB_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::CorePrivate
+    iconv
   )
   if("${QT_VERSION_MAJOR}" STREQUAL "5")
     target_link_libraries(${LIB_NAME} PRIVATE
@@ -127,9 +132,11 @@ target_compile_definitions(${LIB_NAME} PRIVATE
     LIBDTKCORE_LIBRARY
 )
 
-target_link_libraries(${LIB_NAME} PRIVATE
-  dbus-1
-)
+if(LINUX)
+  target_link_libraries(${LIB_NAME} PRIVATE
+    dbus-1
+  )
+endif()
 target_include_directories(${LIB_NAME} PRIVATE
   ${uchardet_INCLUDE_DIRS}
 )

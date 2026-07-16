@@ -17,13 +17,20 @@
 
 #include <QLoggingCategory>
 #include <QCoreApplication>
+#include <QThread>
+#ifdef Q_OS_LINUX
 #include <unistd.h>
+#endif
 
 // https://gitlabwh.uniontech.com/wuhan/se/deepin-specifications/-/issues/3
 
 DCORE_BEGIN_NAMESPACE
 
+#ifdef D_DISABLE_DCONFIG
+Q_LOGGING_CATEGORY(cfLog, "dtk.dsg.config")
+#else
 Q_DECLARE_LOGGING_CATEGORY(cfLog)
+#endif
 static QString NoAppId;
 
 /*!

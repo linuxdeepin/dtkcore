@@ -8,7 +8,9 @@
 #include <Logger.h>
 #include <ConsoleAppender.h>
 #include <RollingFileAppender.h>
+#if defined(BUILD_WITH_SYSTEMD) && defined(Q_OS_LINUX)
 #include <JournalAppender.h>
+#endif
 
 #ifdef Q_OS_LINUX
 #include <sys/stat.h>
@@ -56,7 +58,9 @@ public:
     QString m_logPath;
     ConsoleAppender* m_consoleAppender = nullptr;
     RollingFileAppender* m_rollingFileAppender = nullptr;
+#if defined(BUILD_WITH_SYSTEMD) && defined(Q_OS_LINUX)
     JournalAppender* m_journalAppender = nullptr;
+#endif
     QScopedPointer<dconfig_org_deepin_dtk_preference> m_dsgConfig;
     QScopedPointer<dconfig_org_deepin_dtk_preference> m_fallbackConfig;
 
@@ -134,7 +138,7 @@ bool DLogManagerPrivate::shouldSkipConsoleAppender() const
     if (qEnvironmentVariableIsSet("DTK_FORCE_CONSOLE_LOGGING"))
         return false;
 
-
+#ifdef Q_OS_LINUX
     // Skip ConsoleAppender if running under systemd and stdout is connected to journal to avoid duplicate logging
     QByteArray journalStream = qgetenv("JOURNAL_STREAM");
     if (journalStream.isEmpty())
@@ -153,6 +157,9 @@ bool DLogManagerPrivate::shouldSkipConsoleAppender() const
     auto ino = parts[1].toULongLong(&ok2);
 
     return ok1 && ok2 && st.st_dev == dev && st.st_ino == ino;
+#else
+    return false;
+#endif
 }
 
 /*!
@@ -172,11 +179,13 @@ DLogManager::DLogManager()
 void DLogManager::initConsoleAppender(){
     Q_D(DLogManager);
     
+#if defined(BUILD_WITH_SYSTEMD) && defined(Q_OS_LINUX)
     // Skip ConsoleAppender if JournalAppender is active under systemd to avoid duplicate logging
     if (d->shouldSkipConsoleAppender() && d->m_journalAppender) {
         qDebug() << "Running under systemd with JournalAppender enabled, skipping ConsoleAppender to avoid duplicate logging";
         return;
     }
+#endif
     
     d->m_consoleAppender = new ConsoleAppender;
     d->m_consoleAppender->setFormat(d->m_format);

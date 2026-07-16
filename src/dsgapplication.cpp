@@ -1,11 +1,16 @@
-// SPDX-FileCopyrightText: 2022-2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2022-2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "dsgapplication.h"
 
+#ifdef Q_OS_LINUX
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <dbus/dbus.h>
+#else
+#include <QStandardPaths>
+#endif
 
 #include <QDir>
 #include <QFile>
@@ -14,8 +19,7 @@
 #include <QDebug>
 #include <QRegularExpression>
 #include <QLoggingCategory>
-
-#include <dbus/dbus.h>
+#include <QFileInfo>
 
 #ifdef QT_DEBUG
 Q_LOGGING_CATEGORY(dsgApp, "dtk.core.dsg")
@@ -24,6 +28,8 @@ Q_LOGGING_CATEGORY(dsgApp, "dtk.core.dsg", QtInfoMsg)
 #endif
 
 DCORE_BEGIN_NAMESPACE
+
+#ifdef Q_OS_LINUX
 
 // D-Bus resource deleters for RAII management
 static void dbusErrorDeleter(DBusError *error) {
@@ -217,18 +223,12 @@ static QByteArray callDBusIdentifyMethod(const QByteArray &serviceName, const QB
     return appId;
 }
 
-static inline QByteArray getSelfAppId() {
-    // The env is set by the application starter(eg, org.desktopspec.ApplicationManager service)
-    QByteArray selfId = qgetenv("DSG_APP_ID");
-    if (!selfId.isEmpty())
-        return selfId;
-    return DSGApplication::getId(QCoreApplication::applicationPid());
-}
-
 static bool isServiceActivatable(const QByteArray &service)
 {
     return checkDBusServiceActivatable(service);
 }
+
+#endif // Q_OS_LINUX
 
 // Format appId to valid.
 static QByteArray formatAppId(const QByteArray &appId)
@@ -243,6 +243,14 @@ static QByteArray formatAppId(const QByteArray &appId)
     return format.toLocal8Bit();
 }
 
+static inline QByteArray getSelfAppId() {
+    // The env is set by the application starter(eg, org.desktopspec.ApplicationManager service)
+    QByteArray selfId = qgetenv("DSG_APP_ID");
+    if (!selfId.isEmpty())
+        return selfId;
+    return DSGApplication::getId(QCoreApplication::applicationPid());
+}
+
 QByteArray DSGApplication::id()
 {
     static QByteArray selfId = getSelfAppId();
@@ -251,6 +259,7 @@ QByteArray DSGApplication::id()
     QByteArray result = selfId;
     if (!qEnvironmentVariableIsSet("DTK_DISABLED_FALLBACK_APPID")) {
         result = QCoreApplication::applicationName().toLocal8Bit();
+#ifdef Q_OS_LINUX
         if (result.isEmpty()) {
             QFile file("/proc/self/cmdline");
             if (file.open(QIODevice::ReadOnly))
@@ -261,6 +270,7 @@ QByteArray DSGApplication::id()
             if (file.exists())
                 result = file.absoluteFilePath().toLocal8Bit();
         }
+#endif
         if (!result.isEmpty()) {
             result = formatAppId(result);
             qCDebug(dsgApp) << "The applicatiion ID is fallback to " << result;
@@ -286,6 +296,7 @@ QByteArray DSGApplication::id()
  */
 QByteArray DSGApplication::getId(qint64 pid)
 {
+#ifdef Q_OS_LINUX
     if (!isServiceActivatable("org.desktopspec.ApplicationManager1")) {
         qCInfo(dsgApp) << "Can't getId from AM for the " << pid << ", because AM is unavailable.";
         return QByteArray();
@@ -305,6 +316,11 @@ QByteArray DSGApplication::getId(qint64 pid)
     close(pidfd);
 
     return appId;
+#else
+    Q_UNUSED(pid)
+    // On non-Linux platforms, D-Bus ApplicationManager is not available
+    return QByteArray();
+#endif
 }
 
 DCORE_END_NAMESPACE
