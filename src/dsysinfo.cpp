@@ -60,7 +60,6 @@ public:
     void ensureDeepinInfo();
     bool ensureOsVersion();
     void ensureDistributionInfo();
-    bool splitA_BC_DMode();
 #endif
     void ensureReleaseInfo();
     void ensureComputerInfo();
@@ -98,7 +97,7 @@ public:
         Type type;
     };
     struct OSBuild {
-        OSBuild():A(0), B(0), C(0), D(0), xyz(100){
+        OSBuild():A(0), B(0), C(0), D(0), E(0), xyz(100){
         }
 
         /* ABCDE.xyz模式
@@ -112,6 +111,8 @@ public:
 
     MinVersion minVersion;
     OSBuild osBuild;
+    bool osVersionParsed = false;
+    bool splitA_BC_DMode(const QString &minorVersion, MinVersion *minVersion, QString *warningMessage = nullptr);
 #endif
 
     QScopedPointer<DDesktopEntry> distributionInfo;
@@ -144,31 +145,32 @@ void DSysInfoPrivate::ensureDistributionInfo()
     distributionInfo.reset(new DDesktopEntry(distributionInfoFile));
 }
 
-bool DSysInfoPrivate::splitA_BC_DMode()
+bool DSysInfoPrivate::splitA_BC_DMode(const QString &minorVersion, MinVersion *minVersion, QString *warningMessage)
 {
     // A-BC-D
     bool ok = false;
     uint minv = minorVersion.toUInt(&ok);
     if (ok) {
-        minVersion.D = minv % 10;
+        minVersion->D = minv % 10;
     } else if (minorVersion.length() > 0) {
         const QString D = minorVersion.right(1);
         const QChar ch = D.at(0);
         if (ch.isDigit()) {
-            minVersion.D = static_cast<uint>(ch.unicode() - '0');
+            minVersion->D = static_cast<uint>(ch.unicode() - '0');
         } else if (ch >= 'A' && ch <= 'Z') {
             // 0-9...A-Z -> 10..35
-            minVersion.D = 10 + static_cast<uint>(ch.unicode() - 'A');
+            minVersion->D = 10 + static_cast<uint>(ch.unicode() - 'A');
         } else {
-            qWarning() << "invalid minorVersion";
-            minVersion.D = 0;
+            if (warningMessage)
+                *warningMessage = QStringLiteral("invalid minorVersion");
+            minVersion->D = 0;
         }
     }
     uint minVer = minorVersion.left(3).toUInt();
-    minVersion.BC = minVer % 100;
+    minVersion->BC = minVer % 100;
     minVer /= 100;
-    minVersion.A = minVer % 10;
-    minVersion.type = MinVersion::A_BC_D;
+    minVersion->A = minVer % 10;
+    minVersion->type = MinVersion::A_BC_D;
     return ok;
 }
 
@@ -254,127 +256,173 @@ void DSysInfoPrivate::ensureDeepinInfo()
 
 bool DSysInfoPrivate::ensureOsVersion()
 {
-    QMutexLocker locker(&mutex);
 #ifndef OS_VERSION_TEST_FILE // Always re-read the file when testing
-    if (osBuild.A > 0 && !inTest())
-        return true;
+    {
+        QMutexLocker locker(&mutex);
+        if (osVersionParsed && !inTest())
+            return true;
+    }
 #endif
 
     DDesktopEntry entry(OS_VERSION_FILE);
+    OSBuild parsedOsBuild;
+    MinVersion parsedMinVersion;
+    QString parsedMajorVersion;
+    QString parsedMinorVersion;
+    QString warningMessage;
     bool ok = false;
 
-#define D_ASSET_EXIT(con, msg) do { \
-    if (!(con)) { \
-        qWarning() << __func__ << msg; \
-        return false; \
-    } \
-} while (false)
+    if (entry.status() != DDesktopEntry::NoError) {
+        warningMessage = QStringLiteral("entry status: %1").arg(entry.status());
+    } else {
+        // 先获取版本信息
+        // ABCDE.xyz.abc
+        QString osb = entry.stringValue("OsBuild", "Version");
+        QStringList osbs = osb.split(".");
+        ok = (osbs.size() >= 2 && osbs.value(0).size() == 5);
+        if (!ok)
+            warningMessage = QStringLiteral("OsBuild version invalid!");
 
-    D_ASSET_EXIT(entry.status() == DDesktopEntry::NoError, entry.status());
-
-    // 先获取版本信息
-    // ABCDE.xyz.abc
-    QString osb = entry.stringValue("OsBuild", "Version");
-    QStringList osbs = osb.split(".");
-    ok = (osbs.size() >= 2 && osbs.value(0).size() == 5);
-    D_ASSET_EXIT(ok, "OsBuild version invalid!");
+        if (ok) {
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    const QStringList &left = osbs.value(0).split(QString(), Qt::SkipEmptyParts);
+            const QStringList &left = osbs.value(0).split(QString(), Qt::SkipEmptyParts);
 #else
-    const QStringList &left = osbs.value(0).split(QString(), QString::SkipEmptyParts);
+            const QStringList &left = osbs.value(0).split(QString(), QString::SkipEmptyParts);
 #endif
-    D_ASSET_EXIT(left.size() == 5, "OsBuild version(ls) invalid!");
+            ok = (left.size() == 5);
+            if (!ok)
+                warningMessage = QStringLiteral("OsBuild version(ls) invalid!");
 
-    int idx = 0;
-    auto parseDigitOrAZ = [&](const QString &s, bool *outOk) -> uint {
-        if (s.isEmpty()) { if (outOk) *outOk = false; return 0u; }
-        const QChar ch = s.at(0);
-        if (ch.isDigit()) { if (outOk) *outOk = true; return static_cast<uint>(ch.unicode() - '0'); }
-        if (ch >= 'A' && ch <= 'Z') { if (outOk) *outOk = true; return static_cast<uint>(ch.toLatin1()); }
-        if (outOk) *outOk = false;
-        return 0u;
-    };
+            int idx = 0;
+            auto parseDigitOrAZ = [&](const QString &s, bool *outOk) -> uint {
+                if (s.isEmpty()) { if (outOk) *outOk = false; return 0u; }
+                const QChar ch = s.at(0);
+                if (ch.isDigit()) { if (outOk) *outOk = true; return static_cast<uint>(ch.unicode() - '0'); }
+                if (ch >= 'A' && ch <= 'Z') { if (outOk) *outOk = true; return static_cast<uint>(ch.toLatin1()); }
+                if (outOk) *outOk = false;
+                return 0u;
+            };
 
-    osBuild.A = parseDigitOrAZ(left.value(idx++, "0"), &ok);
-    D_ASSET_EXIT(ok, "OsBuild version(A) invalid!");
-    osBuild.B = parseDigitOrAZ(left.value(idx++, "0"), &ok);
-    D_ASSET_EXIT(ok, "OsBuild version(B) invalid!");
-    osBuild.C = parseDigitOrAZ(left.value(idx++, "0"), &ok);
-    D_ASSET_EXIT(ok, "OsBuild version(C) invalid!");
-    osBuild.D = parseDigitOrAZ(left.value(idx++, "0"), &ok);
-    D_ASSET_EXIT(ok, "OsBuild version(D) invalid!");
-    osBuild.E = parseDigitOrAZ(left.value(idx++, "0"), &ok);
-    D_ASSET_EXIT(ok, "OsBuild version(E) invalid!");
-
-    // xyz
-    osBuild.xyz = osbs.value(1).trimmed().toUInt(&ok);
-
-    majorVersion = entry.stringValue("MajorVersion", "Version");
-    minorVersion = entry.stringValue("MinorVersion", "Version");
-
-    switch (osBuild.D) {
-    case 7: {
-        // Home Edition uses the form of "full version number coding -x.y.z"
-        const QStringList &versionList = minorVersion.split('.');
-        if (versionList.isEmpty()) {
-            // If the reading fails, return it directly to empty
-            qWarning() << "no minorVersion";
-            return false;
-        } else if (versionList.length() == 2) {
-            // Z is 0
-            minVersion.X = versionList.first().toUInt();
-            minVersion.Y = versionList.last().toUInt();
-            minVersion.Z = 0;
-        } else if (versionList.length() == 3) {
-            // X.Y.Z exists
-            minVersion.X = versionList.at(0).toUInt();
-            minVersion.Y = versionList.at(1).toUInt();
-            minVersion.Z = versionList.at(2).toUInt();
-        }
-        minVersion.type = MinVersion::X_Y_Z;
-    } break;
-
-    case 3: {
-        // The community version uses the form of "full version number coding A.B.C"
-        bool a_bc_dMode = false;
-        const QStringList &versionList = minorVersion.split('.');
-        if (versionList.isEmpty()) {
-            // If the reading fails, return it directly to empty
-            qWarning() << "no minorVersion";
-            return false;
-        } else if (versionList.length() == 1) {
-            QString modeVersion = versionList.first();
-            if (modeVersion.length() == 2) {
-                //A.B.C mode and B c are 0
-                minVersion.A = modeVersion.toUInt();
-                minVersion.B = 0;
-                minVersion.C = 0;
-            } else {
-                // A_BC_D mode
-                splitA_BC_DMode();
-                a_bc_dMode = true;
+            if (ok) {
+                parsedOsBuild.A = parseDigitOrAZ(left.value(idx++, "0"), &ok);
+                if (!ok)
+                    warningMessage = QStringLiteral("OsBuild version(A) invalid!");
             }
-        } else if (versionList.length() == 2) {
-            // C=0
-            minVersion.A = versionList.first().toUInt();
-            minVersion.B = versionList.last().toUInt();
-            minVersion.C = 0;
-        } else if (versionList.length() == 3) {
-            // A.B.C exists
-            minVersion.A = versionList.at(0).toUInt();
-            minVersion.B = versionList.at(1).toUInt();
-            minVersion.C = versionList.at(2).toUInt();
+            if (ok) {
+                parsedOsBuild.B = parseDigitOrAZ(left.value(idx++, "0"), &ok);
+                if (!ok)
+                    warningMessage = QStringLiteral("OsBuild version(B) invalid!");
+            }
+            if (ok) {
+                parsedOsBuild.C = parseDigitOrAZ(left.value(idx++, "0"), &ok);
+                if (!ok)
+                    warningMessage = QStringLiteral("OsBuild version(C) invalid!");
+            }
+            if (ok) {
+                parsedOsBuild.D = parseDigitOrAZ(left.value(idx++, "0"), &ok);
+                if (!ok)
+                    warningMessage = QStringLiteral("OsBuild version(D) invalid!");
+            }
+            if (ok) {
+                parsedOsBuild.E = parseDigitOrAZ(left.value(idx++, "0"), &ok);
+                if (!ok)
+                    warningMessage = QStringLiteral("OsBuild version(E) invalid!");
+            }
+
+            if (ok) {
+                // xyz
+                parsedOsBuild.xyz = osbs.value(1).trimmed().toUInt(&ok);
+            }
+
+            if (ok) {
+                parsedMajorVersion = entry.stringValue("MajorVersion", "Version");
+                parsedMinorVersion = entry.stringValue("MinorVersion", "Version");
+
+                switch (parsedOsBuild.D) {
+                case 7: {
+                    // Home Edition uses the form of "full version number coding -x.y.z"
+                    const QStringList &versionList = parsedMinorVersion.split('.');
+                    if (versionList.isEmpty()) {
+                        // If the reading fails, return it directly to empty
+                        warningMessage = QStringLiteral("no minorVersion");
+                        ok = false;
+                    } else if (versionList.length() == 2) {
+                        // Z is 0
+                        parsedMinVersion.X = versionList.first().toUInt();
+                        parsedMinVersion.Y = versionList.last().toUInt();
+                        parsedMinVersion.Z = 0;
+                    } else if (versionList.length() == 3) {
+                        // X.Y.Z exists
+                        parsedMinVersion.X = versionList.at(0).toUInt();
+                        parsedMinVersion.Y = versionList.at(1).toUInt();
+                        parsedMinVersion.Z = versionList.at(2).toUInt();
+                    }
+                    parsedMinVersion.type = MinVersion::X_Y_Z;
+                } break;
+
+                case 3: {
+                    // The community version uses the form of "full version number coding A.B.C"
+                    bool a_bc_dMode = false;
+                    const QStringList &versionList = parsedMinorVersion.split('.');
+                    if (versionList.isEmpty()) {
+                        // If the reading fails, return it directly to empty
+                        warningMessage = QStringLiteral("no minorVersion");
+                        ok = false;
+                    } else if (versionList.length() == 1) {
+                        QString modeVersion = versionList.first();
+                        if (modeVersion.length() == 2) {
+                            //A.B.C mode and B c are 0
+                            parsedMinVersion.A = modeVersion.toUInt();
+                            parsedMinVersion.B = 0;
+                            parsedMinVersion.C = 0;
+                        } else {
+                            // A_BC_D mode
+                            splitA_BC_DMode(parsedMinorVersion, &parsedMinVersion, &warningMessage);
+                            a_bc_dMode = true;
+                        }
+                    } else if (versionList.length() == 2) {
+                        // C=0
+                        parsedMinVersion.A = versionList.first().toUInt();
+                        parsedMinVersion.B = versionList.last().toUInt();
+                        parsedMinVersion.C = 0;
+                    } else if (versionList.length() == 3) {
+                        // A.B.C exists
+                        parsedMinVersion.A = versionList.at(0).toUInt();
+                        parsedMinVersion.B = versionList.at(1).toUInt();
+                        parsedMinVersion.C = versionList.at(2).toUInt();
+                    }
+
+                    if (!a_bc_dMode)
+                        parsedMinVersion.type = MinVersion::A_B_C;
+                } break;
+                default: {
+                    // A-BC-D
+                    splitA_BC_DMode(parsedMinorVersion, &parsedMinVersion, &warningMessage);
+                } break;
+                }
+            }
         }
 
-        if (!a_bc_dMode)
-            minVersion.type = MinVersion::A_B_C;
-    } break;
-    default: {
-        // A-BC-D
-        ok = splitA_BC_DMode();
-    } break;
+        {
+            QMutexLocker locker(&mutex);
+#ifndef OS_VERSION_TEST_FILE // Always re-read the file when testing
+            if (osVersionParsed && !inTest())
+                return true;
+#endif
+            if (ok) {
+                osBuild = parsedOsBuild;
+                minVersion = parsedMinVersion;
+                majorVersion = parsedMajorVersion;
+                minorVersion = parsedMinorVersion;
+            }
+            osVersionParsed = true;
+        }
     }
+
+    if (!warningMessage.isEmpty())
+        qWarning() << "ensureOsVersion" << warningMessage;
+
     return ok;
 }
 
