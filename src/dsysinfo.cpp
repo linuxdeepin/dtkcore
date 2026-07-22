@@ -949,6 +949,9 @@ QString DSysInfo::distributionOrgName(DSysInfo::OrgType type, const QLocale &loc
 
     QString fallback = type == Distribution ? QStringLiteral("Deepin") : QString();
 
+    if (!siGlobal->distributionInfo)
+        return fallback;
+
     return siGlobal->distributionInfo->localizedValue("Name", locale, distributionInfoSectionName(type), fallback);
 }
 
@@ -974,6 +977,9 @@ QPair<QString, QString> DSysInfo::distributionOrgWebsite(DSysInfo::OrgType type)
 
     QString fallbackSiteName = type == Distribution ? QStringLiteral("www.deepin.org") : QString();
     QString fallbackSiteUrl = type == Distribution ? QStringLiteral("https://www.deepin.org") : QString();
+
+    if (!siGlobal->distributionInfo)
+        return { fallbackSiteName, fallbackSiteUrl };
 
     return {
         siGlobal->distributionInfo->stringValue("WebsiteName", distributionInfoSectionName(type), fallbackSiteName),
