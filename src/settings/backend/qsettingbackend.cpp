@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2016 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2016 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -39,8 +39,11 @@ QSettingBackend::QSettingBackend(const QString &filepath, QObject *parent) :
     DSettingsBackend(parent), d_ptr(new QSettingBackendPrivate(this))
 {
     Q_D(QSettingBackend);
-
+#ifdef Q_OS_WIN
+    d->settings = new QSettings(filepath, QSettings::IniFormat, this);
+#else
     d->settings = new QSettings(filepath, QSettings::NativeFormat, this);
+#endif
     qDebug() << "create config" <<  d->settings->fileName();
 }
 

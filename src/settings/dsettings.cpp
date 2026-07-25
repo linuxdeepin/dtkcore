@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2016 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2016 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -261,6 +261,10 @@ void DSettings::setBackend(DSettingsBackend *backend)
 
     d->backend = backend;
 
+    // Load values BEFORE moving backend to worker thread.
+    // keys() and getOption() are cross-thread reads that must happen
+    // while the backend is still in the main thread.
+    loadValue();
 
     auto backendWriteThread = new QThread;
     d->backend->moveToThread(backendWriteThread);
@@ -279,9 +283,6 @@ void DSettings::setBackend(DSettingsBackend *backend)
     });
 
     backendWriteThread->start();
-
-    // load form backend
-    loadValue();
 }
 
 /*!
@@ -395,7 +396,9 @@ void DSettings::sync()
         return;
     }
 
-    d->backend->doSync();
+    // doSync() must run in the backend's worker thread.
+    // Use BlockingQueuedConnection so the caller waits for sync to finish.
+    QMetaObject::invokeMethod(d->backend, "doSync", Qt::BlockingQueuedConnection);
 }
 
 void DSettings::reset()
