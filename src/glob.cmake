@@ -21,16 +21,17 @@ set(OUTER_HEADER
   ${CMAKE_CURRENT_LIST_DIR}/../include/global/ddesktopentry.h
 )
 
+if(DEFINED D_DSG_APP_DATA_FALLBACK)
+    add_definitions(-DD_DSG_APP_DATA_FALLBACK="${D_DSG_APP_DATA_FALLBACK}")
+endif()
+list(APPEND OUTER_SOURCE
+  ${CMAKE_CURRENT_LIST_DIR}/dconfigfile.cpp
+)
+list(APPEND OUTER_HEADER
+  ${CMAKE_CURRENT_LIST_DIR}/../include/global/dconfigfile.h
+)
+
 if(LINUX)
-  if(DEFINED D_DSG_APP_DATA_FALLBACK)
-      add_definitions(-DD_DSG_APP_DATA_FALLBACK="${D_DSG_APP_DATA_FALLBACK}")
-  endif()
-  list(APPEND OUTER_SOURCE
-    ${CMAKE_CURRENT_LIST_DIR}/dconfigfile.cpp
-  )
-  list(APPEND OUTER_HEADER
-    ${CMAKE_CURRENT_LIST_DIR}/../include/global/dconfigfile.h
-  )
 #   generic dbus interfaces
   if(NOT DEFINED DTK_DISABLE_DBUS_CONFIG)
     include(${CMAKE_CURRENT_LIST_DIR}/dbus/dbus.cmake)
@@ -39,7 +40,7 @@ if(LINUX)
     add_definitions(-DD_DISABLE_DBUS_CONFIG)
   endif()
 else()
-    add_definitions(-DD_DISABLE_DCONFIG)
+    add_definitions(-DD_DISABLE_DBUS_CONFIG)
 endif()
 
 list(APPEND glob_SRC
