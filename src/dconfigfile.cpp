@@ -22,8 +22,13 @@
 #include <QDateTime>
 #include <QRegularExpression>
 
+#ifdef Q_OS_LINUX
 #include <unistd.h>
 #include <pwd.h>
+#elif defined(Q_OS_WIN)
+#include <windows.h>
+#include <lmcons.h>
+#endif
 
 // https://gitlabwh.uniontech.com/wuhan/se/deepin-specifications/-/issues/3
 
@@ -238,8 +243,21 @@ inline void overrideValue(QLatin1String subkey, const QJsonValue &from, QVariant
 }
 
 inline static QString getUserName(const uint uid) {
+#ifdef Q_OS_LINUX
     passwd *pw = getpwuid(uid);
     return pw ? QString::fromLocal8Bit(pw->pw_name) : QString();
+#elif defined(Q_OS_WIN)
+    Q_UNUSED(uid)
+    WCHAR username[UNLEN + 1];
+    DWORD size = UNLEN + 1;
+    if (GetUserNameW(username, &size)) {
+        return QString::fromWCharArray(username);
+    }
+    return QString();
+#else
+    Q_UNUSED(uid)
+    return QString();
+#endif
 }
 
 /*!
@@ -304,7 +322,11 @@ QStringList DConfigMeta::genericMetaDirs(const QString &localPrefix)
     QStringList paths;
     // lower priority is higher.
     for (auto item: DStandardPaths::paths(DStandardPaths::DSG::DataDir)) {
-        paths.prepend(QDir::cleanPath(QString("%1/%2/configs").arg(localPrefix, item)));
+        if (localPrefix.isEmpty()) {
+            paths.prepend(QDir::cleanPath(QString("%1/configs").arg(item)));
+        } else {
+            paths.prepend(QDir::cleanPath(QString("%1/%2/configs").arg(localPrefix, item)));
+        }
     }
     return paths;
 }
@@ -1112,11 +1134,16 @@ public:
         if (prefix.isEmpty()) {
             // If target user is current user or system user, then get the home path by environment variable first.
             QString homePath;
+#ifdef Q_OS_LINUX
             if (userid == InvalidUID || (getuid() == userid)) {
                 homePath = DStandardPaths::homePath();
             } else {
                 homePath = DStandardPaths::homePath(getuid());
             }
+#else
+            Q_UNUSED(userid)
+            homePath = DStandardPaths::homePath();
+#endif
 
             if (homePath.isEmpty())
                 return QString();
@@ -1124,7 +1151,11 @@ public:
             // fallback to default application cache directory.
             prefix = homePath + QStringLiteral("/.config/dsg/configs");
         }
-        return QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix + suffix, configKey.appId));
+        if (localPrefix.isEmpty()) {
+            return QDir::cleanPath(QString("%1/%2").arg(prefix + suffix, configKey.appId));
+        } else {
+            return QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix + suffix, configKey.appId));
+        }
     }
 
     inline QString applicationCacheDir(const QString &localPrefix) const
@@ -1286,8 +1317,12 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
     cacheChanged = false;
     const QString &dir = getCacheDir(localPrefix);
     if (dir.isEmpty()) {
+#ifdef Q_OS_LINUX
         qCWarning(cfLog, "Falied on saveing, the config cache directory is empty for the user[%d], "
                          "the current user[%d].", userid, getuid());
+#else
+        qCWarning(cfLog, "Falied on saveing, the config cache directory is empty for the user[%d].", userid);
+#endif
         return false;
     }
     QString path = cacheDir(dir);

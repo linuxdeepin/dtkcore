@@ -163,12 +163,7 @@ QString DStandardPaths::path(DStandardPaths::XDG type)
         const QByteArray &path = qgetenv("XDG_STATE_HOME");
         if (!path.isEmpty())
             return QString::fromLocal8Bit(path);
-#ifdef Q_OS_LINUX
         return homePath() + QStringLiteral("/.local/state");
-#else
-        // TODO: handle it on mac
-        return QString();
-#endif
     }
     }
     return QString();
@@ -187,9 +182,17 @@ QStringList DStandardPaths::paths(DSG type)
     if (type == DSG::DataDir) {
         const QByteArray &path = qgetenv("DSG_DATA_DIRS");
         if (path.isEmpty()) {
+#ifdef Q_OS_LINUX
             return {QLatin1String(PREFIX"/share/dsg")};
+#else
+            return {QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + QStringLiteral("/dsg")};
+#endif
         }
+#ifdef Q_OS_WIN
+        const auto list = path.split(';');
+#else
         const auto list = path.split(':');
+#endif
         paths.reserve(list.size());
         for (const auto &i : list)
             paths.push_back(QString::fromLocal8Bit(i));
