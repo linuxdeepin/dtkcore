@@ -46,6 +46,7 @@ Description: Development ToolKit Core Utilities (DTK6 with Qt6)
 Package: libdtk6core-dev
 Architecture: any
 Depends: libdtk6core( =${binary:Version}),
+ libdtk6core-bin( =${binary:Version}),
  libdtkcommon-dev(>=5.6.16), libdtk6log-dev
 Build-Profiles: <!nodtk6>
 Description: Development ToolKit Core Devel Library (DTK6 with Qt6)
@@ -84,6 +85,7 @@ Description: Development ToolKit Core Utilities (DTK5 with Qt5)
 Package: libdtkcore-dev
 Architecture: any
 Depends: libdtkcore5( =${binary:Version}),
+ libdtkcore5-bin( =${binary:Version}),
  libdtkcommon-dev(>=5.6.16), libdtklog-dev
 Build-Profiles: <!nodtk5>
 Description: Development ToolKit Core Devel Library (DTK5 with Qt5)
