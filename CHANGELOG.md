@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.48] - 2026-08-18
+
+### Added
+
+- Add dev-tools package dependencies to DTK dev packages
+
 ## [6.7.47] - 2026-07-28
 
 ### Added
