@@ -20,6 +20,10 @@
 #include <QThread>
 #ifdef Q_OS_LINUX
 #include <unistd.h>
+#elif defined(Q_OS_WIN)
+#include <windows.h>
+#include <lmcons.h>
+#include <QCryptographicHash>
 #endif
 
 // https://gitlabwh.uniontech.com/wuhan/se/deepin-specifications/-/issues/3
@@ -32,6 +36,24 @@ Q_LOGGING_CATEGORY(cfLog, "dtk.dsg.config")
 Q_DECLARE_LOGGING_CATEGORY(cfLog)
 #endif
 static QString NoAppId;
+
+#if defined(Q_OS_WIN)
+// Generate a unique user ID from Windows username (similar to Unix UID)
+static uint getWindowsUserId()
+{
+    WCHAR username[UNLEN + 1];
+    DWORD size = UNLEN + 1;
+    if (GetUserNameW(username, &size)) {
+        QByteArray nameData = QString::fromWCharArray(username).toUtf8();
+        QByteArray hash = QCryptographicHash::hash(nameData, QCryptographicHash::Md5);
+        // Use first 4 bytes as uint
+        uint uid = 0;
+        memcpy(&uid, hash.constData(), sizeof(uint));
+        return uid;
+    }
+    return 0;
+}
+#endif
 
 /*!
 @~english
@@ -177,7 +199,11 @@ public:
             return true;
 
         configFile.reset(new DConfigFile(owner->appId,owner->name, owner->subpath));
+#ifdef Q_OS_LINUX
         configCache.reset(configFile->createUserCache(getuid()));
+#else
+        configCache.reset(configFile->createUserCache(getWindowsUserId()));
+#endif
         const QString &prefix = localPrefix();
 
         if (!configFile->load(prefix) || !configCache->load(prefix))
@@ -190,7 +216,11 @@ public:
         std::unique_ptr<DConfigFile> file(new DConfigFile(NoAppId, owner->name, owner->subpath));
         const bool canFallbackToGeneric = !file->meta()->metaPath(prefix).isEmpty();
         if (canFallbackToGeneric) {
+#ifdef Q_OS_LINUX
             std::unique_ptr<DConfigCache> cache(file->createUserCache(getuid()));
+#else
+            std::unique_ptr<DConfigCache> cache(file->createUserCache(getWindowsUserId()));
+#endif
             if (file->load(prefix) && cache->load(prefix)) {
                 genericConfigFile.reset(file.release());
                 genericConfigCache.reset(cache.release());
