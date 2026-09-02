@@ -21,6 +21,7 @@
 #include <QCollator>
 #include <QDateTime>
 #include <QRegularExpression>
+#include <QSet>
 
 #include <unistd.h>
 #include <pwd.h>
@@ -1085,7 +1086,9 @@ DConfigMetaImpl::~DConfigMetaImpl()
 @~english
     @fn void setCachePathPrefix(const QString &prefix) = 0;
     @brief Set cache's prefix path, it's access permissions is considered by caller,
-and it needs to distinguish the paths of different caches by caller.
+and it needs to distinguish the paths of different caches by caller. When a
+prefix is set, load the legacy cache first and then overlay the cache stored
+under the prefix. Saving always uses the prefix path.
     @param prefix cache's prefix path.
 */
 
@@ -1111,9 +1114,10 @@ public:
         return values.keyList();
     }
 
-    inline QString applicationCacheDir(const QString &localPrefix, const QString &suffix) const
+    inline QString applicationCacheDir(const QString &localPrefix, const QString &suffix,
+                                       const QString &pathPrefix) const
     {
-        QString prefix(cachePrefix);
+        QString prefix(pathPrefix);
         if (prefix.isEmpty()) {
             // If target user is current user or system user, then get the home path by environment variable first.
             QString homePath;
@@ -1134,7 +1138,7 @@ public:
 
     inline QString applicationCacheDir(const QString &localPrefix) const
     {
-        return applicationCacheDir(localPrefix, QString());
+        return applicationCacheDir(localPrefix, QString(), cachePrefix);
     }
 
     inline QString cacheDir(const QString &basePath) {
@@ -1142,8 +1146,9 @@ public:
         return dir.filePath(configKey.fileName + FILE_SUFFIX);
     }
 
-    inline QString globalCacheDir(const QString &localPrefix) const {
-        QString prefix(cachePrefix);
+    inline QString globalCacheDir(const QString &localPrefix, const QString &pathPrefix) const
+    {
+        QString prefix(pathPrefix);
         if (prefix.isEmpty()) {
             // TODO `DSG_APP_DATA` is not set and `appid` is not captured in `DStandardPaths::path`.
             QString appDataDir = DStandardPaths::path(DStandardPaths::DSG::AppData);
@@ -1166,19 +1171,32 @@ public:
         return QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix, configKey.appId));
     }
 
-    QString getCacheDir(const QString &localPrefix = QString())
+    QString getCacheDir(const QString &localPrefix, const QString &pathPrefix) const
     {
         if (isGlobal()) {
-            const QString &dir = globalCacheDir(localPrefix);
+            const QString &dir = globalCacheDir(localPrefix, pathPrefix);
             if (!dir.isEmpty())
                 return dir;
 
             // Not supported the global config, fallback the config cache data to user directory.
-            return applicationCacheDir(localPrefix, "-fake-global");
+            return applicationCacheDir(localPrefix, "-fake-global", pathPrefix);
         } else {
-            return applicationCacheDir(localPrefix);
+            return applicationCacheDir(localPrefix, QString(), pathPrefix);
         }
     }
+
+    QString getCacheDir(const QString &localPrefix = QString()) const
+    {
+        return getCacheDir(localPrefix, cachePrefix);
+    }
+
+    enum class CacheLoadStatus {
+        NotFound,
+        Loaded,
+        Invalid
+    };
+
+    CacheLoadStatus loadCache(const QString &dir, QSet<QString> *loadedKeys = nullptr);
 
     bool load(const QString &localPrefix = QString()) override;
 
@@ -1240,18 +1258,52 @@ DConfigCacheImpl::~DConfigCacheImpl()
 
 bool DConfigCacheImpl::load(const QString &localPrefix)
 {
-    // cache 文件要严格匹配 subpath
-    const QString &dir = getCacheDir(localPrefix);
-    if (dir.isEmpty()) {
-        return true;
+    const QString newCacheDir = getCacheDir(localPrefix);
+    if (cachePrefix.isEmpty())
+        return loadCache(newCacheDir) != CacheLoadStatus::Invalid;
+
+    const QString legacyCacheDir = getCacheDir(localPrefix, QString());
+    if (legacyCacheDir == newCacheDir)
+        return loadCache(newCacheDir) != CacheLoadStatus::Invalid;
+
+    QSet<QString> legacyKeys;
+    const auto legacyStatus = loadCache(legacyCacheDir, &legacyKeys);
+    if (legacyStatus == CacheLoadStatus::Invalid) {
+        qCWarning(cfLog, "Failed to load legacy cache from \"%s\"; continue with the new cache.",
+                  qPrintable(legacyCacheDir));
+        legacyKeys.clear();
     }
+
+    QSet<QString> newKeys;
+    const auto newStatus = loadCache(newCacheDir, &newKeys);
+    if (newStatus == CacheLoadStatus::Invalid)
+        return false;
+
+    if (legacyStatus == CacheLoadStatus::Loaded) {
+        for (const QString &key : legacyKeys) {
+            if (!newKeys.contains(key)) {
+                cacheChanged = true;
+                break;
+            }
+        }
+    }
+
+    return true;
+}
+
+DConfigCacheImpl::CacheLoadStatus DConfigCacheImpl::loadCache(const QString &dir,
+                                                               QSet<QString> *loadedKeys)
+{
+    // cache 文件要严格匹配 subpath
+    if (dir.isEmpty())
+        return CacheLoadStatus::NotFound;
+
     QScopedPointer<QFile> cache(loadFile(dir,
                                          configKey.subpath,
                                          configKey.fileName + FILE_SUFFIX,
                                          false));
-    if (!cache) {
-        return true;
-    }
+    if (!cache)
+        return CacheLoadStatus::NotFound;
 
     const JsonParseResult pr = loadJsonFile(cache.data());
     const QJsonDocument &doc = pr.doc;
@@ -1259,9 +1311,9 @@ bool DConfigCacheImpl::load(const QString &localPrefix)
     if (doc.isObject()) {
         const QJsonObject &root = doc.object();
         if (!checkMagic(root, MAGIC_CACHE))
-            return false;
+            return CacheLoadStatus::Invalid;
         if (!checkVersion(root, DConfigFile::supportedVersion()))
-            return false;
+            return CacheLoadStatus::Invalid;
 
         auto &&contents = root[QLatin1String("contents")].toObject();
         auto i = contents.constBegin();
@@ -1278,9 +1330,11 @@ bool DConfigCacheImpl::load(const QString &localPrefix)
                           jsonValueToVariant(valueField, isOriginalValueFloat(pr.raw, i.key(), valueField)));
             }
             values.update(i.key(), vh);
+            if (loadedKeys)
+                loadedKeys->insert(i.key());
         }
     }
-    return true;
+    return CacheLoadStatus::Loaded;
 }
 
 bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonFormat format, bool sync)
