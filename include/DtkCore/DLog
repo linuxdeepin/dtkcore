@@ -1,0 +1,11 @@
+#include <RollingFileAppender.h>
+#include <Logger.h>
+#include <LogManager.h>
+#include <FileAppender.h>
+#include <ConsoleAppender.h>
+#include <AbstractStringAppender.h>
+#include <AbstractAppender.h>
+#ifdef BUILD_WITH_SYSTEMD
+#include <JournalAppender.h>
+#endif
+#include <dloghelper.h>

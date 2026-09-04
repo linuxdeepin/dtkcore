@@ -1,0 +1,14 @@
+{
+  "magic": "dsg.config.meta",
+  "version": "1.0",
+  "contents": {
+    "testKey": {
+      "value": "initial",
+      "serial": 0,
+      "flags": [],
+      "name": "test key for serial comparison",
+      "permissions": "readwrite",
+      "visibility": "private"
+    }
+  }
+}

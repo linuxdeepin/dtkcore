@@ -1,0 +1,102 @@
+Source: dtkcore
+Section: libdevel
+Priority: optional
+Maintainer: Shanshan Ye <yeshanshan@uniontech.com>
+Build-Depends: debhelper-compat ( =12),
+    cmake,
+    pkg-config,
+    libgtest-dev,
+    libdtkcommon-dev,
+    libicu-dev,
+    libuchardet-dev,
+    libdbus-1-dev,
+    qttools5-dev-tools <!nodtk5>,
+    qttools5-dev <!nodtk5>,
+    libgsettings-qt-dev <!nodtk5>,
+    libdtklog-dev(>> 6.7.33) <!nodtk5>,
+    qtbase5-private-dev <!nodtk5>,
+    qt6-base-dev-tools <!nodtk6>,
+    qt6-base-dev <!nodtk6>,
+    qt6-base-private-dev <!nodtk6>,
+    libdtk6log-dev(>> 6.7.33) <!nodtk6>,
+    qt6-tools-dev <!nodtk6>,
+    doxygen <!nodoc>
+Standards-Version: 3.9.8
+
+Package: libdtk6core
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, lshw
+Multi-Arch: same
+Build-Profiles: <!nodtk6>
+Description: Development ToolKit Core Library (DTK6 with Qt6)
+ DTK Core is the base library of deepin Qt/C++ applications.
+ .
+ This package contains the shared libraries for DTK6 applications.
+
+Package: libdtk6core-bin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libdtk6core( =${binary:Version})
+Build-Profiles: <!nodtk6>
+Description: Development ToolKit Core Utilities (DTK6 with Qt6)
+ DTK Core is the base library of deepin Qt/C++ applications.
+ .
+ This package contains the utilities of DTK6 Core.
+
+Package: libdtk6core-dev
+Architecture: any
+Depends: libdtk6core( =${binary:Version}),
+ libdtk6core-bin( =${binary:Version}),
+ libdtkcommon-dev(>=5.6.16), libdtk6log-dev
+Build-Profiles: <!nodtk6>
+Description: Development ToolKit Core Devel Library (DTK6 with Qt6)
+ DTK Core is the base library of deepin Qt/C++ applications.
+ .
+ This package contains the header files and development library symbolic links of DTK6 Core.
+
+Package: libdtk6core-doc
+Architecture: any
+Build-Profiles: <!nodtk6 !nodoc>
+Description: Development ToolKit Core Documentation
+ DTK Core is the base library of deepin Qt/C++ applications.
+ .
+ This package contains the doc files of DtkCore.
+
+Package: libdtkcore5
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, lshw
+Multi-Arch: same
+Build-Profiles: <!nodtk5>
+Description: Development ToolKit Core Library (DTK5 with Qt5)
+ DTK Core is the base library of deepin Qt/C++ applications.
+ .
+ This package contains the shared libraries for DTK5 applications.
+
+Package: libdtkcore5-bin
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ libdtkcore5( =${binary:Version})
+Build-Profiles: <!nodtk5>
+Description: Development ToolKit Core Utilities (DTK5 with Qt5)
+ DTK Core is the base library of deepin Qt/C++ applications.
+ .
+ This package contains the utilities of DTK5 Core.
+
+Package: libdtkcore-dev
+Architecture: any
+Depends: libdtkcore5( =${binary:Version}),
+ libdtkcore5-bin( =${binary:Version}),
+ libdtkcommon-dev(>=5.6.16), libdtklog-dev
+Build-Profiles: <!nodtk5>
+Description: Development ToolKit Core Devel Library (DTK5 with Qt5)
+ DTK Core is the base library of deepin Qt/C++ applications.
+ .
+ This package contains the header files and development library symbolic links of DTK5 Core.
+
+Package: libdtkcore-doc
+Architecture: any
+Build-Profiles: <!nodtk5 !nodoc>
+Description: Development ToolKit Core Documentation
+ DTK Core is the base library of deepin Qt/C++ applications.
+ .
+ This package contains the doc files of DtkCore.

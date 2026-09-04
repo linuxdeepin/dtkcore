@@ -1,0 +1,46 @@
+{
+  "magic": "dsg.config.meta",
+  "version": "1.0",
+  "contents": {
+    "emptyArray": {
+      "value": [],
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Empty array",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "stringArray": {
+      "value": ["item1", "item2", "item3"],
+      "serial": 0,
+      "flags": ["global"],
+      "name": "String array",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "mixedArray": {
+      "value": ["string", 42, true, 3.14],
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Mixed type array",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "emptyObject": {
+      "value": {},
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Empty object",
+      "permissions": "readwrite",
+      "visibility": "public"
+    },
+    "simpleObject": {
+      "value": {"key1": "value1", "key2": "value2"},
+      "serial": 0,
+      "flags": ["global"],
+      "name": "Simple object",
+      "permissions": "readwrite",
+      "visibility": "public"
+    }
+  }
+}

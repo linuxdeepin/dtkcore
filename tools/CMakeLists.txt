@@ -1,0 +1,8 @@
+if(LINUX)
+  add_subdirectory(dci)
+  add_subdirectory(deepin-os-release)
+  add_subdirectory(settings)
+  add_subdirectory(ch2py)
+endif()
+add_subdirectory(qdbusxml2cpp)
+add_subdirectory(dconfig2cpp)

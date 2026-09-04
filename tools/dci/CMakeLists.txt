@@ -1,0 +1,37 @@
+set(TARGET_NAME dci)
+set(BIN_NAME ${TARGET_NAME}${DTK_NAME_SUFFIX})
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+
+if(${QT_VERSION_MAJOR} EQUAL 6)
+    if(${Qt6Core_VERSION} VERSION_GREATER_EQUAL 6.10.0)
+      find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS CorePrivate)
+    endif()
+endif()
+
+add_definitions(-DDTK_NO_PROJECT)
+# start dci
+include(../../src/dci/dci.cmake)
+add_executable(${BIN_NAME}
+  ${dci_SRCS}
+  main.cpp
+)
+target_link_libraries(${BIN_NAME} PRIVATE
+  Qt${QT_VERSION_MAJOR}::Core
+  Qt${QT_VERSION_MAJOR}::CorePrivate
+)
+target_include_directories(${BIN_NAME} PUBLIC
+  ../../include/
+  ../../include/dci/
+  ../../include/DtkCore/
+  ../../include/base/
+  ../../include/global/
+)
+target_include_directories(${BIN_NAME} PRIVATE
+  ../../src/
+)
+set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME ${TARGET_NAME})
+#end dci
+
+install(TARGETS ${BIN_NAME} DESTINATION "${TOOL_INSTALL_DIR}")
