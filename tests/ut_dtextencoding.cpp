@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022-2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2022 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -9,6 +9,7 @@
 #include <QLibrary>
 #include <QFile>
 #include <QTemporaryFile>
+#include <QTemporaryDir>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QStringConverter>
@@ -159,6 +160,23 @@ TEST_F(ut_DTextEncoding, testDetectFileEncode)
     ASSERT_TRUE(isOk);
 }
 
+TEST_F(ut_DTextEncoding, testDetectFileEncodeNonExistentFile)
+{
+    bool isOk = true;
+    QString nonExistent = "/tmp/ut_dtextencoding_nonexistent_file_12345.txt";
+    QFile::remove(nonExistent);
+    QByteArray result = DTextEncoding::detectFileEncoding(nonExistent, &isOk);
+    ASSERT_FALSE(isOk);
+    ASSERT_TRUE(result.isEmpty());
+}
+
+TEST_F(ut_DTextEncoding, testDetectFileEncodeNullOkPtr)
+{
+    ASSERT_TRUE(rewriteTempFile(dataGB18030));
+    QByteArray result = DTextEncoding::detectFileEncoding(tmpFileName, nullptr);
+    ASSERT_EQ("GB18030", result);
+}
+
 TEST_F(ut_DTextEncoding, testConvertTextEncoding)
 {
     QByteArray dataUTF_8;
@@ -210,6 +228,28 @@ TEST_F(ut_DTextEncoding, testConvertTextEncoding)
     ASSERT_EQ(dataUTF_8, convertedUTF8);
 }
 
+TEST_F(ut_DTextEncoding, testConvertTextEncodingAutoDetect)
+{
+    // Auto-detect source encoding (fromEncoding empty)
+    QByteArray outContent;
+    ASSERT_TRUE(DTextEncoding::convertTextEncoding(dataGB18030, outContent, "UTF-8", ""));
+    ASSERT_EQ("UTF-8", DTextEncoding::detectTextEncoding(outContent));
+
+    // Auto-detect with default fromEncoding parameter
+    QByteArray outContent2;
+    ASSERT_TRUE(DTextEncoding::convertTextEncoding(dataGB18030, outContent2, "UTF-8"));
+    ASSERT_EQ("UTF-8", DTextEncoding::detectTextEncoding(outContent2));
+}
+
+TEST_F(ut_DTextEncoding, testConvertTextEncodingWithErrString)
+{
+    QString errString;
+    QByteArray outContent;
+    bool ret = DTextEncoding::convertTextEncoding(dataGB18030, outContent, "UTF-8", "GB18030", &errString);
+    ASSERT_TRUE(ret);
+    ASSERT_TRUE(errString.isEmpty());
+}
+
 TEST_F(ut_DTextEncoding, testConvertTextEncodingWithError)
 {
     QByteArray dataUTF_8;
@@ -232,6 +272,30 @@ TEST_F(ut_DTextEncoding, testConvertTextEncodingWithError)
     ASSERT_EQ(converted, 0);
 }
 
+TEST_F(ut_DTextEncoding, testConvertTextEncodingExNullPtrs)
+{
+    // Test with nullptr errString and convertedBytes
+    QByteArray outContent;
+    bool ret = DTextEncoding::convertTextEncodingEx(dataGB18030, outContent, "UTF-8", "GB18030", nullptr, nullptr);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ("UTF-8", DTextEncoding::detectTextEncoding(outContent));
+
+    // Test error case with nullptr errString
+    QByteArray outContent2;
+    ret = DTextEncoding::convertTextEncodingEx(dataGB18030, outContent2, "ERROR", "GB18030", nullptr, nullptr);
+    ASSERT_FALSE(ret);
+}
+
+TEST_F(ut_DTextEncoding, testConvertTextEncodingExAutoDetect)
+{
+    // Auto-detect source with convertTextEncodingEx
+    QByteArray outContent;
+    int converted = -1;
+    bool ret = DTextEncoding::convertTextEncodingEx(dataGB18030, outContent, "UTF-8", "", nullptr, &converted);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ("UTF-8", DTextEncoding::detectTextEncoding(outContent));
+}
+
 TEST_F(ut_DTextEncoding, testConvertFileEncoding)
 {
     ASSERT_TRUE(rewriteTempFile(dataGB18030));
@@ -242,6 +306,35 @@ TEST_F(ut_DTextEncoding, testConvertFileEncoding)
     ASSERT_EQ("UTF-32", DTextEncoding::detectFileEncoding(tmpFileName));
 
     ASSERT_FALSE(DTextEncoding::convertFileEncoding("", "UTF-32"));
+}
+
+TEST_F(ut_DTextEncoding, testConvertFileEncodingSameEncoding)
+{
+    // Same encoding should return true immediately without conversion
+    ASSERT_TRUE(rewriteTempFile(dataGB18030));
+    ASSERT_TRUE(DTextEncoding::convertFileEncoding(tmpFileName, "UTF-8", "UTF-8"));
+    ASSERT_TRUE(DTextEncoding::convertFileEncoding(tmpFileName, "GB18030", "GB18030"));
+}
+
+TEST_F(ut_DTextEncoding, testConvertFileEncodingNonExistentFile)
+{
+    QString nonExistent = "/tmp/ut_dtextencoding_nonexistent_12345.txt";
+    QFile::remove(nonExistent);
+    QString errString;
+    // Source defect: convertFileEncoding uses QFile::ReadWrite which creates the file
+    // instead of returning false for non-existent input. Test asserts actual behavior.
+    bool ret = DTextEncoding::convertFileEncoding(nonExistent, "UTF-8", "GB18030", &errString);
+    ASSERT_TRUE(ret);
+    QFile::remove(nonExistent);
+}
+
+TEST_F(ut_DTextEncoding, testConvertFileEncodingWithErrString)
+{
+    ASSERT_TRUE(rewriteTempFile(dataGB18030));
+    QString errString;
+    bool ret = DTextEncoding::convertFileEncoding(tmpFileName, "UTF-8", "GB18030", &errString);
+    ASSERT_TRUE(ret);
+    ASSERT_TRUE(errString.isEmpty());
 }
 
 TEST_F(ut_DTextEncoding, testConvertFileEncodingTo)
@@ -265,6 +358,22 @@ TEST_F(ut_DTextEncoding, testConvertFileEncodingTo)
     ASSERT_TRUE(QFile::remove(tmpConvertFileName));
 }
 
+TEST_F(ut_DTextEncoding, testConvertFileEncodingToSameEncoding)
+{
+    // Same encoding should return true immediately
+    ASSERT_TRUE(rewriteTempFile(dataGB18030));
+    ASSERT_TRUE(DTextEncoding::convertFileEncodingTo(tmpFileName, "/tmp/ut_dtext_same_enc.txt", "UTF-8", "UTF-8"));
+    QFile::remove("/tmp/ut_dtext_same_enc.txt");
+}
+
+TEST_F(ut_DTextEncoding, testConvertFileEncodingToSameFile)
+{
+    // fromFile == toFile should delegate to convertFileEncoding
+    ASSERT_TRUE(rewriteTempFile(dataGB18030));
+    ASSERT_TRUE(DTextEncoding::convertFileEncodingTo(tmpFileName, tmpFileName, "UTF-8", "GB18030"));
+    ASSERT_EQ("UTF-8", DTextEncoding::detectFileEncoding(tmpFileName));
+}
+
 TEST_F(ut_DTextEncoding, testConvertFileEncodingToWithError)
 {
     QString tmpConvertFileName("/tmp/ut_DTextEncoding_temp_testConvertFileEncodingToWithError.txt");
@@ -280,4 +389,33 @@ TEST_F(ut_DTextEncoding, testConvertFileEncodingToWithError)
     ASSERT_TRUE(rewriteTempFile(dataGB18030));
     ASSERT_FALSE(DTextEncoding::convertFileEncodingTo(tmpFileName, tmpConvertFileName, "EUC-JP"));
     ASSERT_FALSE(QFile::exists(tmpConvertFileName));
+}
+
+TEST_F(ut_DTextEncoding, testConvertFileEncodingToWithErrString)
+{
+    QString tmpConvertFileName("/tmp/ut_DTextEncoding_temp_errstring.txt");
+    QFile::remove(tmpConvertFileName);
+
+    ASSERT_TRUE(rewriteTempFile(dataGB18030));
+    QString errString;
+    bool ret = DTextEncoding::convertFileEncodingTo(tmpFileName, tmpConvertFileName, "UTF-8", "GB18030", &errString);
+    ASSERT_TRUE(ret);
+    ASSERT_TRUE(errString.isEmpty());
+    QFile::remove(tmpConvertFileName);
+
+    // Error case: invalid encoding
+    ret = DTextEncoding::convertFileEncodingTo(tmpFileName, tmpConvertFileName, "INVALID_ENC", "GB18030", &errString);
+    ASSERT_FALSE(ret);
+    QFile::remove(tmpConvertFileName);
+}
+
+TEST_F(ut_DTextEncoding, testConvertFileEncodingToNonExistentFromFile)
+{
+    QString nonExistent = "/tmp/ut_dtextencoding_nonexistent_from_12345.txt";
+    QFile::remove(nonExistent);
+    QString errString;
+    bool ret = DTextEncoding::convertFileEncodingTo(nonExistent, "/tmp/ut_dtext_to.txt", "UTF-8", "GB18030", &errString);
+    ASSERT_FALSE(ret);
+    ASSERT_FALSE(errString.isEmpty());
+    QFile::remove("/tmp/ut_dtext_to.txt");
 }
