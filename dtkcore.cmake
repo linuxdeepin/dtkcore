@@ -19,7 +19,7 @@ set (DSYSINFO_PREFIX "" CACHE STRING "PREFIX of DSysInfo")
 
 set (BUILD_EXAMPLES ON CACHE BOOL "Build examples")
 set (BUILD_VERSION "0" CACHE STRING "buildversion")
-option(BUIILD_TESTING "Build tests" OFF)
+option(BUILD_TESTING "Build tests" OFF)
 
 if(UNIX AND NOT APPLE)
   set(LINUX TRUE)

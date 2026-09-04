@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2024 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -14,11 +14,20 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <QStandardPaths>
 
 class ut_dconfig2cpp : public testing::Test
 {
 protected:
     void SetUp() override {
+        // Skip all tests if dconfig2cpp tool is not available
+        QString toolPath = getToolPath();
+        if (toolPath == QStringLiteral("dconfig2cpp")) {
+            if (QStandardPaths::findExecutable(QStringLiteral("dconfig2cpp")).isEmpty()) {
+                GTEST_SKIP() << "dconfig2cpp tool not available";
+                return;
+            }
+        }
         tempDir = new QTemporaryDir();
         ASSERT_TRUE(tempDir->isValid());
     }
@@ -129,7 +138,7 @@ protected:
         return result;
     }
 
-    QTemporaryDir *tempDir;
+    QTemporaryDir *tempDir = nullptr;
 };
 
 TEST_F(ut_dconfig2cpp, BasicTypesGeneration) {
