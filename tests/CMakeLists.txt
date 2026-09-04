@@ -42,9 +42,61 @@ include(GoogleTest)
 set(TEST_SO_NAME vtabletest${DTK_NAME_SUFFIX})
 add_subdirectory(./testso)
 
+# ---------------------------------------------------------------------------
+# DSysInfo mock infrastructure
+# ---------------------------------------------------------------------------
+# The shared library (compiled in src/ before tests/) always has
+# DSYSINFO_PREFIX="" so inTest() is false and singleton caches never clear.
+# Two complementary mechanisms solve this:
+#
+# 1. OBJECT library: compile dsysinfo.cpp with DSYSINFO_PREFIX="/tmp" so
+#    inTest()==true, paths point to /tmp/etc/, and caches clear on re-read.
+#    Linked BEFORE the shared library so the test binary resolves DSysInfo
+#    symbols from this copy (link-time stub, not compile-time macro in the
+#    shared library).
+#
+# 2. LD_PRELOAD stub (dsysinfo_stub.cpp): redirects /etc/ -> /tmp/etc/ for
+#    any reads originating from the shared library's internal code.
+#
+# Test-mode prefixes (also kept for the test binary's own compilation):
+set(DSYSINFO_PREFIX "/tmp" CACHE STRING "PREFIX of DSysInfo" FORCE)
+set(DSG_PREFIX_PATH "/tmp" CACHE STRING "PREFIX of DSG_DATA_DIRS" FORCE)
+
+# OBJECT library — test-mode copy of dsysinfo.cpp
+add_library(dsysinfo_test_obj OBJECT ../src/dsysinfo.cpp)
+target_compile_definitions(dsysinfo_test_obj PRIVATE
+    DSYSINFO_PREFIX="${DSYSINFO_PREFIX}"
+    PREFIX="${DSG_PREFIX_PATH}"
+)
+target_include_directories(dsysinfo_test_obj PRIVATE
+    ../include/global/
+    ../include/
+    ${PROJECT_BINARY_DIR}  # generated dtkcore_config.h lives at the build root
+)
+target_link_libraries(dsysinfo_test_obj PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core
+)
+
+# Instrument the OBJECT library so dsysinfo.cpp gets coverage data.
+# dtk_setup_code_coverage only applies to the shared library; the OBJECT
+# library needs its own flags. Coverage is opt-in (EnableCov, see
+# src/CMakeLists.txt) — building the tests alone must not instrument them.
+if(EnableCov AND BUILD_TESTING)
+    target_compile_options(dsysinfo_test_obj PRIVATE -fprofile-arcs -ftest-coverage)
+endif()
+
+# LD_PRELOAD stub shared library
+add_library(dsysinfo_stub SHARED dsysinfo_stub.cpp)
+target_link_libraries(dsysinfo_stub PRIVATE dl)
+
+# ---------------------------------------------------------------------------
+
 # test
 file(GLOB TEST_HEADER ut_.*h)
 file(GLOB TEST_SOURCE *.cpp)
+
+# Exclude the LD_PRELOAD stub from the test binary sources
+list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_LIST_DIR}/dsysinfo_stub.cpp")
 
 file(GLOB FackDBus
     "./fakedbus/*.h"
@@ -54,6 +106,7 @@ file(GLOB FackDBus
 if(NOT DTK5)
     list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_LIST_DIR}/ut_gsettingsbackend.cpp")
     list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_LIST_DIR}/ut_dasync.cpp")
+    list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_LIST_DIR}/ut_dtimedloop.cpp")
 endif()
 
 set(test_SRC
@@ -73,9 +126,22 @@ target_compile_definitions(${BIN_NAME} PUBLIC
     DSYSINFO_PREFIX="${DSYSINFO_PREFIX}"
 )
 
+# Instrument the test binary so that source compiled into the test
+# executable (e.g. LogManager.cpp #included by ut_dlog.cpp, and inline
+# functions from headers) generates coverage data. Without this, lcov
+# reports 0% for LogManager.cpp and low coverage for header inline code.
+# Opt-in, like the OBJECT library above.
+if(EnableCov AND BUILD_TESTING)
+    target_compile_options(${BIN_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
+endif()
+
 add_dependencies(${BIN_NAME} ${TEST_SO_NAME})
+
+# Link the OBJECT library FIRST so its DSysInfo symbols take precedence
+# over the shared library's copies (which have DSYSINFO_PREFIX="").
 target_link_libraries(
     ${BIN_NAME} PRIVATE
+    dsysinfo_test_obj
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::CorePrivate
@@ -118,6 +184,9 @@ target_include_directories( ${BIN_NAME} PUBLIC
     ../include/filesystem/
     ../include/
     ../src/log/
+    ../src/dci/private/
+    ../src/util/
+    ../src/filesystem/
     ./testso/
 )
 
@@ -126,4 +195,63 @@ set_target_properties(${BIN_NAME} PROPERTIES
     SKIP_BUILD_RPATH FALSE
 )
 
-gtest_discover_tests(${BIN_NAME})
+# Register tests with LD_PRELOAD environment so the stub redirects /etc/
+# reads for any shared-library internal code paths. (DTK_DISABLED_LOGGING_RULES
+# is set inside ut_dlog.cpp's SetUpTestCase: gtest_discover_tests only keeps the
+# first ENVIRONMENT entry, so a second one here would be silently dropped.)
+#
+# Debug builds add -fsanitize=address (see the top of this file), and ASan
+# refuses to run unless its runtime comes FIRST in LD_PRELOAD — otherwise every
+# test aborts with "ASan runtime does not come first in initial library list".
+# Prepend the ASan runtime ahead of the stub so both stay in the preload list.
+set(_test_preload "$<TARGET_FILE:dsysinfo_stub>")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    execute_process(
+        COMMAND ${CMAKE_CXX_COMPILER} -print-file-name=libasan.so
+        OUTPUT_VARIABLE _asan_runtime
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if(_asan_runtime AND EXISTS "${_asan_runtime}")
+        set(_test_preload "${_asan_runtime}:$<TARGET_FILE:dsysinfo_stub>")
+    else()
+        message(WARNING "Debug build but ASan runtime not found; tests may abort with "
+                        "\"ASan runtime does not come first in initial library list\"")
+    endif()
+endif()
+gtest_discover_tests(${BIN_NAME}
+    PROPERTIES
+    ENVIRONMENT "LD_PRELOAD=${_test_preload}"
+)
+
+# ---- coverage: execute all tests and generate a coverage report ----
+# Gated by EnableCov (the project's coverage switch, src/CMakeLists.txt, default
+# OFF): the instrumentation above and this target only make sense when coverage
+# is explicitly requested:
+#   cmake -B build -DBUILD_TESTING=ON -DEnableCov=ON
+if(NOT EnableCov)
+    message(STATUS "coverage target disabled (EnableCov=OFF); pass -DEnableCov=ON to enable it")
+else()
+    find_program(LCOV_BIN lcov)
+    find_program(GENHTML_BIN genhtml)
+    set(_run_test_coverage "")
+    if(LCOV_BIN AND GENHTML_BIN)
+        set(_run_test_coverage
+            COMMAND ${LCOV_BIN} --capture --directory ${CMAKE_BINARY_DIR}
+                    --rc lcov_branch_coverage=1 --output-file ${CMAKE_BINARY_DIR}/coverage.info
+            COMMAND ${LCOV_BIN} --extract ${CMAKE_BINARY_DIR}/coverage.info
+                    --rc lcov_branch_coverage=1
+                    "${PROJECT_SOURCE_DIR}/src/*"
+                    --output-file ${CMAKE_BINARY_DIR}/coverage_filtered.info
+            COMMAND ${GENHTML_BIN} ${CMAKE_BINARY_DIR}/coverage_filtered.info
+                    --branch-coverage --output-directory ${CMAKE_BINARY_DIR}/coverage_report
+        )
+    endif()
+    add_custom_target(coverage
+        COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure || true
+        ${_run_test_coverage}
+        DEPENDS ${BIN_NAME}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Run all tests and generate coverage report"
+        VERBATIM
+    )
+endif()

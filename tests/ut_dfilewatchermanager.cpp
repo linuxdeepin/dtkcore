@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -32,6 +32,7 @@ void ut_DFileWatcherManager::SetUp()
 void ut_DFileWatcherManager::TearDown()
 {
     if (fileWatcherManager) {
+        fileWatcherManager->removeAll();
         delete fileWatcherManager;
         fileWatcherManager = nullptr;
     }
