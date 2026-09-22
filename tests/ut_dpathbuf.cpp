@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -77,4 +77,91 @@ TEST_F(ut_DPathBuf, testToString)
 {
     auto str = pathBuf->toString();
     ASSERT_TRUE(str == "/tmp/etc");
+}
+
+TEST_F(ut_DPathBuf, testDefaultConstructor)
+{
+    DPathBuf emptyBuf;
+    auto str = emptyBuf.toString();
+    ASSERT_FALSE(str.isEmpty());
+}
+
+TEST_F(ut_DPathBuf, testEmptyPathConstructor)
+{
+    DPathBuf emptyPath("");
+    auto str = emptyPath.toString();
+    ASSERT_FALSE(str.isEmpty());
+}
+
+TEST_F(ut_DPathBuf, testMultipleSegments)
+{
+    DPathBuf path("/tmp");
+    path = path / "a" / "b" / "c";
+    auto str = path.toString();
+    ASSERT_TRUE(str == "/tmp/a/b/c");
+}
+
+TEST_F(ut_DPathBuf, testMultipleSegmentsWithSlashEqual)
+{
+    DPathBuf path("/tmp");
+    path /= "a";
+    path /= "b";
+    path /= "c";
+    auto str = path.toString();
+    ASSERT_TRUE(str == "/tmp/a/b/c");
+}
+
+TEST_F(ut_DPathBuf, testJoinMultiple)
+{
+    DPathBuf path("/tmp");
+    path.join("a").join("b").join("c");
+    auto str = path.toString();
+    ASSERT_TRUE(str == "/tmp/a/b/c");
+}
+
+TEST_F(ut_DPathBuf, testMixedOperators)
+{
+    DPathBuf path("/tmp");
+    path = path / "a";
+    path /= "b";
+    path = path.join("c");
+    auto str = path.toString();
+    ASSERT_TRUE(str == "/tmp/a/b/c");
+}
+
+TEST_F(ut_DPathBuf, testRelativePath)
+{
+    DPathBuf path("relative/path");
+    auto str = path.toString();
+    ASSERT_FALSE(str.isEmpty());
+}
+
+TEST_F(ut_DPathBuf, testOperatorSlashReturnsNewObject)
+{
+    DPathBuf original("/tmp");
+    DPathBuf result = original / "sub";
+    ASSERT_EQ(original.toString(), "/tmp");
+    ASSERT_EQ(result.toString(), "/tmp/sub");
+}
+
+TEST_F(ut_DPathBuf, testChainedFromDefaultConstructor)
+{
+    DPathBuf path;
+    path = path / "tmp" / "test";
+    auto str = path.toString();
+    ASSERT_FALSE(str.isEmpty());
+}
+
+TEST_F(ut_DPathBuf, testDotPathNormalization)
+{
+    DPathBuf path("/tmp/./test");
+    auto str = path.toString();
+    ASSERT_TRUE(str == "/tmp/test");
+}
+
+TEST_F(ut_DPathBuf, testDoubleDotPathNormalization)
+{
+    DPathBuf path("/tmp/a/../b");
+    auto str = path.toString();
+    ASSERT_TRUE(str == "/tmp/b");
 }

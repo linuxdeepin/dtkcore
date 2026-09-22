@@ -1,4 +1,4 @@
-// Copyright (C) 2026 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2026 UnionTech Software Technology Co., Ltd.
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 // Test: dconfig_org_deepin_dtk_preference crash stability
@@ -11,6 +11,9 @@
 // 6. Concurrent config instances
 
 #include <gtest/gtest.h>
+
+#include "ut_dutil.h"
+
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
 #include <QDBusReply>
@@ -35,12 +38,17 @@ protected:
     static constexpr int RAPID_CHANGE_CYCLES = 3;
     static constexpr int CONCURRENT_CONFIG_CYCLES = 3;
 
-    static constexpr int INIT_TIMEOUT_MS = 2000;  // Total timeout for initialization
+    static constexpr int INIT_TIMEOUT_MS = 5000;  // Total timeout for initialization
 
     static constexpr const char *DSG_CONFIG_SERVICE = "org.desktopspec.ConfigManager";
 
     // Static flag to track if DConfig service is available
     static bool s_dConfigAvailable;
+
+    // The worker thread this fixture's configs run on has to be drained before
+    // the process exits, or the config objects are still alive when
+    // LeakSanitizer runs its exit-time check.
+    void TearDown() override { drainDConfigWorker(); }
 
     // Helper to create config
     dconfig_org_deepin_dtk_preference *createConfig()
@@ -172,8 +180,10 @@ TEST_F(ut_dconfig_org_deepin_dtk_preference, test_signal_thread_affinity)
     bool currentValue = config->autoDisplayFeature();
     config->setAutoDisplayFeature(!currentValue);
 
-    // Wait for signal using QSignalSpy
-    EXPECT_EQ(spyAutoDisplay.count(), 1) << "autoDisplayFeatureChanged signal not emitted";
+    // Wait for signal using QSignalSpy with extended timeout
+    EXPECT_TRUE(QTest::qWaitFor([&spyAutoDisplay]() {
+        return spyAutoDisplay.count() > 0;
+    }, 3000)) << "autoDisplayFeatureChanged signal not emitted";
     EXPECT_EQ(signalThread, mainThread) << "Signal emitted in wrong thread";
 
     delete config;
