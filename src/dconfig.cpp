@@ -138,6 +138,7 @@ DConfigBackend::~DConfigBackend()
 }
 
 static QString _globalAppId;
+
 class Q_DECL_HIDDEN DConfigPrivate : public DObjectPrivate
 {
 public:
@@ -170,6 +171,7 @@ public:
     QString appId;
     QString name;
     QString subpath;
+
     QScopedPointer<DConfigBackend> backend;
 
     D_DECLARE_PUBLIC(DConfig)
@@ -328,6 +330,11 @@ FileBackend::~FileBackend()
 
 #define DSG_CONFIG "org.desktopspec.ConfigManager"
 #define DSG_CONFIG_MANAGER "org.desktopspec.ConfigManager"
+// Error name sent by dde-dconfig-daemon when the requested configuration
+// resource has no meta file installed (see DSGConfigServer::acquireManagerV2
+// in dde-app-services). Kept in sync manually: the daemon links dtkcore, not
+// the other way around.
+#define DSG_RESOURCE_NOT_FOUND "org.desktopspec.ConfigManager.ResourceNotFound"
 
 class Q_DECL_HIDDEN DBusBackend : public DConfigBackend
 {
@@ -379,7 +386,18 @@ public:
         const QDBusObjectPath dbus_path = dbus_reply.value();
         const auto path = dbus_path.path(); // 显式拷贝，避免其它线程共用systemBus连接而修改dbus数据
         if (dbus_reply.isError() || path.isEmpty()) {
-            qCWarning(cfLog, "Can't acquire config manager. error:\"%s\"", qPrintable(dbus_reply.error().message()));
+            // The daemon replies with a dedicated ResourceNotFound error name
+            // when the meta file is simply not installed (dde-dconfig-daemon).
+            // Demote that expected case to debug output; keep the warning for
+            // real backend failures.
+            const bool resourceNotFound = dbus_reply.isError()
+                    && dbus_reply.error().name() == QLatin1String(DSG_RESOURCE_NOT_FOUND);
+            if (resourceNotFound) {
+                qCDebug(cfLog, "Can't acquire config manager. error:\"%s\" (resource not found by daemon)",
+                        qPrintable(dbus_reply.error().message()));
+            } else {
+                qCWarning(cfLog, "Can't acquire config manager. error:\"%s\"", qPrintable(dbus_reply.error().message()));
+            }
             return false;
         } else {
             qCDebug(cfLog, "dbus path=\"%s\"", qPrintable(path));
@@ -819,7 +837,7 @@ QStringList DConfig::keyList() const
 bool DConfig::isValid() const
 {
     D_DC(DConfig);
-    return !d->invalid();
+    return d->backend && d->backend->isValid();
 }
 
 /*!
