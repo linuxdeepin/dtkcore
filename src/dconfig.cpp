@@ -154,6 +154,20 @@ public:
 
     virtual ~DConfigPrivate() override;
 
+#ifndef D_DISABLE_DCONFIG
+    // Best-effort local check used to distinguish a missing meta file
+    // (expected for optional configurations) from a real backend failure.
+    // The lookup matches the one used by DConfigFile::load().
+    bool metaInstalled() const
+    {
+        DConfigFile configFile(appId, name, subpath);
+        return !configFile.meta()->metaPath().isEmpty();
+    }
+#endif
+
+    // Validity guard used by data accessors. isValid() intentionally checks
+    // the backend directly instead of calling this function, so probing a
+    // configuration stays silent.
     inline bool invalid() const
     {
         const bool valid = backend && backend->isValid();
@@ -379,7 +393,26 @@ public:
         const QDBusObjectPath dbus_path = dbus_reply.value();
         const auto path = dbus_path.path(); // 显式拷贝，避免其它线程共用systemBus连接而修改dbus数据
         if (dbus_reply.isError() || path.isEmpty()) {
-            qCWarning(cfLog, "Can't acquire config manager. error:\"%s\"", qPrintable(dbus_reply.error().message()));
+            // A missing meta file is an expected condition for optional
+            // configurations and must not be reported as a warning. Both
+            // current and older daemons use the generic Failed error for this
+            // case, so classify it with the same local meta lookup the daemon
+            // uses. Real D-Bus errors (ServiceUnknown, NoReply, ...) stay
+            // visible.
+            const QString errorName = dbus_reply.isError() ? dbus_reply.error().name() : QString();
+            const bool realDBusError = errorName.startsWith(QLatin1String("org.freedesktop.DBus.Error."))
+                    && errorName != QLatin1String("org.freedesktop.DBus.Error.Failed");
+            bool resourceMissing = false;
+#ifndef D_DISABLE_DCONFIG
+            if (!realDBusError)
+                resourceMissing = !owner->metaInstalled();
+#endif
+            if (resourceMissing) {
+                qCDebug(cfLog, "Can't acquire config manager. error:\"%s\" (meta file not installed)",
+                        qPrintable(dbus_reply.error().message()));
+            } else {
+                qCWarning(cfLog, "Can't acquire config manager. error:\"%s\"", qPrintable(dbus_reply.error().message()));
+            }
             return false;
         } else {
             qCDebug(cfLog, "dbus path=\"%s\"", qPrintable(path));
@@ -819,7 +852,7 @@ QStringList DConfig::keyList() const
 bool DConfig::isValid() const
 {
     D_DC(DConfig);
-    return !d->invalid();
+    return d->backend && d->backend->isValid();
 }
 
 /*!
