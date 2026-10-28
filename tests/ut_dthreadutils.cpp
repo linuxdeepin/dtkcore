@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2020 - 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2020-2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -97,7 +97,7 @@ public Q_SLOTS:
     int testFunc(int i, double j) {
         int r =qFloor(i + j);
         wait();
-        emit testFuncTrigger(r);
+        Q_EMIT testFuncTrigger(r);
         return r;
     }
 
