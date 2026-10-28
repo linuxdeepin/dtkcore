@@ -108,6 +108,8 @@ inline static bool isValidFilename(const QString& filename)
 // AppId don't contain ' ', but it can be empty.
 inline static bool isValidAppId(const QString& appId)
 {
+    if (appId == QLatin1String(".") || appId == QLatin1String(".."))
+        return false;
     static const QRegularExpression regex("^[\\w\\-\\.]*$");
     QRegularExpressionMatch match = regex.match(appId);
     return match.hasMatch();
@@ -1152,9 +1154,21 @@ public:
             prefix = homePath + QStringLiteral("/.config/dsg/configs");
         }
         if (localPrefix.isEmpty()) {
-            return QDir::cleanPath(QString("%1/%2").arg(prefix + suffix, configKey.appId));
+            const QString canonicalPrefix = QDir::cleanPath(prefix + suffix);
+            const QString result = QDir::cleanPath(QString("%1/%2").arg(prefix + suffix, configKey.appId));
+            if (!result.startsWith(canonicalPrefix)) {
+                qCWarning(cfLog, "Path traversal detected in applicationCacheDir, appId: \"%s\".", qPrintable(configKey.appId));
+                return QString();
+            }
+            return result;
         } else {
-            return QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix + suffix, configKey.appId));
+            const QString canonicalPrefix = QDir::cleanPath(QString("%1/%2").arg(localPrefix, prefix + suffix));
+            const QString result = QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix + suffix, configKey.appId));
+            if (!result.startsWith(canonicalPrefix)) {
+                qCWarning(cfLog, "Path traversal detected in applicationCacheDir, appId: \"%s\".", qPrintable(configKey.appId));
+                return QString();
+            }
+            return result;
         }
     }
 
@@ -1164,6 +1178,11 @@ public:
     }
 
     inline QString cacheDir(const QString &basePath) {
+        const QDir base_dir(basePath);
+        if (!subpathIsValid(configKey.subpath, base_dir)) {
+            qCWarning(cfLog, "subpath is invalid in the base dir:\"%s\", subpath:\"%s\".", qPrintable(basePath), qPrintable(configKey.subpath));
+            return QString();
+        }
         QDir dir(basePath + configKey.subpath);
         return dir.filePath(configKey.fileName + FILE_SUFFIX);
     }
@@ -1189,7 +1208,13 @@ public:
             prefix = QString("%1/configs").arg(appDataDir);
         }
 
-        return QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix, configKey.appId));
+        const QString canonicalPrefix = QDir::cleanPath(QString("%1/%2").arg(localPrefix, prefix));
+        const QString result = QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix, configKey.appId));
+        if (!result.startsWith(canonicalPrefix)) {
+            qCWarning(cfLog, "Path traversal detected in globalCacheDir, appId: \"%s\".", qPrintable(configKey.appId));
+            return QString();
+        }
+        return result;
     }
 
     QString getCacheDir(const QString &localPrefix = QString())
@@ -1313,6 +1338,15 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
 {
     if (!cacheChanged)
         return true;
+
+    if (!isValidAppId(configKey.appId)) {
+        qCWarning(cfLog, "Failed on saving, the app id is invalid: \"%s\".", qPrintable(configKey.appId));
+        return false;
+    }
+    if (!isValidFilename(configKey.fileName)) {
+        qCWarning(cfLog, "Failed on saving, the file name is invalid: \"%s\".", qPrintable(configKey.fileName));
+        return false;
+    }
 
     cacheChanged = false;
     const QString &dir = getCacheDir(localPrefix);
