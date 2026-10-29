@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -51,6 +51,11 @@ public:
                                   QObject *parent = nullptr);
 
     static void setAppId(const QString &appId);
+
+    /*!
+     * \brief Returns the global worker thread used by generated DConfig wrappers.
+     * \note Must be called after a QCoreApplication or QGuiApplication has been constructed.
+     */
     static QThread *globalThread();
 
     QString backendName() const;

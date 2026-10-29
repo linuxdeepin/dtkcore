@@ -6,6 +6,7 @@
 #ifndef D_DISABLE_DCONFIG
 #include "dconfigfile.h"
 #ifndef D_DISABLE_DBUS_CONFIG
+#include <QDBusConnection>
 #include "configmanager_interface.h"
 #include "manager_interface.h"
 #endif
@@ -501,7 +502,7 @@ private:
 
 DBusBackend::~DBusBackend()
 {
-    if (config) {
+    if (config && config->connection().isConnected()) {
         config->release();
     }
 }
@@ -735,7 +736,14 @@ class DConfigThread : public QThread
 {
 public:
     DConfigThread() {
+        Q_ASSERT_X(QCoreApplication::instance(), "DConfig::globalThread",
+                   "DConfig::globalThread() must be called after QCoreApplication is constructed");
         setObjectName("DConfigGlobalThread");
+#if !defined(D_DISABLE_DCONFIG) && !defined(D_DISABLE_DBUS_CONFIG)
+        // Initialize DBus before the thread completes static initialization, so
+        // the connection manager is destroyed after this thread is stopped.
+        QDBusConnection::systemBus();
+#endif
         start();
     }
 
