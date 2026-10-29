@@ -509,6 +509,94 @@ TEST_F(ut_DConfigFile, setSubpath) {
     }
 }
 
+TEST_F(ut_DConfigFile, loadRejectsSiblingPrefixSubpath) {
+    FileCopyGuard base(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
+    FileCopyGuard sibling(":/data/dconf-example.meta.json", QString("%1-sibling/%2.json").arg(metaPath, FILE_NAME));
+
+    DConfigFile config(APP_ID, FILE_NAME, QString("/../%1-sibling").arg(APP_ID));
+    EXPECT_FALSE(config.load(LocalPrefix));
+    EXPECT_TRUE(config.meta()->keyList().isEmpty());
+}
+
+TEST_F(ut_DConfigFile, rejectsInvalidAppIds) {
+    FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaGlobalPath, FILE_NAME));
+    for (const QString &appId : {QString("."), QString(".."), QString("../outside"),
+                                QString("org.foo/app"), QString("org.foo app"), QString("org.foo.app\n")}) {
+        DConfigFile config(appId, FILE_NAME);
+        EXPECT_FALSE(config.load(LocalPrefix)) << appId.toStdString();
+    }
+}
+
+TEST_F(ut_DConfigFile, streamLoadAllowsInvalidAppIds) {
+    for (const QString &appId : {QString("."), QString(".."), QString("../outside"),
+                                QString("org.foo/app"), QString("org.foo app"), QString("org.foo.app\n")}) {
+        QFile meta(":/data/dconf-example.meta.json");
+        DConfigFile config(appId, FILE_NAME);
+        ASSERT_TRUE(config.load(&meta, {})) << appId.toStdString();
+        EXPECT_TRUE(config.meta()->keyList().contains("canExit"));
+    }
+}
+
+TEST_F(ut_DConfigFile, streamLoadAllowsValidAppIds) {
+    for (const QString &appId : {QString(APP_ID), NoAppId, QString(".app"),
+                                QString("..app"), QString("..."), QString("app-1_2")}) {
+        QFile meta(":/data/dconf-example.meta.json");
+        DConfigFile config(appId, FILE_NAME);
+        ASSERT_TRUE(config.load(&meta, {})) << appId.toStdString();
+        EXPECT_TRUE(config.meta()->keyList().contains("canExit"));
+    }
+}
+
+TEST_F(ut_DConfigFile, cacheSaveRejectsEscapingSubpaths) {
+    for (const QString &subpath : {QString("/../outside"), QString("/../org.foo.appid-sibling")}) {
+        DConfigFile config(APP_ID, FILE_NAME, subpath);
+        QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+        for (DConfigCache *cache : {userCache.data(), config.globalCache()}) {
+            cache->setCachePathPrefix("/cache");
+            ASSERT_TRUE(cache->setValue("key", "value", 0, uid, APP_ID));
+            EXPECT_FALSE(cache->save(LocalPrefix)) << subpath.toStdString();
+        }
+        EXPECT_FALSE(QFile::exists(QString("%1/cache%2/%3.json").arg(LocalPrefix, subpath.mid(3), FILE_NAME)));
+    }
+}
+
+TEST_F(ut_DConfigFile, cacheLoadRejectsSiblingPrefixSubpath) {
+    for (bool global : {false, true}) {
+        const QString prefix = global ? "/cache-global" : "/cache-user";
+        SCOPED_TRACE(prefix.toStdString());
+        ASSERT_TRUE(QDir().mkpath(QString("%1%2/%3").arg(LocalPrefix, prefix, APP_ID)));
+
+        DConfigFile siblingConfig(QString("%1-sibling").arg(APP_ID), FILE_NAME);
+        QScopedPointer<DConfigCache> siblingUserCache(siblingConfig.createUserCache(uid));
+        DConfigCache *siblingCache = global ? siblingConfig.globalCache() : siblingUserCache.data();
+        siblingCache->setCachePathPrefix(prefix);
+        ASSERT_TRUE(siblingCache->setValue("key", "sibling", 0, uid, APP_ID));
+        ASSERT_TRUE(siblingCache->save(LocalPrefix));
+
+        DConfigFile config(APP_ID, FILE_NAME, QString("/../%1-sibling").arg(APP_ID));
+        QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+        DConfigCache *cache = global ? config.globalCache() : userCache.data();
+        cache->setCachePathPrefix(prefix);
+        ASSERT_TRUE(cache->load(LocalPrefix));
+        EXPECT_TRUE(cache->keyList().isEmpty());
+    }
+}
+
+TEST_F(ut_DConfigFile, cacheSaveAllowsValidAppIds) {
+    for (const QString &appId : {QString(APP_ID), NoAppId, QString(".app"),
+                                QString("..app"), QString("..."), QString("app-1_2")}) {
+        DConfigFile config(appId, FILE_NAME, "/nested");
+        QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+        for (DConfigCache *cache : {userCache.data(), config.globalCache()}) {
+            const QString prefix = cache->isGlobal() ? "/cache-global" : "/cache-user";
+            cache->setCachePathPrefix(prefix);
+            ASSERT_TRUE(cache->setValue("key", "value", 0, uid, APP_ID));
+            EXPECT_TRUE(cache->save(LocalPrefix));
+            EXPECT_TRUE(QFile::exists(QString("%1%2/%3/nested/%4.json").arg(LocalPrefix, prefix, appId, FILE_NAME)));
+        }
+    }
+}
+
 TEST_F(ut_DConfigFile, userPublic) {
 
     FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));

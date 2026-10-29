@@ -86,6 +86,19 @@ inline static QVariant jsonValueToVariant(const QJsonValue &value, bool isFloat)
     return var;
 }
 
+// Check directory boundaries without requiring the paths to exist.
+// This is a lexical check and does not resolve symbolic links.
+inline static bool isPathInDirectory(const QString &path, const QString &dir)
+{
+    const QString cleanDir = QDir::cleanPath(dir);
+    const QString cleanPath = QDir::cleanPath(path);
+    if (cleanDir.isEmpty() || cleanPath.isEmpty())
+        return false;
+    const QString prefix = cleanDir.endsWith(QLatin1Char('/'))
+            ? cleanDir : cleanDir + QLatin1Char('/');
+    return cleanPath == cleanDir || cleanPath.startsWith(prefix);
+}
+
 // subpath must be a subdirectory of the dir.
 inline static bool subpathIsValid(const QString &subpath, const QDir &dir)
 {
@@ -96,7 +109,7 @@ inline static bool subpathIsValid(const QString &subpath, const QDir &dir)
         return false;
 
     const QDir subDir(dir.filePath(subpath.mid(1)));
-    return subDir.absolutePath().startsWith(dir.absolutePath());
+    return isPathInDirectory(subDir.absolutePath(), dir.absolutePath());
 }
 // name must be a valid filename.
 inline static bool isValidFilename(const QString& filename)
@@ -108,10 +121,12 @@ inline static bool isValidFilename(const QString& filename)
 // AppId don't contain ' ', but it can be empty.
 inline static bool isValidAppId(const QString& appId)
 {
-    static const QRegularExpression regex("^[\\w\\-\\.]*$");
+    // The appId is used as a directory name, so exclude "." and "..".
+    static const QRegularExpression regex(R"(\A(?!\.{1,2}\z)[\w.-]*\z)");
     QRegularExpressionMatch match = regex.match(appId);
     return match.hasMatch();
 }
+
 /*!
 @~english
   \internal
@@ -1326,6 +1341,14 @@ bool DConfigCacheImpl::save(const QString &localPrefix, QJsonDocument::JsonForma
         return false;
     }
     QString path = cacheDir(dir);
+
+    // Reject subpaths that escape the cache directory before creating or
+    // opening a file, including sibling directories with the same prefix.
+    if (!isPathInDirectory(path, dir)) {
+        qCWarning(cfLog, "Failed on saving, the cache path is outside the cache directory: \"%s\"",
+                  qPrintable(path));
+        return false;
+    }
 
     QFile cache(path);
     if (!QFile::exists(QFileInfo(cache.fileName()).path())) {
