@@ -25,6 +25,7 @@
 #include <lmcons.h>
 #include <QCryptographicHash>
 #endif
+#include <exception>
 
 // https://gitlabwh.uniontech.com/wuhan/se/deepin-specifications/-/issues/3
 
@@ -502,7 +503,17 @@ private:
 DBusBackend::~DBusBackend()
 {
     if (config) {
-        config->release();
+        try {
+            // release() 是异步通知 daemon 减引用；连接已断开时消息无法送达，
+            // 且发送路径会阻塞在 QDBusConnectionPrivate 的读锁上（关机时该
+            // 连接正被全局 QDBusConnectionManager 销毁）。daemon 侧会在连接
+            // 断开时自动清理引用，跳过不泄漏。
+            if (config->connection().isConnected()) {
+                config->release();
+            }
+        } catch (const std::exception &e) {
+            qCWarning(cfLog) << "DConfig release exception:" << e.what();
+        }
     }
 }
 #endif //D_DISABLE_DBUS_CONFIG
