@@ -97,7 +97,7 @@ public Q_SLOTS:
     int testFunc(int i, double j) {
         int r =qFloor(i + j);
         wait();
-        emit testFuncTrigger(r);
+        Q_EMIT testFuncTrigger(r);
         return r;
     }
 
