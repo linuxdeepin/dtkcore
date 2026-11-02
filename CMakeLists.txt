@@ -32,4 +32,6 @@ set(DTK_VERSION "${DTK_VERSION_MAJOR}.${DTK_VERSION_MINOR}.${DTK_VERSION_PATCH}"
 # Officially, DTK5 uses QT5, DTK6 uses QT6
 set(QT_VERSION_MAJOR ${DTK_VERSION_MAJOR})
 
+add_compile_definitions(QT_NO_KEYWORDS)
+
 include(dtkcore.cmake)

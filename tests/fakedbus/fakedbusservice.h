@@ -19,7 +19,7 @@ public:
 
     Q_PROPERTY(QList<QDBusObjectPath> objectPaths READ objectpaths NOTIFY objectpathsChanged);
     QList<QDBusObjectPath> objectpaths();
-signals:
+Q_SIGNALS:
     void objectpathsChanged();
 private:
     DDBusInterface *m_dDbusFakeDBusServiceInter;
