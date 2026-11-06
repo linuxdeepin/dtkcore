@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2016 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2016 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -301,7 +301,7 @@ static QString classNameForInterface(const QString &interface, ClassType classTy
 
     QString retval;
     if (classType == Proxy)
-        foreach (QString part, parts) {
+        Q_FOREACH (QString part, parts) {
             part[0] = part[0].toUpper();
             retval += part;
         }
@@ -584,7 +584,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
        << includeList
        << "#include <QtDBus/QtDBus>" << endl;
 
-    foreach (const QString &include, includes) {
+    Q_FOREACH (const QString &include, includes) {
         hs << "#include \"" << include << "\"" << endl;
         if (headerName.isEmpty())
             cs << "#include \"" << include << "\"" << endl;
@@ -648,7 +648,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
     }
     hs << endl;
 
-    foreach (const QDBusIntrospection::Interface *interface, interfaces) {
+    Q_FOREACH (const QDBusIntrospection::Interface *interface, interfaces) {
         QString className = "__" + classNameForInterface(interface->name, Proxy);
 
         // using namespace Dtk::Core in cpp
@@ -777,7 +777,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
         }
 
         // properties:
-        foreach (const QDBusIntrospection::Property &property, interface->properties) {
+        Q_FOREACH (const QDBusIntrospection::Property &property, interface->properties) {
             QByteArray type = qtTypeName(property.type, property.annotations);
             //            QString templateType = templateArg(type);
             //            QString constRefType = constRefArg(type);
@@ -834,7 +834,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
 
         // methods:
         hs << "public Q_SLOTS: // METHODS" << endl;
-        foreach (const QDBusIntrospection::Method &method, interface->methods) {
+        Q_FOREACH (const QDBusIntrospection::Method &method, interface->methods) {
             bool isDeprecated = annotationValue(method.annotations, "org.freedesktop.DBus.Deprecated") == QLatin1String("true");
             bool isNoReply =
                 annotationValue(method.annotations, QLatin1String(ANNOTATION_NO_WAIT)) == QLatin1String("true");
@@ -955,7 +955,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
         hs << endl;
 
         hs << "Q_SIGNALS: // SIGNALS" << endl;
-        foreach (const QDBusIntrospection::Signal &signal, interface->signals_) {
+        Q_FOREACH (const QDBusIntrospection::Signal &signal, interface->signals_) {
             hs << "    ";
             if (annotationValue(signal.annotations, QLatin1String("org.freedesktop.DBus.Deprecated")) == QLatin1String("true"))
                 hs << "Q_DECL_DEPRECATED ";
@@ -970,7 +970,7 @@ static void writeProxy(const QString &filename, const QDBusIntrospection::Interf
 
         //propery changed signals
         hs << "    // begin property changed signals" << endl;
-        foreach (const QDBusIntrospection::Property &property, interface->properties) {
+        Q_FOREACH (const QDBusIntrospection::Property &property, interface->properties) {
             hs << "    ";
             QByteArray type = qtTypeName(property.type, property.annotations);
             QString constRefType = constRefArg(type);
@@ -1144,7 +1144,7 @@ static void writeAdaptor(const QString &filename, const QDBusIntrospection::Inte
            << "#include <QtCore/QVariant>" << endl;
     hs << "#include <QtDBus/QtDBus>" << endl;
 
-    foreach (const QString &include, includes) {
+    Q_FOREACH (const QString &include, includes) {
         hs << "#include \"" << include << "\"" << endl;
         if (headerName.isEmpty())
             cs << "#include \"" << include << "\"" << endl;
@@ -1168,7 +1168,7 @@ static void writeAdaptor(const QString &filename, const QDBusIntrospection::Inte
     if (parentClassName.isEmpty())
         parent = QLatin1String("QObject");
 
-    foreach (const QDBusIntrospection::Interface *interface, interfaces) {
+    Q_FOREACH (const QDBusIntrospection::Interface *interface, interfaces) {
         QString className = classNameForInterface(interface->name, Adaptor);
 
         // comment:
@@ -1213,7 +1213,7 @@ static void writeAdaptor(const QString &filename, const QDBusIntrospection::Inte
            << endl;
 
         hs << "public: // PROPERTIES" << endl;
-        foreach (const QDBusIntrospection::Property &property, interface->properties) {
+        Q_FOREACH (const QDBusIntrospection::Property &property, interface->properties) {
             QByteArray type = qtTypeName(property.type, property.annotations);
             QString constRefType = constRefArg(type);
             QString getter = propertyGetter(property);
@@ -1256,7 +1256,7 @@ static void writeAdaptor(const QString &filename, const QDBusIntrospection::Inte
         }
 
         hs << "public Q_SLOTS: // METHODS" << endl;
-        foreach (const QDBusIntrospection::Method &method, interface->methods) {
+        Q_FOREACH (const QDBusIntrospection::Method &method, interface->methods) {
             bool isNoReply =
                 annotationValue(method.annotations, QLatin1String(ANNOTATION_NO_WAIT)) == QLatin1String("true");
             if (isNoReply && !method.outputArgs.isEmpty()) {
@@ -1364,7 +1364,7 @@ static void writeAdaptor(const QString &filename, const QDBusIntrospection::Inte
         }
 
         hs << "Q_SIGNALS: // SIGNALS" << endl;
-        foreach (const QDBusIntrospection::Signal &signal, interface->signals_) {
+        Q_FOREACH (const QDBusIntrospection::Signal &signal, interface->signals_) {
             hs << "    ";
             if (annotationValue(signal.annotations, QLatin1String("org.freedesktop.DBus.Deprecated")) == QLatin1String("true"))
                 hs << "Q_DECL_DEPRECATED ";
