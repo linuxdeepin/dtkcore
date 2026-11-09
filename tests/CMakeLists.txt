@@ -218,9 +218,14 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
                         "\"ASan runtime does not come first in initial library list\"")
     endif()
 endif()
+# The suite uses fixed scratch locations (/tmp/etc, /tmp/example, /tmp/home) and
+# the user's XDG dirs, and each fixture's TearDown deletes them. Running tests in
+# parallel (dh_auto_test/ctest -jN) makes processes delete each other's fixtures,
+# producing random failures. RUN_SERIAL keeps one test at a time.
 gtest_discover_tests(${BIN_NAME}
     PROPERTIES
     ENVIRONMENT "LD_PRELOAD=${_test_preload}"
+    RUN_SERIAL TRUE
 )
 
 # ---- coverage: execute all tests and generate a coverage report ----

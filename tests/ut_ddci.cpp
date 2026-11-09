@@ -977,17 +977,9 @@ TEST_F(ut_DCI, FileEngine_extension_supportsExtension) {
     char buf[16];
     engine.read(buf, 5);
     EXPECT_TRUE(engine.extension(QAbstractFileEngine::AtEndExtension));
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    EXPECT_FALSE(engine.extension(QAbstractFileEngine::CopyExtension));
-#else
     EXPECT_FALSE(engine.extension(static_cast<QAbstractFileEngine::Extension>(0xFF)));
-#endif
     EXPECT_TRUE(engine.supportsExtension(QAbstractFileEngine::AtEndExtension));
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    EXPECT_FALSE(engine.supportsExtension(QAbstractFileEngine::CopyExtension));
-#else
     EXPECT_FALSE(engine.supportsExtension(static_cast<QAbstractFileEngine::Extension>(0xFF)));
-#endif
     engine.close();
 }
 

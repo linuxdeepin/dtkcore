@@ -65,7 +65,8 @@ TEST_F(ut_DTimedLoop, exitDuringExec)
     DTimedLoop loop;
     QTimer::singleShot(0, &loop, [&loop]() { loop.exit(123); });
     int ret = loop.exec(10000);
-    EXPECT_EQ(ret, 0);
+    // The zero-delay timer fires before the 10s timeout and its exit code wins.
+    EXPECT_EQ(ret, 123);
     EXPECT_FALSE(loop.isRunning());
 }
 

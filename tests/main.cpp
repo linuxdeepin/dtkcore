@@ -1,9 +1,11 @@
-// SPDX-FileCopyrightText: 2017 - 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2017 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include "ut_dutil.h"
 #include <QGuiApplication>
+#include <QDir>
+#include <unistd.h>
 
 #ifdef QT_DEBUG
 #include <sanitizer/asan_interface.h>
@@ -11,6 +13,14 @@
 
 int main(int argc, char *argv[])
 {
+    // Several tests depend on a writable HOME (Qt trash, XDG cache,
+    // recently-used.xbel). Packaging chroots run with HOME=/nonexistent,
+    // where all of those fail.
+    const QString testHome = QDir::tempPath()
+            + QStringLiteral("/dtkcore-test-home-%1").arg(getuid());
+    QDir().mkpath(testHome);
+    qputenv("HOME", testHome.toLocal8Bit());
+
     qputenv("DSG_APP_ID", "tests");
 
     QCoreApplication app(argc, argv);
