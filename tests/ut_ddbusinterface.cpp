@@ -9,6 +9,7 @@
 #include <QTest>
 #include <QSignalSpy>
 #include <QDBusPendingReply>
+#include <QDBusInterface>
 
 using Dtk::Core::DDBusInterface;
 
@@ -21,6 +22,23 @@ public:
             GTEST_SKIP() << "Session bus not available";
         }
         m_testservice = new FakeDBusService();
+        if (!m_testservice->isRegistered()) {
+            delete m_testservice;
+            m_testservice = nullptr;
+            GTEST_SKIP() << "Failed to register FakeDBusService on session bus";
+        }
+        // Verify the service is actually accessible via a real D-Bus call.
+        // registerService/registerObject can return true in some CI environments
+        // where the session bus exists but the service is not truly reachable.
+        QDBusInterface validateIface(FakeDBusService::get_service(),
+                                     FakeDBusService::get_path(),
+                                     FakeDBusService::get_interface(),
+                                     QDBusConnection::sessionBus());
+        if (!validateIface.isValid()) {
+            delete m_testservice;
+            m_testservice = nullptr;
+            GTEST_SKIP() << "FakeDBusService registered but not accessible via QDBusInterface";
+        }
         m_testDBusInterfaceParent = new FakeDBusServiceParent();
         // if parent is nullptr
         m_testInterface = new DDBusInterface(FakeDBusService::get_service(),
@@ -34,9 +52,11 @@ public:
         delete m_testInterface;
         delete m_testservice;
     }
-    DDBusInterface *m_testInterface;
-    FakeDBusService *m_testservice;
-    FakeDBusServiceParent *m_testDBusInterfaceParent;
+    // SetUp() may GTEST_SKIP() before these are assigned; TearDown() deletes
+    // them unconditionally, so they must start out null.
+    DDBusInterface *m_testInterface = nullptr;
+    FakeDBusService *m_testservice = nullptr;
+    FakeDBusServiceParent *m_testDBusInterfaceParent = nullptr;
 };
 
 TEST_F(ut_DDBusInterface, TestProperty)

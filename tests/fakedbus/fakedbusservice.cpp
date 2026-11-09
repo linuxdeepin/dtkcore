@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2023 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -22,15 +22,18 @@ FakeDBusService::~FakeDBusService()
 void FakeDBusService::registerService()
 {
     QDBusConnection bus = QDBusConnection::sessionBus();
-    if (!bus.registerService(m_service)) {
+    bool serviceOk = bus.registerService(m_service);
+    if (!serviceOk) {
         QString errorMsg = bus.lastError().message();
         if (errorMsg.isEmpty())
             errorMsg = "maybe it's running";
         qWarning() << QString("Can't register the %1 service, %2.").arg(m_service).arg(errorMsg);
     }
-    if (!bus.registerObject(m_path, this, QDBusConnection::ExportScriptableContents)) {
+    bool objectOk = bus.registerObject(m_path, this, QDBusConnection::ExportScriptableContents);
+    if (!objectOk) {
         qWarning() << QString("Can't register %1 the D-Bus object.").arg(m_path);
     }
+    m_registered = serviceOk && objectOk;
 }
 
 void FakeDBusService::unregisterService()

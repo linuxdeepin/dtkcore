@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2023 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -33,6 +33,8 @@ public:
     explicit FakeDBusService(QObject *parent = nullptr);
     ~FakeDBusService();
 
+    bool isRegistered() const { return m_registered; }
+
     Q_PROPERTY(QString strProperty READ strproperty WRITE setStrproperty)
     Q_PROPERTY(QList<QDBusObjectPath> objectPaths READ objectpaths)
 
@@ -58,4 +60,5 @@ private:
 
     QString m_strproperty;
     QList<QDBusObjectPath> m_objectpaths;
+    bool m_registered{false};
 };

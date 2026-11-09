@@ -12,6 +12,7 @@
 #include <QSaveFile>
 #include <QTextStream>
 #include <QFileInfo>
+#include <unistd.h>
 
 DCORE_USE_NAMESPACE
 
@@ -820,6 +821,8 @@ TEST_F(ut_DesktopEntry, SaveNonExistentFile)
 
 TEST_F(ut_DesktopEntry, SaveToReadOnlyFile)
 {
+    if (getuid() == 0) GTEST_SKIP() << "Permission test skipped when running as root";
+
     // Create a read-only file to trigger AccessError on save
     QTemporaryFile file("testReadOnlyXXXXXX.desktop");
     ASSERT_TRUE(file.open());

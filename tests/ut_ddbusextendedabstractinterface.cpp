@@ -70,6 +70,11 @@ public:
             GTEST_SKIP() << "Session bus not available";
         }
         m_fakeService = new FakeDBusService;
+        if (!m_fakeService->isRegistered()) {
+            delete m_fakeService;
+            m_fakeService = nullptr;
+            GTEST_SKIP() << "Failed to register FakeDBusService on session bus";
+        }
         m_dbusExtend = new DBusExtendedInterfaceFoo;
     }
     void TearDown() override

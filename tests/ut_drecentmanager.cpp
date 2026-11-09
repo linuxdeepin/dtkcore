@@ -17,7 +17,13 @@
 
 DCORE_USE_NAMESPACE
 
-static const QString RecentPath = QDir::homePath() + "/.local/share/recently-used.xbel";
+// Resolved at run time, not in a static initializer: main() pins HOME before
+// the tests run, and a static initializer would capture the packaging chroot's
+// HOME=/nonexistent instead.
+static QString recentPath()
+{
+    return QDir::homePath() + QStringLiteral("/.local/share/recently-used.xbel");
+}
 
 class ut_DRecentManager: public testing::Test
 {
@@ -37,11 +43,11 @@ protected:
 
 void ut_DRecentManager::SetUp()
 {
-    QDir().mkpath(QFileInfo(RecentPath).absolutePath());
+    QDir().mkpath(QFileInfo(recentPath()).absolutePath());
 
-    if (QFile::exists(RecentPath)) {
-        m_backupPath = RecentPath + ".bak.ut_test";
-        QFile::rename(RecentPath, m_backupPath);
+    if (QFile::exists(recentPath())) {
+        m_backupPath = recentPath() + ".bak.ut_test";
+        QFile::rename(recentPath(), m_backupPath);
         m_hasBackup = true;
     }
 
@@ -55,11 +61,11 @@ void ut_DRecentManager::SetUp()
 
 void ut_DRecentManager::TearDown()
 {
-    if (QFile::exists(RecentPath)) {
-        QFile::remove(RecentPath);
+    if (QFile::exists(recentPath())) {
+        QFile::remove(recentPath());
     }
     if (m_hasBackup) {
-        QFile::rename(m_backupPath, RecentPath);
+        QFile::rename(m_backupPath, recentPath());
     }
     if (QFile::exists(m_testFile)) {
         QFile::remove(m_testFile);
@@ -68,7 +74,7 @@ void ut_DRecentManager::TearDown()
 
 bool ut_DRecentManager::bookmarkExists(const QString &uri)
 {
-    QFile file(RecentPath);
+    QFile file(recentPath());
     if (!file.open(QIODevice::ReadOnly)) {
         return false;
     }
@@ -93,7 +99,7 @@ bool ut_DRecentManager::bookmarkExists(const QString &uri)
 
 int ut_DRecentManager::bookmarkCount()
 {
-    QFile file(RecentPath);
+    QFile file(recentPath());
     if (!file.open(QIODevice::ReadOnly)) {
         return 0;
     }
@@ -108,7 +114,7 @@ int ut_DRecentManager::bookmarkCount()
 
 int ut_DRecentManager::getAppCount(const QString &uri, const QString &appName, const QString &appExec)
 {
-    QFile file(RecentPath);
+    QFile file(recentPath());
     if (!file.open(QIODevice::ReadOnly)) {
         return -1;
     }
@@ -141,7 +147,7 @@ int ut_DRecentManager::getAppCount(const QString &uri, const QString &appName, c
 
 int ut_DRecentManager::countApplications(const QString &uri)
 {
-    QFile file(RecentPath);
+    QFile file(recentPath());
     if (!file.open(QIODevice::ReadOnly)) {
         return 0;
     }
@@ -201,7 +207,7 @@ TEST_F(ut_DRecentManager, addItemAutoDetectMimeType)
     data.mimeType = "";
     EXPECT_TRUE(DRecentManager::addItem(m_testFile, data));
 
-    QFile file(RecentPath);
+    QFile file(recentPath());
     ASSERT_TRUE(file.open(QIODevice::ReadOnly));
     QDomDocument doc;
     ASSERT_TRUE(doc.setContent(&file));
@@ -341,7 +347,7 @@ TEST_F(ut_DRecentManager, removeItems)
 
 TEST_F(ut_DRecentManager, removeItemsNoFile)
 {
-    QFile::remove(RecentPath);
+    QFile::remove(recentPath());
     QStringList list;
     list << "/tmp/some_file.txt";
     DRecentManager::removeItems(list);
@@ -350,7 +356,7 @@ TEST_F(ut_DRecentManager, removeItemsNoFile)
 TEST_F(ut_DRecentManager, removeItemsInvalidFile)
 {
     {
-        QFile file(RecentPath);
+        QFile file(recentPath());
         file.open(QIODevice::WriteOnly);
         file.write("not valid xml");
         file.close();
@@ -362,16 +368,16 @@ TEST_F(ut_DRecentManager, removeItemsInvalidFile)
 
 TEST_F(ut_DRecentManager, addItemCreatesNewXbelIfNotExists)
 {
-    QFile::remove(RecentPath);
+    QFile::remove(recentPath());
     DRecentData data;
     data.appExec = "test-exec";
     data.appName = "test-app";
     data.mimeType = "text/plain";
 
     EXPECT_TRUE(DRecentManager::addItem(m_testFile, data));
-    EXPECT_TRUE(QFile::exists(RecentPath));
+    EXPECT_TRUE(QFile::exists(recentPath()));
 
-    QFile file(RecentPath);
+    QFile file(recentPath());
     ASSERT_TRUE(file.open(QIODevice::ReadOnly));
     QDomDocument doc;
     ASSERT_TRUE(doc.setContent(&file));

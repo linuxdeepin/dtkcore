@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2023 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -29,6 +29,13 @@ public:
     static void TearDownTestSuite() {
         QDBusConnection::sessionBus().unregisterService("org.deepin.ExpIntfTest");
         delete _infc;
+    }
+
+    // Without a session bus registerService() fails silently and every
+    // DDBusSender call below returns an error.
+    void SetUp() override {
+        if (!QDBusConnection::sessionBus().isConnected())
+            GTEST_SKIP() << "Session bus not available";
     }
 
     static DUtil::DExportedInterface *_infc;

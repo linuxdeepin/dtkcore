@@ -493,7 +493,7 @@ TEST_F(ut_DLogManager, testShouldSkipConsoleAppenderJournalStreamMatch)
     struct stat st;
     ASSERT_EQ(fstat(STDOUT_FILENO, &st), 0);
 
-    QByteArray matchStream = QByteArray::number(st.st_dev) + ":" + QByteArray::number(st.st_ino);
+    QByteArray matchStream = QByteArray::number(static_cast<qulonglong>(st.st_dev)) + ":" + QByteArray::number(static_cast<qulonglong>(st.st_ino));
 
     EnvGuard guard;
     guard.set("JOURNAL_STREAM", matchStream, false);

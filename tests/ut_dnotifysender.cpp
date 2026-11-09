@@ -10,6 +10,7 @@
 #include <QVariantMap>
 #include <QStringList>
 #include <QDBusPendingCall>
+#include <QDBusConnection>
 
 DCORE_USE_NAMESPACE
 
@@ -184,6 +185,8 @@ TEST(ut_DNotifySender, chainedMethods)
 
 TEST(ut_DNotifySender, call)
 {
+    if (!QDBusConnection::sessionBus().isConnected())
+        GTEST_SKIP() << "Session bus not available";
     DUtil::DNotifySender sender("summary");
     sender.appName("test").appBody("body").timeOut(100);
     QDBusPendingCall call = sender.call();
