@@ -6,6 +6,7 @@
 #include <DStandardPaths>
 #include <QBuffer>
 #include <QDir>
+#include <QJsonObject>
 
 #include <gtest/gtest.h>
 #include "test_helper.hpp"
@@ -94,6 +95,35 @@ TEST_F(ut_DConfigFile, testLoad) {
     ASSERT_EQ(config.meta()->description("canExit", QLocale::English), "I am description");
 
     ASSERT_EQ(config.meta()->permissions("canExit"), DConfigFile::ReadWrite);
+}
+
+TEST_F(ut_DConfigFile, authorizedPermissions) {
+    QByteArray meta = R"delimiter(
+{
+    "magic": "dsg.config.meta",
+    "version": "1.0",
+    "contents": {
+        "authorizedReadOnly": {
+            "value": true,
+            "serial": 0,
+            "permissions": "authorizedreadonly"
+        },
+        "authorizedReadWrite": {
+            "value": true,
+            "serial": 0,
+            "permissions": "authorizedreadwrite"
+        }
+    }
+}
+        )delimiter";
+
+    QBuffer buffer(&meta);
+    DConfigFile config(APP_ID, FILE_NAME);
+    ASSERT_TRUE(config.load(&buffer, {}));
+    ASSERT_EQ(config.meta()->permissions("authorizedReadOnly"),
+              DConfigFile::AuthorizedReadOnly);
+    ASSERT_EQ(config.meta()->permissions("authorizedReadWrite"),
+              DConfigFile::AuthorizedReadWrite);
 }
 
 TEST_F(ut_DConfigFile, setValueTypeCheck) {
@@ -477,6 +507,143 @@ TEST_F(ut_DConfigFile, setCachePathPrefix) {
 
         ASSERT_EQ(config.value("key2", userCache.get()), QString("user-config"));
         ASSERT_EQ(config.value("key3", userCache.get()), QString("global-config"));
+    }
+}
+
+TEST_F(ut_DConfigFile, cachePathPrefixOverlaysNewCacheOnLegacyCache) {
+    FileCopyGuard guard(":/data/dconf-example.meta.json",
+                        QString("%1/%2.json").arg(metaPath, FILE_NAME));
+    const QString newPrefix("/configs-user-overlay");
+
+    // Create the new cache first so it does not inherit any legacy values.
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> cache(config.createUserCache(uid));
+        cache->setCachePathPrefix(newPrefix);
+        ASSERT_TRUE(cache->load(LocalPrefix));
+        ASSERT_TRUE(config.setValue("key2", "new-value", "test", cache.get()));
+        ASSERT_TRUE(cache->save(LocalPrefix));
+    }
+
+    // The legacy cache contains one conflicting key and one legacy-only key.
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> cache(config.createUserCache(uid));
+        ASSERT_TRUE(cache->load(LocalPrefix));
+        ASSERT_TRUE(config.setValue("key2", "legacy-value", "test", cache.get()));
+        ASSERT_TRUE(config.setValue("readwrite", false, "test", cache.get()));
+        ASSERT_TRUE(cache->save(LocalPrefix));
+    }
+
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> cache(config.createUserCache(uid));
+        cache->setCachePathPrefix(newPrefix);
+        ASSERT_TRUE(cache->load(LocalPrefix));
+        ASSERT_EQ(config.value("key2", cache.get()), QString("new-value"));
+        ASSERT_EQ(config.value("readwrite", cache.get()), false);
+
+        // load() marks the merged cache dirty, so the existing save path
+        // persists the legacy-only value into the new cache.
+        ASSERT_TRUE(cache->save(LocalPrefix));
+    }
+
+    const QString legacyCache = QDir::cleanPath(
+            QString("%1/tmp/home/.config/dsg/configs/%2/%3.json")
+                    .arg(LocalPrefix, APP_ID, FILE_NAME));
+    ASSERT_TRUE(QFile::remove(legacyCache));
+
+    // The legacy-only value remains available from the saved new cache.
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> cache(config.createUserCache(uid));
+        cache->setCachePathPrefix(newPrefix);
+        ASSERT_TRUE(cache->load(LocalPrefix));
+        ASSERT_EQ(config.value("key2", cache.get()), QString("new-value"));
+        ASSERT_EQ(config.value("readwrite", cache.get()), false);
+    }
+}
+
+TEST_F(ut_DConfigFile, cachePathPrefixOverlaysGlobalCache) {
+    FileCopyGuard guard(":/data/dconf-example.meta.json",
+                        QString("%1/%2.json").arg(metaPath, FILE_NAME));
+    const QString newPrefix("/configs-global-overlay");
+
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        config.globalCache()->setCachePathPrefix(newPrefix);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        ASSERT_TRUE(config.setValue("key3", "new-global", "test"));
+        ASSERT_TRUE(config.save(LocalPrefix));
+    }
+
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        ASSERT_TRUE(config.setValue("key3", "legacy-global", "test"));
+        ASSERT_TRUE(config.setValue("number", 42, "test"));
+        ASSERT_TRUE(config.save(LocalPrefix));
+    }
+
+    {
+        DConfigFile config(APP_ID, FILE_NAME);
+        config.globalCache()->setCachePathPrefix(newPrefix);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        ASSERT_EQ(config.value("key3"), QString("new-global"));
+        ASSERT_EQ(config.value("number"), 42);
+        ASSERT_TRUE(config.save(LocalPrefix));
+    }
+
+    const QString newCache = QDir::cleanPath(
+            QString("%1/%2/%3/%4.json").arg(LocalPrefix, newPrefix, APP_ID, FILE_NAME));
+    QFile cacheFile(newCache);
+    ASSERT_TRUE(cacheFile.open(QIODevice::ReadOnly));
+    const QJsonObject contents = QJsonDocument::fromJson(cacheFile.readAll())
+                                       .object()
+                                       .value("contents")
+                                       .toObject();
+    ASSERT_EQ(contents.value("key3").toObject().value("value").toString(),
+              QString("new-global"));
+    ASSERT_EQ(contents.value("number").toObject().value("value").toInt(), 42);
+}
+
+TEST_F(ut_DConfigFile, cachePathPrefixSupportsNoAppIdAndSubpath) {
+    FileCopyGuard guard(":/data/dconf-example.meta.json",
+                        QString("%1/%2.json").arg(noAppidMetaPath, FILE_NAME));
+    const QString newPrefix("/configs-no-appid-overlay");
+    const QString subpath("/nested/path");
+
+    {
+        DConfigFile config(NoAppId, FILE_NAME, subpath);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> cache(config.createUserCache(uid));
+        cache->setCachePathPrefix(newPrefix);
+        ASSERT_TRUE(cache->load(LocalPrefix));
+        ASSERT_TRUE(config.setValue("readwrite", false, "test", cache.get()));
+        ASSERT_TRUE(cache->save(LocalPrefix));
+    }
+
+    {
+        DConfigFile config(NoAppId, FILE_NAME, subpath);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> cache(config.createUserCache(uid));
+        ASSERT_TRUE(cache->load(LocalPrefix));
+        ASSERT_TRUE(config.setValue("key2", "legacy-no-appid", "test", cache.get()));
+        ASSERT_TRUE(cache->save(LocalPrefix));
+    }
+
+    {
+        DConfigFile config(NoAppId, FILE_NAME, subpath);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        QScopedPointer<DConfigCache> cache(config.createUserCache(uid));
+        cache->setCachePathPrefix(newPrefix);
+        ASSERT_TRUE(cache->load(LocalPrefix));
+        ASSERT_EQ(config.value("readwrite", cache.get()), false);
+        ASSERT_EQ(config.value("key2", cache.get()), QString("legacy-no-appid"));
     }
 }
 
