@@ -201,7 +201,23 @@ static QByteArray callDBusIdentifyMethod(const QByteArray &serviceName, const QB
     msgGuard.reset(); // msg is consumed by the call
 
     if (dbus_error_is_set(error.get())) {
-        qCWarning(dsgApp) << "Identify from AM failed:" << error->message;
+        // An error reply is the expected answer for any process that does not
+        // belong to a desktop application: processes of other users, system
+        // services, and short-lived helpers all end up here. Callers may query
+        // this API for every PID they can see, so a warning per PID floods the
+        // journal (measured: ~470k lines/day on a normal desktop session, which
+        // also slows down every client of systemd-journald).
+        // Keep the warning for real transport failures only; the ordinary
+        // "not an application" answer stays available with
+        // QT_LOGGING_RULES="dtk.core.dsg.debug=true".
+        if (dbus_error_has_name(error.get(), DBUS_ERROR_NO_REPLY)
+            || dbus_error_has_name(error.get(), DBUS_ERROR_TIMEOUT)
+            || dbus_error_has_name(error.get(), DBUS_ERROR_DISCONNECTED)
+            || dbus_error_has_name(error.get(), DBUS_ERROR_SERVICE_UNKNOWN)) {
+            qCWarning(dsgApp) << "Identify from AM failed:" << error->message;
+        } else {
+            qCDebug(dsgApp) << "Identify from AM failed:" << error->message;
+        }
         return QByteArray();
     }
 
