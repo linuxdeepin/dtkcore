@@ -949,6 +949,28 @@ public:
         dirs << overrideDirs(prefix, true);
         return dirs;
     }
+
+    QStringList subpaths(const QString &localPrefix = QString()) const override
+    {
+        QStringList result;
+        QSet<QString> seen;
+        // Scan override dirs (both with and without appId) for one-level child directories
+        for (bool useAppId : {true, false}) {
+            const QStringList dirs = allOverrideDirs(useAppId, localPrefix);
+            for (const auto &dirPath : dirs) {
+                QDir dir(dirPath);
+                if (!dir.exists())
+                    continue;
+                const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+                for (const auto &entry : entries) {
+                    const QString subpath = QString("/%1").arg(entry);
+                    if (seen.insert(subpath).second)
+                        result << subpath;
+                }
+            }
+        }
+        return result;
+    }
     /*!
     @~english
       \internal
@@ -1207,7 +1229,7 @@ public:
         return QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix, configKey.appId));
     }
 
-    QString getCacheDir(const QString &localPrefix = QString())
+    QString getCacheDir(const QString &localPrefix = QString()) const
     {
         if (isGlobal()) {
             const QString &dir = globalCacheDir(localPrefix);
@@ -1219,6 +1241,25 @@ public:
         } else {
             return applicationCacheDir(localPrefix);
         }
+    }
+
+    QStringList cacheSubpaths(const QString &localPrefix = QString()) const override
+    {
+        QStringList result;
+        QSet<QString> seen;
+        const QString baseDir = getCacheDir(localPrefix);
+        if (baseDir.isEmpty())
+            return result;
+        QDir dir(baseDir);
+        if (!dir.exists())
+            return result;
+        const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const auto &entry : entries) {
+            const QString subpath = QString("/%1").arg(entry);
+            if (seen.insert(subpath).second)
+                result << subpath;
+        }
+        return result;
     }
 
     bool load(const QString &localPrefix = QString()) override;
