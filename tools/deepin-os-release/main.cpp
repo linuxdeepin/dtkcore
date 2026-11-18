@@ -1,6 +1,8 @@
-// SPDX-FileCopyrightText: 2017 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2017-2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
+
+#define _GNU_SOURCE
 
 #include "dsysinfo.h"
 
@@ -11,8 +13,56 @@
 #include <QFile>
 
 #include <stdio.h>
+#include <unistd.h> 
+#include <cstring>
+#include <cstdlib>
 
 DCORE_USE_NAMESPACE
+
+class StderrFilterThread : public QThread
+{
+public:
+    explicit StderrFilterThread(int origStderr, int readFd, QObject *parent = nullptr)
+        : QThread(parent), m_origStderr(origStderr), m_readFd(readFd) {}
+
+protected:
+    void run() override
+    {
+        FILE *readEnd = fdopen(m_readFd, "r");
+        if (!readEnd) {
+            close(m_readFd); // Close unused file descriptors
+            return;
+        }
+
+        char *line = nullptr;
+        size_t len = 0;
+        while (getline(&line, &len, readEnd) != -1) {
+            if (strstr(line, "WARNING: CPU random generator seem to be failing") ||
+                strstr(line, "WARNING: RDRND generated:")) {
+                continue; // Discard this row
+            }
+            // Use a loop to ensure complete writing
+            size_t total = 0;
+            size_t remaining = strlen(line);
+            const char *buf = line;
+            while (total < remaining) {
+                ssize_t written = write(m_origStderr, buf + total, remaining - total);
+                if (written < 0) {
+                    if (errno == EINTR)
+                        continue; // Interrupted by signal, retry
+                    break; // Other errors, abandon writing
+                }
+                total += written;
+            }
+        }
+        free(line);
+        fclose(readEnd);
+    }
+
+private:
+    int m_origStderr;
+    int m_readFd;
+};
 
 bool distributionInfoValid() {
     return QFile::exists(DSysInfo::distributionInfoPath());
@@ -27,6 +77,16 @@ void printDistributionOrgInfo(DSysInfo::OrgType type) {
 
 int main(int argc, char *argv[])
 {
+    // Set filter
+    int origStderr = dup(STDERR_FILENO);
+    int pipefd[2];
+    pipe(pipefd);
+    dup2(pipefd[1], STDERR_FILENO);
+    close(pipefd[1]);
+
+    StderrFilterThread *filterThread = new StderrFilterThread(origStderr, pipefd[0]);
+    filterThread->start(); 
+
     QCoreApplication app(argc, argv);
     Q_UNUSED(app)
 
@@ -122,6 +182,13 @@ int main(int argc, char *argv[])
             printDistributionOrgInfo(DSysInfo::Distributor);
         }
     }
+
+    // clean
+    dup2(origStderr, STDERR_FILENO);  // Restore stderr
+    close(origStderr);
+
+    filterThread->wait();             
+    delete filterThread;
 
     return 0;
 }
