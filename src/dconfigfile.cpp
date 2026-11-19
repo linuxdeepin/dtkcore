@@ -949,6 +949,7 @@ public:
         dirs << overrideDirs(prefix, true);
         return dirs;
     }
+
     /*!
     @~english
       \internal
@@ -1207,7 +1208,7 @@ public:
         return QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix, configKey.appId));
     }
 
-    QString getCacheDir(const QString &localPrefix = QString())
+    QString getCacheDir(const QString &localPrefix = QString()) const
     {
         if (isGlobal()) {
             const QString &dir = globalCacheDir(localPrefix);
@@ -1655,6 +1656,98 @@ DConfigMeta *DConfigFile::meta()
 {
     D_D(DConfigFile);
     return d->configMeta;
+}
+
+/*!
+@~english
+    @brief Get all one-level subpaths for this config file
+    @details Aggregates subpaths from meta override dirs and global cache directory.
+    Scans allOverrideDirs (both with and without appId) for one-level child directories
+    that contain .json override files, and the global cache directory for one-level
+    child directories that contain the cache file. Results are deduplicated.
+    \a localPrefix Directory prefix
+    @return List of subpath strings, each prefixed with "/"
+ */
+QStringList DConfigFile::subpaths(const QString &localPrefix) const
+{
+    D_DC(DConfigFile);
+    QStringList result;
+    QSet<QString> seen;
+
+    // Scan meta override dirs (both with and without appId) for one-level child directories
+    for (bool useAppId : {true, false}) {
+        const QStringList dirs = d->configMeta->allOverrideDirs(useAppId, localPrefix);
+        for (const auto &dirPath : dirs) {
+            QDir dir(dirPath);
+            if (!dir.exists())
+                continue;
+            const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+            for (const auto &entry : entries) {
+                QDir subDir(dir.filePath(entry));
+                const QStringList jsonFiles = subDir.entryList(
+                    QStringList{"*" + FILE_SUFFIX}, QDir::Files | QDir::NoDotAndDotDot);
+                if (jsonFiles.isEmpty())
+                    continue;
+                const QString subpath = QString("/%1").arg(entry);
+                if (!seen.contains(subpath)) {
+                    seen.insert(subpath);
+                    result << subpath;
+                }
+            }
+        }
+    }
+
+    // Scan global cache directory for one-level child directories
+    const QStringList cacheSubs = cacheSubpaths(d->globalCache, localPrefix);
+    for (const auto &subpath : cacheSubs) {
+        if (!seen.contains(subpath)) {
+            seen.insert(subpath);
+            result << subpath;
+        }
+    }
+
+    return result;
+}
+
+/*!
+@~english
+    @brief Get one-level subpaths from a cache object
+    @details Scans the cache directory for one-level child directories that contain
+    the cache file ({fileName}.json).
+    \a cache Must be a DConfigCache object created by DConfigFile::createUserCache();
+    all DConfigCache instances created by dtkcore are DConfigCacheImpl, so the
+    static_cast is safe.
+    \a localPrefix Directory prefix
+    @return List of subpath strings, each prefixed with "/"
+ */
+QStringList DConfigFile::cacheSubpaths(const DConfigCache *cache, const QString &localPrefix)
+{
+    if (!cache)
+        return QStringList();
+
+    const auto *impl = static_cast<const DConfigCacheImpl *>(cache);
+    const QString baseDir = impl->getCacheDir(localPrefix);
+    if (baseDir.isEmpty())
+        return QStringList();
+
+    QDir dir(baseDir);
+    if (!dir.exists())
+        return QStringList();
+
+    QStringList result;
+    QSet<QString> seen;
+    const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const auto &entry : entries) {
+        QDir subDir(dir.filePath(entry));
+        if (!subDir.exists(impl->configKey.fileName + FILE_SUFFIX))
+            continue;
+        const QString subpath = QString("/%1").arg(entry);
+        if (!seen.contains(subpath)) {
+            seen.insert(subpath);
+            result << subpath;
+        }
+    }
+    return result;
 }
 
 /*!

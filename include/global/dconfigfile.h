@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -70,6 +70,9 @@ public:
     DConfigCache *globalCache() const;
 
     DConfigMeta *meta();
+
+    QStringList subpaths(const QString &localPrefix = QString()) const;
+    static QStringList cacheSubpaths(const DConfigCache *cache, const QString &localPrefix = QString());
 
 protected:
     friend QDebug operator<<(QDebug, const DConfigFile &);
