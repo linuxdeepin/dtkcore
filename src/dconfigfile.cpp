@@ -950,27 +950,6 @@ public:
         return dirs;
     }
 
-    QStringList subpaths(const QString &localPrefix = QString()) const override
-    {
-        QStringList result;
-        QSet<QString> seen;
-        // Scan override dirs (both with and without appId) for one-level child directories
-        for (bool useAppId : {true, false}) {
-            const QStringList dirs = allOverrideDirs(useAppId, localPrefix);
-            for (const auto &dirPath : dirs) {
-                QDir dir(dirPath);
-                if (!dir.exists())
-                    continue;
-                const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-                for (const auto &entry : entries) {
-                    const QString subpath = QString("/%1").arg(entry);
-                    if (seen.insert(subpath).second)
-                        result << subpath;
-                }
-            }
-        }
-        return result;
-    }
     /*!
     @~english
       \internal
@@ -1243,7 +1222,7 @@ public:
         }
     }
 
-    QStringList cacheSubpaths(const QString &localPrefix = QString()) const override
+    QStringList cacheSubpaths(const QString &localPrefix = QString()) const
     {
         QStringList result;
         QSet<QString> seen;
@@ -1696,6 +1675,88 @@ DConfigMeta *DConfigFile::meta()
 {
     D_D(DConfigFile);
     return d->configMeta;
+}
+
+/*!
+@~english
+    @brief Get all one-level subpaths for this config file
+    @details Aggregates subpaths from meta override dirs and global cache directory.
+    Scans allOverrideDirs (both with and without appId) and the global cache directory
+    for one-level child directories, deduplicating results.
+    \a localPrefix Directory prefix
+    @return List of subpath strings, each prefixed with "/"
+ */
+QStringList DConfigFile::subpaths(const QString &localPrefix) const
+{
+    D_DC(DConfigFile);
+    QStringList result;
+    QSet<QString> seen;
+
+    // Scan meta override dirs (both with and without appId) for one-level child directories
+    for (bool useAppId : {true, false}) {
+        const QStringList dirs = d->configMeta->allOverrideDirs(useAppId, localPrefix);
+        for (const auto &dirPath : dirs) {
+            QDir dir(dirPath);
+            if (!dir.exists())
+                continue;
+            const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+            for (const auto &entry : entries) {
+                const QString subpath = QString("/%1").arg(entry);
+                if (seen.insert(subpath).second)
+                    result << subpath;
+            }
+        }
+    }
+
+    // Scan global cache directory for one-level child directories
+    const QString cacheDir = d->globalCache->getCacheDir(localPrefix);
+    if (!cacheDir.isEmpty()) {
+        QDir dir(cacheDir);
+        if (dir.exists()) {
+            const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+            for (const auto &entry : entries) {
+                const QString subpath = QString("/%1").arg(entry);
+                if (seen.insert(subpath).second)
+                    result << subpath;
+            }
+        }
+    }
+
+    return result;
+}
+
+/*!
+@~english
+    @brief Get one-level subpaths from a cache object
+    @details Scans the cache directory for one-level child directories.
+    \a cache Must be a DConfigCache object created by DConfigFile::createUserCache()
+    \a localPrefix Directory prefix
+    @return List of subpath strings, each prefixed with "/"
+    @note The safety of the internal static_cast relies on the precondition that
+          all DConfigCache objects are created by DConfigFile::createUserCache().
+          Passing externally created DConfigCache subclasses is unsafe.
+ */
+QStringList DConfigFile::cacheSubpaths(const DConfigCache *cache, const QString &localPrefix)
+{
+    if (!cache)
+        return QStringList();
+
+    QStringList result;
+    QSet<QString> seen;
+    const auto *impl = static_cast<const DConfigCacheImpl *>(cache);
+    const QString baseDir = impl->getCacheDir(localPrefix);
+    if (baseDir.isEmpty())
+        return result;
+    QDir dir(baseDir);
+    if (!dir.exists())
+        return result;
+    const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const auto &entry : entries) {
+        const QString subpath = QString("/%1").arg(entry);
+        if (seen.insert(subpath).second)
+            result << subpath;
+    }
+    return result;
 }
 
 /*!

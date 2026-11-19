@@ -71,6 +71,9 @@ public:
 
     DConfigMeta *meta();
 
+    QStringList subpaths(const QString &localPrefix = QString()) const;
+    static QStringList cacheSubpaths(const DConfigCache *cache, const QString &localPrefix = QString());
+
 protected:
     friend QDebug operator<<(QDebug, const DConfigFile &);
 };
@@ -97,8 +100,6 @@ public:
     virtual QString metaPath(const QString &localPrefix = QString(), bool *useAppId = nullptr) const = 0;
     virtual QStringList allOverrideDirs(const bool useAppId, const QString &prefix = QString()) const = 0;
 
-    virtual QStringList subpaths(const QString &localPrefix = QString()) const { return {}; }
-
     virtual QVariant value(const QString &key) const = 0;
     static QStringList genericMetaDirs(const QString &localPrefix = QString());
     static QStringList applicationMetaDirs(const QString &localPrefix, const QString &appId);
@@ -122,8 +123,6 @@ public:
     virtual uint uid() const = 0;
 
     virtual void setCachePathPrefix(const QString &prefix) = 0;
-
-    virtual QStringList cacheSubpaths(const QString &localPrefix = QString()) const { return {}; }
 };
 
 #ifndef QT_NO_DEBUG_STREAM
