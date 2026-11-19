@@ -1732,9 +1732,8 @@ QStringList DConfigFile::subpaths(const QString &localPrefix) const
     \a cache Must be a DConfigCache object created by DConfigFile::createUserCache()
     \a localPrefix Directory prefix
     @return List of subpath strings, each prefixed with "/"
-    @note The safety of the internal static_cast relies on the precondition that
-          all DConfigCache objects are created by DConfigFile::createUserCache().
-          Passing externally created DConfigCache subclasses is unsafe.
+    @note Uses dynamic_cast with a null check so that passing externally created
+          DConfigCache subclasses is safe (returns an empty list).
  */
 QStringList DConfigFile::cacheSubpaths(const DConfigCache *cache, const QString &localPrefix)
 {
@@ -1743,7 +1742,9 @@ QStringList DConfigFile::cacheSubpaths(const DConfigCache *cache, const QString 
 
     QStringList result;
     QSet<QString> seen;
-    const auto *impl = static_cast<const DConfigCacheImpl *>(cache);
+    const auto *impl = dynamic_cast<const DConfigCacheImpl *>(cache);
+    if (!impl)
+        return result;
     const QString baseDir = impl->getCacheDir(localPrefix);
     if (baseDir.isEmpty())
         return result;
