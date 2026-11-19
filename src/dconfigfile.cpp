@@ -1235,8 +1235,10 @@ public:
         const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         for (const auto &entry : entries) {
             const QString subpath = QString("/%1").arg(entry);
-            if (seen.insert(subpath).second)
+            if (!seen.contains(subpath)) {
+                seen.insert(subpath);
                 result << subpath;
+            }
         }
         return result;
     }
@@ -1702,8 +1704,10 @@ QStringList DConfigFile::subpaths(const QString &localPrefix) const
             const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
             for (const auto &entry : entries) {
                 const QString subpath = QString("/%1").arg(entry);
-                if (seen.insert(subpath).second)
+                if (!seen.contains(subpath)) {
+                    seen.insert(subpath);
                     result << subpath;
+                }
             }
         }
     }
@@ -1716,8 +1720,10 @@ QStringList DConfigFile::subpaths(const QString &localPrefix) const
             const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
             for (const auto &entry : entries) {
                 const QString subpath = QString("/%1").arg(entry);
-                if (seen.insert(subpath).second)
+                if (!seen.contains(subpath)) {
+                    seen.insert(subpath);
                     result << subpath;
+                }
             }
         }
     }
@@ -1754,8 +1760,10 @@ QStringList DConfigFile::cacheSubpaths(const DConfigCache *cache, const QString 
     const QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (const auto &entry : entries) {
         const QString subpath = QString("/%1").arg(entry);
-        if (seen.insert(subpath).second)
+        if (!seen.contains(subpath)) {
+            seen.insert(subpath);
             result << subpath;
+        }
     }
     return result;
 }
