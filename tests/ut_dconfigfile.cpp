@@ -329,6 +329,39 @@ TEST_F(ut_DConfigFile, fileOverride) {
     }
 }
 
+TEST_F(ut_DConfigFile, fileOverrideMissingSubpath) {
+    FileCopyGuard meta(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
+    FileCopyGuard rootOverride(":/data/dconf-example.override.json", QString("%1/%2.json").arg(overridePath, FILE_NAME));
+
+    {
+        DConfigFile config(APP_ID, FILE_NAME, "/missing/username");
+        ASSERT_TRUE(config.load(LocalPrefix));
+        EXPECT_EQ(config.meta()->value("key3").toString(), QString("override"));
+    }
+
+    FileCopyGuard parentOverride(":/data/dconf-override/dconf-example.override.a.json", QString("%1/a/%2.json").arg(overridePath, FILE_NAME));
+    ASSERT_FALSE(QDir(overridePath + "/a/b").exists());
+    for (const QString &subpath : {QString("/a/b"), QString("/a/b/username")}) {
+        SCOPED_TRACE(subpath.toStdString());
+        DConfigFile config(APP_ID, FILE_NAME, subpath);
+        ASSERT_TRUE(config.load(LocalPrefix));
+        EXPECT_EQ(config.meta()->value("key3").toString(), QString("override /a"));
+    }
+
+    // An existing leaf without override files must also inherit its parent.
+    ASSERT_TRUE(QDir().mkpath(overridePath + "/a/b"));
+    {
+        DConfigFile config(APP_ID, FILE_NAME, "/a/b");
+        ASSERT_TRUE(config.load(LocalPrefix));
+        EXPECT_EQ(config.meta()->value("key3").toString(), QString("override /a"));
+    }
+
+    FileCopyGuard leafOverride(":/data/dconf-override/dconf-example.override.a.b.json", QString("%1/a/b/%2.json").arg(overridePath, FILE_NAME));
+    DConfigFile config(APP_ID, FILE_NAME, "/a/b/username");
+    ASSERT_TRUE(config.load(LocalPrefix));
+    EXPECT_EQ(config.meta()->value("key3").toString(), QString("override /a/b"));
+}
+
 TEST_F(ut_DConfigFile, fileOverrideNoExistItem) {
 
     FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));
