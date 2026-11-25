@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 - 2023 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2021 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
@@ -96,8 +96,8 @@ public:
 
     virtual QString metaPath(const QString &localPrefix = QString(), bool *useAppId = nullptr) const = 0;
     virtual QStringList allOverrideDirs(const bool useAppId, const QString &prefix = QString()) const = 0;
-
     virtual QVariant value(const QString &key) const = 0;
+    virtual QStringList subpaths(const QString &localPrefix = QString()) const;
     static QStringList genericMetaDirs(const QString &localPrefix = QString());
     static QStringList applicationMetaDirs(const QString &localPrefix, const QString &appId);
 };
@@ -120,6 +120,8 @@ public:
     virtual uint uid() const = 0;
 
     virtual void setCachePathPrefix(const QString &prefix) = 0;
+
+    virtual QStringList subpathList(const QString &localPrefix = QString()) const;
 };
 
 #ifndef QT_NO_DEBUG_STREAM
