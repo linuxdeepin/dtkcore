@@ -329,6 +329,39 @@ TEST_F(ut_DConfigFile, fileOverride) {
     }
 }
 
+TEST_F(ut_DConfigFile, subpathsIncludesNestedOverrides) {
+    const QString source = ":/data/dconf-example.override.json";
+    FileCopyGuard root(source, overridePath + "/root.json");
+    FileCopyGuard parent(source, overridePath + "/a/parent.json");
+    FileCopyGuard leaf(source, overridePath + "/a/b/c/leaf.json");
+    FileCopyGuard duplicate(source, noAppidOverridePath + "/a/common.json");
+    FileCopyGuard generic(source, noAppidOverridePath + "/generic/child/value.json");
+    FileCopyGuard other(source, overridePath + "/other/value.txt");
+
+    DConfigFile config(APP_ID, FILE_NAME);
+    const QStringList expected{"/a", "/a/b/c", "/generic/child"};
+    EXPECT_EQ(config.meta()->subpaths(LocalPrefix), expected);
+}
+
+TEST_F(ut_DConfigFile, cacheSubpathsIncludesOnlyMatchingNestedFiles) {
+    DConfigFile config(APP_ID, FILE_NAME);
+    QScopedPointer<DConfigCache> userCache(config.createUserCache(uid));
+    const QString source = ":/data/dconf-example.override.json";
+    const QString filename = QString(FILE_NAME) + ".json";
+    for (auto cache : {config.globalCache(), userCache.data()}) {
+        const QString prefix = cache->isGlobal() ? "/global" : "/user";
+        cache->setCachePathPrefix(prefix);
+        const QString root = QString(LocalPrefix) + prefix + "/" + APP_ID;
+        FileCopyGuard rootFile(source, root + "/" + filename);
+        FileCopyGuard parent(source, root + "/a/" + filename);
+        FileCopyGuard nested(source, root + "/a/b/c/" + filename);
+        FileCopyGuard other(source, root + "/other/different.json");
+
+        const QStringList expected{"/a", "/a/b/c"};
+        EXPECT_EQ(cache->subpaths(LocalPrefix), expected);
+    }
+}
+
 TEST_F(ut_DConfigFile, fileOverrideNoExistItem) {
 
     FileCopyGuard guard(":/data/dconf-example.meta.json", QString("%1/%2.json").arg(metaPath, FILE_NAME));

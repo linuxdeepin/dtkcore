@@ -121,7 +121,7 @@ public:
 
     virtual void setCachePathPrefix(const QString &prefix) = 0;
 
-    virtual QStringList subpathList(const QString &localPrefix = QString()) const;
+    virtual QStringList subpaths(const QString &localPrefix = QString()) const;
 };
 
 #ifndef QT_NO_DEBUG_STREAM
