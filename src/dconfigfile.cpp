@@ -984,8 +984,10 @@ public:
             target_dir.setFilter(filters);
             target_dir.setNameFilters(nameFilters);
 
-            if (!configKey.subpath.isEmpty())
-                target_dir.cd(configKey.subpath.mid(1));
+            // Start at the deepest existing subdirectory before walking back up.
+            QString subpath = QDir::cleanPath(configKey.subpath);
+            while (subpath.size() > 1 && !target_dir.cd(subpath.mid(1)))
+                subpath.truncate(subpath.lastIndexOf(QLatin1Char('/')));
 
             do {
                 qCDebug(cfLog, "load override file from: \"%s\"", qPrintable(target_dir.path()));
