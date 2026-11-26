@@ -359,6 +359,51 @@ QStringList DConfigMeta::applicationMetaDirs(const QString &localPrefix, const Q
 
 Dtk::Core::DConfigCache::~DConfigCache() {}
 
+template<typename MatchesDirectory>
+static QStringList collectSubpaths(const QStringList &dirs, const QString &subpath, MatchesDirectory matchesDirectory)
+{
+    QStringList result;
+
+    for (const auto &dirPath : dirs) {
+        if (dirPath.isEmpty())
+            continue;
+        const QDir base(dirPath);
+        const QDir root(base.filePath(subpath.mid(1)));
+        if (!root.exists() || !isPathInDirectory(root.canonicalPath(), base.canonicalPath()))
+            continue;
+        QDirIterator subdirs(root.absolutePath(), QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+        while (subdirs.hasNext()) {
+            const QDir subdir(subdirs.next());
+            if (matchesDirectory(subdir)) {
+                const QString path = "/" + root.relativeFilePath(subdir.absolutePath());
+                if (!result.contains(path))
+                    result.append(path);
+            }
+        }
+    }
+
+    result.sort();
+    return result;
+}
+
+static QStringList overrideSubpaths(const DConfigMeta &meta, const QString &localPrefix, const QString &subpath)
+{
+    bool useAppId = false;
+    if (meta.metaPath(localPrefix, &useAppId).isEmpty())
+        return {};
+
+    const QStringList filters{"*" + FILE_SUFFIX};
+    return collectSubpaths(meta.allOverrideDirs(useAppId, localPrefix), subpath, [&filters](const QDir &dir) {
+        return !dir.entryList(filters, QDir::Files).isEmpty();
+    });
+}
+
+QStringList DConfigCache::subpaths(const QString &localPrefix) const
+{
+    Q_UNUSED(localPrefix)
+    return QStringList();
+}
+
 struct DConfigKey {
     DConfigKey(const QString &aappId, const QString &afileName, const QString &asubpath)
         : appId(aappId),
@@ -937,6 +982,11 @@ public:
         return paths;
     }
 
+    QStringList subpaths(const QString &localPrefix) const override
+    {
+        return overrideSubpaths(*this, localPrefix, configKey.subpath);
+    }
+
     inline QStringList allOverrideDirs(const bool useAppId, const QString &prefix) const override
     {
         QStringList dirs;
@@ -949,6 +999,7 @@ public:
         dirs << overrideDirs(prefix, true);
         return dirs;
     }
+
     /*!
     @~english
       \internal
@@ -1209,7 +1260,7 @@ public:
         return QDir::cleanPath(QString("%1/%2/%3").arg(localPrefix, prefix, configKey.appId));
     }
 
-    QString getCacheDir(const QString &localPrefix = QString())
+    QString getCacheDir(const QString &localPrefix = QString()) const
     {
         if (isGlobal()) {
             const QString &dir = globalCacheDir(localPrefix);
@@ -1259,6 +1310,14 @@ public:
     virtual void setCachePathPrefix(const QString &prefix) override
     {
         cachePrefix = prefix;
+    }
+
+    QStringList subpaths(const QString &localPrefix = QString()) const override
+    {
+        const QString filename = configKey.fileName + FILE_SUFFIX;
+        return collectSubpaths({getCacheDir(localPrefix)}, configKey.subpath, [&filename](const QDir &dir) {
+            return QFileInfo(dir.filePath(filename)).isFile();
+        });
     }
 
     DConfigKey configKey;
@@ -1657,6 +1716,20 @@ DConfigMeta *DConfigFile::meta()
 {
     D_D(DConfigFile);
     return d->configMeta;
+}
+
+
+/*!
+@~english
+    @brief Get all subpaths from meta override dirs
+    @details Selects override directories using the metadata lookup, as when
+    loading the configuration, then scans them for descendant override files.
+    \a localPrefix Directory prefix
+    @return Sorted list of unique subpaths relative to the current configuration subpath, each prefixed with "/"
+ */
+QStringList DConfigMeta::subpaths(const QString &localPrefix) const
+{
+    return overrideSubpaths(*this, localPrefix, QString());
 }
 
 /*!

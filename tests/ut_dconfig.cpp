@@ -62,6 +62,20 @@ TEST_F(ut_DConfig, isValid) {
     ASSERT_TRUE(config.isValid());
 }
 
+TEST_F(ut_DConfig, subpaths)
+{
+    FileCopyGuard meta(":/data/dconf-example.meta.json", metaFilePath);
+    const auto base = QString("%1" PREFIX "/share/dsg/configs/overrides/%2/%3")
+                          .arg(fileBackendLocalPerfix.value(), APP_ID, FILE_NAME);
+    QScopedPointer<DConfig> config(DConfig::create(APP_ID, FILE_NAME, "/a"));
+    ASSERT_TRUE(config->isValid());
+    EXPECT_TRUE(config->subpaths().isEmpty());
+
+    FileCopyGuard leaf(":/data/dconf-example.override.json", base + "/a/b/c/value.json");
+    EXPECT_EQ(config->subpaths(), QStringList{"/b/c"});
+    EXPECT_EQ(config->property("subpaths").toStringList(), QStringList{"/b/c"});
+}
+
 TEST_F(ut_DConfig, value) {
 
     FileCopyGuard guard(":/data/dconf-example.meta.json", metaFilePath);

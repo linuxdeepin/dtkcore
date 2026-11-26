@@ -235,6 +235,20 @@ public:
         return configFile->meta()->keyList();
     }
 
+    QStringList subpaths() const
+    {
+        const auto prefix = localPrefix();
+        auto paths = configFile->meta()->subpaths(prefix);
+        for (auto cache : {configFile->globalCache(), configCache.data()}) {
+            for (const auto &path : cache->subpaths(prefix)) {
+                if (!paths.contains(path))
+                    paths.append(path);
+            }
+        }
+        paths.sort();
+        return paths;
+    }
+
     virtual QVariant value(const QString &key, const QVariant &fallback) const override
     {
         const QVariant &vc = configFile->cacheValue(configCache.get(), key);
@@ -393,6 +407,7 @@ public:
                 return false;
             } else {
                 QObject::connect(config, &DSGConfigManager::valueChanged, owner->q_func(), &DConfig::valueChanged);
+                QObject::connect(config, &DSGConfigManager::subpathsChanged, owner->q_func(), &DConfig::subpathsChanged);
             }
         }
         return true;
@@ -401,6 +416,11 @@ public:
     virtual QStringList keyList() const override
     {
         return config->keyList();
+    }
+
+    QStringList subpaths() const
+    {
+        return config->subpaths();
     }
 
     static QVariant decodeQDBusArgument(const QVariant &v)
@@ -924,6 +944,30 @@ QString DConfig::subpath() const
 {
     D_DC(DConfig);
     return d->subpath;
+}
+
+/*!
+@~english
+ * @brief Returns the available descendant paths relative to this configuration.
+ * @details Each entry starts with a slash. The D-Bus backend emits subpathsChanged()
+ * when the manager reports a new list. The file backend reads the list on demand.
+ * Backends without subpath support return an empty list.
+ */
+QStringList DConfig::subpaths() const
+{
+    D_DC(DConfig);
+    if (d->invalid())
+        return {};
+
+#ifndef D_DISABLE_DCONFIG
+#ifndef D_DISABLE_DBUS_CONFIG
+    if (const auto backend = dynamic_cast<const DBusBackend *>(d->backend.data()))
+        return backend->subpaths();
+#endif
+    if (const auto backend = dynamic_cast<const FileBackend *>(d->backend.data()))
+        return backend->subpaths();
+#endif
+    return {};
 }
 
 DCORE_END_NAMESPACE
