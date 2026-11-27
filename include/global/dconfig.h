@@ -33,6 +33,7 @@ class LIBDTKCORESHARED_EXPORT DConfig : public QObject, public DObject
     D_DECLARE_PRIVATE(DConfig)
 
     Q_PROPERTY(QStringList keyList READ keyList CONSTANT FINAL)
+    Q_PROPERTY(QStringList subpaths READ subpaths NOTIFY subpathsChanged FINAL)
 
 public:
     explicit DConfig(const QString &name, const QString &subpath = QString(),
@@ -71,9 +72,11 @@ public:
 
     QString name() const;
     QString subpath() const;
+    QStringList subpaths() const;
 
 Q_SIGNALS:
     void valueChanged(const QString &key);
+    void subpathsChanged();
 
 private:
     explicit DConfig(DConfigBackend *backend, const QString &appId, const QString &name, const QString &subpath,

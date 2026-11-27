@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
+SPDX-FileCopyrightText: 2022 - 2026 UnionTech Software Technology Co., Ltd.
 
 SPDX-License-Identifier: LGPL-3.0-or-later
 -->
@@ -9,6 +9,7 @@ SPDX-License-Identifier: LGPL-3.0-or-later
 <interface name='org.desktopspec.ConfigManager.Manager'>
     <property access="read" type="s" name="version"/>
     <property access="read" type="as" name="keyList"/>
+    <property access="read" type="as" name="subpaths"/>
     <method name='value'>
       <arg type='s' name='key' direction='in'/>
       <arg type='v' name='value' direction='out'/>
@@ -48,4 +49,5 @@ SPDX-License-Identifier: LGPL-3.0-or-later
     <signal name="valueChanged">
       <arg name="key" type="s" direction="out"/>'
     </signal>
+    <signal name="subpathsChanged"/>
 </interface>
